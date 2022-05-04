@@ -1,0 +1,2404 @@
+
+hbm,java类必须序列化？mybatis呢？
+
+doBegin
+doCommit
+
+
+
+
+
+@Entity
+@Table(name = "t_student")
+@Domain(name = "学生")
+@Generated
+@DataIdentify(identifies = "number")
+public class Student extends BaseDomain<Student> implements Addable, Modifiable<Student>, Deletable {
+    private String name;
+    private String number;
+    private Sex sex;
+
+    @Basic
+    @NotSemanticNull(groups = {Groups.Add.class, Groups.Update.class})
+    @Property(name = "姓名")
+    public String getName() {
+        return name;
+    }
+
+}
+
+
+类级别的注解
+@Entity     映射实体类
+@Table      映射数句库表
+
+@Entity(name = "tableName") - 必须，注解将一个类声明为一个实体bean，即指出该Java 类为实体类，将映射到指定的数据库表
+name - 可选，对应数据库中的一个表。若表名与实体类名相同，则可以省略
+。。？name好像不是这样的，好像只是可以类似用来hql的类名
+
+@Table(name = "", catalog = "", schema = "")  - 可选，通常和@Entity 配合使用，只能标注在实体的 class 定义处，表示实体对应的数据库表的信息
+name - 可选，表示表的名称，默认的表名和实体名称一致，只有在不一致的情况下才需要指定表名
+catalog - 可选，表示Catalog 名称，默认为 Catalog("")
+schema - 可选 , 表示 Schema 名称 , 默认为Schema("")
+。。catalog是schema的上级，不过好像很多数据库不支持
+
+
+属性级别的注解
+@Id                                 映射生成主键
+@GeneratedValue         定义主键生成策略
+@SequenceGenerator  声明了一个数据库序列
+@Version                       定义乐观锁
+@Basic                           声明属性的存取策略
+@Column                       映射表的列
+@Transient                    定义暂态属性
+属性级别的注解，都是放在其对应的getter前。
+
+
+与主键相关注解
+@Id - 必须，定义了映射到数据库表的主键的属性，一个实体只能有一个属性被映射为主键，置于 getXxx() 前
+@GeneratedValue(strategy = GenerationType , generator="") - 可选，用于定义主键生成策略
+
+属性：
+strategy - 表示主键生成策略，取值有：
+GenerationType.AUTO 根据底层数据库自动选择（默认），若数据库支持自动增长类型，则为自动增长
+GenerationType.INDENTITY 根据数据库的Identity字段生成，支持DB2、MySQL、MS、SQL Server、SyBase与HyperanoicSQL数据库的Identity类型主键
+GenerationType.SEQUENCE 使用Sequence来决定主键的取值，适合Oracle、DB2等支持Sequence的数据库，一般结合@SequenceGenerator使用（Oracle没有自动增长类型，只能用Sequence）
+GenerationType.TABLE  使用指定表来决定主键取值，结合@TableGenerator使用
+
+generator - 表示主键生成器的名称，这个属性通常和ORM框架相关 , 例如：Hibernate 可以指定 uuid 等主键生成方式
+
+@SequenceGenerator — 注解声明了一个数据库序列
+属性：
+name - 表示该表主键生成策略名称，它被引用在@GeneratedValue中设置的“gernerator”值中
+sequenceName - 表示生成策略用到的数据库序列名称
+initialValue - 表示主键初始值，默认为0
+allocationSize - 每次主键值增加的大小，例如设置成1，则表示每次创建新记录后自动加1，默认为50
+
+与非主键相关注解
+@Version - 可以在实体bean中使用@Version注解，通过这种方式可添加对乐观锁定的支持（见参考链接）
+@Basic - 用于声明属性的存取策略：
+    @Basic(fetch=FetchType.EAGER)   即时获取（默认的存取策略）
+    @Basic(fetch=FetchType.LAZY)       延迟获取
+
+@Column - 可将属性映射到列，使用该注解来覆盖默认值，@Column描述了数据库表中该字段的详细定义
+    属性：
+    name - 可选，表示数据库表中该字段的名称，默认情形属性名称一致
+    nullable - 可选，表示该字段是否允许为 null，默认为 true
+    unique - 可选，表示该字段是否是唯一标识，默认为 false
+    length - 可选，表示该字段的大小，仅对 String 类型的字段有效，默认值255
+    insertable - 可选，表示在ORM框架执行插入操作时，该字段是否应出现INSETRT语句中，默认为 true
+    updateable - 可选，表示在ORM 框架执行更新操作时，该字段是否应该出现在UPDATE 语句中，默认为 true。对于一经创建就不可以更改的字段，该属性非常有用，如对于 birthday 字段
+    columnDefinition - 可选，表示该字段在数据库中的实际类型。通常ORM 框架可以根据属性类型自动判断数据库中字段的类型，但是对于Date 类型仍无法确定数据库中字段类型究竟是 DATE,TIME 还是 TIMESTAMP. 此外 ,String 的默认映射类型为 VARCHAR, 如果要将 String 类型映射到特定数据库的 BLOB或 TEXT 字段类型，该属性非常有用
+
+@Transient - 可选，表示该属性并非一个到数据库表的字段的映射，ORM框架将忽略该属性，如果一个属性并非数据库表的字段映射，就务必将其标示为@Transient，否则ORM框架默认其注解为 @Basic
+
+
+映射实体类的关联关系
+单向一对多：一方有集合属性，包含多个多方，而多方没有一方的引用。用户--->电子邮件
+单向多对一：多方有一方的引用，一方没有多方的引用。论文类别---> 类别
+双向一对多：两边都有多方的引用，方便查询。班级---> 学生
+双向多对一：两边都有多方的引用，方便查询。
+单向多对多：需要一个中间表来维护两个实体表。论坛--->文章
+单向一对一：数据唯一，数据库数据也是一对一。舰船---> 水手
+主键相同的一对一：使用同一个主键，省掉外键关联。客户---> 地址
+
+
+关联映射的一些共有属性
+@JoinColumn - 可选，用于描述一个关联的字段。@JoinColumn和@Column类似，介量描述的不是一个简单字段，而是一个关联字段，例如描述一个 @ManyToOne 的字段。（即用来定义外键在我们这个表中的属性名，例如实体Order有一个User user属性来关联实体User，则Order的user属性为一个外键）
+属性：
+name - 该字段的名称，由于@JoinColumn描述的是一个关联字段，如ManyToOne, 则默认的名称由其关联的实体决定
+
+@OneToOne、@OneToMany、@ManyToOne、ManyToMany 的共有属性：
+fetch - 配置加载方式。取值有：
+Fetch.EAGER -  及时加载，多对一默认是Fetch.EAGER 
+Fetch.LAZY - 延迟加载，一对多默认是Fetch.LAZY
+cascade - 设置级联方式，取值有：
+CascadeType.PERSIST - 保存  - 调用JPA规范中的persist()，不适用于Hibernate的save()方法
+CascadeType.REMOVE - 删除  - 调用JPA规范中的remove()时，适用于Hibernate的delete()方法
+CascadeType.MERGE - 修改  - 调用JPA规范中merge()时，不适用于Hibernate的update()方法 
+CascadeType.REFRESH - 刷新  - 调用JPA规范中的refresh()时，适用于Hibernate的flush()方法
+CascadeType.ALL - 全部  - JPA规范中的所有持久化方法
+
+targetEntity - 配置集合属性类型，如：@OneToMany(targetEntity=Book.class)
+
+
+@OneToOne – 表示一个一对一的映射
+
+主表类A与从表类B的主键值相对应
+主表：
+@OneToOne(cascade = CascadeType.ALL)
+@PrimaryKeyJoinColumn
+public B getB(){
+  return b;
+}
+从表：无   
+
+主表A中有一个从表属性是B类型的b
+主表：
+@OneToOne(cascade = CascadeType.ALL)
+@JoinColumn(name="主表外键")   //这里指定的是数据库中的外键字段。
+public B getB(){
+  return b;
+}
+从表：无
+
+主表A中有一个从表属性是B类型的b，同时，从表B中有一个主表属性是A类型的a
+主表：
+@OneToOne(cascade = CascadeType.ALL)
+@JoinColumn(name="主表外键")   //这里指定的是数据库中的外键字段。
+public B getB(){
+  return b;
+}
+从表：
+@OneToOne(mappedBy = "主表类中的从表属性")
+public 主表类 get主表类(){
+  return 主表对象
+}
+
+
+@ManyToOne - 表示一个多对一的映射，该注解标注的属性通常是数据库表的外键
+
+单向多对一：多方有一方的引用，一方没有多方的引用
+在多方
+@ManyToOne(targetEntity=XXXX.class)   //指定关联对象
+@JoinColumn(name="")                 //指定产生的外键字段名
+
+
+双向多对一：配置方式同双向一对多
+
+// 示例
+// 订单 Order 和用户 User 是一个 ManyToOne 的关系
+// 在 Order 类中定义
+@ManyToOne()
+@JoinColumn(name="USER")
+public User getUser() {
+  return user;
+}
+
+
+@OneToMany - 描述一个一对多的关联，该属性应该为集合类型，在数据库中并没有实际字段
+单向一对多：一方有集合属性，包含多个多方，而多方没有一方的引用
+@OneToMany  默认会使用连接表做一对多关联
+添加@JoinColumn(name="xxx_id") 后，就会使用外键关联，而不使用连接表了
+双向一对多：
+1）在多方
+@ManyToOne
+@JoinColumn(name="自己的数据库外键列名")
+
+2）在一方
+@OneToMany(mappedBy="多端的关联属性名") //mappedBy相当于inverse，维护外键的控制权，不能和JoinColumn同时使用.=后面是本类在另一方的字段名
+
+@JoinColumn(name="对方的数据库外键列名")
+
+注意：对于外键的维护，如果是双向一对多，希望双方均可以维护外键，则不能使用mappedBy，而应该双方都使用@JoinColumn
+
+
+@ManyToMany - 可选，描述一个多对多的关联
+属性：
+targetEntity - 表示多对多关联的另一个实体类的全名，例如：package.Book.class
+mappedBy - 用在双向关联中，把关系的维护权翻转。  
+  
+单向多对多关联：
+在主控方加入@ManyToMany注解即可。
+
+双向多对多关联：
+两个实体间互相关联的属性必须标记为@ManyToMany，并相互指定targetEntity属性。
+有且只有一个实体的@ManyToMany注解需要指定mappedBy属性，指向targetEntity的集合属性名称。
+。。看更多的是，一方mappedBy放弃维护关系，另一方多一个JoinTable指定中间表，joinColumns指定自己的主键，inverse指定放弃维护关系的类的主键。。xxxcolumns不写就是默认主键。而且是columns，s。。
+。。还有一个是，两边都没有mapped，都有@JoinTable。
+。。test。。
+。。还看到：如果两端都维护，那么拆成2个one-to-many.。。但是怎么拆。。这个是，增加一个中间类，原来的类都是one-2-N,N是中间类，中间类是N-2-1，指向原来的2个类。
+
+关联映射的其他补充
+@JoinTable其实同时也是配合@ManyToMany使用的，@ManyToMany注释表示该对象是多对多关系的一端，然后利用@JoinTable来定义关联关系（利用中间表来建立联系，原因戳这里），其中name属性指定中间表名称，joinColumns定义中间表与该表的外键关系，inverseJoinColumns属性定义了中间表与另外一端的外键关系。
+
+@JoinTable - 定义关联表， 该关联表包含了指回实体表的外键(通过@JoinTable.joinColumns) 以及指向目标实体表的外键(通过@JoinTable.inverseJoinColumns)
+
+如下表示：该属性对应字段为"resource_type"，该字段实际在另外一张名"r_role_x_resource_type"表中，与该表（"p_role"）通过"role_id"进行外键链接
+（class Role --> table "p_role"）
+@ElementCollection
+@JoinTable(name = "r_role_x_resource_type", joinColumns = @JoinColumn(name = "role_id"))
+@Column(name = "resource_type")
+@JSONField(serialize = false)
+@Cache(usage = CacheConcurrencyStrategy.NONE)
+public List<Class<? extends Resourceable>> getResourceTypeList() {
+    return resourceTypeList;
+}
+
+。。test。。
+ElementCollection，javaapi上写的，只能用于a basic type or embeddable class。。基础类型和内嵌类型。。
+。。主要用来标记FetchType，因为基础类型和内嵌类型是没有N-2-1这种关系的，所以只能特意写上FetchType。
+
+
+如下表示：关联的表为“r_role_x_permission"，其中关联外键为"role_id"，该表又通过"permission_id"链接第三张表，即目标实体表
+（class Role --> table "p_role"）
+@ManyToMany
+@JoinTable(name = "r_role_x_permission", joinColumns = @JoinColumn(name = "role_id"),
+    inverseJoinColumns = @JoinColumn(name = "permission_id"))
+public List<Permission> getPermissionList() {
+    return permissionList;
+}
+
+
+@DiscriminatorValue - 一张表对应一整棵类继承树时，该类别对应的“表part”
+对于”父类“，即准备用来囊括所有内容的那个表，我们需要定义这个对应的类为 @DiscriminatorColumn(name = "xxx", discriminatorType = DiscriminatorType.xxx) ，这里的name就是指定表中用来区别各类内容的字段，而对于”子类“，我们需要注解标明@DiscriminatorValue(xxx)，这里的xxx即对应了父类中的 “区别用字段” 里的标识。
+假如我们希望将Animal和Cat的内容都只存储在Animal这张表里，那么为了区分内容，我们对于Animal这个表新增某字段如 type；Animal的类，注解为@DiscriminatorColumn(name = "type", discriminatorType = DiscriminatorType.STRING) ，同时设置@DiscriminatorValue("animal")；Cat extends Animal，Cat的类，注解为@DiscriminatorValue(“cat")；那么Animal这个表中，字段type中，为animal的元组映射Animal类，为cat的元组映射Cat类。
+
+
+@Transient
+如果某个属性不需要被持久化，可以加上 @javax.persistence.Transient 注解或者使用 java 的 transient 关键字。
+
+@Lob
+实体BLOB、CLOB类型的注解：
+
+BLOB类型属性声明为byte[]或者java.sql.Blob，多用来直接将文件存储在数据库字段中（如图片）；
+CLOB类型的属性声明为String或java.sql.Clob 
+
+
+
+
+
+
+
+
+
+
+
+
+
+// 如果我们当前这个bean要设置成实体对象，就需要加上Entity这个注解
+@Entity
+// 设置数据库的表名
+@Table(name="t_user")
+public class User
+{
+    private int id;
+    private String username;
+    private String password;
+    private Date born;
+    private Date registerDate;
+
+	//Column中的name属性对应了数据库的该字段名字，里面还有其他属性，例如length，nullable等等
+    @Column(name="register_date")
+    public Date getRegisterDate()
+    {
+        return registerDate;
+    }
+    public void setRegisterDate(Date registerDate)
+    {
+        this.registerDate = registerDate;
+    }
+
+	//定义为数据库的主键ID　　(建议不要在属性上引入注解，因为属性是private的，如果引入注解会破坏其封装特性，所以建议在getter方法上加入注解)
+    @Id
+	// ID的生成策略为自动生成　　
+    @GeneratedValue
+    public int getId()
+    {
+        return id;
+    }
+    public void setId(int id)
+    {
+        this.id = id;
+    }
+}
+
+最后只需要在hibernate.cfg.xml文件里面将该实体类加进去即可：
+<!-- 基于annotation的配置 -->
+<mapping class="com.xiaoluo.bean.User"/>
+<!-- 基于hbm.xml配置文件 -->
+<mapping resource="com/xiaoluo/bean/User.hbm.xml"/>
+
+
+一对多的映射(one-to-many)
+这里我们定义了两个实体类，一个是ClassRoom，一个是Student，这两者是一对多的关联关系。
+
+public class Class Room {
+
+//OneToMany指定了一对多的关系，mappedBy="room"指定了由多的那一方来维护关联关系，mappedBy指的是多的一方对1的这一方的依赖的属性，(注意：如果没有指定由谁来维护关联关系，则系统会给我们创建一张中间表)
+	@OneToMany(mappedBy="room")
+//LazyCollection属性设置成EXTRA指定了当如果查询数据的个数时候，只会发出一条 count(*)的语句，提高性能
+    @LazyCollection(LazyCollectionOption.EXTRA)
+    public Set<Student> getStudents()
+    {
+        return students;
+    }
+
+}
+。。mappedBy是这样的？这个room应该是某张表上的列吧？.no,下面的rid才是列。这个room是什么？mappedBy是什么？
+
+public class Student
+{
+//ManyToOne指定了多对一的关系，fetch=FetchType.LAZY属性表示在多的那一方通过延迟加载的方式加载对象(默认不是延迟加载)
+    @ManyToOne(fetch=FetchType.LAZY)
+	//通过 JoinColumn 的name属性指定了外键的名称 rid　(注意：如果我们不通过JoinColum来指定外键的名称，系统会给我们声明一个名称)
+    @JoinColumn(name="rid")
+    public ClassRoom getRoom()
+    {
+        return room;
+    }
+	
+}
+
+
+一对一映射(One-to-One)
+一对一关系这里定义了一个Person对象以及一个IDCard对象
+
+@Entity
+@Table(name="t_person")
+public class Person
+{
+
+	//指定了OneToOne的关联关系，mappedBy同样指定由对方来进行维护关联关系
+    @OneToOne(mappedBy="person")
+    public IDCard getCard()
+    {
+        return card;
+    }
+}
+
+@Entity
+@Table(name="t_id_card")
+public class IDCard
+{
+
+	//OnetoOne指定了一对一的关联关系，一对一中随便指定一方来维护映射关系，这里选择IDCard来进行维护
+    @OneToOne
+    @JoinColumn(name="pid")　	// 指定外键的名字 pid
+    public Person getPerson()
+    {
+        return person;
+    }
+
+}
+
+在判断到底是谁维护关联关系时，可以通过查看外键，哪个实体类定义了外键，哪个类就负责维护关联关系
+。。我一直认为维护关联关系就是指，在保存谁时，会发出sql更新关联关系的那个列。而不是说外键在谁身上。
+
+
+Many-to-Many映射(多对多映射关系)
+多对多这里通常有两种处理方式，一种是通过建立一张中间表，然后由任一一个多的一方来维护关联关系，另一种就是将多对多拆分成两个一对多的关联关系
+
+1.通过中间表由任一一个多的一方来维护关联关系
+@Entity
+@Table(name="t_teacher")
+public class Teacher
+{
+	// 表示由Course那一方来进行维护
+	@ManyToMany(mappedBy="teachers")
+    public Set<Course> getCourses()
+    {
+        return courses;
+    }
+}
+
+@Entity
+@Table(name="t_course")
+public class Course
+{
+
+	// ManyToMany指定多对多的关联关系
+    @ManyToMany
+	
+	//因为多对多之间会通过一张中间表来维护两表直接的关系，所以通过 JoinTable 这个注解来声明，name就是指定了中间表的名字，JoinColumns是一个 @JoinColumn类型的数组，表示的是我这方在对方中的外键名称，我方是Course，所以在对方外键的名称就是 rid，inverseJoinColumns也是一个 @JoinColumn类型的数组，表示的是对方在我这放中的外键名称，对方是Teacher，所以在我方外键的名称就是 tid
+    @JoinTable(name="t_teacher_course", joinColumns={ @JoinColumn(name="cid")}, inverseJoinColumns={ @JoinColumn(name = "tid") })
+    public Set<Teacher> getTeachers()
+    {
+        return teachers;
+    }
+}
+
+
+2.将Many-to-Many拆分成两个One-to-Many的映射(Admin、Role、AdminRole)
+@Entity
+@Table(name="t_admin")
+public class Admin
+{
+	//OneToMany关联到了AdminRole这个类，由AdminRole这个类来维护多对一的关系，mappedBy="admin"
+    @OneToMany(mappedBy="admin")
+    @LazyCollection(LazyCollectionOption.EXTRA)　　
+    public Set<AdminRole> getArs()
+    {
+        return ars;
+    }
+}
+
+
+@Entity
+@Table(name="t_role")
+public class Role
+{
+
+	//OneToMany指定了由AdminRole这个类来维护多对一的关联关系，mappedBy="role"
+    @OneToMany(mappedBy="role")
+    @LazyCollection(LazyCollectionOption.EXTRA)
+    public Set<AdminRole> getArs()
+    {
+        return ars;
+    }
+}
+
+
+@Entity
+@Table(name="t_admin_role")
+public class AdminRole
+{
+    @ManyToOne　　--->　　ManyToOne关联到Admin
+    @JoinColumn(name="aid")　　
+    public Admin getAdmin()
+    {
+        return admin;
+    }
+	
+	@ManyToOne　　--->　　
+    @JoinColumn(name="rid")
+    public Role getRole()
+    {
+        return role;
+    }
+}
+
+通过hibernate来进行插入操作的时候，不管是一对多、一对一还是多对多，都只需要记住一点，在哪个实体类声明了外键，就由哪个类来维护关系，在保存数据时，总是先保存的是没有维护关联关系的那一方的数据，后保存维护了关联关系的那一方的数据
+
+
+
+
+
+
+
+@Entity 注解将一个类声明为实体Bean, @Id 注解声明了该实体Bean的标识属性。
+
+@Table 为实体Bean指定对应数据库表，目录和schema的名字。
+@Table 注解包含一个schema和一个catelog属性，使用@UniqueConstraints 可以定义表的唯一约束。
+@Table(name="tbl_sky", uniqueConstraints ={@UniqueConstraint(columnNames={"month", "day"})})
+
+@Version 注解用于支持乐观锁版本控制。
+@Version
+@Column(name="OPTLOCK")
+public Integer getVersion() { ... }
+
+version属性映射到 "OPTLOCK" 列，entity manager 使用这个字段来检测冲突。一般可以用数字或者 timestamp 类型来支持 version.
+
+Bean中所有非static 非 transient 属性都可以被持久化，除非用@Transient注解。
+
+默认情况下，所有属性都用 @Basic 注解。
+
+
+public transient int counter; //transient property
+private Stringfirstname; //persistent property
+@Transient
+String getLengthInMeter() { ... } //transient property
+String getName() {...} // persistent property
+@Basic
+int getLength() { ...} // persistent property
+@Basic(fetch =FetchType.LAZY)
+String getDetailedComment() { ... } // persistent property
+@Temporal(TemporalType.TIME)
+Java.util.Date getDepartureTime() { ... } // persistent property
+@Enumerated(EnumType.STRING)
+Starred getNote() {... } //enum persisted as String in database
+
+上述代码中counter, lengthInMeter 属性将忽略不被持久化，而firstname, name, length 被定义为可持久化和可获取的。
+
+@TemporalType.(DATE,TIME,TIMESTAMP)分别Map java.sql.(Date,Time, Timestamp).
+。。怎么获得java.util.Date?.这里应该只是一种格式。
+date:yyyy-MM-dd
+time:HH:mm:ss
+timestamp:yyyy-MM-dd HH:mm:ss
+
+
+@Lob注解属性将被持久化为 Blog 或 Clob 类型。具体的java.sql.Clob, Character[], char[] 和 java.lang.String 将被持久化为 Clob 类型. java.sql.Blob,Byte[], byte[] 和 serializable type 将被持久化为 Blob 类型。
+
+
+@Column 注解将属性映射到列。
+
+@Entity
+public class Flightimplements Serializable {
+   ...
+   @Column(updatable = false, name ="flight_name", nullable = false, length=50)
+   public String getName() { ... }
+
+}
+定义 name 属性映射到 flight_name column, not null, can't update, length equal 50
+
+@Column(
+	name="columnName"; (1) 列名
+	boolean unique() default false; (2) 是否在该列上设置唯一约束
+	boolean nullable() default true; (3)   列可空？
+	boolean insertable() default true; (4) 该列是否作为生成 insert语句的一个列
+	boolean updatable() default true; (5)  该列是否作为生成 update语句的一个列
+	String columnDefinition() default""; (6)  默认值
+	String table() default "";(7) 定义对应的表（deault 是主表）
+	int length() default 255; (8)    列长度
+	int precision() default 0; // decimal precision (9)  decimal精度
+	int scale() default 0; // decimal scale  (10) decimal长度
+)
+
+。。test。。@Embeddable
+。。一个类，很多地方都要用到，但是又不想单独为它建立一个表，那么就用这种。。。AttributionOverride应该是为embadded类的属性重新定义列名。
+嵌入式对象（又称组件）也就是别的对象定义的属性
+组件类必须在类一级定义 @Embeddable 注解。在特定的实体关联属性上使用 @Embeddable 和@AttributeOverride 注解可以覆盖该属性对应的嵌入式对象的列映射。
+@Entity
+public class Person implements Serializable {
+   // Persistent component using defaults
+   Address homeAddress;
+   @Embedded
+   @AttributeOverrides( {
+      @AttributeOverride(name="iso2",column = @Column(name="bornIso2") ),
+      @AttributeOverride(name="name",column = @Column(name="bornCountryName") )
+   } )
+   Country bornIn;
+   ...
+}
+
+@Embeddable
+public class Address implements Serializable {
+   String city;
+   Country nationality; //no overriding here
+}
+
+@Embeddable
+public class Country implements Serializable {
+   private String iso2;
+   @Column(name="countryName")private String name;
+   public String getIso2() { return iso2; }
+   public void setIso2(String iso2) { this.iso2= iso2; }
+   public String getName() { return name; }
+   public void setName(String name) { this.name= name; }
+   ...
+}
+
+Person 类定义了 Address 和  Country 对象，具体两个类实现见上。
+
+无注解属性默认值：
+属性为简单类型，则映射为@Basic
+属性对应的类型定义了@Embeddable 注解，则映射为@Embedded
+属性对应的类型实现了Serializable,则属性被映射为@Basic并在一个列中保存该对象的serialized版本。
+属性的类型为java.sql.Clob or java.sql.Blob, 则映射到 @Lob 对应的类型。
+
+映射主键属性
+@Id 注解可将实体Bean中某个属性定义为主键，使用@GenerateValue注解可以定义该标识符的生成策略。
+? AUTO -  可以是 identity column, sequence 或者 table 类型，取决于不同底层的数据库
+? TABLE - 使用table保存id值
+? IDENTITY - identity column
+? SEQUENCE - sequence
+
+@Id@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="SEQ_STORE")
+public Integer getId(){ ... }
+
+@Id@GeneratedValue(strategy=GenerationType.IDENTITY)
+public Long getId() {... }
+
+
+
+通过下面语法，你可以定义组合键。
+?将组件类注解为@Embeddable，并将组件的属性注解为 @Id
+?将组件的属性注解为@EmbeddedId
+?将类注解为@IdClass，并将该实体中所有主键的属性都注解为 @Id
+
+@Entity
+@IdClass(FootballerPk.class)
+public classFootballer {
+  //part of the id key
+  @Id public String getFirstname() {
+    return firstname;
+  }
+  //part of the id key
+  @Id public String getLastname() {
+    return lastname;
+  }
+  //...
+}
+
+@Embeddable
+public classFootballerPk implements Serializable {
+  //same name and type as in Footballer
+  public String getFirstname() {
+    return firstname;
+  }
+  //same name and type as in Footballer
+  public String getLastname() {
+    return lastname;
+  }
+}
+
+
+@Entity
+@AssociationOverride(name="id.channel", joinColumns =@JoinColumn(name="chan_id") )
+public class TvMagazin{
+   @EmbeddedId public TvMagazinPk id;
+   @Temporal(TemporalType.TIME) Date time;
+}
+@Embeddable
+public class TvMagazinPkimplements Serializable {
+   @ManyToOne
+   public Channel channel;
+   public String name;
+   @ManyToOne
+   public Presenter presenter;
+}
+
+
+映射继承关系
+EJB支持3种类型的继承。
+? Table per Class Strategy: the <union-class> element inHibernate 每个类一张表
+? Single Table per Class Hierarchy Strategy: the<subclass> element in Hibernate 每个类层次结构一张表
+? Joined Subclass Strategy: the <joined-subclass>element in Hibernate 连接的子类策略
+
+@Inheritance 注解来定义所选的之类策略。
+
+每个类一张表
+。。这个是父类一张表，子类一张表。
+@Entity
+@Inheritance(strategy= InheritanceType.TABLE_PER_CLASS)
+public class Flightimplements Serializable {
+有缺点，如多态查询或关联。Hibernate使用 SQL Union 查询来实现这种策略。这种策略支持双向的一对多关联，但不支持IDENTIFY 生成器策略，因为ID必须在多个表间共享。一旦使用就不能使用AUTO和IDENTIFY生成器。
+
+
+每个类层次结构一张表
+。。这个是整个继承结构中的类共用一张表。
+@Entity
+@Inheritance(strategy=InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name="planetype",discriminatorType=DiscriminatorType.STRING)
+@DiscriminatorValue("Plane")
+public class Plane {... }
+
+@Entity
+@DiscriminatorValue("A320")
+public class A320extends Plane { ... }
+
+整个层次结构中的所有父类和子类属性都映射到同一个表中，他们的实例通过一个辨别符列（discriminator）来区分。
+Plane 是父类。@DiscriminatorColumn注解定义了辨别符列。对于继承层次结构中的每个类,@DiscriminatorValue 注解指定了用来辨别该类的值。辨别符列名字默认为DTYPE，其默认值为实体名。其类型为DiscriminatorType.STRING。
+
+
+连接的子类
+
+@Entity
+@Inheritance(strategy=InheritanceType.JOINED)
+public class Boat implements Serializable { ... }
+
+@Entity
+public class Ferry extends Boat { ... }
+
+@Entity
+@PrimaryKeyJoinColumn(name="BOAT_ID")
+public class AmericaCupClass extends Boat { ... }
+
+以上所有实体使用JOINED 策略 Ferry和Boat class使用同名的主键关联(eg:Boat.id = Ferry.id)， AmericaCupClass 和Boat 关联的条件为Boat.id = AmericaCupClass.BOAT_ID.
+
+
+从父类继承的属性
+
+@MappedSuperclass
+public class BaseEntity {
+  @Basic
+  @Temporal(TemporalType.TIMESTAMP)
+  public Date getLastUpdate() { ... }
+  public String getLastUpdater() { ... }
+  ...
+}
+
+@Entity class Order extends BaseEntity {
+  @Id public Integer getId() { ... }
+  ...
+}
+
+继承父类的一些属性，但不用父类作为映射实体，这时候需要 @MappedSuperclass 注解。上述实体映射到数据库中的时候对应Order 实体Bean, 其具有 id, lastUpdate, lastUpdater 三个属性。如果没有@MappedSuperclass 注解,则父类中属性忽略，这是Order 实体 Bean 只有 id 一个属性。
+
+
+映射实体Bean的关联关系
+
+一对一
+使用 @OneToOne 注解可以建立实体Bean之间的一对一关系。一对一关系有3种情况。
+
+?关联的实体都共享同样的主键。
+@Entity
+public class Body {
+  @Id
+  public Long getId() { return id; }
+  @OneToOne(cascade = CascadeType.ALL)
+  @PrimaryKeyJoinColumn
+  public Heart getHeart() {
+     return heart;
+  }
+  ...
+}
+@Entity
+public class Heart {
+  @Id
+  public Long getId() { ...}
+}
+通过@PrimaryKeyJoinColumn 注解定义了一对一的关联关系。
+
+
+?其中一个实体通过外键关联到另一个实体的主键。注：一对一，则外键必须为唯一约束。
+@Entity
+public class Customerimplements Serializable {
+   @OneToOne(cascade = CascadeType.ALL)
+   @JoinColumn(name="passport_fk")
+   public Passport getPassport() {
+   ...
+}
+@Entity
+public class Passportimplements Serializable {
+   @OneToOne(mappedBy = "passport")
+   public Customer getOwner() {
+   ...
+}
+通过@JoinColumn注解定义一对一的关联关系。如果没有@JoinColumn注解，则系统自动处理，在主表中将创建连接列，列名为：主题的关联属性名 + 下划线 + 被关联端的主键列名。上例为 passport_id, 因为Customer 中关联属性为passport, Passport 的主键为 id.
+
+
+?通过关联表来保存两个实体之间的关联关系。注：一对一，则关联表每个外键都必须是唯一约束。
+@Entity
+public class Customerimplements Serializable {
+   @OneToOne(cascade = CascadeType.ALL)
+   @JoinTable(name= "CustomerPassports",
+        joinColumns= @JoinColumn(name="customer_fk"),
+        inverseJoinColumns= @JoinColumn(name="passport_fk")
+   )
+   public Passport getPassport() {
+   ...
+}
+@Entity public classPassport implements Serializable {
+   @OneToOne(mappedBy = "passport")
+   public Customer getOwner() {
+   ...
+}
+Customer 通过 CustomerPassports 关联表和 Passport 关联。该关联表通过passport_fk 外键指向Passport 表，该信心定义为inverseJoinColumns 的属性值。通过 customer_fk 外键指向Customer 表，该信息定义为joinColumns 属性值。
+
+
+多对一
+使用 @ManyToOne 注解定义多对一关系。
+@Entity()
+public class Flightimplements Serializable {
+  @ManyToOne( cascade = {CascadeType.PERSIST,CascadeType.MERGE} )
+  @JoinColumn(name="COMP_ID")
+  public Company getCompany() {
+    return company;
+  }
+  ...
+}
+其中@JoinColumn 注解是可选的，关键字段默认值和一对一关联的情况相似。列名为：主题的关联属性名 + 下划线+ 被关联端的主键列名。本例中为company_id,因为关联的属性是company,Company的主键为 id.
+
+@ManyToOne 注解有个targetEntity属性，该参数定义了目标实体名。通常不需要定义，大部分情况为默认值。但下面这种情况则需要 targetEntity 定义（使用接口作为返回值，而不是常用的实体）。
+@Entity()
+public class Flightimplements Serializable {
+   @ManyToOne(cascade=  {CascadeType.PERSIST,CascadeType.MERGE},targetEntity= CompanyImpl.class)
+   @JoinColumn(name="COMP_ID")
+   public Company getCompany() {
+     return company;
+   }
+   ...
+}
+
+public interface Company {
+   ...
+}
+
+多对一也可以通过关联表的方式来映射，通过 @JoinTable 注解可定义关联表。该关联表包含指回实体的外键（通过@JoinTable.joinColumns）以及指向目标实体表的外键（通过@JoinTable.inverseJoinColumns）.
+@Entity()
+public class Flightimplements Serializable {
+   @ManyToOne( cascade = {CascadeType.PERSIST,CascadeType.MERGE} )
+   @JoinTable(name="Flight_Company",
+       joinColumns =@JoinColumn(name="FLIGHT_ID"),
+       inverseJoinColumns =@JoinColumn(name="COMP_ID")
+   )
+   public Company getCompany() {
+       return company;
+   }
+   ...
+}
+
+
+集合类型
+
+一对多
+@OneToMany 注解可定义一对多关联。一对多关联可以是双向的。
+
+双向
+规范中多对一端几乎总是双向关联中的主体（owner）端，而一对多的关联注解为 @OneToMany(mappedBy=)
+@Entity
+public class Troop {
+  @OneToMany(mappedBy="troop")
+  public Set<Soldier> getSoldiers() {
+  ...
+}
+@Entity
+public class Soldier {
+  @ManyToOne
+  @JoinColumn(name="troop_fk")
+  public Troop getTroop() {
+  ...
+  }
+}
+Troop 通过troop属性和Soldier建立了一对多的双向关联。在 mappedBy 端不必也不能定义任何物理映射。
+
+
+单向
+@Entity
+public class Customerimplements Serializable {
+   @OneToMany(cascade=CascadeType.ALL,fetch=FetchType.EAGER)
+   @JoinColumn(name="CUST_ID")
+   public Set<Ticket> getTickets() {
+      ...
+   }
+
+@Entity
+public class Ticketimplements Serializable {
+   ... //no bidir
+}
+
+一般通过连接表来实现这种关联，可以通过@JoinColumn注解来描述这种单向关联关系。上例 Customer 通过CUST_ID列和 Ticket 建立了单向关联关系。
+。。这个cust_id是在ticket表上的吧。
+。。好像都没写@Table啊，不知道默认表是什么。。默认表名就是类名
+
+
+通过关联表来处理单向关联
+@Entity
+public class Trainer {
+  @OneToMany
+  @JoinTable(
+     name="TrainedMonkeys",
+     joinColumns = @JoinColumn(name="trainer_id"),
+     inverseJoinColumns = @JoinColumn(name="monkey_id")
+  )
+  public Set<Monkey> getTrainedMonkeys(){
+     ...
+  }
+@Entity
+public class Monkey {
+  ... //no bidir
+}
+通过关联表来处理单向一对多关系是首选，这种关联通过 @JoinTable 注解来进行描述。上例子中Trainer 通过TrainedMonkeys表和Monkey建立了单向关联关系。其中外键trainer_id关联到Trainer(joinColumns)而外键monkey_id关联到Monkey(inverseJoinColumns).
+
+默认处理机制
+通过连接表来建立单向一对多关联不需要描述任何物理映射，表名由一下3个部分组成，主表(ownertable)表名 + 下划线 + 从表(the other side table)表名。指向主表的外键名:主表表名+下划线+主表主键列名指向从表的外键定义为唯一约束，用来表示一对多的关联关系。
+@Entity
+public class Trainer {
+  @OneToMany
+  public Set<Tiger> getTrainedTigers(){
+  ...
+}
+@Entity
+public class Tiger {
+  ... //no bidir
+}
+上述例子中Trainer 和 Tiger 通过 Trainer_Tiger 连接表建立单向关联关系。其中外键 trainer_id 关联到Trainer表，而外键 trainedTigers_id 关联到Tiger 表。
+
+
+多对多
+通过 @ManyToMany 注解定义多对多关系，同时通过 @JoinTable 注解描述关联表和关联条件。其中一端定义为owner, 另一段定义为inverse(对关联表进行更新操作，这段被忽略)。
+@Entity
+public class Employer implements Serializable {
+  @ManyToMany(
+ targetEntity=org.hibernate.test.metadata.manytomany.Employee.class,
+    cascade={CascadeType.PERSIST,CascadeType.MERGE}
+  )
+  @JoinTable(
+    name="EMPLOYER_EMPLOYEE",
+   joinColumns=@JoinColumn(name="EMPER_ID"),
+   inverseJoinColumns=@JoinColumn(name="EMPEE_ID")
+  )
+  public Collection getEmployees() {
+    return employees;
+  }
+  ...
+}
+
+@Entity
+public class Employee implements Serializable {
+  @ManyToMany(
+    cascade = {CascadeType.PERSIST,CascadeType.MERGE},
+    mappedBy = "employees",
+    targetEntity = Employer.class
+  )
+  public Collection getEmployers() {
+    return employers;
+  }
+}
+
+
+默认值：
+关联表名：主表表名 + 下划线 + 从表表名；关联表到主表的外键：主表表名 + 下划线 + 主表中主键列名；关联表到从表的外键名：主表中用于关联的属性名 + 下划线 + 从表的主键列名。
+用cascading 实现传播持久化（Transitivepersistence）
+
+cascade 属性接受值为 CascadeType 数组，其类型如下：
+? CascadeType.PERSIST:cascades the persist (create) operation to associated entities persist() iscalled or if the entity is managed 如果一个实体是受管状态，或者当 persist() 函数被调用时，触发级联创建(create)操作。
+? CascadeType.MERGE:cascades the merge operation to associated entities if merge() is called or ifthe entity is managed 如果一个实体是受管状态，或者当merge() 函数被调用时，触发级联合并(merge)操作。
+? CascadeType.REMOVE:cascades the remove operation to associated entities if delete() is called 当 delete() 函数被调用时，触发级联删除(remove)操作。
+? CascadeType.REFRESH:cascades the refresh operation to associated entities if refresh() iscalled  当 refresh() 函数被调用时，出发级联更新(refresh)操作。
+? CascadeType.ALL:all of the above  以上全部
+
+。。save，update，flush，对应上面的什么？
+
+
+映射二级列表
+使用类一级的 @SecondaryTable 和 @SecondaryTables 注解可以实现单个实体到多个表的映射。使用@Column或者@JoinColumn 注解中的table 参数可以指定某个列所属的特定表。
+@Entity
+@Table(name="MainCat")
+@SecondaryTables({
+    @SecondaryTable(name="Cat1",pkJoinColumns={
+          @PrimaryKeyJoinColumn(name="cat_id",referencedColumnName="id")}),
+    @SecondaryTable(name="Cat2",uniqueConstraints={
+          @UniqueConstraint(columnNames={"storyPart2"})})
+ })
+public class Catimplements Serializable {
+  private Integer id;
+  private String name;
+
+  private String storyPart1;
+  private String storyPart2;
+  @Id @GeneratedValue
+  public Integer getId() {
+    return id;
+  }
+  public String getName() {
+    return name;
+  }
+  @Column(table="Cat1")
+  public String getStoryPart1() {
+    return storyPart1;
+  }
+  @Column(table="Cat2")
+  public String getStoryPart2() {
+    return storyPart2;
+  }
+
+上述例子中，name 保存在MainCat 表中，storyPart1保存在 Cat1 表中，storyPart2保存在Cat2 表中。Cat1 表通过外键cat_id 和 MainCat 表关联， Cat2 表通过 id 列和 MainCat 表关联。对storyPart2列还定义了唯一约束。
+
+
+
+。。test。。NamedQueries
+映射查询
+使用注解可以映射EJBQL/HQL 查询，@NamedQuery和 @NamedQueries 是可以使用在类级别或者JPA的XML文件中的注解。
+<entity-mappings>
+ <named-queryname="plane.getAll">
+  <query>select p from Planep</query>
+ </named-query>
+ ...
+</entity-mappings>
+...
+@Entity
+@NamedQuery(name="night.moreRecentThan",query="select n from Night n where n.date >= :date")
+public class Night {
+ ...
+}
+public class MyDao {
+ doStuff() {
+   Query q =s.getNamedQuery("night.moreRecentThan");
+   q.setDate( "date", aMonthAgo );
+   List results = q.list();
+   ...
+ }
+ ...
+}
+可以通过定义QueryHint 数组的hints 属性为查询提供一些hint 信息
+
+
+映射本地化查询
+通过@SqlResultSetMapping 注解来描述 SQL 的 resultset 结构。如果定义多个结果集映射，则用@SqlResultSetMappings。
+
+@NamedNativeQuery(name="night&area",query="select night.id nid, night.night_duration, "
+     + " night.night_date, area.id aid,night.area_id, area.name "
+     + "from Night night, Area area wherenight.area_id = area.id", resultSetMapping="joinMapping")
+
+@SqlResultSetMapping(name="joinMapping", entities={
+ @EntityResult(entityClass=org.hibernate.test.annotations.query.Night.class,fields = {
+   @FieldResult(name="id",column="nid"),
+   @FieldResult(name="duration",column="night_duration"),
+   @FieldResult(name="date",column="night_date"),
+   @FieldResult(name="area",column="area_id"),
+   discriminatorColumn="disc"
+  }),
+ @EntityResult(entityClass=org.hibernate.test.annotations.query.Area.class,fields = {
+   @FieldResult(name="id",column="aid"),
+   @FieldResult(name="name",column="name")
+  })
+ }
+)
+上面的例子，名为“night&area”的查询和 "joinMapping"结果集映射对应，该映射返回两个实体，分别为 Night 和Area, 其中每个属性都和一个列关联，列名通过查询获取。
+
+
+@Entity
+@SqlResultSetMapping(name="implicit",
+  entities=@EntityResult(
+   entityClass=org.hibernate.test.annotations.@NamedNativeQuery(
+      name="implicitSample",query="select * from SpaceShip", 
+      resultSetMapping="implicit")
+public class SpaceShip{
+ private String name;
+ private String model;
+ private double speed;
+ @Id
+ public String getName() {
+  return name;
+ }
+ public void setName(String name) {
+  this.name = name;
+ }
+ @Column(name="model_txt")
+ public String getModel() {
+  return model;
+ }
+ public void setModel(String model) {
+  this.model = model;
+ }
+ public double getSpeed() {
+  return speed;
+ }
+ public void setSpeed(double speed) {
+  this.speed = speed;
+ }
+}
+上例中model1 属性绑定到model_txt 列，如果和相关实体关联设计到组合主键，那么应该使用 @FieldResult 注解来定义每个外键列。@FieldResult的名字组成：定义这种关系的属性名字 +"." + 主键名或主键列或主键属性。
+
+@Entity
+@SqlResultSetMapping(name="compositekey",
+ entities=@EntityResult(entityClass=org.hibernate.test.annotations.query.SpaceShip.class,
+  fields = {
+   @FieldResult(name="name", column ="name"),
+   @FieldResult(name="model", column= "model"),
+   @FieldResult(name="speed", column= "speed"),
+   @FieldResult(name="captain.firstname",column = "firstn"),
+  @FieldResult(name="captain.lastname", column ="lastn"),
+  @FieldResult(name="dimensions.length", column ="length"),
+  @FieldResult(name="dimensions.width", column ="width")
+  }),
+ columns = { @ColumnResult(name ="surface"),
+ 
+@ColumnResult(name ="volume") } )
+ @NamedNativeQuery(name="compositekey",
+ query="select name, model, speed, lnameas lastn, fname as firstn, length, width, length * width asresultSetMapping="compositekey")
+})
+
+
+如果查询返回的是单个实体，或者打算用系统默认的映射，这种情况下可以不使用 resultSetMapping，而使用resultClass属性，例如：
+
+@NamedNativeQuery(name="implicitSample", query="select * fromSpaceShip",resultClass=SpaceShip.class)
+public class SpaceShip{
+
+Hibernate 独有的注解扩展
+Hibernate 提供了与其自身特性想吻合的注解，org.hibernate.annotations package包含了这些注解。
+
+实体
+org.hibernate.annotations.Entity定义了  Hibernate 实体需要的信息。
+? mutable: whetherthis entity is mutable or not  此实体是否可变
+? dynamicInsert:allow dynamic SQL for inserts   用动态SQL新增
+? dynamicUpdate: allow dynamic SQL forupdates   用动态SQL更新
+? selectBeforeUpdate: Specifies thatHibernate should never perform an SQL UPDATE unless it is certain that anobject is actually modified.指明Hibernate从不运行SQL Update，除非能确定对象已经被修改
+? polymorphism:whether the entity polymorphism is of PolymorphismType.IMPLICIT (default) orPolymorphismType.EXPLICIT 指出实体多态是PolymorphismType.IMPLICIT(默认)还是PolymorphismType.EXPLICIT
+? optimisticLock:optimistic locking strategy (OptimisticLockType.VERSION, OptimisticLockType.NONE,OptimisticLockType.DIRTY or OptimisticLockType.ALL) 乐观锁策略
+
+
+标识符
+@org.hibernate.annotations.GenericGenerator和@org.hibernate.annotations.GenericGenerators允许你定义hibernate特有的标识符。
+@Id@GeneratedValue(generator="system-uuid")
+@GenericGenerator(name="system-uuid",strategy = "uuid")
+public String getId(){
+@Id@GeneratedValue(generator="hibseq")
+@GenericGenerator(name="hibseq",strategy = "seqhilo",
+   parameters = {
+     @Parameter(name="max_lo", value= "5"),
+     @Parameter(name="sequence",value="heybabyhey")
+   }
+)
+public Integer getId(){
+
+新例子
+@GenericGenerators(
+ {
+  @GenericGenerator(
+   name="hibseq",
+   strategy = "seqhilo",
+   parameters = {
+    @Parameter(name="max_lo", value ="5"),
+    @Parameter(name="sequence", value="heybabyhey")
+   }
+  ),
+  @GenericGenerator(...)
+ }
+)
+
+自然ID
+用 @NaturalId 注解标识
+公式
+让数据库而不是JVM进行计算。
+@Formula("obj_length* obj_height * obj_width")
+public longgetObjectVolume()
+
+索引
+通过在列属性(property)上使用@Index注解，可以指定特定列的索引，columnNames属性(attribute)将随之被忽略。
+@Column(secondaryTable="Cat1")
+@Index(name="story1index")
+public StringgetStoryPart1() {
+  return storyPart1;
+}
+
+辨别符
+@Entity
+@DiscriminatorFormula("casewhen forest_type is null then 0 else forest_type end")
+public class Forest {... }
+
+
+
+
+
+
+
+
+
+
+
+type=MyISAM
+cfg.hbm中.. MySQL5Dialect，而不是 MySQLDialect
+变成了，engine=MyISAM
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+hbm，xml主键生成策略
+1、assigned
+主键由外部程序负责生成，在 save() 之前必须指定一个。Hibernate不负责维护主键生成。与Hibernate和底层数据库都无关，可以跨数据库。在存储对象前，必须要使用主键的setter方法给主键赋值，至于这个值怎么生成，完全由自己决定，这种方法应该尽量避免。
+<id name="id" column="id">
+	<generator class="assigned" />
+</id>
+“ud”是自定义的策略名，人为起的名字，后面均用“ud”表示。
+特点：可以跨数据库，人为控制主键生成，应尽量避免。
+。。ud？id？
+
+2、increment
+由Hibernate从数据库中取出主键的最大值（每个session只取1次），以该值为基础，每次增量为1，在内存中生成主键，不依赖于底层的数据库，因此可以跨数据库。
+<id name="id" column="id">
+	<generator class="increment" />
+</id>
+Hibernate调用org.hibernate.id.IncrementGenerator类里面的generate()方法，使用select max(idColumnName) from tableName语句获取主键最大值。该方法被声明成了synchronized，所以在一个独立的Java虚拟机内部是没有问题的，然而，在多个JVM同时并发访问数据库select max时就可能取出相同的值，再insert就会发生Dumplicate entry的错误。所以只能有一个Hibernate应用进程访问数据库，否则就可能产生主键冲突，所以不适合多进程并发更新数据库，适合单一进程访问数据库，不能用于群集环境。
+官方文档：只有在没有其他进程往同一张表中插入数据时才能使用，在集群下不要使用。
+特点：跨数据库，不适合多进程并发更新数据库，适合单一进程访问数据库，不能用于群集环境。
+。。怎么知道哪张表？不，就是要插入的那张表，这样只能保证数据库表的主键唯一，不能保证所有表的主键都唯一。
+
+
+3、hilo
+hilo（高低位方式high low）是hibernate中最常用的一种生成方式，需要一张额外的表保存hi的值。保存hi值的表至少有一条记录（只与第一条记录有关），否则会出现错误。可以跨数据库。
+<id name="id" column="id">
+	<generator class="hilo">
+		<param name="table">hibernate_hilo</param>
+		<param name="column">next_hi</param>
+		<param name="max_lo">100</param>
+	</generator>
+</id>
+
+<param name="table">hibernate_hilo</param> 指定保存hi值的表名
+<param name="column">next_hi</param> 指定保存hi值的列名
+<param name="max_lo">100</param> 指定低位的最大值
+
+也可以省略table和column配置，其默认的表为hibernate_unique_key，列为next_hi
+<id name="id" column="id">
+	<generator class="hilo">
+		<param name="max_lo">100</param>
+	</generator>
+</id>
+
+hilo生成器生成主键的过程（以hibernate_unique_key表，next_hi列为例）：
+1. 获得hi值：读取并记录数据库的hibernate_unique_key表中next_hi字段的值，数据库中此字段值加1保存。
+2. 获得lo值：从0到max_lo循环取值，差值为1，当值为max_lo值时，重新获取hi值，然后lo值继续从0到max_lo循环。
+3. 根据公式 hi * (max_lo + 1) + lo计算生成主键值。
+注意：当hi值是0的时候，那么第一个值不是0*(max_lo+1)+0=0，而是lo跳过0从1开始，直接是1、2、3……
+那max_lo配置多大合适呢？
+这要根据具体情况而定，如果系统一般不重启，而且需要用此表建立大量的主键，可以吧max_lo配置大一点，这样可以减少读取数据表的次数，提高效率；反之，如果服务器经常重启，可以吧max_lo配置小一点，可以避免每次重启主键之间的间隔太大，造成主键值主键不连贯。
+特点：跨数据库，hilo算法生成的标志只能在一个数据库中保证唯一。
+
+4、seqhilo
+与hilo类似，通过hi/lo算法实现的主键生成机制，只是将hilo中的数据表换成了序列sequence，需要数据库中先创建sequence，适用于支持sequence的数据库，如Oracle。
+<id name="id" column="id">
+	<generator class="seqhilo">
+		<param name="sequence">hibernate_seq</param>
+		<param name="max_lo">100</param>
+	</generator>
+</id>
+特点：与hilo类似，只能在支持序列的数据库中使用。
+
+
+5、sequence
+采用数据库提供的sequence机制生成主键，需要数据库支持sequence。如oralce、DB、SAP DB、PostgerSQL、McKoi中的sequence。MySQL这种不支持sequence的数据库则不行（可以使用identity）。
+<generator class="sequence">
+	<param name="sequence">hibernate_id</param>
+</generator>
+<param name="sequence">hibernate_id</param> 指定sequence的名称
+Hibernate生成主键时，查找sequence并赋给主键值，主键值由数据库生成，Hibernate不负责维护，使用时必须先创建一个sequence，如果不指定sequence名称，则使用Hibernate默认的sequence，名称为hibernate_sequence，前提要在数据库中创建该sequence。
+特点：只能在支持序列的数据库中使用，如Oracle。
+
+6、identity
+identity由底层数据库生成标识符。identity是由数据库自己生成的，但这个主键必须设置为自增长，使用identity的前提条件是底层数据库支持自动增长字段类型，如DB2、SQL Server、MySQL、Sybase和HypersonicSQL等，Oracle这类没有自增字段的则不支持。
+<id name="id" column="id">
+	<generator class="identity" />
+</id>
+例：如果使用MySQL数据库，则主键字段必须设置成auto_increment。
+id int(11) primary key auto_increment
+特点：只能用在支持自动增长的字段数据库中使用，如MySQL。
+
+7、native
+native由hibernate根据使用的数据库自行判断采用identity、hilo、sequence其中一种作为主键生成方式，灵活性很强。如果能支持identity则使用identity，如果支持sequence则使用sequence。
+<id name="id" column="id">
+	<generator class="native" />
+</id>
+例如MySQL使用identity，Oracle使用sequence
+
+注意：如果Hibernate自动选择sequence或者hilo，则所有的表的主键都会从Hibernate默认的sequence或hilo表中取。并且，有的数据库对于默认情况主键生成测试的支持，效率并不是很高。
+使用sequence或hilo时，可以加入参数，指定sequence名称或hi值表名称等，如
+<param name="sequence">hibernate_id</param>
+特点：根据数据库自动选择，项目中如果用到多个数据库时，可以使用这种方式，使用时需要设置表的自增字段或建立序列，建立表等。
+
+
+8、uuid
+UUID：Universally Unique Identifier，是指在一台机器上生成的数字，它保证对在同一时空中的所有机器都是唯一的。按照开放软件基金会(OSF)制定的标准计算，用到了以太网卡地址、纳秒级时间、芯片ID码和许多可能的数字，标准的UUID格式为：
+xxxxxxxx-xxxx-xxxx-xxxxxx-xxxxxxxxxx (8-4-4-4-12)
+其中每个 x 是 0-9 或 a-f 范围内的一个十六进制的数字。
+<id name="id" column="id">
+	<generator class="uuid" />
+</id>
+Hibernate在保存对象时，生成一个UUID字符串作为主键，保证了唯一性，但其并无任何业务逻辑意义，只能作为主键，唯一缺点长度较大，32位（Hibernate将UUID中间的“-”删除了）的字符串，占用存储空间大，但是有两个很重要的优点，Hibernate在维护主键时，不用去数据库查询，从而提高效率，而且它是跨数据库的，以后切换数据库极其方便。
+特点：uuid长度大，占用空间大，跨数据库，不用访问数据库就生成主键值，所以效率高且能保证唯一性，移植非常方便，推荐使用。
+
+
+9、guid
+GUID：Globally Unique Identifier全球唯一标识符，也称作 UUID，是一个128位长的数字，用16进制表示。算法的核心思想是结合机器的网卡、当地时间、一个随即数来生成GUID。从理论上讲，如果一台机器每秒产生10000000个GUID，则可以保证（概率意义上）3240年不重复。
+<id name="id" column="id">
+	<generator class="guid" />
+</id>
+
+Hibernate在维护主键时，先查询数据库，获得一个uuid字符串，该字符串就是主键值，该值唯一，缺点长度较大，支持数据库有限，优点同uuid，跨数据库，但是仍然需要访问数据库。
+注意：长度因数据库不同而不同
+MySQL中使用select uuid()语句获得的为36位（包含标准格式的“-”）
+Oracle中，使用select rawtohex(sys_guid()) from dual语句获得的为32位（不包含“-”） 
+特点：需要数据库支持查询uuid，生成时需要查询数据库，效率没有uuid高，推荐使用uuid。
+
+10、foreign
+使用另外一个相关联的对象的主键作为该对象主键。主要用于一对一关系中。
+<id name="id" column="id">
+	<generator class="foreign">
+		<param name="property">user</param>
+	</generator>
+</id>
+<one-to-one name="user" class="domain.User" constrained="true" />
+
+该例使用domain.User的主键作为本类映射的主键。
+特点：很少使用，大多用在一对一关系中。
+
+11、select
+使用触发器生成主键，主要用于早期的数据库主键生成机制，能用到的地方非常少。
+
+12、其他注释方式配置
+注释方式与配置文件底层实现方式相同，只是配置的方式换成了注释方式
+自动增长，适用于支持自增字段的数据库
+@Id
+@GeneratedValue(strategy = GenerationType.IDENTITY)
+根据底层数据库自动选择方式，需要底层数据库的设置
+如MySQL，会使用自增字段，需要将主键设置成auto_increment。
+
+@Id
+@GeneratedValue(strategy = GenerationType.AUTO)
+使用表存储生成的主键，可以跨数据库。
+每次需要主键值时，查询名为"hibernate_table"的表，查找主键列"gen_pk"值为"2"记录，得到这条记录的"gen_val"值，根据这个值，和allocationSize的值生成主键值。
+
+@Id
+@GeneratedValue(strategy = GenerationType.TABLE, generator = "ud")
+
+@TableGenerator(name = "ud",
+table = "hibernate_table",
+pkColumnName = "gen_pk",
+pkColumnValue = "2",
+valueColumnName = "gen_val",
+initialValue = 2,
+allocationSize = 5)
+
+使用序列存储主键值
+
+@Id
+@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "ud")
+@SequenceGenerator(name = "ud",
+sequenceName = "hibernate_seq",
+allocationSize = 1,
+initialValue = 2)
+
+
+13、小结
+1、为了保证对象标识符的唯一性与不可变性，应该让Hibernate来为主键赋值，而不是程序。
+2、正常使用Hibernate维护主键，最好将主键的setter方法设置成private，从而避免人为或程序修改主键，而使用assigned方式，就不能用private，否则无法给主键赋值。
+2、Hibernate中唯一一种最简单通用的主键生成器就是uuid。虽然是个32位难读的长字符串，但是它没有跨数据库的问题，将来切换数据库极其简单方便，推荐使用！
+
+4、关于hilo机制注意：
+hilo算法生成的标志只能在一个数据库中保证唯一。
+当用户为Hibernate自行提供连接，或者Hibernate通过JTA，从应用服务器的数据源获取数据库连接时，无法使用hilo，因为这不能保证hilo单独在新的数据库连接的事务中访问hi值表，这种情况，如果数据库支持序列，可以使用seqhilo。
+5、使用identity、native、GenerationType.AUTO等方式生成主键时，只要用到自增字段，数据库表的字段必须设置成自动增加的，否则出错。
+6、还有一些方法未列出来，例如uuid.hex，sequence-identity等，这些方法不是很常用，且已被其他方法代替，如uuid.hex，官方文档里建议不使用，而直接使用uuid方法。
+7、Hibernate的各版本主键生成策略配置有略微差别，但实现基本相同。如，有的版本默认sequence不指定序列名，则使用名为hibernate_sequence的序列，有的版本则必须指定序列名。
+8、还可以自定义主键生成策略，这里暂时不讨论，只讨论官方自带生成策略。 
+
+
+
+
+
+Id生成策略：
+@GeneratedValue，JPA通用策略生成器 。
+JPA提供的四种标准用法为TABLE,SEQUENCE,IDENTITY,AUTO. 
+TABLE：使用一个特定的数据库表格来保存主键。 
+
+SEQUENCE：根据底层数据库的序列来生成主键，条件是数据库支持序列。 
+@Id  
+@GeneratedValue(strategy = GenerationType.SEQUENCE,generator="payablemoney_seq")  
+@SequenceGenerator(name="payablemoney_seq", sequenceName="seq_payment")  
+
+IDENTITY：主键由数据库自动生成（主要是自动增长型） 
+@Id  
+@GeneratedValue(strategy = GenerationType.IDENTITY)  
+
+AUTO：主键由程序控制。 　
+@Id  
+@GeneratedValue(strategy = GenerationType.AUTO) 
+
+
+@GenericGenerator hibernate主键策略生成器 
+@GenericGenerator注解配合@GeneratedValue一起使用，@GeneratedValue注解中的"generator"属性要与@GenericGenerator注解中name属性一致,strategy属性表示hibernate的主键生成策略 
+@Id
+@GeneratedValue(generator="increment")
+@GenericGenerator(name="increment", strategy = "increment")
+
+
+native: 对于 oracle 采用 Sequence 方式，对于MySQL 和 SQL Server 采用identity（自增主键生成机制），native就是将主键的生成工作交由数据库完成，hibernate不管（很常用）。 
+@GeneratedValue(generator = "xxx")    
+@GenericGenerator(name = "xxx", strategy = "native")   
+
+uuid: 采用128位的uuid算法生成主键，uuid被编码为一个32位16进制数字的字符串。占用空间大（字符串类型）。 
+@GeneratedValue(generator = "xxx")    
+@GenericGenerator(name = "xxx", strategy = "uuid")   
+
+
+hilo: 使用hilo生成策略，要在数据库中建立一张额外的表，默认表名为hibernate_unique_key,默认字段为integer类型，名称是next_hi（比较少用）。
+@GeneratedValue(generator = "xxx")    
+@GenericGenerator(name = "xxx", strategy = "hilo")   
+
+assigned: 在插入数据的时候主键由程序处理（很常用），这是 <generator>元素没有指定时的默认生成策略。等同于JPA中的AUTO。 
+@GeneratedValue(generator = "xxx")    
+@GenericGenerator(name = "xxx", strategy = "assigned ")   
+
+
+sequence: 调用底层数据库的序列来生成主键，要设定序列名，不然hibernate无法找到。 
+@GeneratedValue(generator = "xxx")  
+@GenericGenerator(name = "xxx", strategy = "sequence", parameters = { @Parameter(name = "sequence", value = "底层数据库sequenceName") }
+
+
+increment: 插入数据的时候hibernate会给主键添加一个自增的主键，但是一个hibernate实例就维护一个计数器，所以在多个实例运行的时候不能使用这个方法。 
+@GeneratedValue(generator = "xxx")    
+@GenericGenerator(name = "xxx", strategy = "increment")   
+
+
+guid: 采用数据库底层的guid算法机制，对应MYSQL的uuid()函数，SQL Server的newid()函数，ORACLE的rawtohex(sys_guid())函数等。 
+@GeneratedValue(generator = "xxx")    
+@GenericGenerator(name = "xxx", strategy = "guid")   
+
+
+uuid.hex: 看uuid，建议用uuid替换。 
+@GeneratedValue(generator = "xxx")    
+@GenericGenerator(name = "xxx", strategy = "uuid.hex")   
+
+
+
+
+
+
+hibernate映射类型       Java类型        标准sql类型
+true_false         boolean 或Boolean     char(1)('Y'或'N')
+yes_no            boolean 或Boolean     char(1)('Y'或'N')
+byte            boolean 或Boolean      number(1)(0或1)
+
+hibernate连接Oracle会自动将boolean类型转为number(1)，如果想在数据库中保存0和1则不需要进行配置或注解
+
+
+
+
+@ElementCollection 
+@CollectionTable(name="pic_urls", joinColumns=@JoinColumn(name="id")) 
+@Column(name="pic_url") 
+private List<String> picUrls;
+
+
+
+
+
+
+
+hibernate.cfg.xml
+
+连接MySql的配置
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE hibernate-configuration PUBLIC
+          "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+         "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <!-- 配置数据库驱动 -->
+        <property name="connection.driver_class">
+            com.mysql.jdbc.Driver
+        </property>
+        <!-- 配置数据库连接URL -->
+        <property name="connection.url">
+            jdbc:mysql://localhost:3306/mysqldb
+        </property>
+        <!-- 数据库user -->
+        <property name="connection.username">root</property>
+        <!-- 数据库user密码 -->
+        <property name="connection.password">admin</property>
+        <!-- 配置JDBC内置连接池 -->
+        <property name="connection.pool_size">1</property>
+        <!-- 配置数据库方言 -->
+        <property name="dialect">
+            org.hibernate.dialect.MySQLDialect
+        </property>
+        <!-- 输出运行时生成的SQL语句 -->
+        <property name="show_sql">true</property>
+        <!-- 配置对输出的SQL语句进行格式化 -->
+        <property name="format_sql">true</property>
+        <!-- 配置映射文件 -->
+        <mapping resource="com/model/User.hbm.xml" />
+    </session-factory>
+</hibernate-configuration>
+
+
+连接Oracle的配置
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE hibernate-configuration PUBLIC
+          "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+          "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <!-- 配置数据库的驱动类 -->
+        <property name="connection.driver_class">
+            oracle.jdbc.driver.OracleDriver
+        </property>
+        <!-- 配置数据库的连接路径 -->
+        <property name="connection.url">
+            jdbc:oracle:thin:@127.0.0.1:1521:DBSQL
+        </property>
+        <!-- 配置数据库的连接用户名 -->
+        <property name="connection.username">PERSONNEL_MANAGE</property>
+        <!-- 配置数据库的连接密码，密码为空时也可以省略该行配置代码 -->
+        <property name="connection.password">MWQ</property>
+        <!-- 配置数据库使用的方言 -->
+        <property name="dialect">
+            org.hibernate.dialect.OracleDialect
+        </property>
+        <!-- 配置在控制台显示SQL语句 -->
+        <property name="show_sql">true</property>
+        <!-- 配置对输出的SQL语句进行格式化 -->
+        <property name="format_sql">true</property>
+        <!-- 配置在输出的SQL语句前面添加提示信息 -->
+        <property name="use_sql_comments">true</property>
+        <!-- 配置持久化类映射文件 -->
+        <mapping resource="com/chen/entity/users.hbm.xml" />
+    </session-factory>
+</hibernate-configuration>
+
+连接SQL Server配置
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE hibernate-configuration PUBLIC
+          "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+          "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+ <hibernate-configuration>
+     <session-factory>
+     <!--配置数据库JDBC驱动-->
+     <property name="hibernate.connection.url">jdbc:microsoft:sqlserver://127.0.0.1:1433;DatabaseName=db_manpower</property>
+      <!--配置数据库连接URL-->
+     <property name="hibernate.connection.driver_class">com.microsoft.jdbc.sqlserver.SQLServerDriver</property>
+      <!--配置数据库用户名-->
+     <property name="hibernate.connection.username">sa</property>
+      <!--配置数据库密码-->
+     <property name="hibernate.connection.password"/>
+     <!--输出运行时生成的SQL语句-->
+     <property name="show_sql">ture</property>
+      <!--配置数据库方言-->
+     <property name="hibernate.dialect">org.hibernate.dialect.SQLServerDialect</property>
+      <!--配置连接池个数-->
+     <property name="hibernate.jdbc.batch_size">16</property>
+      <!--列出映射文件-->
+     <mapping resource="com/chen/entity/Users.hbm.xml"/>
+     </session-factory>
+ </hibernate-configuration>
+
+
+<!--标准的XML文件的起始行，version='1.0'表明XML的版本，encoding='gb2312'表明XML文件的编码方式-->
+              <?xml version='1.0' encoding='gb2312'?>
+<!--表明解析本XML文件的DTD文档位置，DTD是Document Type Definition 的缩写,即文档类型的定义,XML解析器使用DTD文档来检查XML文件的合法性。hibernate.sourceforge.net/hibernate-configuration-3.0dtd可以在Hibernate3.1.3软件包中的src\org\hibernate目录中找到此文件-->
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+  <!--声明Hibernate配置文件的开始-->   
+  <hibernate-configuration>
+  <!--表明以下的配置是针对session-factory配置的，SessionFactory是Hibernate中的一个类，这个类主要负责保存HIbernate的配置信息，以及对Session的操作-->
+    <session-factory> 
+    <!--配置数据库的驱动程序，Hibernate在连接数据库时，需要用到数据库的驱动程序-->
+        <property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver </property>
+    <!--设置数据库的连接url:jdbc:mysql://localhost/hibernate,其中localhost表示mysql服务器名称，此处为本机，    hibernate是数据库名-->
+          <property name="hibernate.connection.url">jdbc:mysql://localhost/hibernate </hibernate>
+  <!--连接数据库是用户名-->
+        <property name="hibernate.connection.username">root </property>
+        <!--连接数据库是密码-->
+        <property name="hibernate.connection.password">123456 </property>     
+        <!--数据库连接池的大小-->
+        <property name="hibernate.connection.pool.size">20 </property>     
+      <!--是否在后台显示Hibernate用到的SQL语句，开发时设置为true，便于差错，程序运行时可以在Eclipse的控制台显示Hibernate的执行Sql语句。项目部署后可以设置为false，提高运行效率-->
+      <property name="hibernate.show_sql">true </property>
+      <!--jdbc.fetch_size是指Hibernate每次从数据库中取出并放到JDBC的Statement中的记录条数。Fetch Size设的越大，读数据库的次数越少，速度越快，Fetch Size越小，读数据库的次数越多，速度越慢-->
+      <property name="jdbc.fetch_size">50 </property>
+      <!--jdbc.batch_size是指Hibernate批量插入,删除和更新时每次操作的记录数。Batch Size越大，批量操作的向数据库发送Sql的次数越少，速度就越快，同样耗用内存就越大-->
+      <property name="jdbc.batch_size">23 </property>
+      <!--jdbc.use_scrollable_resultset是否允许Hibernate用JDBC的可滚动的结果集。对分页的结果集。对分页时的设置非常有帮助-->
+      <property name="jdbc.use_scrollable_resultset">false </property>
+      <!--connection.useUnicode连接数据库时是否使用Unicode编码-->
+      <property name="Connection.useUnicode">true </property>
+      <!--connection.characterEncoding连接数据库时数据的传输字符集编码方式，最好设置为gbk，用gb2312有的字符不全-->
+  <property name="connection.characterEncoding">gbk </property>   
+   
+      <!--hibernate.dialect 只是Hibernate使用的数据库方言,就是要用Hibernate连接那种类型的数据库服务器。-->
+        <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect </property>
+      <!--指定映射文件为“hibernate/ch1/UserInfo.hbm.xml”-->     
+        <mapping resource="org/mxg/UserInfo.hbm.xml">
+</session-factory>
+</hibernate-configuration> 
+<bean id="dataSource"
+class="org.apache.commons.dbcp.BasicDataSource"
+destroy-method="close">
+//连接驱动 
+<property name="driverClassName" value="${jdbc.driverClassName}" />
+//连接url, 
+<property name="url" value="${jdbc.url}" />
+//连接用户名 
+<property name="username" value="${jdbc.username}" />
+//连接密码 
+<property name="password" value="${jdbc.password}" />
+</bean>
+<bean id="hbSessionFactory"
+class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
+<property name="dataSource" ref="dataSource" />
+<property name="configLocation">
+//hibernate配置文件位置 
+<value>WEB-INF/hibernate.cfg.xml </value>
+</property>
+<property name="configurationClass"
+value="org.hibernate.cfg.AnnotationConfiguration" />
+<property name="hibernateProperties">
+<props>
+//针对oracle数据库的方言,特定的关系数据库生成优化的SQL 
+  <prop key="hibernate.dialect">
+  org.hibernate.dialect.OracleDialect 
+  </prop>
+//选择HQL解析器的实现 
+  <prop key="hibernate.query.factory_class">
+  org.hibernate.hql.ast.ASTQueryTranslatorFactory 
+  </prop>
+  //是否在控制台打印sql语句 
+  <prop key="hibernate.show_sql">true </prop>
+  //在Hibernate系统参数中hibernate.use_outer_join被打开的情况下,该参数用来允许使用outer join来载入此集合的数据。 
+  <prop key="hibernate.use_outer_join">true </prop>
+//默认打开，启用cglib反射优化。cglib是用来在Hibernate中动态生成PO字节码的，打开优化可以加快字节码构造的速度 
+<prop key="hibernate.cglib.use_reflection_optimizer">true </prop>
+//输出格式化后的sql,更方便查看 
+<prop key="hibernate.format_sql">true </prop>
+//“useUnicode”和“characterEncoding”决定了它是否在客户端和服务器端传输过程中进行Encode，以及如何进行Encode 
+<prop key="hibernate.connection.useUnicode">true </prop>
+//允许查询缓存, 个别查询仍然需要被设置为可缓存的. 
+<prop key="hibernate.cache.use_query_cache">false </prop>
+<prop key="hibernate.default_batch_fetch_size">16 </prop>
+  //连接池的最大活动个数 
+  <prop key="hibernate.dbcp.maxActive">100 </prop>
+//当连接池中的连接已经被耗尽的时候，DBCP将怎样处理(0 = 失败,1 = 等待,2  =  增长) 
+  <prop key="hibernate.dbcp.whenExhaustedAction">1 </prop>
+  //最大等待时间 
+  <prop key="hibernate.dbcp.maxWait">1200 </prop>
+  //没有人用连接的时候，最大闲置的连接个数 
+  <prop key="hibernate.dbcp.maxIdle">10 </prop>
+  ##以下是对prepared statement的处理，同上。 
+  <prop key="hibernate.dbcp.ps.maxActive">100 </prop>
+  <prop key="hibernate.dbcp.ps.whenExhaustedAction">1 </prop>
+  <prop key="hibernate.dbcp.ps.maxWait">1200 </prop>
+  <prop key="hibernate.dbcp.ps.maxIdle">10 </prop>
+</props>
+</property>
+</bean>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+mybatis
+
+
+
+正如大多数持久层框架一样，MyBatis 同样提供了一级缓存和二级缓存的支持
+1. 一级缓存: 基于PerpetualCache 的 HashMap本地缓存，其存储作用域为 Session，当 Session flush 或 close 之后，该Session中的所有 Cache 就将清空。
+2. 二级缓存与一级缓存其机制相同，默认也是采用 PerpetualCache，HashMap存储，不同在于其存储作用域为 Mapper(Namespace)，并且可自定义存储源，如 Ehcache。
+3. 对于缓存数据更新机制，当某一个作用域(一级缓存Session/二级缓存Namespaces)的进行了 C/U/D 操作后，默认该作用域下所有 select 中的缓存将被clear。
+
+一级缓存: 也就Session级的缓存(默认开启)
+
+开启二级缓存，在userMapper.xml文件中添加如下配置
+<mapper namespace="me.gacl.mapping.userMapper">
+<!-- 开启二级缓存 -->
+<cache/>
+
+使用二级缓存时，User类必须实现一个Serializable接口===> User implements Serializable
+
+
+　　1. 映射语句文件中的所有select语句将会被缓存。
+
+　　2. 映射语句文件中的所有insert，update和delete语句会刷新缓存。
+
+　　3. 缓存会使用Least Recently Used（LRU，最近最少使用的）算法来收回。
+
+　　4. 缓存会根据指定的时间间隔来刷新。
+
+　　5. 缓存会存储1024个对象
+
+cache标签常用属性：
+
+<cache 
+eviction="FIFO"  <!--回收策略为先进先出-->
+flushInterval="60000" <!--自动刷新时间60s-->
+size="512" <!--最多缓存512个引用对象-->
+readOnly="true"/> <!--只读-->
+
+
+
+
+http://www.mybatis.org/mybatis-3/zh/getting-started.html
+官方的教程
+
+
+依赖注入框架可以创建线程安全的、基于事务的 SqlSession 和映射器，并将它们直接注入到你的 bean 中，因此可以直接忽略它们的生命周期。 如果对如何通过依赖注入框架来使用 MyBatis 感兴趣，可以研究一下 MyBatis-Spring 或 MyBatis-Guice 两个子项目。
+
+
+SqlSessionFactoryBuilder
+
+这个类可以被实例化、使用和丢弃，一旦创建了 SqlSessionFactory，就不再需要它了。 因此 SqlSessionFactoryBuilder 实例的最佳作用域是方法作用域（也就是局部方法变量）。 你可以重用 SqlSessionFactoryBuilder 来创建多个 SqlSessionFactory 实例，但是最好还是不要让其一直存在，以保证所有的 XML 解析资源可以被释放给更重要的事情。
+SqlSessionFactory
+
+SqlSessionFactory 一旦被创建就应该在应用的运行期间一直存在，没有任何理由丢弃它或重新创建另一个实例。 使用 SqlSessionFactory 的最佳实践是在应用运行期间不要重复创建多次，多次重建 SqlSessionFactory 被视为一种代码“坏味道（bad smell）”。因此 SqlSessionFactory 的最佳作用域是应用作用域。 有很多方法可以做到，最简单的就是使用单例模式或者静态单例模式。
+SqlSession
+
+每个线程都应该有它自己的 SqlSession 实例。SqlSession 的实例不是线程安全的，因此是不能被共享的，所以它的最佳的作用域是请求或方法作用域。 绝对不能将 SqlSession 实例的引用放在一个类的静态域，甚至一个类的实例变量也不行。 也绝不能将 SqlSession 实例的引用放在任何类型的托管作用域中，比如 Servlet 框架中的 HttpSession。 如果你现在正在使用一种 Web 框架，要考虑 SqlSession 放在一个和 HTTP 请求对象相似的作用域中。 换句话说，每次收到的 HTTP 请求，就可以打开一个 SqlSession，返回一个响应，就关闭它。 这个关闭操作是很重要的，你应该把这个关闭操作放到 finally 块中以确保每次都能执行关闭。 下面的示例就是一个确保 SqlSession 关闭的标准模式： 
+
+SqlSession session = sqlSessionFactory.openSession();
+try {
+  // 你的应用逻辑代码
+} finally {
+  session.close();
+}
+
+映射器实例
+
+映射器是一些由你创建的、绑定你映射的语句的接口。映射器接口的实例是从 SqlSession 中获得的。因此从技术层面讲，任何映射器实例的最大作用域是和请求它们的 SqlSession 相同的。尽管如此，映射器实例的最佳作用域是方法作用域。 也就是说，映射器实例应该在调用它们的方法中被请求，用过之后即可丢弃。 并不需要显式地关闭映射器实例，尽管在整个请求作用域保持映射器实例也不会有什么问题，但是你很快会发现，像 SqlSession 一样，在这个作用域上管理太多的资源的话会难于控制。 为了避免这种复杂性，最好把映射器放在方法作用域内。下面的示例就展示了这个实践：
+
+SqlSession session = sqlSessionFactory.openSession();
+try {
+  BlogMapper mapper = session.getMapper(BlogMapper.class);
+  // 你的应用逻辑代码
+} finally {
+  session.close();
+}
+
+
+这些属性都是可外部配置且可动态替换的，既可以在典型的 Java 属性文件中配置，亦可通过 properties 元素的子元素来传递。例如：
+
+<properties resource="org/mybatis/example/config.properties">
+  <property name="username" value="dev_user"/>
+  <property name="password" value="F2Fa3!33TYyg"/>
+</properties>
+
+
+属性也可以被传递到 SqlSessionFactoryBuilder.build()方法中。例如：
+
+SqlSessionFactory factory = new SqlSessionFactoryBuilder().build(reader, props);
+
+// ... 或者 ...
+
+SqlSessionFactory factory = new SqlSessionFactoryBuilder().build(reader, environment, props);
+
+
+如果属性在不只一个地方进行了配置，那么 MyBatis 将按照下面的顺序来加载：
+
+在 properties 元素体内指定的属性首先被读取。
+然后根据 properties 元素中的 resource 属性读取类路径下属性文件或根据 url 属性指定的路径读取属性文件，并覆盖已读取的同名属性。
+最后读取作为方法参数传递的属性，并覆盖已读取的同名属性。
+
+
+从 MyBatis 3.4.2 开始，你可以为占位符指定一个默认值。例如：
+
+<dataSource type="POOLED">
+  <!-- ... -->
+  <property name="username" value="${username:ut_user}"/> <!-- 如果属性 'username' 没有被配置，'username' 属性的值将为 'ut_user' -->
+</dataSource>
+
+这个特性默认是关闭的。如果你想为占位符指定一个默认值， 你应该添加一个指定的属性来开启这个特性。例如：
+
+<properties resource="org/mybatis/example/config.properties">
+  <!-- ... -->
+  <property name="org.apache.ibatis.parsing.PropertyParser.enable-default-value" value="true"/> <!-- 启用默认值特性 -->
+</properties>
+
+如果你已经使用 ":" 作为属性的键（如：db:username） ，或者你已经在 SQL 定义中使用 OGNL 表达式的三元运算符（如： ${tableName != null ? tableName : 'global_constants'}），你应该通过设置特定的属性来修改分隔键名和默认值的字符。例如：
+
+<properties resource="org/mybatis/example/config.properties">
+  <!-- ... -->
+  <property name="org.apache.ibatis.parsing.PropertyParser.default-value-separator" value="?:"/> <!-- 修改默认值的分隔符 -->
+</properties>
+
+<dataSource type="POOLED">
+  <!-- ... -->
+  <property name="username" value="${db:username?:ut_user}"/>
+</dataSource>
+
+
+
+
+这是 MyBatis 中极为重要的调整设置，它们会改变 MyBatis 的运行时行为。 下表描述了设置中各项的意图、默认值等。
+设置名 	描述 	有效值 	默认值
+cacheEnabled 	
+全局地开启或关闭配置文件中的所有映射器已经配置的任何缓存。 	
+true | false 	true
+
+lazyLoadingEnabled 	
+延迟加载的全局开关。当开启时，所有关联对象都会延迟加载。 特定关联关系中可通过设置 fetchType 属性来覆盖该项的开关状态。 	
+true | false 	false
+
+aggressiveLazyLoading 	
+当开启时，任何方法的调用都会加载该对象的所有属性。 否则，每个属性会按需加载（参考 lazyLoadTriggerMethods)。 	
+true | false 	false （在 3.4.1 及之前的版本默认值为 true）
+
+multipleResultSetsEnabled 	
+是否允许单一语句返回多结果集（需要驱动支持）。 	
+true | false 	true
+
+useColumnLabel 	
+使用列标签代替列名。不同的驱动在这方面会有不同的表现，具体可参考相关驱动文档或通过测试这两种不同的模式来观察所用驱动的结果。 	
+true | false 	true
+
+useGeneratedKeys 	
+允许 JDBC 支持自动生成主键，需要驱动支持。 如果设置为 true 则这个设置强制使用自动生成主键，尽管一些驱动不能支持但仍可正常工作（比如 Derby）。 	
+true | false 	False
+
+autoMappingBehavior 	
+指定 MyBatis 应如何自动映射列到字段或属性。 NONE 表示取消自动映射；PARTIAL 只会自动映射没有定义嵌套结果集映射的结果集。 FULL 会自动映射任意复杂的结果集（无论是否嵌套）。 	
+NONE, PARTIAL, FULL 	PARTIAL
+
+autoMappingUnknownColumnBehavior 	指定发现自动映射目标未知列（或者未知属性类型）的行为。
+    NONE: 不做任何反应
+    WARNING: 输出提醒日志 ('org.apache.ibatis.session.AutoMappingUnknownColumnBehavior' 的日志等级必须设置为 WARN)
+    FAILING: 映射失败 (抛出 SqlSessionException)
+NONE, WARNING, FAILING 	NONE
+
+defaultExecutorType 	
+配置默认的执行器。SIMPLE 就是普通的执行器；REUSE 执行器会重用预处理语句（prepared statements）； BATCH 执行器将重用语句并执行批量更新。 	
+SIMPLE REUSE BATCH 	SIMPLE
+
+defaultStatementTimeout 	
+设置超时时间，它决定驱动等待数据库响应的秒数。 	
+任意正整数 	未设置 (null)
+
+defaultFetchSize 	为驱动的结果集获取数量（fetchSize）设置一个提示值。此参数只可以在查询设置中被覆盖。 	
+任意正整数 	未设置 (null)
+
+safeRowBoundsEnabled 	
+允许在嵌套语句中使用分页（RowBounds）。如果允许使用则设置为 false。 	
+true | false 	False
+
+safeResultHandlerEnabled 	
+允许在嵌套语句中使用分页（ResultHandler）。如果允许使用则设置为 false。 	
+true | false 	True
+
+mapUnderscoreToCamelCase 	
+是否开启自动驼峰命名规则（camel case）映射，即从经典数据库列名 A_COLUMN 到经典 Java 属性名 aColumn 的类似映射。 	
+true | false 	False
+
+localCacheScope 	
+MyBatis 利用本地缓存机制（Local Cache）防止循环引用（circular references）和加速重复嵌套查询。 默认值为 SESSION，这种情况下会缓存一个会话中执行的所有查询。 若设置值为 STATEMENT，本地会话仅用在语句执行上，对相同 SqlSession 的不同调用将不会共享数据。 	
+SESSION | STATEMENT 	SESSION
+
+jdbcTypeForNull 	
+当没有为参数提供特定的 JDBC 类型时，为空值指定 JDBC 类型。 某些驱动需要指定列的 JDBC 类型，多数情况直接用一般类型即可，比如 NULL、VARCHAR 或 OTHER。 	
+JdbcType 常量，常用值：NULL, VARCHAR 或 OTHER。 	OTHER
+
+lazyLoadTriggerMethods 	
+指定哪个对象的方法触发一次延迟加载。 	
+用逗号分隔的方法列表。 	equals,clone,hashCode,toString
+
+defaultScriptingLanguage 	
+指定动态 SQL 生成的默认语言。 	
+一个类型别名或完全限定类名。 	org.apache.ibatis.scripting.xmltags.XMLLanguageDriver
+
+defaultEnumTypeHandler 	
+指定 Enum 使用的默认 TypeHandler 。（新增于 3.4.5） 	
+一个类型别名或完全限定类名。 	org.apache.ibatis.type.EnumTypeHandler
+
+callSettersOnNulls 	
+指定当结果集中值为 null 的时候是否调用映射对象的 setter（map 对象时为 put）方法，这在依赖于 Map.keySet() 或 null 值初始化的时候比较有用。注意基本类型（int、boolean 等）是不能设置成 null 的。 
+true | false 	false
+
+returnInstanceForEmptyRow 	
+当返回行的所有列都是空时，MyBatis默认返回 null。 当开启这个设置时，MyBatis会返回一个空实例。 请注意，它也适用于嵌套的结果集 （如集合或关联）。（新增于 3.4.2） 	
+true | false 	false
+
+logPrefix 	
+指定 MyBatis 增加到日志名称的前缀。 	
+任何字符串 	未设置
+
+logImpl 	
+指定 MyBatis 所用日志的具体实现，未指定时将自动查找。 	
+SLF4J | LOG4J | LOG4J2 | JDK_LOGGING | COMMONS_LOGGING | STDOUT_LOGGING | NO_LOGGING 	未设置
+
+proxyFactory 	
+指定 Mybatis 创建具有延迟加载能力的对象所用到的代理工具。 
+CGLIB | JAVASSIST 	JAVASSIST （MyBatis 3.3 以上）
+
+vfsImpl 	
+指定 VFS 的实现 	
+自定义 VFS 的实现的类全限定名，以逗号分隔。 	未设置
+
+useActualParamName 	
+允许使用方法签名中的名称作为语句参数名称。 为了使用该特性，你的项目必须采用 Java 8 编译，并且加上 -parameters 选项。（新增于 3.4.1） 
+true | false 	true
+
+configurationFactory 	
+指定一个提供 Configuration 实例的类。 这个被返回的 Configuration 实例用来加载被反序列化对象的延迟加载属性值。 这个类必须包含一个签名为static Configuration getConfiguration() 的方法。（新增于 3.2.3） 	
+类型别名或者全类名. 	未设置
+
+
+一个配置完整的 settings 元素的示例如下：
+
+<settings>
+  <setting name="cacheEnabled" value="true"/>
+  <setting name="lazyLoadingEnabled" value="true"/>
+  <setting name="multipleResultSetsEnabled" value="true"/>
+  <setting name="useColumnLabel" value="true"/>
+  <setting name="useGeneratedKeys" value="false"/>
+  <setting name="autoMappingBehavior" value="PARTIAL"/>
+  <setting name="autoMappingUnknownColumnBehavior" value="WARNING"/>
+  <setting name="defaultExecutorType" value="SIMPLE"/>
+  <setting name="defaultStatementTimeout" value="25"/>
+  <setting name="defaultFetchSize" value="100"/>
+  <setting name="safeRowBoundsEnabled" value="false"/>
+  <setting name="mapUnderscoreToCamelCase" value="false"/>
+  <setting name="localCacheScope" value="SESSION"/>
+  <setting name="jdbcTypeForNull" value="OTHER"/>
+  <setting name="lazyLoadTriggerMethods" value="equals,clone,hashCode,toString"/>
+</settings>
+
+
+类型别名是为 Java 类型设置一个短的名字。 它只和 XML 配置有关，存在的意义仅在于用来减少类完全限定名的冗余。例如：
+
+<typeAliases>
+  <typeAlias alias="Author" type="domain.blog.Author"/>
+  <typeAlias alias="Blog" type="domain.blog.Blog"/>
+  <typeAlias alias="Comment" type="domain.blog.Comment"/>
+  <typeAlias alias="Post" type="domain.blog.Post"/>
+  <typeAlias alias="Section" type="domain.blog.Section"/>
+  <typeAlias alias="Tag" type="domain.blog.Tag"/>
+</typeAliases>
+
+当这样配置时，Blog 可以用在任何使用 domain.blog.Blog 的地方。
+
+也可以指定一个包名，MyBatis 会在包名下面搜索需要的 Java Bean，比如：
+
+<typeAliases>
+  <package name="domain.blog"/>
+</typeAliases>
+
+每一个在包 domain.blog 中的 Java Bean，在没有注解的情况下，会使用 Bean 的首字母小写的非限定类名来作为它的别名。 比如 domain.blog.Author 的别名为 author；若有注解，则别名为其注解值。见下面的例子：
+
+@Alias("author")
+public class Author {
+    ...
+}
+
+
+这是一些为常见的 Java 类型内建的相应的类型别名。它们都是不区分大小写的，注意对基本类型名称重复采取的特殊命名风格。
+别名 	映射的类型
+_byte 		byte
+_long 		long
+_short 		short
+_int 		int
+_integer 	int
+_double 	double
+_float 		float
+_boolean 	boolean
+string	 	String
+byte 		Byte
+long 		Long
+short 		Short
+int 		Integer
+integer 	Integer
+double 		Double
+float 		Float
+boolean 	Boolean
+date 		Date
+decimal 	BigDecimal
+bigdecimal 	BigDecimal
+object 		Object
+map 		Map
+hashmap 	HashMap
+list 		List
+arraylist 	ArrayList
+collection 	Collection
+iterator 	Iterator 
+
+
+
+无论是 MyBatis 在预处理语句（PreparedStatement）中设置一个参数时，还是从结果集中取出一个值时， 都会用类型处理器将获取的值以合适的方式转换成 Java 类型。下表描述了一些默认的类型处理器。
+
+提示 从 3.4.5 开始，MyBatis 默认支持 JSR-310（日期和时间 API） 。
+类型处理器 	Java 类型 	JDBC 类型
+BooleanTypeHandler 	java.lang.Boolean, boolean 	数据库兼容的 BOOLEAN
+ByteTypeHandler 	java.lang.Byte, byte 	数据库兼容的 NUMERIC 或 BYTE
+ShortTypeHandler 	java.lang.Short, short 	数据库兼容的 NUMERIC 或 SMALLINT
+IntegerTypeHandler 	java.lang.Integer, int 	数据库兼容的 NUMERIC 或 INTEGER
+LongTypeHandler 	java.lang.Long, long 	数据库兼容的 NUMERIC 或 BIGINT
+FloatTypeHandler 	java.lang.Float, float 	数据库兼容的 NUMERIC 或 FLOAT
+DoubleTypeHandler 	java.lang.Double, double 	数据库兼容的 NUMERIC 或 DOUBLE
+BigDecimalTypeHandler 	java.math.BigDecimal 	数据库兼容的 NUMERIC 或 DECIMAL
+StringTypeHandler 	java.lang.String 	CHAR, VARCHAR
+ClobReaderTypeHandler 	java.io.Reader 	-
+ClobTypeHandler 	java.lang.String 	CLOB, LONGVARCHAR
+NStringTypeHandler 	java.lang.String 	NVARCHAR, NCHAR
+NClobTypeHandler 	java.lang.String 	NCLOB
+BlobInputStreamTypeHandler 	java.io.InputStream 	-
+ByteArrayTypeHandler 	byte[] 	数据库兼容的字节流类型
+BlobTypeHandler 	byte[] 	BLOB, LONGVARBINARY
+DateTypeHandler 	java.util.Date 	TIMESTAMP
+DateOnlyTypeHandler 	java.util.Date 	DATE
+TimeOnlyTypeHandler 	java.util.Date 	TIME
+SqlTimestampTypeHandler 	java.sql.Timestamp 	TIMESTAMP
+SqlDateTypeHandler 	java.sql.Date 	DATE
+SqlTimeTypeHandler 	java.sql.Time 	TIME
+ObjectTypeHandler 	Any 	OTHER 或未指定类型
+EnumTypeHandler 	Enumeration Type 	VARCHAR 或任何兼容的字符串类型，用以存储枚举的名称（而不是索引值）
+EnumOrdinalTypeHandler 	Enumeration Type 	任何兼容的 NUMERIC 或 DOUBLE 类型，存储枚举的序数值（而不是名称）。
+SqlxmlTypeHandler 	java.lang.String 	SQLXML
+InstantTypeHandler 	java.time.Instant 	TIMESTAMP
+LocalDateTimeTypeHandler 	java.time.LocalDateTime 	TIMESTAMP
+LocalDateTypeHandler 	java.time.LocalDate 	DATE
+LocalTimeTypeHandler 	java.time.LocalTime 	TIME
+OffsetDateTimeTypeHandler 	java.time.OffsetDateTime 	TIMESTAMP
+OffsetTimeTypeHandler 	java.time.OffsetTime 	TIME
+ZonedDateTimeTypeHandler 	java.time.ZonedDateTime 	TIMESTAMP
+YearTypeHandler 	java.time.Year 	INTEGER
+MonthTypeHandler 	java.time.Month 	INTEGER
+YearMonthTypeHandler 	java.time.YearMonth 	VARCHAR 或 LONGVARCHAR
+JapaneseDateTypeHandler 	java.time.chrono.JapaneseDate 	DATE
+
+
+
+ 你可以重写类型处理器或创建你自己的类型处理器来处理不支持的或非标准的类型。 具体做法为：实现 org.apache.ibatis.type.TypeHandler 接口， 或继承一个很便利的类 org.apache.ibatis.type.BaseTypeHandler， 然后可以选择性地将它映射到一个 JDBC 类型。比如：
+
+// ExampleTypeHandler.java
+@MappedJdbcTypes(JdbcType.VARCHAR)
+public class ExampleTypeHandler extends BaseTypeHandler<String> {
+
+  @Override
+  public void setNonNullParameter(PreparedStatement ps, int i, String parameter, JdbcType jdbcType) throws SQLException {
+    ps.setString(i, parameter);
+  }
+
+  @Override
+  public String getNullableResult(ResultSet rs, String columnName) throws SQLException {
+    return rs.getString(columnName);
+  }
+
+  @Override
+  public String getNullableResult(ResultSet rs, int columnIndex) throws SQLException {
+    return rs.getString(columnIndex);
+  }
+
+  @Override
+  public String getNullableResult(CallableStatement cs, int columnIndex) throws SQLException {
+    return cs.getString(columnIndex);
+  }
+}
+
+<!-- mybatis-config.xml -->
+<typeHandlers>
+  <typeHandler handler="org.mybatis.example.ExampleTypeHandler"/>
+</typeHandlers>
+
+使用上述的类型处理器将会覆盖已经存在的处理 Java 的 String 类型属性和 VARCHAR 参数及结果的类型处理器。 要注意 MyBatis 不会通过窥探数据库元信息来决定使用哪种类型，所以你必须在参数和结果映射中指明那是 VARCHAR 类型的字段， 以使其能够绑定到正确的类型处理器上。这是因为 MyBatis 直到语句被执行时才清楚数据类型。 
+
+
+通过类型处理器的泛型，MyBatis 可以得知该类型处理器处理的 Java 类型，不过这种行为可以通过两种方法改变：
+
+在类型处理器的配置元素（typeHandler 元素）上增加一个 javaType 属性（比如：javaType="String"）；
+在类型处理器的类上（TypeHandler class）增加一个 @MappedTypes 注解来指定与其关联的 Java 类型列表。 如果在 javaType 属性中也同时指定，则注解方式将被忽略。
+
+可以通过两种方式来指定被关联的 JDBC 类型：
+
+在类型处理器的配置元素上增加一个 jdbcType 属性（比如：jdbcType="VARCHAR"）；
+在类型处理器的类上增加一个 @MappedJdbcTypes 注解来指定与其关联的 JDBC 类型列表。 如果在 jdbcType 属性中也同时指定，则注解方式将被忽略。
+
+
+最后，可以让 MyBatis 为你查找类型处理器：
+
+<!-- mybatis-config.xml -->
+<typeHandlers>
+  <package name="org.mybatis.example"/>
+</typeHandlers>
+
+注意在使用自动发现功能的时候，只能通过注解方式来指定 JDBC 的类型。
+
+
+若想映射枚举类型 Enum，则需要从 EnumTypeHandler 或者 EnumOrdinalTypeHandler 中选一个来使用。
+
+比如说我们想存储取近似值时用到的舍入模式。默认情况下，MyBatis 会利用 EnumTypeHandler 来把 Enum 值转换成对应的名字。
+注意 EnumTypeHandler 在某种意义上来说是比较特别的，其他的处理器只针对某个特定的类，而它不同，它会处理任意继承了 Enum 的类。
+
+不过，我们可能不想存储名字，相反我们的 DBA 会坚持使用整形值代码。那也一样轻而易举： 在配置文件中把 EnumOrdinalTypeHandler 加到 typeHandlers 中即可， 这样每个 RoundingMode 将通过他们的序数值来映射成对应的整形数值。
+
+<!-- mybatis-config.xml -->
+<typeHandlers>
+  <typeHandler handler="org.apache.ibatis.type.EnumOrdinalTypeHandler" javaType="java.math.RoundingMode"/>
+</typeHandlers>
+
+<mapper namespace="org.apache.ibatis.submitted.rounding.Mapper">
+	<resultMap type="org.apache.ibatis.submitted.rounding.User" id="usermap">
+		<id column="id" property="id"/>
+		<result column="name" property="name"/>
+		<result column="funkyNumber" property="funkyNumber"/>
+		<result column="roundingMode" property="roundingMode"/>
+	</resultMap>
+
+	<select id="getUser" resultMap="usermap">
+		select * from users
+	</select>
+	<insert id="insert">
+	    insert into users (id, name, funkyNumber, roundingMode) values (
+	    	#{id}, #{name}, #{funkyNumber}, #{roundingMode}
+	    )
+	</insert>
+
+	<resultMap type="org.apache.ibatis.submitted.rounding.User" id="usermap2">
+		<id column="id" property="id"/>
+		<result column="name" property="name"/>
+		<result column="funkyNumber" property="funkyNumber"/>
+		<result column="roundingMode" property="roundingMode" typeHandler="org.apache.ibatis.type.EnumTypeHandler"/>
+	</resultMap>
+	<select id="getUser2" resultMap="usermap2">
+		select * from users2
+	</select>
+	<insert id="insert2">
+	    insert into users2 (id, name, funkyNumber, roundingMode) values (
+	    	#{id}, #{name}, #{funkyNumber}, #{roundingMode, typeHandler=org.apache.ibatis.type.EnumTypeHandler}
+	    )
+	</insert>
+
+</mapper>
+
+
+。。#{roundingMode, typeHandler=org.apache.ibatis.type.EnumTypeHandler}
+
+
+MyBatis 每次创建结果对象的新实例时，它都会使用一个对象工厂（ObjectFactory）实例来完成。 默认的对象工厂需要做的仅仅是实例化目标类，要么通过默认构造方法，要么在参数映射存在的时候通过参数构造方法来实例化。 如果想覆盖对象工厂的默认行为，则可以通过创建自己的对象工厂来实现。比如：
+
+// ExampleObjectFactory.java
+public class ExampleObjectFactory extends DefaultObjectFactory {
+  public Object create(Class type) {
+    return super.create(type);
+  }
+  public Object create(Class type, List<Class> constructorArgTypes, List<Object> constructorArgs) {
+    return super.create(type, constructorArgTypes, constructorArgs);
+  }
+  public void setProperties(Properties properties) {
+    super.setProperties(properties);
+  }
+  public <T> boolean isCollection(Class<T> type) {
+    return Collection.class.isAssignableFrom(type);
+  }}
+
+<!-- mybatis-config.xml -->
+<objectFactory type="org.mybatis.example.ExampleObjectFactory">
+  <property name="someProperty" value="100"/>
+</objectFactory>
+
+ObjectFactory 接口很简单，它包含两个创建用的方法，一个是处理默认构造方法的，另外一个是处理带参数的构造方法的。 最后，setProperties 方法可以被用来配置 ObjectFactory，在初始化你的 ObjectFactory 实例后， objectFactory 元素体中定义的属性会被传递给 setProperties 方法。
+
+
+
+MyBatis 允许你在已映射语句执行过程中的某一点进行拦截调用。默认情况下，MyBatis 允许使用插件来拦截的方法调用包括：
+
+Executor (update, query, flushStatements, commit, rollback, getTransaction, close, isClosed)
+ParameterHandler (getParameterObject, setParameters)
+ResultSetHandler (handleResultSets, handleOutputParameters)
+StatementHandler (prepare, parameterize, batch, update, query)
+
+
+这些类中方法的细节可以通过查看每个方法的签名来发现，或者直接查看 MyBatis 发行包中的源代码。 如果你想做的不仅仅是监控方法的调用，那么你最好相当了解要重写的方法的行为。 因为如果在试图修改或重写已有方法的行为的时候，你很可能在破坏 MyBatis 的核心模块。 这些都是更低层的类和方法，所以使用插件的时候要特别当心。
+
+通过 MyBatis 提供的强大机制，使用插件是非常简单的，只需实现 Interceptor 接口，并指定想要拦截的方法签名即可。
+
+// ExamplePlugin.java
+@Intercepts({@Signature(
+  type= Executor.class,
+  method = "update",
+  args = {MappedStatement.class,Object.class})})
+public class ExamplePlugin implements Interceptor {
+  public Object intercept(Invocation invocation) throws Throwable {
+    return invocation.proceed();
+  }
+  public Object plugin(Object target) {
+    return Plugin.wrap(target, this);
+  }
+  public void setProperties(Properties properties) {
+  }
+}
+
+<!-- mybatis-config.xml -->
+<plugins>
+  <plugin interceptor="org.mybatis.example.ExamplePlugin">
+    <property name="someProperty" value="100"/>
+  </plugin>
+</plugins>
+
+上面的插件将会拦截在 Executor 实例中所有的 “update” 方法调用， 这里的 Executor 是负责执行低层映射语句的内部对象。
+
+
+除了用插件来修改 MyBatis 核心行为之外，还可以通过完全覆盖配置类来达到目的。只需继承后覆盖其中的每个方法，再把它传递到 SqlSessionFactoryBuilder.build(myConfig) 方法即可。再次重申，这可能会严重影响 MyBatis 的行为，务请慎之又慎。
+
+
+MyBatis 可以配置成适应多种环境，这种机制有助于将 SQL 映射应用于多种数据库之中， 现实情况下有多种理由需要这么做。例如，开发、测试和生产环境需要有不同的配置；或者想在具有相同 Schema 的多个生产数据库中 使用相同的 SQL 映射。有许多类似的使用场景。
+
+不过要记住：尽管可以配置多个环境，但每个 SqlSessionFactory 实例只能选择一种环境。
+
+所以，如果你想连接两个数据库，就需要创建两个 SqlSessionFactory 实例，每个数据库对应一个。而如果是三个数据库，就需要三个实例，依此类推，记起来很简单：
+
+    每个数据库对应一个 SqlSessionFactory 实例
+
+为了指定创建哪种环境，只要将它作为可选的参数传递给 SqlSessionFactoryBuilder 即可。可以接受环境配置的两个方法签名是：
+
+SqlSessionFactory factory = new SqlSessionFactoryBuilder().build(reader, environment);
+SqlSessionFactory factory = new SqlSessionFactoryBuilder().build(reader, environment, properties);
+
+如果忽略了环境参数，那么默认环境将会被加载，如下所示：
+
+SqlSessionFactory factory = new SqlSessionFactoryBuilder().build(reader);
+SqlSessionFactory factory = new SqlSessionFactoryBuilder().build(reader, properties);
+
+环境元素定义了如何配置环境。
+
+<environments default="development">
+  <environment id="development">
+    <transactionManager type="JDBC">
+      <property name="..." value="..."/>
+    </transactionManager>
+    <dataSource type="POOLED">
+      <property name="driver" value="${driver}"/>
+      <property name="url" value="${url}"/>
+      <property name="username" value="${username}"/>
+      <property name="password" value="${password}"/>
+    </dataSource>
+  </environment>
+</environments>
+
+
+注意这里的关键点:
+
+默认使用的环境 ID（比如：default="development"）。
+每个 environment 元素定义的环境 ID（比如：id="development"）。
+事务管理器的配置（比如：type="JDBC"）。
+数据源的配置（比如：type="POOLED"）。
+
+
+默认的环境和环境 ID 是自解释的，因此一目了然。 你可以对环境随意命名，但一定要保证默认的环境 ID 要匹配其中一个环境 ID。 
+
+
+
+
+
+
+

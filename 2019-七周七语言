@@ -1,0 +1,5755 @@
+
+
+
+
+百度了下，ruby，似乎并不太看好。
+有点是开发速度快，但运行速度慢，所以很多时候都是作一个原型，需要速度的时候开始迁移到其他语言。
+
+RoR，Ruby on Rails.这个框架很很很强。不知道有没有人能迁移到其他语言上去。
+
+ruby是解释执行的。
+
+""的string会发生字符串替换 "hi, #{name}"
+''的string所见即所得。
+
+4.class
+=>Integer
+。。不是书上的Fixnum
+
+4.methods
+一大串方法。
+
+irb(main):009:0> false.class
+=> FalseClass
+
+False.class  NameError (uninitialized constant False)
+
+NameError (uninitialized constant False)
+Did you mean?  FALSE
+irb(main):011:0> FALSE.class
+(irb):11: warning: constant ::FALSE is deprecated
+=> FalseClass
+
+
+irb(main):014:0> puts 'this is false' unless x==5
+irb(main):015:0> puts 'this is false' if x==5
+if的两种写法。
+
+
+irb(main):017:0> if x==4
+irb(main):018:1> puts 'this is true.'
+irb(main):019:1> end
+this is true.
+=> nil
+irb(main):020:0> unless x==5
+irb(main):021:1> puts'this is true.'
+irb(main):022:1> end
+this is true.
+=> nil
+
+if的4种写法。。而且这里puts和后面的参数是否直接相连不影响的。
+
+ifx==4就不行了，估计是string默认和前面的分隔。
+
+
+irb(main):024:0> unless x==4
+irb(main):025:1> puts'this is 1'
+irb(main):026:1> else
+irb(main):027:1> puts'this is 2'
+irb(main):028:1> end
+this is 2
+
+
+unless还是直接理解为if not 比较好，"除非"这个实在是太绕了
+
+
+order.calculate tax unless order.nil?
+这个没办法执行，但是这个意思很厉害，能缩短代码，但是估计要花更多的时间来作转换。
+
+
+x=x+1 while x<10
+x就变成了10，x在上面就初始化了。
+
+x=x-1 until x==1
+x就变成了1。
+
+irb(main):035:0> while x<10
+irb(main):036:1> x=x+1
+irb(main):037:1> puts x
+irb(main):038:1> end
+输出2-10，每个数字一行。
+
+irb(main):041:0> until x==1
+irb(main):042:1> x=x-1
+irb(main):043:1> puts x
+irb(main):044:1> end
+9-1
+
+
+nil和false代表 逻辑否，其他全是 逻辑是，0也是逻辑是。
+
+
+and,&&,or,|| 都有短路。
+&，| 不会短路。
+
+
+而且是解释执行，所以被短路的是错的，也不会报错。
+
+true && error
+NameError (undefined local variable or method `error' for main:Object)
+
+false && error
+返回false
+
+
+
+鸭子类型
+
+(4.5).class 是 Float
+4+4.0 是 8.0
+
+ruby运行时才进行类型检查，而不是编译时。。动态类型。采用静态类型时，编译器和工具能捕获更多的错误。
+ruby的类型系统也有优势：多个类不必继承自相同父类，就能以相同方式使用。
+。。就是多态不需要继承自同一个父类/接口，只需要有同名方法就行。
+
+def定义函数，不执行。
+
+irb(main):051:0> def add_up
+irb(main):052:1>   4+'four'
+irb(main):053:1> end
+=> :add_up
+irb(main):054:0> add_up
+Traceback (most recent call last):
+TypeError (String can't be coerced into Integer)
+
+在真正执行时才报错。
+
+
+irb(main):062:0> i=0
+=> 0
+irb(main):063:0> a=['100',100.0]
+=> ["100", 100.0]
+irb(main):064:0> while i<2
+irb(main):065:1> puts a[i].to_i
+irb(main):066:1> i=i+1
+irb(main):067:1> end
+100
+100
+=> nil
+
+鸭子类型，一个String，一个Float，转成int，都是用to_i方法。
+鸭子类型并不关心实际类型是什么，只要它能嘎嘎叫，那它就是一只鸭子。
+
+面向对象设计思想中，有这样一个主要的原则，对接口编程，不对实现编程。如果利用鸭子类型，实现这一原则只需极少的额外工作。
+
+
+函数也是一个对象。
+
+每个函数都有返回结果，如果没有显式执行返回值，函数就返回退出函数前最后处理的表达式的值。
+
+irb(main):070:0> animals=['lions','tiger','cat']
+=> ["lions", "tiger", "cat"]
+irb(main):071:0> puts animals
+lions
+tiger
+cat
+=> nil
+irb(main):072:0> animals[2]
+=> "cat"
+irb(main):073:0> animals[3]
+=> nil
+irb(main):074:0> animals[-1]
+=> "cat"
+irb(main):075:0> animals[0..1]
+=> ["lions", "tiger"]
+irb(main):076:0> (0..1).class
+=> Range
+
+0..1是一个Range对象，表示从0到1的所有数字。。就是[0,1]集合
+
+
+irb(main):079:0> [1].class
+=> Array
+irb(main):080:0> [1].methods.include?('[]')
+=> false
+irb(main):081:0> [1].methods.include?(:[])          // ruby1.9开始的。
+=> true
+irb(main):082:0> a=[]
+=> []
+irb(main):083:0> a[0]='zero'
+=> "zero"
+irb(main):084:0> a[1]=2
+=> 2
+irb(main):086:0> a[3]=['w','f']
+=> ["w", "f"]
+irb(main):087:0> a
+=> ["zero", 2, nil, ["w", "f"]]
+
+
+irb(main):088:0> a=[1]
+=> [1]
+irb(main):089:0> a.push(1)
+=> [1, 1]
+irb(main):090:0> a.push(2)
+=> [1, 1, 2]
+irb(main):091:0> a.pop()
+=> 2
+irb(main):092:0> a.pop
+=> 1
+irb(main):093:0> a.push 2
+=> [1, 2]
+irb(main):094:0> a
+=> [1, 2]
+
+数组有栈的方法。
+形参不一定需要()。。
+
+a.methods 方法有点多。
+
+
+ruby数组是[]，
+散列表是{}
+
+
+irb(main):096:0> numbers={1=>'one',2=>'two'}
+=> {1=>"one", 2=>"two"}
+irb(main):097:0> numbers[1]
+=> "one"
+irb(main):098:0> numbers[2]
+=> "two"
+irb(main):099:0> numbers[3]
+=> nil
+
+
+符号是前面带有冒号的标识符。两个同值字符串在物理上不同，但相同的符号却是同一物理对象。
+
+irb(main):001:0> 'string'.object_id
+=> 47037944397900
+irb(main):002:0> 'string'.object_id
+=> 47037944499300
+irb(main):003:0> a='string'
+=> "string"
+irb(main):004:0> a.object_id
+=> 47037944519300
+irb(main):005:0> a='asdf'
+=> "asdf"
+irb(main):006:0> a.object_id
+=> 47037944527120
+irb(main):007:0> a='asdf'
+=> "asdf"
+irb(main):008:0> a.object_id
+=> 47037944543160
+irb(main):009:0> :string.object_id
+=> 290908
+irb(main):010:0> :string.object_id
+=> 290908
+
+。。每次都new一个string，ruby没有字符串池么？
+
+还有符号是什么，标识符？变量？后者吧， :string='a' 是语法错误
+
+ruby不支持命名参数，但可以用散列表来模拟它。
+irb(main):012:0> def tell(options={})
+irb(main):013:1> if options[:profession]==:lawyer
+irb(main):014:2> 'it could be believed'
+irb(main):015:2> else
+irb(main):016:2> true
+irb(main):017:2> end
+irb(main):018:1> end
+=> :tell
+irb(main):019:0> tell :profession=>:lawyer
+=> "it could be believed"
+
+散列表作为最后一个参数时，大括号可有可无。
+
+
+代码块是没有名字的函数，它可以作为参数传递给函数或方法。
+irb(main):020:0> 2.times{puts'hi,ruby.'}
+hi,ruby.
+hi,ruby.
+=> 2
+
+大括号之间的代码就称作代码块。
+times是Integer类的方法，执行n次x，n是Integer对象的值，x是代码块
+可以采用 {} 或 do/end 2种方式来界定代码块。
+一般惯例是，代码块只占一行时，使用{}，多行时使用do/end。
+
+代码块可以带有一个或多个参数
+irb(main):021:0> animals=['cat','dog','pig']
+=> ["cat", "dog", "pig"]
+irb(main):022:0> animals.each{|a| puts a}
+cat
+dog
+pig
+=> ["cat", "dog", "pig"]
+
+
+irb(main):023:0> class Integer
+irb(main):024:1> def my_times
+irb(main):025:2> i=self
+irb(main):026:2> while i>0
+irb(main):027:3> i=i-1
+irb(main):028:3> yield
+irb(main):029:3> end
+irb(main):030:2> end
+irb(main):031:1> end
+=> :my_times
+irb(main):032:0> 2.my_times{puts 'hi,.'}
+hi,.
+hi,.
+=> nil
+
+yield调用代码块
+
+代码块还可以作为一等参数
+irb(main):033:0> def call(&block)
+irb(main):034:1> block.call
+irb(main):035:1> end
+=> :call
+irb(main):036:0> def call_call(&block)
+irb(main):037:1> call(&block)
+irb(main):038:1> end
+=> :call_call
+irb(main):039:0> call_call {puts 'hi.bk'}
+hi.bk
+=> nil
+
+ruby中，代码块不仅可用于循环，还可用于延迟执行
+
+执行ruby文件的命令是ruby
+后缀有没有都可以用ruby执行，一般是.rb后缀。
+
+
+ruby中的类只能继承自一个叫做 超类 的类。
+
+irb(main):040:0> 4.class.superclass
+=> Numeric
+irb(main):041:0> 4.class.superclass.superclass
+=> Object
+irb(main):042:0> 4.class.superclass.superclass.superclass
+=> BasicObject
+irb(main):043:0> 4.class.superclass.superclass.superclass.superclass
+=> nil
+
+和书上有点差别，书上4.class是Fixnum,父类依次是：Integer,Numeric,Object,nil。
+
+irb(main):044:0> 4.class.class
+=> Class
+irb(main):045:0> 4.class.class.superclass
+=> Module
+irb(main):046:0> 4.class.class.superclass.superclass
+=> Object
+irb(main):047:0> 4.class.class.superclass.superclass.superclass
+=> BasicObject
+irb(main):048:0> 4.class.class.superclass.superclass.superclass.superclass
+=> nil
+
+上上面是Integer的父类，上面是Class的父类。
+
+
+类大写开头，一般骆驼命名法，CamelCase
+实例变量(一个对象有一个值)前必须加@
+类变量(一个类有一个值)前必须加@@
+。。类变量，静态变量的区别。
+
+实例变量和方法名以小写字母开头，采用下划线命名法。
+常量采用全大写形式。
+。。？ruby常量和静态变量有区别吗？
+
+由于逻辑测试的函数和方法一般要加上问号，如if test?
+
+attr关键字可以用来定义实例变量。它有几种版本，其中最常用的版本是 attr 和 attr_accessor。
+attr定义实例变量和访问变量的同名方法，attr_accessor定义实例变量，访问方法，设置方法。
+注释:attr也可以定义访问方法，只需要把true作为第二个参数传入。。。这样的话，一行只能定义一个了吧？
+
+
+面向对象语言利用继承，将行为传播到相似的对象上。但对象若想继承并不相似的多种行为，一方面可以通过允许从多个类继承而实现，另一方面也可以借助于其他解决方案。
+多继承不仅复杂，而且问题多多。
+java采用接口解决这一问题。
+ruby采用模块。
+
+模块是函数和常量的集合。
+如果在类中包含了一个模块，那么该模块的行为和常量也会成为类的一部分。
+。。常量 和 行为。
+
+通过下面这个类，我们可以把to_f方法添加到任意一个类上
+
+module ToFile
+    def filename
+        "object_#{self.object_id}.txt"
+    end
+
+    def to_f
+        File.open(filename, 'w') {|f| f.write(to_s)}
+    end
+end
+
+
+class Person
+    include ToFile
+    attr_accessor :name
+
+    def initialize(name)
+        @name = name
+    end
+
+    def to_s
+        name
+    end
+end
+
+Person.new('matz').to_f
+
+
+mixin，混入
+简明的单继承，先定义类的主要部分，然后用模块添加额外功能。
+
+
+ruby有2个重要的mixin，枚举和比较。
+如果想让类可枚举，必须实现each方法。
+如果想让类可比较,必须实现 <=> 操作符。 <=> 被人们叫做太空船操作符,它比较a、b两操作数,b较大返回-1,a较大返回1,相等返回0。
+
+irb(main):050:0> 'begin' <=> 'end'
+=> -1
+irb(main):051:0> 1 <=> 2
+=> -1
+irb(main):052:0> 1 <=> 1
+=> 0
+irb(main):053:0> a = [5,2,4,1,3]
+=> [5, 2, 4, 1, 3]
+irb(main):054:0> a.sort
+=> [1, 2, 3, 4, 5]
+irb(main):055:0> a.any? {|i| i>6}
+=> false
+irb(main):056:0> a.any? {|i| i>4}
+=> true
+irb(main):057:0> a.all? {|i| i>4}
+=> false
+irb(main):058:0> a.all? {|i| i>0}
+=> true
+irb(main):059:0> a.collect {|i| i*2}
+=> [10, 4, 8, 2, 6]
+irb(main):060:0> a.select {|i| i%2 == 0}
+=> [2, 4]
+
+irb(main):063:0> a.max
+=> 5
+irb(main):064:0> a.min
+=> 1
+irb(main):065:0> a.member?(6)
+=> false
+
+irb(main):066:0> a
+=> [5, 2, 4, 1, 3]
+irb(main):067:0> a=a.sort()
+=> [1, 2, 3, 4, 5]
+irb(main):068:0> a
+=> [1, 2, 3, 4, 5]
+
+
+collect 和 map 方法把函数应用到每个元素上,并返回结果数组。 find 方法找到一个符合条件的元素,而 select 和 find_all 方法均返回所有符合条件的元素。你还可以用 inject 方法计算列表的和与积。
+
+irb(main):070:0> a.inject(0) {|sum, i| sum+i}
+=> 15
+irb(main):071:0> a.inject {|sum, i| sum + i}
+=> 15
+irb(main):072:0> a.inject {|product, i| product*i}
+=> 120
+
+
+inject后面跟一个代码块,里面有两个参数和一个表达式。
+通过第二个参数,把每个列表元素传入代码块,这样代码块就能在每个列表项上执行操作。第一个参数是代码块上一次执行的结果。由于代码块第一次执行时,还没有上一次执行的结果,因此可以把初始值作为 inject 方法的参数传入。(如果不设初始值, inject 会使用集合中的第一个值。)
+
+
+irb(main):073:0> a.inject do |sum, i|
+irb(main):074:1* puts "sum: #{sum}, i:#{i}"
+irb(main):075:1> sum+i
+irb(main):076:1> end
+sum: 1, i:2
+sum: 3, i:3
+sum: 6, i:4
+sum: 10, i:5
+=> 15
+
+irb(main):077:0> a.inject(0) do |sum, i|
+irb(main):078:1* puts "sum: #{sum}, i:#{i}"
+irb(main):079:1> sum+i
+irb(main):080:1> end
+sum: 0, i:1
+sum: 1, i:2
+sum: 3, i:3
+sum: 6, i:4
+sum: 10, i:5
+=> 15
+
+不写初始值就少一次计算。
+方法默认return 最后一个表达式的值，所以估计sum+i必须最后执行。
+
+数组转散列
+irb(main):081:0> a=[1,'a',2,'b','c','d']
+=> [1, "a", 2, "b", "c", "d"]
+irb(main):082:0> p Hash[*a]
+{1=>"a", 2=>"b", "c"=>"d"}
+=> {1=>"a", 2=>"b", "c"=>"d"}
+
+irb(main):083:0> a=[[1,'a'],[2,'d'],['w',3]]
+=> [[1, "a"], [2, "d"], ["w", 3]]
+irb(main):085:0> p Hash[*a.flatten]
+{1=>"a", 2=>"d", "w"=>3}
+=> {1=>"a", 2=>"d", "w"=>3}
+
+
+irb(main):086:0> k=[1,2,4]
+=> [1, 2, 4]
+irb(main):087:0> v=['a','vb','c']
+=> ["a", "vb", "c"]
+irb(main):088:0> a=k.zip(v)
+=> [[1, "a"], [2, "vb"], [4, "c"]]
+irb(main):089:0> p Hash[*a.flatten]
+{1=>"a", 2=>"vb", 4=>"c"}
+=> {1=>"a", 2=>"vb", 4=>"c"}
+
+irb(main):090:0> a=[k,v].transpose
+=> [[1, "a"], [2, "vb"], [4, "c"]]
+。。上面的方法p后面需要一个=。。。不加=能执行，但是p是nil。。
+
+散列转数组似乎只能自己写方法。
+
+irb(main):105:0> p.each_pair
+=> #<Enumerator: {1=>"a", 2=>"vb", 4=>"c"}:each_pair>
+irb(main):106:0> p.each_key
+=> #<Enumerator: {1=>"a", 2=>"vb", 4=>"c"}:each_key>
+
+
+irb(main):112:0> a=[1,2,34]
+=> [1, 2, 34]
+irb(main):113:0> a.sum
+=> 37
+
+a.methods, p.methods 还有好多方法。。
+
+
+
+
+元编程：写能写程序的程序。
+Rails核心的ActiveRecord框架，就用元编程实现了一门简便易用的语言，以便编写连接数据库表的类。
+
+如果给 department ( 部门)写个ActiveRecord 类,写出来可能像下面这样:
+class Department < ActiveRecord::Base
+    has_many :employees
+    has_one :manager
+end
+
+has_many和has_one是2个ruby的方法。它们会把建立一对多关系将要用到的所有实例变量和方法都添加进来。
+
+
+开放类
+可以随时改变任何类的定义，常用于给类添加行为。
+一个来自Rails框架的一个例子，为NilClass添加了一个方法：
+class NilClass
+    def blank?
+        true
+    end
+end
+
+irb(main):114:0> class NilClass
+irb(main):115:1> def blank?
+irb(main):116:2> true
+irb(main):117:2> end
+irb(main):118:1> end
+=> :blank?
+irb(main):119:0> class String
+irb(main):120:1> def blank?
+irb(main):121:2> self.size == 0
+irb(main):122:2> end
+irb(main):123:1> end
+=> :blank?
+irb(main):124:0> ['','per',nil].each do |e|
+irb(main):125:1* puts e unless e.blank?
+irb(main):126:1> end
+per
+=> ["", "per", nil]
+
+
+在类名上首次调用class关键字会定义一个类，如果已定义过，那么会修改类定义。
+
+
+实现用于领域编程的特定语言时，开放类特别有用，其中一种常用情况，是通过语言表示业务领域的度量单位。
+以英寸为距离单位的api：
+#feet_api.rb
+class Numeric
+    def inches
+        self
+    end
+
+    def feet
+        self * 12.inches
+    end
+
+    def yards
+        self * 3.feet
+    end
+
+    def miles
+        self * 5280.feet
+    end
+
+    def back
+        self * -1
+    end
+
+    def forward
+        self
+    end
+end
+
+puts 10.miles.back
+puts 2.feet.forward
+
+
+method_missing
+ruby找不到某个方法时，会调用method_missing。
+
+编写一个表示罗马数字的api，或许你觉得可以用方法调用轻松实现这个API,类似 Roman.number_for "ii" 。说实话,这样做也不坏,毕竟没有括号、分号什么的捣乱,不过用Ruby,我们能做得更漂亮
+
+class Roman
+    def self.method_missing name, *args
+        roman = name.to_s
+        roman.gsub!("IV", "IIII")
+        roman.gsub!("IX", "VIIII")
+        roman.gsub!("XL", "XXXX")
+        roman.gsub!("XC", "LXXXX")
+
+        (roman.count("I") + roman.count("V")*5 + roman.count("X")*10 + roman.count("L") * 50 + roman.count("C")*100)
+    end
+end
+
+puts Roman.X
+puts Roman.XC
+puts Roman.XII
+puts Roman.X
+
+输出10 90 12 10
+
+method_mission参数时 未找到方法的名称 和 参数
+把名称转为字符串，然后，ix和iv这样的特殊数字形式，被转为更容易计数的字符串，最后，对罗马数字进行计数，并将计数结果与数字的值相乘。
+
+代价：调试会更难，因为ruby不再告诉你它找不到某个方法。
+
+
+ruby最流行的元编程方式，非模块莫属。
+还可以通过一些神奇的方式来扩展类定义，其中一种是设计自己的DSL(domina-sprcific language,领域特点语言)，再用DSL定义自己的类。DSL在模块中定义各种方法，这些方法添加了对类进行管理所必须的全部方法和常量。
+
+根据类名，打开相应的CSV文件。
+class ActsAsCsv
+    def read
+        file = File.new(self.class.to_s.downcase + '.txt')
+        @headers = file.get.chomp.split(', ')
+        file.each do |row|
+            @result << row.chomp.split(', ')
+        end
+    end
+
+    def headers
+        @headers
+    end
+
+    def csv_contents
+        @result
+    end
+
+    def initialize
+        @result = []
+        read
+    end
+end
+
+class RubyCsv < ActsAsCsv
+end
+
+m = RubyCsv.new
+puts m.headers.inspect
+puts m.csv_contents.inspect
+
+基础类定义了4个方法，headers,csv_contents是2个返回实例变量值的访问器，initialize初始化读取结果。read承担了这个类大部分工作：打开文件，读取表头，把表头切分成一个个字段,再循环各行,把每一行的内容放入数组。
+
+
+下面的代码还是读取CSV文件，但这回，用一个叫做 宏(macro) 的模块方法添加类行为。
+宏经常根据环境变化改变类行为。
+示例中，宏开放类，并把所有与CSV文件相关的行为复制到类中。
+
+class ActsAsCsv
+    def self.acts_as_csv
+        define_method 'read' do
+            file = File.new(self.class.to_s.downcase + '.txt')
+            @headers = file.gets.chomp.split(', ')
+            file.each do |row|
+                @result << row.chomp.split(', ')
+            end
+        end
+
+        define_method 'headers' do
+            @headers
+        end
+
+        define_method 'csv_contents' do
+            @result
+        end
+
+        defind_method 'initialize' do
+            @result = []
+            read
+        end
+    end
+end
+
+class RubyCsv < ActsAsCsv
+    acts_as_csv
+end
+
+m = RubyCsv.new
+puts m.headers.inspect
+puts m.csv_contents.inspect
+
+元编程发生在acts_as_csv宏中，它对我们想添加到目标类上的所有方法都调用了define_method。现在，当目标类调用acts_as_csv时，宏代码会为目标类定义4个方法。
+
+
+acts_as_csv宏只是添加一些方法，这些方法本就可以通过继承轻松添加。这样看来，改进不大。
+我们来看看模块中，同样的行为是如何实现的：
+
+module ActsAsCsv
+    def self.included(base)
+        base.extend ClassMethods
+    end
+
+    module ClassMethods
+        def acts_as_csv
+            include InstanceMethods
+        end
+    end
+
+    module InstanceMethods
+        def read
+            @csv_contents = []
+            filename = self.class.to_s.downcase + '.txt'
+            file = File.new(filename)
+            @headers = file.gets.chmop.split(', ')
+            file.each do |row|
+                @csv_contents << row.chomp.split(', ')
+            end
+        end
+
+        attr_accessor :headers, :csv_contents
+
+        def initialize
+            read
+        end
+    end
+end
+
+class RubyCsv
+    include ActsAsCsv
+    acts_as_csv
+end
+
+m = RubyCsv.new
+puts m.headers.inspect
+puts m.csv_contents.inspect
+
+。。之前全是继承，需要修改源代码，这里就不需要了，切进去了。不不不，不清楚第二次class，能修改继承么？
+
+只要某个模块被另一个模块包含，Ruby就会调用该模块的included方法。
+类也是模块。
+在ActsAsCsv模块的included方法中，我们扩展了名为base的目标类(即RubyCsv类)。该模块还为RubyCsv类添加了类方法。其中acts_as_csv是唯一的类方法。接下来，acts_as_csv方法又打开了RubyCsv类，并在类中包含了所有实例方法
+
+所有这些元编程技术的有趣之处在于,程序可以根据它应用时的状态而改变。 ActiveRecord
+利用元编程,动态添加与数据库中的列有相同名称的访问器。有些XML框架如 builder ,可允许
+用户通过 method_missing 方法定义自定义标签,以提供更加美观的语法。当代码的语法变得更
+美观,阅读代码的读者也就不必在语法问题上大伤脑筋,从而能更好地理解代码本身表达的意图。
+这正是Ruby的威力所在。
+
+
+gem
+打包的ruby应用程序或库称为gem，具有名称和版本号。本地可以使用gem命令管理gem包。
+。。https://rubygems.org/
+
+
+？？？？？？？？？？？？？？？？？？？？？？
+我还以为一周一语言，结果第三天，ruby就结束了。。。
+
+
+
+。。
+Io 似乎没人用了
+随便看看吧。
+原型语言无用武之地啊。
+
+c++随着oo
+java,ruby随着Web
+python随着数据分析，AI，ML。
+什么潮流能带动Io呢。。
+。。
+
+如同Lua、JavaScript一样,Io是一种原型语言,这意味着每个对象都是另一个对象的复制品。
+。。Lua也是原型语言？
+
+一刻钟学会语法,半小时学会基本原理
+。。！！！
+
+如今的大多数Io社区,都致力于把Io作为带有微型虚拟机和丰富并发特性的可嵌入语言来推
+广。Io的核心优势是拥有大量可定制语法和函数,以及强有力的并发模型。
+。。并发，想到了go。。
+
+
+Io语法只不过是把消息全部
+串联起来,每条消息都会返回一个对象,每条消息也都带有置于括号内的可选参数。在Io中,万
+事万物皆为消息,且每条消息都会返回另一接收消息的对象。Io这门语言没有关键字,有的只是
+少量在行为上接近于关键字的字符。
+。。new对象消耗大不大？
+
+用Io的时候,你不必既操心类又操心对象。你只需和对象打交道,必要时把对象复制一下就
+行。这些被复制的对象就叫做原型。
+在原型语言中,每个对象都不是类的复制品,而是一个实实在在的对象。此外,Io还能带你无限
+接近面向对象的Lisp。
+。。Lisp都忘记了，而且好像没有学过Lisp的oo，都是语法啊。。
+
+
+fedora
+io，有提示，安装io-language后，最后有个时间，是20140919。
+好吧，是每次进入io都有提示，应该是版本吧，直接用时间，虽然很方便很明了，但是多年不更新，心里还是发怵啊。
+
+我。。这个解释器竟然不支持方向键。。输入字符串是真的末日啊。
+
+字符串只能""，不能''
+
+
+Io> "hi,io" print
+hi,io==> hi,io
+发送了 print 消息给字符串 "hi,io", 接收者在左边,消息在右边。
+。。竟然是这种解释。后一句是在解释第一行还是解释第二行？还是都可以？
+
+
+Io> a := Object clone
+==>  Object_0x6cfea0:
+
+Io> a
+==>  Object_0x6cfea0:
+
+。。后面真的有个空行。
+
+Object是根对象。发送 clone 消息过去,它会返回一个新对象。
+把这个返回的新对象赋值给 Vehicle 。这里的 Vehicle 不是类,也不是用来创建对象的模板,它只是个对象，是一个基于 Object 原型的对象。
+。。书上是 Vehicle := Object clone
+
+Io> a description := "sth to take you places"
+==> sth to take you places
+Io> a description
+==> sth to take you places
+
+
+对象还带有槽。你可以把一组槽想象成散列表,通过键就能引用到任何一个槽。你既可以用 :=
+给槽赋值,这种情况下,当槽尚不存在时,Io会创建出一个槽;也可以用 = 给槽赋值,这种情况
+下,当槽不存在时,Io会抛出一个异常。
+
+Io> a slotNames
+==> list(description)
+所有槽的名字，书上是自带一个type的，这里没有。书上，type是clone的时候就有的，就是这里clone时空的那行，就是显示 type = "Vehicle"
+
+type似乎变成了内置的，而且clone后type和被clone的一致，而不是书上的Vehicle type 返回 Vehicle
+Io> a type
+==> Object
+Io> Object type
+==> Object
+
+Io> b := a clone
+==>  Object_0x768b50:
+
+Io> b slotNames
+==> list()
+Io> b type
+==> Object
+Io> b type = "car"
+==> car
+Io> b slotNames
+==> list(type)
+Io> b type
+==> car
+Io> c := b clone
+==>  car_0x7ac640:
+
+Io> c slotNames
+==> list()
+Io> c type
+==> car
+Io> b description
+==> sth to take you places
+Io> c description
+==> sth to take you places
+
+。。
+type是默认 原型的type
+手动赋值后才会出现在slotNames中。
+看来slotNames就是，手动设定的槽，有些默认/继承的槽并不展现。。。description。
+。。错了。。
+
+Io> A := Object clone
+==>  A_0x6a3090:
+  type             = "A"
+
+在Io语言中，我们通过把 clone 消息发送给 Vehicle 原型,创建一个名为 Car 的新对象。接着,我们把 description 发送给 Car :
+Car 没有 description 槽,因此Io会把 description 消息转发给 Car 的原型 Vehicle ,并在Vehicle 中找到这个槽。
+
+我们再来创建另一辆小汽车。不过这次,我们把它赋值给 ferrari :
+这下连 type 槽都没了。这是因为,依照Io的惯例,其类型应以大写字母开头。如果现在调用 type 槽,会得到它原型的类型:
+。。挺好的，大写开头当作类，小写开头当作对象。虽然都是对象。
+
+对象不过是槽的容器而已。发送槽名给对象可获得该槽。如果该槽不存在,则调用父对象的槽。
+你要理解的全部内容就是这些。这里没有类,也没有元类。你手里也不会有接口或模块,有的只是对象
+
+
+Io的类型是一种非常好用的机制。从惯用法的角度说,以大写字母开头的对象是类型,因此
+Io会对它设置 type 槽。而类型的复制品若以小写字母开头,则会调用它父对象的 type 槽。类型
+仅仅是帮助Io程序员更好地组织代码的工具。
+
+我们采用简明的编程惯例而不是完整的语言特性来区分类型和实例。在其他方面,它们的行为是相同的。
+
+在Ruby和Java中,类是用来创建对象的模板。 bruce = Person.new 这条语句从 Person 类创
+建一个新的 Person 对象。 bruce 和 Person 是完全不同的两个实体,一个是对象,一个是类。在Io
+中却不是这样。 bruce := Person clone 这条语句从 Person 原型创建一个名为 bruce 的复制品。
+bruce 和 Person 都是对象。 Person 还是类型,因为它有 type 槽。而在其他方面, Person 和 bruce
+完全相同。下面,我们来看看具体行为。
+
+
+Io> method("so you come for an argument." println)
+==> method(
+    "so you come for an argument." println
+)
+Io> method() type
+==> Block
+
+Io> a := A clone
+==>  A_0x660da0:
+
+Io> A drive := method("VVroom" println)
+==> method(
+    "VVroom" println
+)
+Io> A drive
+VVroom
+==> VVroom
+Io> a drive
+VVroom
+==> VVroom
+
+。。method里面是不带,的。。。
+
+Io> a slotNames
+==> list()
+Io> a getSlot("type")
+==> A
+Io> a getSlot("drive")
+==> method(
+    "VVroom" println
+)
+Io> a proto
+==>  A_0x6a3090:
+  drive            = method(...)
+  type             = "A"
+
+
+。。slotNames, getSlot, proto
+
+
+Io> Lobby
+==>  Object_0x439770:
+  A                = A_0x6a3090
+  Lobby            = Object_0x439770
+  Protos           = Object_0x439620
+  _                = Object_0x439770
+  a                = A_0x660da0
+  b                = car_0x768b50
+  c                = car_0x7ac640
+  exit             = method(...)
+  forward          = method(...)
+  set_             = method(...)
+
+Lobby 是主命名空间，包含了所有已命名对象。
+
+
+
+原型编程范型看来十分清晰,下面就是这种范型的几条基本原则:
+ 所有事物都是对象;
+ 所有与对象的交互都是消息;
+ 你要做的不是实例化类,而是复制那些叫做原型的对象;
+ 对象会记住它的原型;
+ 对象有槽;
+ 槽包含对象(包括方法对象);
+ 消息返回槽中的值,或调用槽中的方法;
+ 如果对象无法响应某消息,则它会把该消息发送给自己的原型。
+
+
+
+Io包含了几种类型的集合。列表(list)是任意类型对象的有序集合,所有列表的原型都是 List 对象。而 Map 对象是键值对的原型,称为映射(map)
+
+
+Io> toDocs := list("find 1", "find 2")
+==> list(find 1, find 2)
+Io> toDocs size
+==> 2
+Io> toDocs append("find 3")
+==> list(find 1, find 2, find 3)
+
+
+Io> list(1,2,3,4,5) average
+==> 3
+Io> list(1,2,3,4,5,6) sum
+==> 21
+Io> list(1,2,3) at(1)
+==> 2
+Io> list(1,2,3) append(4)
+==> list(1, 2, 3, 4)
+Io> list(1,2,3) pop
+==> 3
+Io> list(1,2,3) prepend(0)
+==> list(0, 1, 2, 3)
+Io> list() isEmpty
+==> true
+
+
+
+Io的另一种主要集合是 Map 对象。Io的映射就像Ruby的散列表。由于映射没有语法糖,你必须用API操作它
+
+Io> map := Map clone
+==>  Map_0x1aca440:
+
+Io> map atPut("home","shanghai")
+==>  Map_0x1aca440:
+
+Io> map at ("home")
+==> shanghai
+Io> map atPut("name","io")
+==>  Map_0x1aca440:
+
+Io> map asObject
+==>  Object_0x1913c30:
+  home             = "shanghai"
+  name             = "io"
+
+Io> map asList
+==> list(list(name, io), list(home, shanghai))
+Io> map keys
+==> list(name, home)
+Io> map size
+==> 2
+
+
+0是true
+
+<=,!=,== 等
+
+and,or,not。。没有&&,||,!
+
+
+
+Io> false proto
+==>  Object_0x17f0cb0:
+                   = Object_()
+  !=               = Object_!=()
+  -                = Object_-()
+  ..               = method(arg, ...)
+。。还有几十个。
+
+
+Io> true clone
+==> true
+Io> nil clone
+==> nil
+Io> Object clone
+==>  Object_0x18dec50:
+
+true,false,nil都是单例。。clone返回的是单例对象的值。
+
+
+Io> mysingle := Object clone
+==>  Object_0x1c45790:
+
+Io> mysingle clone := mysingle
+==>  Object_0x1c45790:
+  clone            = Object_0x1c45790
+
+Io> mysingle clone
+==>  Object_0x1c45790:
+  clone            = Object_0x1c45790
+
+Io> tes2 := mysingle clone
+==>  Object_0x1c45790:
+  clone            = Object_0x1c45790
+
+Io> tes2 == mysingle
+==> true
+Io> tes2 == true
+==> false
+
+创建单例很简单。重定义clone方法，让它返回自身。
+
+
+loop("getting dizzy..." println)
+无限循环，需要ctrl+c退出，退出的是整个io解释器。
+
+
+while 循环带有一个条件和一个用来求值的消息。记住,分号会把两个不同的消息连接起来
+Io> i :=1
+==> 1
+Io> while(i<=11,i println; i=i+1);"this goes up to 11" println
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+this goes up to 11
+==> this goes up to 11
+
+i:=1 会报错： Exception: Slot i: not found. Must define slot using := operator before updating.
+
+
+for 循环也能做到同样的事。 for 循环带有一个计数器、一个初始值、一个终止值、一个可选的增量、以及一个带发送者的消息。
+Io> for(i,1,4,i println); "this goes up to ?" println
+1
+2
+3
+4
+this goes up to ?
+==> this goes up to ?
+
+Io> for (i,1,5,2,i print);"this is ?" println
+135this is ?
+==> this is ?
+
+i print，i就是最开始的i，不是形参。
+
+Io会舍弃多余的参数。它应该是按方法的最长/多的形参的版本 来进行匹配的，如果无法匹配，报错。即使只要它舍弃更多的形参就能符合某个匹配。
+
+
+if 控制结构是以函数的形式实现的,其形式如 if(condition, true code, false code) 。
+当条件为真时,该函数执行 true code ,否则执行 false code
+
+0是true，nil是false。
+Io> if (0, "t","f")
+==> t
+Io> if (nil,"t","f")
+==> f
+
+Io> if (true) then ("true") else ("false")
+==> nil
+Io> if (true) then ("true" println) else ("f" println)
+true
+==> nil
+
+。。这表明单括号版本的if是自带println的？而且它不是返回最后一个表达式的值，没有就是nil。。怎么返回值？
+
+
+
+==> OperatorTable_0x1607f60:
+Operators
+  0   ? @ @@
+  1   **
+  2   % * /
+  3   + -
+  4   << >>
+  5   < <= > >=
+  6   != ==
+  7   &
+  8   ^
+  9   |
+  10  && and
+  11  or ||
+  12  ..
+  13  %= &= *= += -= /= <<= >>= ^= |=
+  14  return
+
+Assign Operators
+  ::= newSlot
+  :=  setSlot
+  =   updateSlot
+
+To add a new operator: OperatorTable addOperator("+", 4) and implement the + message.
+To add a new assign operator: OperatorTable addAssignOperator("=", "updateSlot") and implement the updateSlot message.
+
+。。。？？？上面不是&&会报错么。。true && false 确实报错，可能语法不是这样写的？
+
+
+赋值(assign)是另一种类型的运算符。运算符左边的数字代表该运算符的优先
+级,参数优先绑定到优先级靠近0的运算符上。从表中可看到“ + ”先于“ == ”求值,这点你应该
+能够猜到。但用“ () ”可以改变这种优先级。
+
+
+Io> OperatorTable addOperator("xor",11)
+==> OperatorTable_0x1607f60:
+Operators
+  0   ? @ @@
+  1   **
+。。。
+  10  && and
+  11  or xor ||
+。。。
+
+Io> true xor := method(bool,if(bool, false, true))
+==> method(bool, 
+    if(bool, false, true)
+)
+Io> false xor := method(bool, if(bool, true, false))
+==> method(bool, 
+    if(bool, true, false)
+)
+Io> true xor false
+==> true
+Io> true xor true
+==> false
+
+true xor true 会被解析成true xor(true)
+
+
+
+在这门语言中,消息反射是一项至关重要的能力。你可以查询任何消息的任何特性,
+再对它们执行适当的操作。
+一个消息由三部分组成:发送者( sender )、目标( target )和参数( arguments) 。在Io中,
+消息由发送者发送至目标,然后由目标执行该消息。
+你可以用 call 方法访问任何消息的元信息(meta information)。
+
+Io> post := Object clone
+==>  Object_0x15a94a0:
+
+Io> post pksender := method (call sender)
+==> method(
+    call sender
+)
+Io> mailer := Object clone
+==>  Object_0x163ed80:
+
+Io> mailer deliver := method(post pksender)
+==> method(
+    post pksender
+)
+Io> mailer deliver
+==>  Object_0x163ed80:
+  deliver          = method(...)
+
+Io> post msgtarget := method(call target)
+==> method(
+    call target
+)
+Io> post msgtarget
+==>  Object_0x15a94a0:
+  msgtarget        = method(...)
+  pksender         = method(...)
+
+Io> post msgargs := method(call message arguments)
+==> method(
+    call message arguments
+)
+Io> post msgname := method(call message name)
+==> method(
+    call message name
+)
+Io> post msgargs("one",2, :three)
+==> list("one", 2, : three)
+Io> post msgname
+==> msgname
+
+
+大部分语言将参数作为栈上的值传递，如，java先计算参数的每个值，然后把这些值放到栈上。Io就不这样。Io传递的是消息本身和上下文,再由接受者对消息求值。
+
+Io> unless := method (
+... (call sender doMessage(call message argAt(0))) ifFalse(
+... call sender doMessage(call message argAt(1))) ifTrue(
+... call sender doMessage(call message argAt(2)))
+... )
+==> method(
+    (call sender doMessage(call message argAt(0))) ifFalse(call sender doMessage(call message argAt(1))) ifTrue(call sender doMessage(call message argAt(2)))
+)
+Io> unless( 1 ==2, write("one \n"), write("two\n"))
+one 
+==> false
+
+。。让sender对第一个参数求值，true就对第三个参数求值，false就对第二个参数求值。
+
+你可以将 doMessage 想象成类似于Ruby的 eval ,
+但更基础一些。Ruby的 eval 把字符串求值为代码,而 doMessage 可执行任意消息。Io会对消息参
+数进行解释,但会延迟绑定和执行。
+
+
+Io不是执行参数来计算实现 unless 控制结构的返回值的。这一思想极
+其强大。迄今为止,你已看到了反射等式的一边:带消息反射的行为。该等式的另一边是状态。
+下面,我们会和对象的槽一起观察状态。
+。。。？？？难！！！。。。
+
+
+
+
+Object ancestors := method (
+prototype := self proto
+if (prototype != Object,
+writeln("slots of ",prototype type, "\n---------")
+prototype slotNames foreach (slotName, writeln(slotName))
+writeln
+prototype ancestors))
+
+Animal := Object clone
+Animal speak := method ("ambiguous animal noise" println)
+Duck := Animal clone
+Duck speak := method ("quack" println)
+Duck walk := method ("waddle" println)
+
+disco := Duck clone
+disco proto type println
+disco ancestors
+
+。。disco的type是Duck。
+。。原型就是父类。而且，这里是先一路往上走到Object，然后调用ancestors，方法中self proto返回的是Duck。多态
+
+
+几乎每一位深入研究过Io的人,都会对它在DSL方面的强大能力赞不绝口。
+
+就像Ruby的 method_missing 那样,你也可以用Io的
+forward 消息做到同样的事,但这样做的风险要更高一些。Io没有类,所以改变 forward 也将改
+变从 Object 获得基本行为的方式。
+
+
+Io有非常出色的并发库,其主要组成部分包括协程、actor和future。
+
+协程是并发的基础。它提供了进程的自动挂起和恢复执行的机制。你可以把协程想象为带有
+多个入口和出口的函数。每次 yield 都会自动挂起当前进程,并把控制权转到另一进程当中。通
+过在消息前加上 @ 或 @@ ,你可以异步触发消息,前者将返回future(稍后详述),后者会返回 nil ,
+并在其自身线程中触发消息。
+
+
+
+vizz := Object clone
+vizz talk := method ( "Fezz, are there rocks ahead?" println
+yield
+"No more rhymes now, i mean it." println
+yield)
+
+fezz := Object clone
+fezz rhyme := method (
+yield
+"if there are, we will die." println
+yield
+"anybody want a peanut?" println)
+
+vizz @@talk; fezz @@rhyme
+
+Coroutine currentCoroutine pause
+
+
+[qwer@192 single]$ io coroutine.io 
+Fezz, are there rocks ahead?
+if there are, we will die.
+No more rhymes now, i mean it.
+anybody want a peanut?
+Scheduler: nothing left to resume so we are exiting
+  ---------
+  Coroutine callStack                  A4_Exception.io 244
+  Coroutine backTraceString            A4_Exception.io 274
+  Coroutine showStack                  A4_Exception.io 177
+  Coroutine pause                      Actor.io 150
+  Object actorProcessQueue             Actor.io 115
+
+[qwer@192 single]$ 
+。。正确的。
+
+
+fezzik 和 vizzini 都带有协程,它们是彼此无关的 Object 实例。我们异步触发 talk 和 rhyme
+方法。它们并发执行,用 yield 消息在指定时间段自动把控制权交给另一方法。最后一行的 pause
+用来等待所有异步消息执行完毕,然后退出程序。协程在面对需要多任务合作的解决方案时表现
+完美。通过这个示例程序,两个需要彼此协作的进程能够轻易完成读诗(read poetry)任务
+
+。。有2个@@的那行，应该是绑定吧，这样就2个线程抢一个cpu。
+
+Java和基于C的语言使用的并发哲学叫做抢占式多任务(preemptive multitasking)。当你把这
+种并发策略和可变状态的对象结合使用时,程序会变得一团糟,因为我们难以预测它的行为,大
+多数团队现有的测试技术也几乎不可能对其进行调试。协程就不一样了。利用协程,应用程序可
+以在适当的时间放弃控制权。
+
+协程是组成更高级抽象概念(如actor)的基本元素。你可以把actor想成通用的并发原语,它
+可以发送消息、处理消息以及创建其他actor。actor接收到的消息是并发的。在Io中,actor把新到
+达的消息放到队列上,并用协程处理队列中的各个消息。
+
+。。不过效率应该不高吧。而且需要手动选择放弃cpu的地方。如果其中一个占据cpu时发生异常，其它协程没办法被唤醒吧。
+
+和线程相比,actor有着巨大的理论优势。一个actor改变其自身的状态,并且通过严格控制的
+队列接触其他actor。而多个线程可以不受限制地改变彼此状态。线程容易受到被称做竞争条件的
+并发问题影响,在这种问题中,如果两个线程同时存取资源,可能导致不可预测的后果。
+
+Io的动人之处就在于此,发送异步消息给任意对象就是actor,就这么简单。
+
+
+slow := Object clone
+fast := Object clone
+
+slow start := method(wait(2); writeln("slow"))
+fast start := method(wait(1); writeln("fast"))
+
+slow start; fast start
+
+"----" println
+
+slow @@start; fast @@start; wait(4)
+
+[qwer@192 single]$ io slowfast.io
+slow
+fast
+----
+fast
+slow
+
+
+future是在异步调用消息时立即返回的
+一个结果对象。由于被调用的消息可能需要一段时间处理,因此到最终产生结果的时候,future会变成这个结果值。如果在结果尚未产生时请求future的值,进程会阻塞直到产生结果为止。
+
+futureResult := URL with("http://google.com") @fetch
+// do sth
+writeln("fetched ", futureResult size, " bytes")
+
+。。没有URL这个
+
+futureResult 这段代码片断会立即返回一个future对象。在Io中,future并不是代理实现!future
+会阻塞到我们可获得结果对象时为止。future的值一开始是个 Future 对象,但等到结果产生之后,
+所有该future值的实例都会指向结果对象,命令行将会把最后一条返回语句的字符串值打印出来。
+Io的future还会提供死锁自动检测机制。
+
+协程只能改变它们自身的状态。
+
+
+和Ruby一样,为了使Io具有如此强大的动态特性
+而做的某些权衡,相对应的也会让它在性能上有所损失,至少在单线程的情况下是这样。Io有
+强大的、现代的并发库,在很多场合成为一门优秀的并行处理语言。
+
+大多数Io应用程序的产品都是嵌入式系统
+
+actor、future和协程使得Io编写多线程应用程序要容易得多,而且写出来的程序更易于测试且拥有更出色的性能。
+
+
+对于那些未经琢磨且为单线程服务的程序来说,Io有不少能拖慢其执行速度的特性。这个问题通过
+Io的并发结构可得到一定程度的缓解,但你仍然要记住Io在性能上的这种局限性。
+
+
+
+
+
+
+Prolog
+
+Io和Ruby被称为命令式语言
+Prolog是一门声明式编程语言
+你向Prolog提供一些事实(fact)和推论(inference),并让它为你推断
+
+在自然语言处理领域颇受欢迎。现在,从调度系统到专家系统,这门备受尊重的语言为各类问题提
+供了编程基础。你可以使用这门基于规则的语言来表达逻辑和提出问题。和SQL一样,Prolog基
+于数据库,但是其数据由逻辑规则和关系组成;和SQL一样,Prolog包含两个部分:一部分用于
+描述数据,而另一部分则用于查询数据。在Prolog中,数据以逻辑规则的形式存在,下面是基本
+构建单元。
+     事实。事实是关于真实世界的基本断言。(Babe是一头猪,猪喜欢泥巴。)
+     规则。规则是关于真实世界中一些事实的推论。(如果一个动物是猪,那么它喜欢泥巴。)
+     查询。查询是关于真实世界的一个问题。(Babe喜欢泥巴吗?)
+事实和规则被放入一个知识库(knowledge base)。Prolog编译器将这个知识库编译成一种适
+于高效查询的形式。当我们学习这些例子的时候,你可以使用Prolog表达知识库。然后你就可以
+直接检索数据,也可以使用Prolog将多个规则串联在一起来得到一些你可能不知道的事情。
+
+和Io一样,Prolog是一门语法极其简单的语言。
+
+Prolog方言之间可能彼此不同
+
+在Prolog中,第一个字母的大小写是有着重要意义的,如果一个词以小写字母开头,它就是一个原子(atom)——一个类似Ruby符号(symbol)的固定值,如果一个词以大写字母或下划线开头,那么它就是一个变量。变量的值可以改变,原子则不能。
+
+。选择了swi-prolog..直接终端输入swipl会有提示。
+
+
+。每行最后必须有.
+likes( 中间不能有空格。
+
+
+// friends.pl 文件
+likes(wallace, cheese).
+likes(grommit, cheese).
+likes(wendolene, sheep).
+friend(X,Y) :- \+(X=Y), likes(X,Z), likes(Y,Z).
+
+// 编译进环境
+?- ['friends.pl'].
+true.
+
+?- likes(wallace, sheep).
+false.
+?- likes(grommit,cheese).
+true.
+
+// 测试friend规则
+?- friend(wallace, wallace).
+false.
+
+
+friend 规则:
+在规则中,如果 X 是 Y 的朋友,那么 X 就不可能与 Y 相同。看看 :- 右边的第一部分吧,这部分
+被称为一个子目标(subgoal)。 \+ 执行逻辑取反操作,这样 \+(X=Y) 的意思就是 X 不等于 Y 。
+
+在这些查询中, X 不等于 Y ,满足第一个子目标。查询将使用第二个和第三个子目标: likes(X, Z) 和 likes(Y, Z) 。 grommit 和 wallace 都喜欢 cheese ,所以又满足了第二个和第三个子目标
+
+?- friend(wendolene, grommit).
+false.
+在这个例子中,Prolog会尝试几组可能的 X 、 Y 和 Z 值:
+     wendolene 、 grommit 和 cheese
+     wendolene 、 grommit 和 sheep
+
+
+friend(X,Y) :- \+(X=Y), likes(X,Z), likes(Y,Z).
+上述代码是一个具有三个变量 X 、 Y 和 Z 的Prolog规则。我们把这个规则称作 friend/2 ,即有
+两个参数的 friend 规则的缩写。这个规则拥有三个用逗号分隔的子目标。当所有子目标都为真
+时,这个规则才为真。所以我们这个规则的含义是:如果 X 与 Y 不等同且 X 和 Y 都喜欢同一个 Z ,那
+么 X 是 Y 的朋友。
+
+
+在这一节中,我们将使用逻辑引擎为一个查询找出所有可能的匹配。要做到这一点,你需要在查询中指定一个变量。
+
+
+// fool.pl
+
+food_type(velveeta, cheese).
+food_type(ritz, cracker).
+food_type(spam, meat).
+food_type(sausage, meat).
+food_type(jolt, soda).
+food_type(twinkie, dessert).
+
+flavor(sweet, dessert).
+flavor(savory, meat).
+flavor(savory, cheese).
+flavor(sweet, soda).
+
+food_flavor(X, Y) :- food_type(X,Z), flavor(Y,Z).
+
+我们给出了一些事实。一些诸如 food_type(velveeta, cheese) ,意思是一种食物具有一
+定的类型。另外一些诸如 flavor(sweet, dessert) ,意思是一种食物类型具有特有的味道。最
+后,我们给出了一个名为 food_flavor 的规则,它可推断出食物的味道。如果食物 X 属于 Z 类食物
+且 Z 也具有特有味道 Y ,则食物 X 具有 food_flavor Y 。
+
+
+?- food_type(What, meat).
+What = spam ;
+What = sausage.
+
+。。输入;
+
+我们请求Prolog,“找出一些满足查询 food_type(What, meat) 的值。”Prolog
+找到了一个 spam 。输入 ; ,请求Prolog找出下一个,它返回了 sausage 。
+
+?- food_flavor(sausage, sweet).
+false.
+
+?- flavor(sweet, What).
+What = dessert ;
+What = soda.
+
+?- food_flavor(What, savory).
+What = velveeta ;
+What = spam ;
+What = sausage ;
+false.
+
+food_flavor(X, Y) 是一个规则,不是一个事实。我们请求Prolog找出满足“什么食
+物具有 savory 味道?”这个查询的所有可能值。Prolog必须将关于食物、类型和味道的基本事实
+联系在一起才能得出最终结论。逻辑引擎需要遍历所有使目标为真的可能组合。
+
+
+// map.pl
+diff(red,green). diff(red,blue). diff(green,red). diff(green,blue).
+diff(blue,red). diff(blue,green). 
+
+coloring(A,M,G,T,F) :-
+    diff(M,T),
+    diff(M,A), diff(A,T), diff(A,M),diff(A,G),diff(A,F),diff(G,F),diff(G,T).
+
+
+?- coloring(Ala,Miss,Geo,Ten,Flo).
+Ala = blue,
+Miss = Geo, Geo = red,
+Ten = Flo, Flo = green .
+
+?- coloring(Ala,Miss,Geo,Ten,Flo).
+Ala = blue,
+Miss = Geo, Geo = red,
+Ten = Flo, Flo = green ;
+Ala = green,
+Miss = Geo, Geo = red,
+Ten = Flo, Flo = blue ;
+Ala = blue,
+Miss = Geo, Geo = green,
+Ten = Flo, Flo = red .
+
+
+我们没有使用算法!试试选一门过程式编程语言来解决这个问题。你的解决方法容易理解
+吗?考虑一下如果用Ruby或Io来解决这样复杂的逻辑问题你需要做些什么?一个可能的解决方
+法如下:
+(1) 收集和整理逻辑;
+(2) 用程序表达逻辑;
+(3) 找出所有可能的解决方法;
+(4) 通过程序验证这些可能的解决方法。
+你可能不得不一遍又一遍地去编写程序。Prolog让你通过事实和推论来表达逻辑,然后直
+接提问即可。你不必用这门语言去制作任何具有详细步骤的烹饪食谱。Prolog不是通过编写
+算法来解决逻辑问题的,而是通过如实地描述真实世界,来呈现计算机可以设法解决的逻辑
+问题。
+
+
+合一(unification)。
+
+
+// heyi.pl
+
+cat(loin).
+cat(tiger).
+
+dorothy(X,Y,Z) :- X=lion, Y=tiger, Z=bear.
+twin_cats(X,Y) :- cat(X), cat(Y).
+
+= 意为合一,或者说使等号两侧相同。
+我们拥有两个事实: lion 和 tiger 都是 cat 。我们还有两个简单的规则。在规则 dorothy/3 中, X 、 Y 和 Z 分别为 lion 、 tiger 和 bear 。在规则 twin_cats/2 中, X 是 cat , Y 也是 cat 。
+
+
+?- ['heyi.pl'].
+true.
+
+?- dorothy(lion,tiger,bear).
+true.
+
+合一的意思是“找出那些使规则两侧匹配的值”。在右侧,Prolog将 X 、 Y 和 Z 分别绑定
+为 lion 、 tiger 和 bear 。这些值与左侧相应的值匹配,所以合一是成功的。Prolog报告 yes 。
+
+
+?- dorothy(one,toe,thrre).
+false.
+
+?- dorithy(One,Teo,Thraa).
+Correct to: "dorothy(One,Teo,Thraa)"? 
+Please answer 'y' or 'n'? yes
+One = lion,
+Teo = tiger,
+Thraa = bear.
+
+这个例子多了一个间接层。在子目标中,Prolog使得 X 、 Y 和 Z 分别与 lion 、 tiger 和 bear 合
+一。在左侧,Prolog使得 X 、 Y 和 Z 分别与 One 、 Two 和 Three 合一,然后报告结果。
+
+
+?- twin_cats(One,Two).
+One = Two, Two = loin ;
+One = loin,
+Two = tiger ;
+One = tiger,
+Two = loin ;
+One = Two, Two = tiger.
+
+最后那条规则 twin_cats/2 。这条规则说如果你能证明 X 和 Y 都是 cat ,那
+么这条规则就为真。
+
+Prolog报告了第一种可能。 lion 和 lion 都是 cat 。我们来看一下它是如何得到这个结果的。
+(1) 我们发起查询 twin_cats(One, Two) 。Prolog将 One 绑定到 X ,将 Two 绑定到 Y 。要处理这
+个查询,Prolog必须从下述这些目标开始。
+(2) 第一个目标是 cat(X) 。
+(3) 我们有两个事实用于匹配, cat(lion) 和 cat(tiger) 。Prolog尝试第一个事实,将 X 绑定
+到 lion ,然后继续下一个目标。
+(4) Prolog现在绑定 Y 到 cat(Y) 。 Prolog使用与处理第一个目标完全相同的办法处理这个目标,
+选择 lion 。
+(5) 我们已经满足了两个目标,所以这个规则为真。Prolog报告可以让规则为真的 One 和 Two
+的值,并且报告 yes 。
+
+这样,我们有了第一个使规则为真的解决方法。有些时候,一个解决方法就足够了。但有些
+时候,一个解决方法可能不够用。现在可以使用“ ; ”符号逐个得到其余的解决方法,也可以输
+入 a 来获得剩余的所有解决方法。
+。。swipl 没有a。
+。。还是无法理解。
+。。ok，cat(lion)是事实。twin_cats是规则，规则是为了找到 是自己成立的 情况。所以它认为One是cat。
+。。而且，大写开头的，小写开头就直接false。
+。。大写开头是变量，小写开头是值。
+
+。。合一就是为了找到所有符合的值，之前的是判断给的数据是否符合规则。。合一和判断是通过 实参的大小写区别的。
+
+。。似乎就是穷举啊。
+
+
+在建立一些知识库后,就可以编译和发起查询了。查询有两种形式,第一种,查询中指定一
+个事实, Prolog将告诉你这个事实是真还是假。第二种,在查询中使用一个或更多变量,然后Prolog
+将计算出可以使事实为真的所有可能性。
+Prolog执行规则时是按顺序执行规则中的子句。对于每个子句,Prolog都会尝
+试所有可能的变量组合来满足每个子目标。所有Prolog程序都是这么工作的。
+
+
+
+// family.pl
+father(zeb, john_sr).
+father(john_sr, john_jr).
+
+ancestor(X, Y) :- father(X,Y).
+ancestor(X,Y) :- father(X,Z),ancestor(Z,Y).
+
+
+规则 ancestor/2 有两个子句。如果一个规则由多个
+子句组成,那么其中一个子句为真,则这个规则为真。把子句间的逗号看成是条件“与”的关系,
+把子句之间的句号看成是条件“或”的关系。第一个子句表明“如果 X 是 Y 的 father ,那么 X 是 Y
+的 ancestor ”。这是一个直接关系。
+第二个子句更为复杂: ancestor(X, Y) :- father(X, Z), ancestor(Z, Y) 。这个子句表明如果我们可以证明 X 是 Z 的 father 并且同一个 Z 是 Y 的一个 ancestor ,那么 X 就是 Y 的一个ancestor 。
+
+?- ancestor(zeb, A).
+A = john_sr ;
+A = john_jr ;
+false.
+
+?- ancestor(A, john_jr).
+A = john_sr ;
+A = zeb ;
+false.
+
+当你使用递归子目标时,你需要小心。因为每个递归的子目标都会
+使用栈空间,最终你很可能会耗尽栈空间。声明式语言通常使用一种称为尾递归优化(tail
+recursion optimization) 的技术来解决这个问题。如果你将一个递归的子目标放到递归规则的末尾,
+Prolog会通过丢弃调用栈来优化这次调用,并保持内存占用不变。这里的调用就是一个尾递归,
+因为递归子目标 ancestor(Z, Y) 是递归规则中的最后一个目标。如果你的Prolog程序因耗尽栈
+空间而崩溃的话,那么就应该知道是时候使用尾递归对程序进行优化了。
+
+
+列表和元组是Prolog的重要组成部分。你可以像 [1, 2, 3] 这样指定一个列表,像 (1, 2, 3)
+这样指定一个元组。列表是变长容器,而元组则是定长容器。当你从合一的角度考虑时,列表和
+元组都会变得更加强大。
+
+。。读到erlang时，模式匹配？
+
+当Prolog对变量进行合一操作时,它会尝试使左右两侧相匹配。如果两个元组拥有的
+元素数量相同且每个元素可以合一,则它们就可以匹配。
+
+?- (1,2,3)=(1,2,3).
+true.
+
+?- (1,2,3,4)=(1,2,3).
+false.
+
+?- (1,2,3)=(2,1,3).
+false.
+
+。顺序 值 都相同。
+
+
+?- (a,b,c)=(1,2,3).
+false.
+
+?- (A,B,C)=(1,2,3).
+A = 1,
+B = 2,
+C = 3.
+
+?- (1,2,3)=(A,B,C).
+A = 1,
+B = 2,
+C = 3.
+
+?- (A,2,C)=(11,B,13).
+A = 11,
+C = 13,
+B = 2.
+
+?- (A,2,C)=(1,B,3).
+A = 1,
+C = 3,
+B = 2.
+
+变量在哪一侧没有关系。如果Prolog认为它们相同,它们就可以合一。
+
+[]列表，()元组，列表变长，元组定长。
+
+
+?- [1,2,3]=[1,2,3].
+true.
+
+?- [1,2,3]=[X,Y,Z].
+X = 1,
+Y = 2,
+Z = 3.
+
+?- [1,2,3]=[X,X,Z].
+false.
+
+?- [2,2,3]=[X,X,Z].
+X = 2,
+Z = 3.
+
+?- []=[].
+true.
+
+[X, X, Z] 和 [2, 2, 3] 可以合一,因为Prolog设置 X = 2 后可以使它
+们相同。 [1, 2, 3] = [X, X, Z] 不能合一,因为 X 同时用在第一个和第二个元素位置上,但两
+个元素的值不同。列表拥有一项元组所不具备的能力,即你可以通过 [Head|Tail] 解构列表。当
+你将一个列表与这种结构合一时, Head 将绑定列表的第一个元素,而 Tail 将绑定剩余元素
+
+?- [a,b,c]=[Head|Tail].
+Head = a,
+Tail = [b, c].
+
+[Head|Tail] 不能与一个空列表合一,不过单元素列表可以。
+
+?- [a,b,c]=[b|Tail].
+false.
+
+?- [a,b,c]=[a|Tail].
+Tail = [b, c].
+
+?- [a,b,c]=[a|[Head|Tail]].
+Head = b,
+Tail = [c].
+
+?- [a,b,c,d,e,f]=[_,_|[Head|_]].
+Head = c.
+。抓取第三个元素。
+
+“_”是一个通配符,它可以与任何对象合一。大体上它的含义是:“我不关心这个位置上的元素是什么。”
+
+
+
+
+count(0,[]).
+count(Count, [Head|Tail]) :- count(TailCount, Tail), Count is TailCount + 1.
+
+sum(0, []).
+sum(Total, [Head|Tail]) :- sum(Sum, Tail), Total is Head + Sum.
+
+average(Average, List) :- sum(Sum, List), count(Count, List), Average is Sum/Count.
+
+
+?- count(Wh, [1]).
+Wh = 1.
+
+对一个空列表计数结果为0。一个非空列表的计数等于对列表 Tail 的计数加上1
+
+?- sum(W, [1,2,3,4]).
+W = 10.
+
+如果你用命令式的视角看待它的话, sum 工作方式确实满足了你对递归语言的期望。空列表
+的总和是0,其余元素的总和是列表的 Head 元素加上 Tail 的总和。
+但是这里还有另外一个解释。我们并没有真正告诉Prolog如何计算总和。我们只是将 sum 描
+述为规则和一些目标。为了满足其中部分目标,逻辑引擎必须满足一些子目标。声明式的解释是
+这样的:
+“一个空列表的总和是0,如果可以证明列表 Tail 的总和加上 Head 是 Total ,那么列表的
+总和就是 Total 。”我们用证明目标和子目标的想法替换了递归过程。
+
+
+讨论一个被称为
+append 的规则。如果 List3 为 List1+List2 ,那么规则 append(List1, List2, List3) 为真。
+这是一个功能强大的规则,你可以通过多种方式使用它。
+3 == 1+2？
+1+2 == ？
+3-1 == ？
+？ + ？ == 3
+
+。。append是prolog自带的方法。
+
+重新实现Prolog的 append ,不过将它称之为 concatenate 。我们将通过如下几
+个步骤完成。
+(1) 编写一个规则 concatenate(List1, List2, List3) ,它可以将一个空列表与 List1 连
+接在一起。
+(2) 添加一个规则,它可以将 List1 中的一个元素与 List2 连接在一起。
+(3) 添加一个规则,它可以将 List1 中的两个元素或三个元素与 List2 连接在一起。
+(4) 看看我们可以泛化哪些东西。
+
+
+concatenate([], List, List).
+concatenate([Head|[]], List, [Head|List]).
+concatenate([Head1|[Head2|[]]],List, [Head1, Head2 | List]).
+concatenate([Head1|[Head2|[Head3|[]]]],List, [Head1, Head2,Head3 | List]).
+
+泛化后
+concatenate([],List,List).
+concatenate([Head|Tail1],List,[Head|Tail2]) :- concatenate(Tail1, List, Tail2).
+
+
+GNU Prolog 使 用 内 置 的 被 称 作 fd_domain(List, LowerBound,
+UpperBound) 的 谓词 ( predicate) 来 表达 合法 值。如 果列 表中所 有元 素都在 LowerBound 和
+UpperBound 之间,包括 UpperBound ,那么这个谓词为真。
+
+。。swi-prolog 没有。。应该也是一个两行的递归。
+
+我们将使用一个GNU Prolog谓词做重复元素的检查。如果所
+有在 List 中的元素都不同,那么 fd_all_different(List) 返回真。
+
+
+sudoku.pl
+
+valid([]).
+valud([Head|Tail]) :- fd_all_different(Head),valid(Tail).
+sudoku(Puzzle, Solution) :-
+    Solution = Puzzle,
+    Puzzle = [S11, S12, S13, S14,
+              S21, S22, S23, S24,
+              S31, S32, S33, S34,
+              S41, S42, S43, S44],
+    fd_domain(Solution, 1, 4),
+    Row1 = [S11, S12, S13, S14],
+    Row2 = [...],
+    Row3 = [...],
+    Row4 = [...],
+
+    Col1 = [S11, S21, S31, S41],
+    Col2 = 
+    Col3 = 
+    Col4 = 
+
+    Square1 = [S11, S12, S21, S22],
+    Square2
+    Square3
+    Square4
+
+    valid([Row1, Row2, Row3, Row4,
+            Col1, Col2, Col3, Col4,
+            Square1, Square2, Square3, Square4]).
+
+穷举，大数独，会很慢吧。
+
+
+8皇后。
+
+
+也许Prolog是第一种用于进行语言识别的语言。特别是, Prolog语言模型可以采用自然语言,
+应用基于事实和推论的知识库,并且可以用具体的适于计算机的规则表达那些复杂的不精确的
+语言。
+
+语义网是为网络上的服务与信息提供附加含义的一种尝试,从而更容易满足大家的需求。资
+源描述语言(resource description language, RDF)提供对资源的一个基本的描述。服务器可以将
+这些资源编译为一个知识库。这些知识,再加上Prolog的自然语言处理就能提供丰富的用户体验。
+Web服务器上提供了许多此类功能的Prolog包。
+
+人工智能(AI)关注让机器拥有智能。智能可能表现为多种形式,不过在每种情况下,一些
+“代理”会基于复杂规则对行为进行修改。Prolog在这个领域很擅长,尤其是当这些规则是明确的
+且基于正式逻辑的。为此,Prolog有时被称为一门逻辑编程语言。
+
+Prolog擅长处理有限资源。许多厂商使用Prolog实现操作系统调度器以及其他高级的调度器。
+
+
+
+
+Prolog擅长其核心领域,它专注的目标是逻辑编程。它不是一门通用的编程语言,它也有一
+些有关语言设计方面的限制。
+
+需要进行大量计算
+
+必须理解Prolog是如何解决递
+归规则的。你必须经常使用尾递归规则去完成中等规模的问题。构建一个基于小数据集但无法扩
+展的Prolog应用相对容易,但必须深入理解Prolog的工作原理才能更有效地设计出在可接受的层
+次上进行扩展的规则。
+
+
+
+
+
+
+
+
+Scale
+
+Scala是一种混合编程语言,混合编程语言在两种不同编程范型之间搭建一座桥
+梁以弥合差异。在这里,这座桥梁搭建在面向对象语言(如Java)以及函数式语言(如Haskell)
+之间。
+
+
+Scala至少可以作为一座桥梁,也许还不仅如此。它与Java紧密集成,为人们提供了一个保护
+投资的机会,这体现在以下几个方面。
+ Scala运行在Java虚拟机上,这使得Scala可以和现存的应用同时运行。
+ Scala可以直接使用Java类库,使得开发人员可以利用现有的框架和遗留代码。
+ Scala和Java一样都是静态类型语言,因此两种语言遵循一样的编程哲学。
+ Scala的语法与Java比较接近,使得开发人员可以快速掌握语言基础。
+ Scala既支持面向对象范型也支持函数式编程范型,这样开发人员就可以逐步在代码中运
+用函数式编程的思想。
+
+
+与Java语言的不同之处。
+ 类型推断。在Java中,你必须声明每个变量、实际参数或形式参数的类型。Scala则会在
+可能的情况下推断出变量的类型。
+ 函数式编程概念。Scala将函数式编程的重要概念引入Java。具体来说,这门语言可以通
+过不同方式使用已有的函数构造出新函数。在本章中你将看到的概念包括代码块、高阶
+函数(high-order function)以及一个复杂的集合库。Scala所提供的已远远超出基本语法
+糖的范畴了。
+ 不变量。Java的确允许使用不变量,不过是通过提供一个很少使用的修饰符实现的。在本
+章中,你将看到Scala会要求你明确地决定一个变量是否可变。这些决定将对应用程序在
+并发环境中的行为产生深远的影响。
+ 高级程序构造。Scala很好地使用了基础语言,并将有用的概念分层。在本章中我们将向
+你介绍用于并发应用的actor模型、使用高阶函数的Ruby风格的集合以及作为一等对象类
+型(first-class)的 XML的处理。
+
+。。jdk10，有var了。。函数式编程就是约等于lambda？。final？。concurrent并发包。
+
+。。Spark的原生语言是Scala。。第一次知道。
+
+
+纯函数式语言实现了一种具有很强数学基础的编程风格。一门函数
+式语言具有以下几点特性。
+ 函数式程序由函数组成。
+ 函数总是具有返回值。
+ 函数对于相同的输入总是会返回相同的值。
+ 函数式程序禁止改变状态或修改数据。一旦你设置了一个值,就无需再管它了。
+严格地讲,Scala并不是一门纯函数式编程语言,就像C++不是一门纯面向对象语言一样。它
+允许可变值,这可能会导致函数在输入相同的情况下输出却不同。
+
+
+
+当前对研究并发编程的面向对象程序员来说,最大的问题在于可变的状态,也就是说数据是
+可以随时改变的。
+
+数据库系统通过事务和锁
+来应对这个问题。面向对象编程语言则是通过给程序员提供控制对共享数据访问的工具来应对这
+个问题。
+
+函数式编程语言通过去除等式中的可变状态来解决这些问题。Scala不强迫你完全去除可变状
+态,不过它确实给你提供了一种使用纯函数风格编程的方法。
+
+
+3+"1.0" 输出 "31.0"
+
+3*"abc" 报错
+
+Scala实际上是强类型的。Scala使用类型推断,这样大多数情况下,它都能
+通过语法线索推断出变量的类型。但与Ruby不同的是, Scala可以在编译期间进行类型检查。 Scala
+实际上是先对代码进行编译,然后再一行一行执行代码的。
+
+在很多地方,Scala会使用一种跨语言的类型管理策略。其中之一是在适合
+的地方使用简单的Java类型,比如 java.lang.String 。
+
+
+Scala与Ruby不同,它在编译期间绑定变
+量类型。不过Scala也与Java不同,它会推断出变量的类型,因此不需要输入 val a : Int = 1 ,
+当然如果你想这么做的话,也是可以的
+
+在Ruby中, 0等价于 true ,而在C中, 0则等价于 false 。在这两种语言中, nil 都等价于 false 。
+我们看到 Nil 是一个空列表,并且你甚至无法对 Nil 或 0 进行条件测试。这种行为与Scala的强
+类型和静态类型语言设计哲学相吻合。 Nil 和数字不是布尔值,所以不要按布尔值对待它们。
+
+
+
+一些初级的编程爱好者常常将强类型和静态类型这两个概念混淆。强类型是指这门语言
+检查两种类型是否兼容,如果不兼容则会抛出一个错误或强制类型转换,尽管上述说法不是
+很严格。表面上,Java 和 Ruby 都是强类型的。(我意识到这个想法有些过于简化了。)另一
+方面,汇编语言和 C 语言则是弱类型的。编译器并不关心在某一内存位置上的数据到底是一
+个整数、一个字符串还是只是一个普通数据。
+
+静态类型和动态类型则是另外一个话题。静态类型语言强迫在类型结构的基础上执行多
+态。判断是否是一只鸭子的依据是其基因蓝图(静态),还是因其叫声和走路的姿态像一只鸭子(动态)
+。静态类型语言的好处在于编译器和工具等对你的代码更加了解,可以用于捕
+捉错误,突出显式代码以及便于重构代码。付出的代价则是你不得不做更多的工作并且会受
+到一些限制。作为开发者,你的开发经历经往往会决定你是如何权衡使用静态类型的。
+
+
+在Scala中, public 是默认的可见级别
+
+while循环和java一样。
+
+定义函数：
+def fun1 {
+    // ..
+}
+。。不知道返回值怎么弄，估计默认返回最后一个表达式？还是不写就是void？
+
+
+for (i <- 0 until args.length) { // ... }
+
+参数是一个变量,后面跟着 <- 操作符,然后是用 initialValue until endingValue
+的形式表示的循环范围。
+
+
+def rubyStyleForLoop {
+    println("a.b.c");
+    args.foreach { arg =>
+        println(arg)
+    }
+}
+
+args 是由传入的命令行参数构成的一个列表。Scala将每个列表元素一个接着一个的传入这个代码块。
+在我们的例子中, arg 是 args 列表中的一个元素。在Ruby中,与此功能等价的代码是
+args.each{|arg| println(arg)} 。
+
+
+与Ruby一样,Scala支持一等类型的范围(range)
+scala> val range = 0 until 10
+range: scala.collection.immutable.Range = Range 0 until 10
+scala> range.start
+res0: Int = 0
+scala> range.end
+res1: Int = 10
+
+scala> range.step
+res2: Int = 1
+
+scala> (0 to 10) by 5
+res4: scala.collection.immutable.Range = Range 0 to 10 by 5
+
+scala> res4
+res5: scala.collection.immutable.Range = Range 0 to 10 by 5
+
+。。有个默认参数名。。包含最后一个数字。
+
+
+scala> (0 until 10 by 5)
+res6: scala.collection.immutable.Range = Range 0 until 10 by 5
+
+scala> val range = (10 until 0 by -1)
+range: scala.collection.immutable.Range = Range 10 until 0 by -1
+
+scala> val range = (10 until 0) by -1
+range: scala.collection.immutable.Range = Range 10 until 0 by -1
+。。一样的。
+
+
+无论你为范围设置的结束点为多少,1都是默认步长。范围不限于整数:
+scala> val range = 'a' to 'e'
+range: scala.collection.immutable.NumericRange.Inclusive[Char] = NumericRange a to e
+
+Scala会为你做一些隐式类型转换。事实上,当你指定了一个 for 语句,也就等于指定了一个范围。
+
+
+Scala提供了元组。元组是一个固定长度的对象集合。
+元组中的对象可以具有不同类型。在纯函数式编程语言中,程序员
+经常用元组表示对象以及它们的属性。
+
+scala> val person = ("Elvis", "AVC")
+person: (String, String) = (Elvis,AVC)
+
+scala> person._1
+res9: String = Elvis
+
+scala> person._2
+res10: String = AVC
+
+Scala使用元组而不是列表进行多值赋值:
+
+scala> val (x,y) = (1,2)
+x: Int = 1
+y: Int = 2
+
+
+
+在Scala中,可以只用一行代码定义那些只有属性而没有方法或构造器的简单类:
+
+scala> class Person(fn: String , ln: String)
+defined class Person
+scala> val per1 = new Person("Forst","Gol")
+per1: Person = Person@4e9b66ab
+
+
+
+class Compass {
+
+    val directions = List("north","east","south","west")
+    var bearing = 0;
+    print("Initial bearing: ")
+    println(direction)
+
+    def direction() = directions(bearing)
+
+    def inform(turnDirection: String) {
+        println("Turning " + turnDirection + ". Now bearing " + direction)
+    }
+
+    def turnRight() {
+        bearing = (bearing + 1) % directions.size
+        inform("right")
+    }
+
+    def turnLeft() {
+        bearing = (bearing + (directions.size - 1)) % directions.size
+        inform("left")
+    }
+}
+
+val compazz = new Compass
+compazz.turnRight
+compazz.turnRight
+compazz.turnLeft
+
+
+所有方法的定义都包含参数类型和名字,并且初始化代码块不包含在任何一个方法里面。
+
+类定义后面的整个代码块实际上就是构造器。构造器包括一个方向(direction)列表和一个
+方位(bearing),方位仅仅是方向列表的下标。
+
+这个构造器继续进行方法定义。接下来是一个方法定义。 direction 方法只是将 directions
+列表中对应 bearing 下标值的那个元素返回。Scala提供了一种单行方法定义的替代语法,使用这
+种语法可以省略那个括起方法定义体的括号。
+。。后面的所有方法是属于 构造器定义的？？？
+
+
+Person 类,它有两个构造器:
+class Person(first_name: String) {
+    println("Outer Constructor")
+
+    def this(first_name: String, last_name: String) {
+        this(first_name)
+        println("inner constructor.")
+    }
+
+    def talk() = println("hi")
+}
+
+val a = new Person("A")
+val b = new Person("A", "C")
+
+运行上面的文件，会有3行输出
+Outer constructor
+Outer constructor
+inner constructor
+
+
+。。就是说class XX 实际上也定义了一个构造器？就像上面的class Compass是一个无参构造器，class Person(first_name: String)是一个单参数构造器？。。但是first_name 用在哪里？需要额外的代码来保存吧。
+
+
+
+在Java和Ruby中,你会在类定义中同时定义类方法和实例方法。在Java中,类方法用 static
+关键字修饰。Ruby则使用语法 def self.class_method 。Scala没有采用这两种策略。Scala会在
+类定义中声明实例方法。当一些类只能拥有一个实例时,可以使用 object 而不是 class 关键字定
+义这个类。
+
+object TurnRing {
+    def rule = println("To rule them all")
+}
+TurnRing.rule
+
+。。还是没有说实例方法和类方法的区别啊。。object只是静态类的概念吧。但是静态类不存在实例吧，这里说存在一个实例，但是用法是直接类.ff，和单例无关吧，还是说object会自己定义自己为单例？
+
+TrueRing 的定义确实很像一个类的定义,但它实际上是创建了一个单件(singleton)对象。
+在Scala中,对象定义和类定义可以具有相同的名称。有了这个方案,你可以在一个单件对象的声
+明中创建类方法而在类声明中创建实例方法。
+。。分开定义。。。。
+
+
+继承
+用 Employee 类扩展 Person 类
+class Employee(override val name: String, val number: Int) extends Person(name) {
+    override def talk(msg: String) {
+        println(name + ", " + number + ", " + msg)
+    }
+
+    override def id(): String = number.toString
+}
+
+。。带返回参数的方法。但是为什么id方法前面有override。。。
+
+我们用 Employee 类扩展了 Person 基类。我们在 Employee 类中增加了一个
+新的实例变量 number ,并且重写了 talk 方法以增加一些新的行为。
+。。只要在class那行的()中声明的变量就会有定义啊。。看错了，这个Person不是之前的，这里的Perosn带id方法。
+
+多数复杂的语法都与类的构
+造器定义有关。注意,尽管你可以省略参数类型信息,但必须为 Person 类指定完整的参数列表。
+
+无论是在构造器中还是在任何扩展基类的方法里, override 关键字都是必需的。这
+
+
+trait
+每种面向对象语言都必须解决这样的问题:一个对象可以拥有多种不同的角色。
+C++使用了多重继承, Java使用了接口(interface), Ruby
+使用了 mixins ,而Scala使用了 trait 。Scala的 trait 与Ruby的mixin类似,用模块实现。
+或者如果你喜欢,也可以将Scala的 trait 看成是Java的接口外加一个接口的实现。
+
+我们将 trait 看成是一个部分类(partial-class)的实现。
+
+为 Person 类增加 trait Nice
+class Person(val name: String)
+
+trait Nice {
+    def greet() = println("...")
+}
+
+class Character(override val name: String) extends Person(name) with Nice
+
+val f = new Character("Ned")
+f.greet
+
+。。才发现，这个调用无参方法不需要()。
+。。上面似乎是简单的类(无类体)
+
+你看到的第一个元素是 Person 类,它是只有一个名为 name 属性的简单类。第二个元素是名
+为 Nice 的 trait ,这就是mixin。它只有一个方法 greet 。最后一个元素是一个名为 Character 的
+类,并结合了 trait Nice 。使用者现在可以通过任何 Character 实例调用 greet 方法了。
+
+。。能多接口？
+
+
+
+def 关键字既可以定义函数也可以定义方法。参数
+以及参数的类型紧随其后。然后,你可以指定一个可选的返回类型。Scala经常可以推断出返回结
+果的类型。
+
+要调用该函数,只需使用函数名和参数列表即可。注意,这与Ruby不同,这里的括号在上下
+文当中是必需的。
+
+如果你想了解纯函数式编程的模型,那么你就要专注于变量的生命周期。
+
+可变的状态是糟糕的。当你声明变量时,应该使用不变量,这样可以避
+免状态冲突。在Java中,这意味着使用 final 关键字。而在Scala中,不变量意味着使用 val 而不
+是 var 。
+
+
+函数式编程语言因其甚为好用的操作集合的特性而闻名已久。最早的函数式编程语言之一
+Lisp就是围绕处理列表的想法而设计的,这个名字就是LISt Processing的缩写。
+
+Scala的主要集合类型包括列表(list)、集(set)和映射(map)。
+
+和大多数函数式编程语言一样,最实用的数据结构是列表。Scala中的列表类型为 List ,它
+是一类事物的有序集合,可随机访问。
+
+scala> List(1,2,3)
+res1: List[Int] = List(1, 2, 3)
+返回值: List[Int] = List(1, 2, 3) 。这个值不仅表明了整个列表的类
+型,而且表明了列表中的数据结构类型。
+
+scala> List("one",2)
+res2: List[Any] = List(one, 2)
+
+列表访问是一个函数,所以使用的是 () 而不是 [] 。
+
+
+scala> List(1,2,3)(-1)
+java.lang.IndexOutOfBoundsException: -1
+
+可以用负数作为下标,早期的Scala版本会返回列表的第一个元素:
+由于这种行为与表示下标值过大的异常 NoSuchElement 有些许不一致,所以2.8.0版本修改了
+这种行为,让它返回 java.lang.IndexOutOfBoundsException 异常了。
+
+
+scala> Nil
+res5: scala.collection.immutable.Nil.type = List()
+Scala中的 Nil 是一个空列表:
+
+
+
+集与列表类似,不过集没有任何显式的顺序。你可以通过 Set 关键字指定一个集。
+
+scala> val animals = Set("cat","dog","pig")
+animals: scala.collection.immutable.Set[String] = Set(cat, dog, pig)
+
+scala> animals + "tiger"
+res6: scala.collection.immutable.Set[String] = Set(cat, dog, pig, tiger)
+
+scala> animals - "cat"
+res7: scala.collection.immutable.Set[String] = Set(dog, pig)
+
+scala> animals
+res8: scala.collection.immutable.Set[String] = Set(cat, dog, pig)
+
+
+每个集操作都会建立一个新的集而不是修改旧的集。默认情
+况下,集是不可改变的。你可以看到从集里增删一个元素轻而易举,但是你无法像Ruby那样通过
++ 或 - 运算符合并集。在Scala中,使用 ++ 和 -- 运算符来完成集的并和差操作。
+
+scala> animals ++ Set("tiger","lion")
+res9: scala.collection.immutable.Set[String] = HashSet(lion, tiger, dog, cat, pig)
+
+scala> animals -- Set("tiger","cat")
+res13: scala.collection.immutable.Set[String] = Set(dog, pig)
+
+
+你也可以使用 ** 1 来完成集的交操作(返回两个集中相同的元素组成的新集)
+从Scala 2.8.0版本开始使用 & , ** 已经被废弃。
+
+scala> animals & Set("cat","tiger")
+res15: scala.collection.immutable.Set[String] = Set(cat)
+
+
+与列表不同,集与次序无关。这意味着集相等与列表相等是两个不同的概念:
+。。List要求顺序一样，Set不要求顺序一样。
+
+
+scala> val map1 = Map(0->"Zero",1->"One",2->"Two")
+map1: scala.collection.immutable.Map[Int,String] = Map(0 -> Zero, 1 -> One, 2 -> Two)
+
+scala> map1(2)
+res16: String = Two
+
+scala> map1(4)
+java.util.NoSuchElementException: key not found: 4
+
+
+scala> import scala.collection.mutable.HashMap
+import scala.collection.mutable.HashMap
+
+scala> val map2 = new HashMap[Int, String]
+map2: scala.collection.mutable.HashMap[Int,String] = HashMap()
+
+scala> map2 += 4->"four"
+res18: map2.type = HashMap(4 -> four)
+
+scala> map2 += 5->"five"
+res19: map2.type = HashMap(4 -> four, 5 -> five)
+
+scala> map2
+res20: scala.collection.mutable.HashMap[Int,String] = HashMap(4 -> four, 5 -> five)
+
+scala> map2 += "zero" -> 0
+                      ^
+       error: type mismatch;
+        found   : (String, Int)
+        required: (Int, String)
+
+
+Any 是Scala类层次体系中的根类。
+
+Nothing 类是所有类型的子类。譬如,对一个返回集合的函数来说,函数也可以返回
+Nothing ,这与给定函数的返回值类型相符。
+
+Null 是一个 trait , null 则是 Null 的一个实
+例,与Java中的 null 类似,意思是一个空值。一个空集合是 Nil ,而 Nothing 是一个 trait ,是所
+有类的子类。 Nothing 类没有实例,所以不能像 Null 那样对其解引用(dereference)。
+
+
+高阶函数就是一个生成或使用函数的函数。更具体点说,高阶函数是一个以
+其他函数作为输入参数或以函数作为返回结果的函数。这种使用其他函数来构造函数的方法是函
+数式编程语言家族中的关键概念,并且它还会影响使用其他语言编写代码的方式。
+
+
+我们要研究的第一个函数是 foreach ,它是Scala中的主要迭代方法。与Io一样,针对集合,
+foreach 方法接受一个代码块作为参数。在Scala中,你可以用 variableName => yourCode 这样
+形式来表示代码块:
+
+
+scala> val list = List("cat","pig","dog")
+list: List[String] = List(cat, pig, dog)
+
+scala> list.foreach(ani => println(ani))
+cat
+pig
+dog
+
+
+hobbit => println(hobbit) 是一个匿名函数,即没有名字的函数。在这个声明中, => 的
+左边是参数,右侧是代码。foreach 调用这个匿名函数,并将列表中的每个元组作为输入参数传
+递给匿名函数。
+
+也可以针对集合,映射使用相同的技术,尽管元素的次序无
+法保证。
+
+映射会返回元组而不是元组中的元素。你应该还记得, foreach 可以访问元组的任
+意一端
+
+scala> map2.foreach(entry => print(entry))
+(4,four)(5,five)
+scala> map2.foreach(entry => print(entry._1))
+45
+scala> map2.foreach(entry => print(entry._2))
+fourfive
+
+..print. println
+
+介绍几个有关操作列表的方法。
+list.isEmpty
+list.length
+list.size
+
+list.head
+list.tail
+list.last
+list.init
+
+你可以使用 head 和 init 从头开始递归列表,或使用 last 和 tail 从尾部开始
+递归列表。
+
+scala> list
+res28: List[String] = List(cat, pig, dog)
+
+scala> list.head
+res29: String = cat
+
+scala> list.tail
+res30: List[String] = List(pig, dog)
+
+scala> list.last
+res32: String = dog
+
+scala> list.init
+res33: List[String] = List(cat, pig)
+
+..??，head，last没有问题，tail，init是什么？
+
+
+list.reverse
+list.drop(1)
+list.drop(2)
+
+reverse 返回一个倒序列表, drop(n) 返回一个前 n 个元素被
+删除后的列表,但不修改原列表。
+
+
+Scala拥有许多采用不同方式操作列表的方法。你可以用给定的条件过滤一个
+列表,用任何你想要的标准排序列表,用列表中的各个元素作为输入来创建其他列表,并且你还
+可以创建聚合值。
+
+scala> val words = List("123","12","124","12345")
+words: List[String] = List(123, 12, 124, 12345)
+
+scala> words.count(word => word.size > 2)
+res36: Int = 3
+
+scala> words.filter(word => word.size > 2)
+res37: List[String] = List(123, 124, 12345)
+
+scala> words.map(word => word.size)
+res38: List[Int] = List(3, 2, 3, 5)
+
+scala> words.forall(w => w.size > 1)
+res39: Boolean = true
+
+scala> words.forall(w => w.size > 4)
+res40: Boolean = false
+
+scala> words.exists(w => w.size > 4)
+res41: Boolean = true
+
+
+可以使用代码块来泛化一个特性以得到更为强大的功能。例如,你可能需要使用传
+统方法对集合进行排序:
+
+。。words.sort()，提示没有sort这个方法。
+
+
+Scala中的 foldLeft 方法与Ruby中的 inject 方法非常相似。你只需提供一个初始值以及一个
+代码块, foldLeft 就会将数组中的每个元素和另外的一个值传递给代码块。这里提到的另外的
+值可以是初始值(在第一次调用代码块时)也可以是从代码块中返回的结果(在后续的代码块调
+用时)。这个方法有两个版本。第一个版本 /: 是一个操作符,采用 initialValue /:List
+codeBlock 的形式
+
+
+
+scala> val list = List(1,2,3,4)
+list: List[Int] = List(1, 2, 3, 4)
+
+scala> val sum = (0 /: list) {(sum, i) => sum + i}
+                    ^
+       warning: method /: in trait IterableOnceOps is deprecated (since 2.13.0): Use foldLeft instead of /:
+sum: Int = 10
+
+
+另外一个版本的 foldLeft 的语法看起来很奇怪。它使用了一个被称为柯里化(currying)的
+概念。函数式编程语言使用柯里化将一个带有多个参数的函数转换为多个拥有独自参数列表的函
+数。
+
+scala> list.foldLeft(0)((sum, value) => sum+value)
+res0: Int = 10
+
+
+
+Scala让我们经历过了一些尴尬的
+时刻,不过当这种语言被放在合适的场合中时,它就会让你惊叹。像XML和并发这样的难题,
+几乎都会变得像例行公事般简单。
+
+
+Scala将XML抬高到语言的一等编程结构,你可以像表示字符串那样来表示XML。
+
+scala> val beans = 
+     | <bean id="commissionManager" class="com.x.x.xxx">
+     |     <property name="commissionDao" ref="commissionDao" />
+     | </bean>
+       <bean id="commissionManager" class="com.x.x.xxx">
+       ^
+On line 2: error: To compile XML syntax, the scala.xml package must be on the classpath.
+       Please see https://github.com/scala/scala-xml for details.
+
+。。看来不受重视。。skip。
+
+
+模式匹配(pattern matching)允许你基于一些数据片断有条件地执行代码。Scala经常使用模
+式匹配,诸如当你解析XML或在线程间传递消息时。
+
+。。约等于switch？
+
+
+scala> def doChore(chore: String): String = chore match {
+     | case "clean" => "ok1"
+     | case "cook" => "yes1"
+     | case _ => "right1"
+     | }
+doChore: (chore: String)String
+
+scala> print(doChore("clean"))
+ok1
+scala> print(doChore("what"))
+right1
+
+
+模式匹配也有一些装饰品。在Prolog中,模式匹配往往具有关联的条件。为了用Scala实现一
+个阶乘,我们在哨兵(Guard)中为每个匹配语句指定了一个条件
+
+scala> def factor(n: Int): Int = n match {
+     | case 0 => 1
+     | case x if x > 0 => factor(n - 1)*n
+     | }
+factor: (n: Int)Int
+
+scala> factor(5)
+res3: Int = 120
+
+哨兵的形式为 case x if x > 0 。它可以匹配任意大于 0的 x 。
+
+通过这种方式你可以指定各种各样的条件。模式匹配也可以匹配正则表达式和类型。
+
+
+Scala中的正则表达式(Regular Expression)是一等类型。针对一个字符串的 .r 方法可以将任
+意字符串转换成正则表达式。
+
+scala> val reg = """^(F|f)\w*""".r
+reg: scala.util.matching.Regex = ^(F|f)\w*
+
+scala> print(reg.findFirstIn("Fantastic"))
+Some(Fantastic)
+scala> print(reg.findFirstIn("AFantastic"))
+None
+
+我们从一个简单字符串开始。用 """ 为字符串划定界限,允许多行字符串,去除了对其内部字符
+串的求值过程。 .r 方法将字符串转换为正则表达式。然后使用 findFirstIn 方法找到第一次匹配
+成功的地方。
+
+scala> val reg2 = "the".r
+reg2: scala.util.matching.Regex = the
+
+scala> reg2.findAllIn("the way to there is the way to win.")
+res6: scala.util.matching.Regex.MatchIterator = <iterator>
+
+构建了一个正则表达式,并使用 findAllIn 方法在字符串" the way the scissors
+trim the hair and the shrubs "中找到所有与 the 匹配的地方。如果需要,可以使用 foreach
+遍历这个匹配结果列表,仅此而已。你可以像使用字符串那样去使用正则表达式来进行匹配。
+
+scala> reg2.findAllIn("the way to there is the way to win.").foreach(x=>print(x + ", "))
+the, the, the, 
+
+
+在Scala中将XML语法和模式匹配结合在一起是极具吸引力的。你可以浏览XML文件,并根
+据各种不同的XML元素有条件地执行代码。
+
+Scala通过使用XML语法、模式匹配和类XQuery语言使得最常见的任务变得极为简单,几乎不费
+吹灰之力。
+
+
+Scala最重要的方面之一就是其处理并发的方式。其主要结构包括actor和消息传递。 actor拥有
+线程池和队列池。当发送一条消息给actor时(使用!操作符),是将一个对象放到该actor的队列中。
+actor读取消息并采取行动。通常情况下, actor通过模式匹配器去检测消息并执行相应的消息处理。
+
+
+。。。。。。。。。。。。。。。。。。
+。。。。。。。。。。。。。。。。。。
+。。scala把自己的actor废弃了，改用第三方库akka了。。。我。。。
+。。还得额外下载，第三方库还不知道怎么一起编译呢。。
+。。scala，估计难了，现在tiobe上30名，
+。。go20名。。唉，都难啊。
+
+。。反正就是 scala由于 函数式，所以和多线程很般配。。
+。。但是似乎被go抢掉了很多，毕竟scala太难学了。。。
+
+。。java8应该也抢掉一部分吧。
+
+
+
+
+
+
+Erlang
+
+Erlang身怀可伸缩并发性和可靠性这两项拿手绝技
+
+Erlang是爱立信公司历经多年研究的产物,用来在电信领域中开发准实时 (near-real-time)
+且容错性较强的分布式应用。
+
+Erlang是一门函数式语言,可靠性方面的特性很多,可用于开发可靠性要求极高的系统。Erlang
+在替换模块时不必停止运行,这样就能边运行边维护电话交换机等设备。有些使用Erlang的系统已
+持续运行多年,从未因维护而中止过。可话说回来,要说到Erlang最关键的功能,那还得是并发。
+
+
+哪些方法最适用于并发?在这一点上,并发领域的专家们有时意见并不统一。其中常见的一
+个争议是:线程更好还是进程更好?一个进程由多个线程组成,进程有自己的资源,而线程虽有
+自己的执行路径,但在同一进程内,各线程是资源共享的。尽管实现各异,但一般来说,线程比
+进程更轻量级。
+
+1. 无线程
+很多语言都采用线程实现并发,比如Java和C语言。线程占用资源较少,所以理论上说,使
+用线程可获得更优异的性能。线程的缺点,在于资源共享可能导致复杂而有缺陷的实现,而且这
+种资源共享必须用并发锁来管理,这也会产生性能瓶颈。为了在共享资源的两应用间分配控制权,
+线程机制需要借助信号量或是操作系统级别的锁。然而,Erlang另辟蹊径,尝试让进程也尽可能
+轻量级一些。
+
+2. 轻量级进程
+Erlang奉行的哲学是轻量级进程,这使它摆脱了在共享资源和性能瓶颈的泥沼中艰难跋涉的
+困境。Erlang的发明者煞费苦心地简化了应用程序中多进程创建、管理和通信的过程。分布式消
+息传递成为基本的语言结构,因此锁机制不再必要,并发性能也大有长进。
+和Io一样,Erlang也将actor用在了并发当中,因此,消息传递就成为至关重要的概念。你可
+以在Erlang中依稀辨认出Scala的消息传递语法,因为它们的消息传递语法非常相似。Scala的actor
+代表一个对象,由线程池创建和维护,而Erlang的actor代表了一个轻量级进程。Erlang的actor从
+队列中读取外部进入的消息,并用模式匹配决定其处理方式。
+
+3. 可靠性
+Erlang虽然也有常规错误检测手段,但在容错应用中,需要处理的错误加起来远比传统应用
+要多,这是常规手段无法解决的。Erlang解决这一问题的秘诀是“就让它崩溃”。由于Erlang能轻
+易监测到崩溃进程,因此终止相关进程并启动新进程也就不在话下了。
+此外,Erlang还能做到“热插拔”代码。也就是说,你不必中止代码运行,就可以替换应用
+程序的各个部分。相比于其他同类分布式应用,这项功能将带给你更简单的维护策略。Erlang将
+健壮的“就让它崩溃”错误处理策略、“热插拔”以及创建开销极小的轻量级进程等优点集于一
+身,因此应用程序一次就能运行好几年都不宕机。
+
+
+Erlang有这么多并发方面的传奇特性,实在是令人欲罢不能。它有三个最基本的要素:消息
+传递、进程创建和进程监控。用它新创建的进程是轻量级的,因此不必担心其控制区域内的资源
+可能受限。Erlang不仅可以尽可能地消除代码中的副作用和可变性,而且还可以很轻松地监测崩
+溃进程。
+
+
+Erlang是本书出现的第一门函数式语言。(Scala是函数式/面向对象混合语言。)对你而言,这
+意味着以下几点:
+ 程序将完全基于函数编写出来,压根儿就没有对象这种东西;
+ 通常来说,给定相同输入,这些函数将返回相同的值;
+ 这些函数通常没有副作用,也就是说,它们不改变程序的状态;
+ 任何变量都只能赋值一次。
+
+第二条和第三条都带有 通常这个词。Erlang并非纯
+函数式语言,它允许出现少数违反规则的情况。在本书介绍的语言中,Haskell是唯一的一门纯函
+数式语言。
+
+
+
+注释以 % 符号开头,从该符号开始、直到该行末尾
+对注释作语法分析时,Erlang会将整条注释转换为一个空格
+
+...书上是显示结果的，自己这里没有。。。。。。。。需要一个. 才会结束语句。
+
+1> 2+2.
+4
+2> 2+2.0.
+4.0
+3> "str".
+"str"
+4> [1,2,3,4].
+[1,2,3,4]
+
+如同Prolog家族的其他语言一样,列表是用方括号表示的
+
+
+5> [72,97,32,72,97,32,72,97,32]
+5> .
+"Ha Ha Ha "
+
+字符串其实是个列表
+
+6> [98]
+6> .
+"b"
+
+。。那它怎么分辨 需要的是数字还是char？。。。不必分辨，char和int在c中能互相转啊。但可能会越界导致数据丢失吧。
+。。估计是数字优先转为可见字符吧。如果全都能转为可见字符，那么就转换。
+
+和Scala不同,Erlang不能在字符串和整数间强制转换。 5+"string" 报错
+
+
+13> variable = 4.
+** exception error: no match of right hand side value 4
+14> vart = 4.
+** exception error: no match of right hand side value 4
+
+它之所以出错,是因为这里的
+variable 其实是个原子。变量的话,必须以大写字母开头才行。
+
+15> Vart = 4.
+4
+16> Vart = 4.
+4
+17> Vart = 5. 
+** exception error: no match of right hand side value 5
+
+变量以大写字母开头,且它们是不可变的,你只能为每个变量赋值一次
+
+
+函数式语言中,符号(symbol)的作用更为突出。它们是最基本的数据元素,可以表示任何
+你想为之起名的事物。在本书介绍的其他各门语言中,你曾见过符号。但在Erlang中,符号叫做
+原子,并以小写字母开头,它们用来表达很小的事物粒度。
+
+18> red.
+red
+19> Pill = blus.
+blus
+20> Pill
+20> .
+blus
+
+这里的 red 和 blue 都是原子。这些原子起什么名都行,用来符号化现实世界的事物。
+
+21> [1,2,"three"].
+[1,2,"three"]
+
+列表是异质和变长的。
+
+在Erlang中,如果想用映射或散列的话,常常会用到元组
+24> {comic_strip, {name, "Calvin"},{charcater,"Spaceman"}}.
+{comic_strip,{name,"Calvin"},{charcater,"Spaceman"}}
+
+我们以原子为键、字符串为值。你还可以混合使用元组和列表
+
+利用模式匹配,就可以访问那些元素。
+
+
+
+Erlang和Prolog
+在模式匹配上有一处重大不同。Prolog中,你定义一条规则,会匹配数据库上的所有的值。也就
+是说,Prolog会将模式匹配作用于所有条目。Erlang的运作方式则类似于Scala,一个匹配仅仅作
+用于单个值。
+
+。。Prolog哪有模式匹配。。。那个不叫合一吗。。。
+
+25> Person = {person, {name, "A S"},{profession, "K P"}}.
+{person,{name,"A S"},{profession,"K P"}}
+26> {p,{n,N},{p,P}} = Person.
+** exception error: no match of right hand side value 
+                    {person,{name,"A S"},{profession,"K P"}}
+27> {person,{name,N},{profession,P}} = Person.
+{person,{name,"A S"},{profession,"K P"}}
+28> N.
+"A S"
+29> P.
+"K P"
+
+。。符号/原子 必须相同。
+
+Erlang会把两个数据结构匹配起来,并将元组中的那些值赋给变量。原子匹配其自身
+
+
+若是你已经习惯了Ruby或Java风格的散列表,那么散列表开头加个 person 原子看来或许有
+几分古怪。但在Erlang中,我们常常要用到多匹配语句和多类型元组。照刚才说的那样设计数据
+结构,Erlang就不必理会开头原子之外的部分,而能快速匹配所有用来表示人的元组。
+
+
+列表的模式匹配也很像Prolog:
+
+30> [Head|Tail] = [1,2,3]
+30> .
+[1,2,3]
+31> Head.
+1
+32> Tail.
+[2,3]
+33> [H|T] = [3,4,5]
+33> .
+[3,4,5]
+34> H.
+3
+35> T.
+[4,5]
+
+45> [O,Tw|R] = [1,2,3,4]. 
+[1,2,3,4]
+。。必须2个字符Tx，单个T会报错。估计是认为T|R是一个变量。
+
+
+
+46> one = 1.
+** exception error: no match of right hand side value 1
+= 语句不是简单的赋值语句,而是模式匹配。
+你要求Erlang用原子 one 去匹配整数1,可它做不到这点。
+
+
+
+
+有时,你需要在位级别上存取数据。如果想在较小的空间内塞下较多数据,或想处理JPEG
+或MPEG这样的预定义数据,那么每一个位放了什么就特别重要。Erlang能让你轻松地把几个数
+据片段打包到一个字节当中。做到这一点,需要两种操作:打包和解包。在Erlang中,位图与其
+他集合(collection)的工作方式毫无二致。为了打包一个数据结构,你要让Erlang知道每个元素
+各占多少位
+
+47> W=1.
+1
+48> X=2.
+2
+49> Y=3.
+3
+50> Z=4.
+4
+51> All = <<W:3,X:3,Y:5,Z:5>>.
+<<"(d">>
+52> <<A:3,B:3,C:5,D:5>> = All.
+<<"(d">>
+53> A
+53> .
+1
+54> D.
+4
+
+
+这里的语法和元组、列表一模一样,剩下的事全交给模式匹配打理就行。有了这些位操作,
+Erlang在执行底层任务时就会变得异常强大。
+
+
+
+
+
+和Scala不同,Erlang是动态类型的。你不必担心数据元素的赋值类型是什么。Erlang和Ruby
+一样,都是动态类型的。它会在运行时根据引号或小数点等语法线索绑定类型。
+
+
+
+-module(basic).
+-export([mirror/1]).
+
+mirror(Anything) -> Anything.
+
+
+第一行定义了模块名称,第二行定义想要在模块外部执行的函数。该函数的名字是 mirror ,
+/1 表示它带有一个参数。最后一行是真正要执行的函数内容,可以看出,它受Prolog风格的影响
+不小。这一行先是指定了要定义的函数名 mirror ,并确定了传入参数 Anything 。参数之后,紧
+跟着一个 -> 符号,简单返回函数的第一个参数。
+
+
+1> c(basic).
+{ok,basic}
+2> basic:mirror(smilling).
+smilling
+4> basic:mirror(1).
+1
+
+第一行编译了 basic.erl ,你会在该目录中看到basic.beam文件。
+只有函数名是不行的,还得在前面加上模块名,再跟上一个冒号。
+
+我们能把函数的参数 Anything 绑定到两个不同类型上(原子，整数)。Erlang是动态类型语言,这正合我意。
+
+
+
+
+-module(match).
+-export([number/1]).
+
+number(one) -> 1;
+number(two) -> 2;
+number(three) -> 3.
+
+10> c(match).
+./match.beam: Module name 'matcher' does not match file name 'match'
+error
+11> c(match).
+{ok,match}
+
+。。文件名要和module同名。之前 module(matcher).
+
+12> match:number(one).
+1
+13> match:number(four).
+** exception error: no function clause matching match:number(four) (match.erl, line 5)
+
+第一个多匹配选择的函数。每种可能的匹配都有函数名、匹配参数以及“ -> ”
+符号后的执行代码。每种匹配情况下,都仅仅让Erlang返回一个整数。最后一条匹配语句以“.”
+结尾,其他匹配语句用以“ ; ”结尾。
+
+
+
+就像在Io、Scala和Prolog里一样,递归扮演着非常重要的角色。Erlang和Prolog都对尾递归进
+行了优化。
+
+
+-module(factor).
+-export([factor/1]).
+-export([fib/1]).
+
+factor(0) -> 1;
+factor(N) -> N * factor(N-1).
+
+fib(0) -> 1;
+fib(1) -> 1;
+fib(N) -> fib(N - 1) + fib(N - 2).
+
+
+14> c(factor)
+14> .
+{ok,factor}
+15> factor:factor(5).
+120
+16> factor:fib(5).
+8
+
+2> factor:factor(200).
+78865786736479050355236321393218506229513597768717326329474253324435944996340334
+29203042840119846239041772121389196388302576427902426371050619266249528299311134
+62857270763317237396988943922445621451664240254033291864131227428294853277524242
+40757390324032125740557956866022603190417032406235170085879617892222278962370389
+7374720000000000000000000000000000000000000000000000000
+
+
+
+
+
+你会经常看到充斥着 case 语句的程序,这是因为,编写并发程
+序时, case 语句可以表示即将处理哪一条消息。相比之下, if 语句用的就少得多了。
+
+
+1> Animal = "dog"
+1> .
+"dog"
+2> case Animal of
+2> "dog" -> underdog;
+2> "cat" -> thundercat
+2> end.
+underdog
+
+和Prolog一样,你可以用下划线( _ )来匹配任意符号
+
+1> Animal = "dog".
+"dog"
+2> case Animal of
+2> "cat" -> cat2;
+2> _ -> sth_else
+2> end.
+sth_else
+
+除了最后一个子句之外,所有 case 子句都以分号结尾。
+
+
+case 语句用的是模式匹配,而 if 语句用的是“哨兵”。Erlang中的哨兵是指成功匹配所必须
+满足的条件。
+
+1> X=0.
+0
+2> if X>0 -> positive;
+2> X<0 -> negative
+2> end.
+** exception error: no true branch found when evaluating an if expression
+3> if X>0 -> positive;
+3> X<0 -> negative;
+3> true -> zero
+3> end.
+zero
+
+
+与Ruby或Io不同,这里的子句必须有一个为真,因为 if 其实是个函数。此外,每一种匹配情
+况都必须有一个返回值。如果你确实想要 case 语句的效果,那可以令最后一个哨兵为 true
+
+
+4> case X of 
+4> 1->cat;
+4> 2->dog;
+4> 3->pig 
+4> end.
+** exception error: no case clause matching 0
+
+5> case X of
+5> 1->cat;
+5> 2->dog;
+5> true->zero
+5> end.
+** exception error: no case clause matching 0
+
+6> case X of
+6> 1->cat;
+6> 2->dog;
+6> _->zero 
+6> end.
+zero
+
+。。if是靠哨兵来完成逻辑true，false；case是靠模式匹配。
+
+
+
+高阶函数有两种,一种是以函数为返回值,一种是以函数为参数。Ruby是拿
+代码块当作高阶函数来用,主要用法是把代码块传递给列表,让它在列表上迭代执行。而在Erlang
+中,你可以将任意函数赋给变量并传递它们,就跟其他数据类型一样。
+
+匿名函数
+
+7> Negate = fun(I) -> -I end
+7> .
+#Fun<erl_eval.7.126501267>
+8> Negate(1).
+-1
+9> Negate(-1).
+1
+
+关键字 fun ,这个关键字定义了一个匿名函数。在上面的例子中,定
+义的匿名函数带一个参数 I 并返回 -I 。这个匿名函数被赋给了 Negate 。这里需要明确一点:
+Negate 并不是函数返回的值,它就是这函数本身。
+
+两个重要思想。第一,我们把函数赋给了变量。这样就能像传递其他数据
+一样传递行为;第二,我们可以轻松地在函数内部调用其他函数,只需在参数列表中指定函数即
+可。注意,Erlang是动态类型语言,你不必操心函数的返回类型,也可免于受到Scala那样的繁复
+语法之苦。这种函数用法的缺点是,函数可能出现执行错误。
+
+
+用函数来帮我们管理列表。
+其中一些函数,比如 foreach ,将用来迭代列表;而另一些函数,比如 filter 或 map ,将通过筛
+选或映射到其他函数的方式返回列表。此外,还有其他一些处理列表的函数,比如 foldl 和 foldr ,
+它们采用的方式类似于Ruby的 inject 函数和Scala的 FoldLeft 函数等,即把结果汇总起来。
+
+
+lists:foreach 方法带有一个函数和一个列表,其中函数可以是匿名的
+
+10> Numbers = [1,2,3,4,5].
+[1,2,3,4,5]
+11> lists:foreach(fun(Num) -> io:format("~p~n", [Num]) end, Numbers). 
+1
+2
+3
+4
+5
+ok
+
+~p将转换为后面给出的参数列表, ~n 是换行符
+
+12> Pnt = fun(X) -> io:format("~p  ", [X]) end.
+#Fun<erl_eval.7.126501267>
+13> lists:foreach(Pnt, Numbers).
+1  2  3  4  5  ok
+
+
+在Erlang中,映射函数采用的是与Ruby
+的 collect 函数类似的方式。它把列表的每个值传递给函数,并用返回结果创建一个列表。
+
+16> lists:map(fun(X) -> X + 1 end, Numbers).
+[2,3,4,5,6]
+
+
+
+17> Small = fun(X) -> X < 3 end.
+#Fun<erl_eval.7.126501267>
+18> Small(4).
+false
+19> Small(2).
+true
+20> lists:filter(Small, Numbers).
+[1,2]
+
+函数 lists:filter 将用所有满足Small的元素(小于3的元素)构建列表
+
+还可以用 Small 函数结合 all
+或 any 来测试列表。只有列表所有元素都满足筛选器( filter )时, lists:all 才返回 true
+
+而 lists:any ,是只要列表有一个元素满足筛选器,它就会返回 true
+
+21> lists:all(Small, [1,2]).
+true
+22> lists:all(Small, [1,2,3]).
+false
+23> lists:any(Small, [1,2,3,4]).
+true
+24> lists:any(Small, [4,5,6]).
+false
+
+
+25> lists:any(Small, []).
+false
+26> lists:all(Small, []).
+true
+
+all 会返回 true (表示列表所有元素都满足筛选器,尽管列表里一个元
+素都没有),而 any 会返回 false (表示空列表中没有满足筛选器的元素)。在这两种情况下,不
+管用什么样的筛选器,它们的返回值都是这样。
+
+
+还可以用处在列表头位置的所有满足筛选器的元素组成一个列表,或者把处在列表头位
+置、满足筛选器的元素舍弃掉
+
+27> lists:takewhile(Small, Numbers).
+[1,2]
+28> lists:dropwhile(Small, Numbers).
+[3,4,5]
+29> lists:takewhile(Small, [1,2,1,4,1]).
+[1,2,1]
+30> lists:dropwhile(Small, [1,2,1,4,1]).
+[4,1]
+
+。。直到第一个不满足条件的数值(不包含)。。然后drop或者take。
+
+这些测试在完成某些任务时很有用,比如处理或舍弃消息头。
+
+
+
+
+当我们想把某个函数遍历列表所得的结果汇总起来时,以下这些函数会非常有用。匿
+名函数的一个参数是累加器,另一个参数表示每次迭代的元素值。 lists:foldl 带有一个函数
+参数、一个累加器的初始值参数以及一个列表
+
+
+31> Numbers
+31> .
+[1,2,3,4,5]
+32> lists:foldl(fun(X, Sum) -> X + Sum end, 0, Numbers).
+15
+
+
+33> Adder = fun(Item, Sums) -> Item + Sums end.
+#Fun<erl_eval.13.126501267>
+34> InitSum = 0.
+0
+35> lists:foldl(Adder, InitSum, Numbers).
+15
+
+
+。。java8的函数式 比 这种源生的函数式语言 有差别吗？
+。。函数式语言到底是靠什么实现的？eval？。。jdk8是靠匿名函数。
+。。eval需要能动态加载的吧。
+
+
+
+
+在没有可变状态的情况下,列表构建似乎是一件困难的任务。如果用Ruby或Io
+这类语言,那可以把元素一个一个地加到列表中。但如果用的是没有可变状态的语言,我们也可
+以返回一个添加了新元素的列表。我们通常从列表头开始添加。这种添加或构造也要用到 [H|T]
+结构,但不是在匹配的左边,而是在右边。
+
+
+
+-module(double).
+-export([double_all/1]).
+
+double_all([]) -> [];
+double_all([First|Rest]) -> [First + First | double_all(Rest)].
+
+
+
+36> c(double).
+{ok,double}
+37> double:double_all([1,2,3,4]).
+[2,4,6,8]
+
+。。还以为是元素个数*2。。。
+
+
+38> [1|[2,3]].
+[1,2,3]
+39> [[2,3]|1].
+[[2,3]|1]
+40> [[]|[2,3]].
+[[],2,3]
+41> [1|[]].
+[1]
+42> [[1,2]|[3,4]].
+[[1,2],3,4]
+43> [[1,2]|[[3,4]]].
+[[1,2],[3,4]]
+
+。。第二个参数会脱壳？
+
+第二个参数必须是个列表,而左边的第一个参数将加到第二个参数之
+前,作为新列表的第一个元素。
+
+
+任何一门函数式语言当中, map 都是最重要的函数之一。只要用上 map ,列表就可以自由变
+化,就像黑客帝国里的那些反派一样。由于这种特性的重要性,Erlang进一步提供了一种更加简
+明、可一次执行多个变换的形式。
+
+
+44> Fibs = [1,1,2,3,5].
+[1,1,2,3,5]
+45> Double = fun(X) -> X * 2 end.
+#Fun<erl_eval.7.126501267>
+46> lists:map(Double, Fibs).
+[2,2,4,6,10]
+
+一个数字列表 Fibs ,还有一个令传入参数加倍的匿名函数 Double 。然后我们调用
+lists:map ,通过它在列表的每个元素上调用 Double ,并从返回结果中得到一个新列表。
+
+Erlang又提供了另一种语法意义相同、但简明得多
+的方法,也就是列表解析结构。
+
+47> [Double(X) || X <- Fibs].
+[2,2,4,6,10]
+
+48> [X * 2 || X <- [1,1,2,3,5,8]].
+[2,2,4,6,10,16]
+
+
+49> lists:map(fun(X)->X*2 end, [1,1,2,3,5]). 
+[2,2,4,6,10]
+
+。。end就是结束，.只是表明一行命令的结束。
+
+
+我们用列表解析把map 定义得更简洁些
+map(F, L) -> [F(X) || X <- L].
+
+函数 F 在列表 L 上的映射,就是对 L 中的每个元素 X 执行 F 之后,得到的集合 F(X) 。
+
+53> Cart2 = [{pencil, 4, 0.25}, {pen, 1, 1.20},{paper, 2, 0.20}].
+[{pencil,4,0.25},{pen,1,1.2},{paper,2,0.2}]
+55> WithTax2 = [{Prod, Quan, Price, Price*Quan*0.08} || {Prod, Quan, Price} <- Cart2].
+[{pencil,4,0.25,0.08},{pen,1,1.2,0.096},{paper,2,0.2,0.032}]
+
+对一个包含了商品名称、数量和价格的商品目录使用列表解析
+假如我要对1美元商品收8美分税,仅用一个列表解析,就能给列表加上税款这一项,并返回一个新列表
+
+
+56> Cart3 = [{Pro, Pri} || {Pro, _, Pri} <- Cart2].
+[{pencil,0.25},{pen,1.2},{paper,0.2}]
+
+57> Cart4 = [{Pr, Pri/2} || {Pr, _, Pri} <- Cart2].
+[{pencil,0.125},{pen,0.6},{paper,0.1}]
+
+
+这里展示的只是列表解析全部威力的冰山一角。它的终极形式比前面提到的这些
+还要强大得多:
+ 列表解析采用的形式是:[表达式 || 子句1, 子句2, ..., 子句N];
+ 列表解析可拥有任意数量的子句;
+ 子句可以是生成器(generator)或筛选器(filter);
+ 筛选器可以是布尔表达式,也可以是返回布尔值的函数;
+ 生成器采用 Match <- List 的形式。它在右边列表的各元素上,执行左边式子所表示的
+模式匹配。
+
+生成器是加进来一些东西,而筛选器是挪出去一些东西
+
+58> [X || X<-[1,2,3,4], X<4, X>1].
+[2,3]
+59> [{X,Y}|| X<-[1,2,3,4], X<3, Y<-[5,6]].
+[{1,5},{1,6},{2,5},{2,6}]
+
+
+
+
+如今我们所在的整个编程行业,都在大把大把地吞食蓝药丸,就好像来到阿姆斯特丹的牧师
+之子一样:并发不好用,于是我们就尽量避免用它;我们用了可变状态,因此程序在并发运行
+的时候就可能导致冲突;我们的函数和方法都有副作用,所以就无法验证其正确性,或是去预测
+其结果;为了提升性能,我们采用的不是无需共享资源的进程,而是共享了状态的线程,这就要
+求我们做一些附带工作,以保证每段代码都不出差错。
+
+这几件事堆在一块,后果就是一团乱麻。并发之所以会伤害我们,并不是因为它真有那么难,
+而是因为我们一直在使用错误的编程模型!
+
+
+
+
+Erlang的三种并发原语是:用“ ! ”发送消息,用 spawn 产生进程以及用 receive 接收消息。
+
+
+
+-module(translate).
+-export([loop/0]).
+
+loop() ->
+    receive
+        "casa" ->
+            io:format("house~n"),
+            loop();
+        "blanca" ->
+            io:format("white~n"),
+            loop();
+        _ ->
+            io:format("???~n"),
+            loop()
+end.
+
+
+块中代码调用了三次 loop() ,却什么都没返回,这是有道理的。Erlang对尾递归做了
+优化,所以只要 loop() 在每个 receive 子句的最后一行,它就不会带来什么开销。但这样做,只
+是定义了一个永远循环下去的空函数。
+
+各行代码由 , 分隔开,遇到“ ; ”时子句即告终止。
+
+61> c(translate).
+{ok,translate}
+62> Pid = spawn(fun translate:loop/0).
+<0.169.0>
+63> Pid ! "casa".
+house
+"casa"
+64> Pid ! "blanca".
+white
+"blanca"
+65> Pid ! "casa blanca".
+???
+"casa blanca"
+
+
+产生进程要使用 spawn 函数,它又带有一个函数参数。而这个作为参数的函数,会在一个新
+的轻量级进程中启动。 spawn 还会返回一个进程ID(PID)。
+在命令行界面中,你会看到一对尖括号包含着进程ID。
+
+还存在其他一些产生形式。你
+可以用名字注册进程,这样一来,其他进程就可以通过名字找到如公用服务之类的进程,而不是
+通过进程ID。如果你想拥有运行时更改代码或者说“热插拔”的能力,也可以采用别的 spawn 形
+式,如果你要产生一个远程进程,还可以用 spawn(Node,function) 。
+
+使用运算符 ! ,就可以在Erlang中传递分布式消息,就像在Scala那章见过的那样。其用法是
+Pid ! message , Pid 可以是任意一个进程ID,消息也可以是包括原语、列表、元组在内的任意
+值。
+
+如果你要做的是把分布式消息发送给命名资源,那你应该用另一种语法: node@server !
+message 。
+
+
+
+有些并发系统是异步运行的,比如电话交谈。发送者只管发送消息,而不必等待响应;有些
+则是同步运行的,比如上网,我们请求某个网页,在Web服务器把网页发回来之前,我们只能等
+待响应。
+
+为了把消息模型从异步变为同步,我们将采用以下三部分策略。
+ 消息服务中的每个 receive 子句都要匹配一个元组,元组包含请求此次翻译服务的进程ID以及需要翻译的词。有了这ID,我们就知道该把响应发给谁。
+ 每个 receive 子句都要把响应送回给发送者,而不是把结果打印出来。
+ 不再使用简单的 ! 原语,而是写一个简单的函数来发送请求和等待响应。
+
+
+1. 同步接收
+第一项任务是给我们的 receive 子句加几个参数,这意味着要用到元组。有了模式匹配,这
+件事并不困难。
+
+2. 同步发送
+说完接收,我们再看看等式的另一边——发送消息。我们先来发一条消息,然后立即进入等
+待响应状态。
+
+
+
+
+
+-module(sync_translate).
+-export([loop/0, translate/2]).
+
+loop() ->
+    receive
+        {Pid, "casa"} ->
+            Pid ! "house",
+            loop();
+        {Pid, "blanca"} ->
+            Pid ! "white",
+            loop();
+        {Pid, _} ->
+            Pid ! "i dont know",
+            loop()
+end.
+
+translate(To, Word) ->
+    To ! {self(), Word},
+        receive
+            Translation -> Translation
+        end.
+
+
+70> c(sync_translate).
+{ok,sync_translate}
+71> Translator = spawn(fun sync_translate:loop/0).
+<0.190.0>
+72> sync_translate:translate(Translator, "blanca"). 
+"white"
+
+Translator 进程如今返回的是经过翻译词语得到的字符串值,而且我们用的是同步消息。
+
+现在,你已经理解了基本的 receive 循环结构是什么样的。每个进程都有个信箱, receive
+结构只是把消息从信箱队列中取出来,先用它去匹配某个函数,再去执行这个匹配上的函数。进
+程利用消息传递机制,在进程间彼此通信。Armstrong博士将Erlang称为真正的面向对象语言,这
+可不是随便说说。它提供了消息传递和封装等行为,而我们付出的代价,仅仅是失去了可变状态
+和继承,而继承可以通过高阶函数来模拟。
+
+。。。？？？？，，self()是什么？loop?,应该是进程自己，这样正好匹配{Pid, "casa"}，{进程，信息}。
+。。那么To是什么？To是进程，传进来的(接收方)的进程。
+To ! {self(), word} 就是把{self, word}的结果发送给To进程。。但是为什么{self, word}会调用loop？
+receive是指To进程接受到结果后的动作？为什么不是To自己定义它的动作？
+。。。。。cmd直接self()，返回的是进程标识。
+
+
+
+链接进程,以便获得更好的可靠性。Erlang支持把两个进程链接起
+来。只要其中一个进程终止,它就会将退出信号发送给与之链接的同伴。这样一来,另一个进程
+会接收到这个信号,并相应地作出反应。
+
+
+
+
+
+-module(roulette).
+-export([loop/0]).
+
+% send a number, 1-6
+loop() ->
+    receive
+        3 -> io:format("bang.~n"), exit({roulette,die,at,erlang:time()});
+        _ -> io:format("click.~n"), loop()
+end.
+
+我们写了个消息循环,匹配3将执行代码 io:format("bang~n"),
+exit({roulette,die,at,erlang:time()}; ,这会终止该游戏进程;匹配其他东西则只是打印
+出一条消息,然后返回循环顶端继续执行。
+
+
+3> c(roulette).
+{ok,roulette}
+4> Gun = spawn(fun roulette:loop/0).
+<0.93.0>
+5> Gun ! 1.
+click.
+1
+6> Gun ! 5.
+click.
+5
+7> Gun ! 3.
+bang.
+3
+8> Gun ! 2.
+2
+
+这里的问题在于,发送了消息3之后, Gun 进程就会终止。因此,3之后发送的消息其实什么
+都没做。
+
+9> erlang:is_process_alive(Gun). 
+false
+我们可以判断进程是否终止
+
+
+我们可以做个监视器(monitor),告诉我们进程是否终止。我觉得它似乎更
+像是验尸官(coroner)而不是监视器,因为我们只对进程死没死这件事感兴趣。
+
+
+
+
+-module(coroner).
+-export([loop/0]).
+
+loop() ->
+    process_flag(trap_exit, true),
+    receive
+        {monitor, Process} ->
+            link(Process),
+            io:format("Monitor start.~n"),
+            loop();
+
+        {'EXIT', From, Reason} ->
+            io:format("The shooter ~p died with reason ~p.", [From, Reason]),
+            io:format("start another one.~n"),
+            loop()
+        end.
+
+
+
+
+
+2> c(roulette).
+{ok,roulette}
+3> c(coroner).
+{ok,coroner}
+4> Revolver = spawn(fun roulette:loop/0).
+<0.92.0>
+5> Coroner = spawn(fun coroner:loop/0).
+<0.94.0>
+6> Coroner ! {monitor, Revolver}.
+Monitor start.
+{monitor,<0.92.0>}
+7> Revolver ! 1.
+click.
+1
+8> Revolver ! 4.
+click.
+4
+9> Revolver ! 3.
+bang.
+3
+The shooter <0.92.0> died with reason {roulette,die,at,{16,14,5}}.start another one.
+10> Revolver ! 4.
+4
+
+我们可能接收到两种类型的元组:其一是以原子 monitor
+开头的元组,其二是以字符串 'EXIT' 开头的元组。
+
+。。指{monitor,Process} -> 这段代码
+这段代码把“验尸官”进程链接到以Process为PID标识的任意进程上。你也可以用
+spawn_link ,产生一个带有链接的进程。现在,如果被监视的进程即将终止,它会发送退出消
+息给 coroner 。
+
+..指{'EXIT',From,Reason} ->
+这段代码匹配了退出消息。这消息是个三元组,其中第一个元素是 'Exit' ,后面跟着
+From ——濒死进程的PID,还有出错原因。我们把濒死进程的PID和出错原因全都打印了出来。
+
+
+
+
+
+如果枪已经注册过(我可没影射现实世界的枪支),游戏玩家就没必
+要再去获知这支枪的PID了。然后,我们把创建这支枪的代码也挪到了“验尸官”程序中;最后,
+进程只要一终止,“验尸官”就可以重启该进程。这样一来,我们不必生成很多错误报告,就能
+获得更好的可靠性。此时此刻,“验尸官”不再是“验尸官”
+,他变身成了一位“医生”,一位身怀妙手回春之术的“医生”。
+
+
+
+-module(doctor).
+-export([loop/0]).
+
+loop() ->
+    process_flag(trap_exit, true),
+    receive
+        new ->
+            io:format("create and monitor process.~n"),
+            register(revolver, spawn_link(fun roulette:loop/0)),
+            loop();
+
+        {'EXIT', From, Reason} ->
+            io:format("the shooter ~p died with reason ~p.", [From, Reason]),
+            io:format("Restarting.~n"),
+            self() ! new,
+            loop()
+        end.
+
+
+
+
+11> c(doctor).
+{ok,doctor}
+12> Doc = spawn(fun doctor:loop/0).
+<0.106.0>
+13> Doc ! new
+13> .
+create and monitor process.
+new
+14> revolver ! 1.
+click.
+1
+15> revolver ! 3.
+bang.
+3
+the shooter <0.108.0> died with reason {roulette,die,at,{16,23,22}}.Restarting.
+create and monitor process.
+16> revolver ! 1.
+click.
+1
+17> revolver ! 4.
+click.
+4
+
+
+receive 语句块匹配了两条消息:一个是 new ,另一个是和先前相同的 EXIT 三元组。
+在 new 代码块中,下面的这行代码堪称绝妙:
+register(revolver, spawn_link(fun roulette:loop/0)),
+
+从里面那个括号开始看,我们用了 spawn_link 来产生进程。这种方式不仅能产生进程,还
+能把进程链接起来。这样当 roulette 进程终止时, doctor 进程就能获得通知。再看外面的括号,
+我们注册了那个新产生进程的PID,把它和 revolver 原子关联起来。现在,用户可以用 revolver !
+message 这种形式发送消息给新产生的进程。从今往后,我们再也不需要PID了。同样,EXIT的
+匹配代码块也变得更加智能了。
+
+
+self() ! new,
+这里我们把消息发给自己,新产生并注册了一把枪。
+
+
+学到了三种并发原语:
+send、receive、spawn。我们通过编写异步版本的翻译程序,展示了基本的消息传递机制是如何
+工作的。然后,我们编写了一个简单的辅助函数,把发送和接收封装在一起,用这个封装后的发
+送和接收来模拟远程过程调用。
+接下来,我们通过把进程链接起来的方式,展示一个进程终止时如何通知另一进程。我们还
+学会了用另一进程来监控某个进程,以获得更好的可靠性。虽然我们采用的编程思想也可用在容
+错系统的构建当中,但我们这里的系统并不是容错系统。Erlang分布式通信的运行机制很像进程
+间通信。我们可以链接两台计算机上的两个进程,这样备份机就可以监视主机,并在主机出问题
+时接管任务。
+
+
+
+
+
+
+1. 动态和可靠性
+首先,Erlang是为可靠性而生的。Erlang的核心库久经考验,而用它写的应用程序在当今世
+界上也属于最可靠和最好用的一类。令人印象最为深刻的是,Erlang的设计者并没有为了获得这
+种可靠性而牺牲掉使Erlang如此高效的动态类型策略。Erlang依靠的不是编译器所提供的人工的
+“安全网”,而是链接并发进程的能力,这样既可靠又简单。我十分惊叹于Erlang没有用到操作系
+统的那些蹩脚技术,就可以轻易地构建可靠的监视器。
+你在Erlang中发现的那些为保证可靠性而做的妥协,在我看来也非常激动人心和独一无二。
+拿Java语言和虚拟机来说,它没有提供一组正确的原语,因此无法达到Erlang的那种性能和可靠
+性。同时,BEAM上的库也体现了Erlang的可靠性哲学,所以用它们构建可靠的分布式系统也就
+容易了很多。
+
+
+2. 轻量级、无共享资源的进程
+Erlang的另一处闪光点是其底层的进程模型。Erlang的进程是轻量级的,因此Erlang程序员会
+经常使用它们。Erlang是建立在强制要求不变性的哲学之上的,因此Erlang程序员构建的系统从
+根本上就不太可能因为互相冲突而产生致命错误。Erlang拥有消息传递范型和原语,因此它可以
+轻易地写出带有一定的分离性的应用程序,而这在其他面向对象应用中是较为罕见的。
+
+
+3. OTP——企业级的库
+因为Erlang是在电信企业中成长起来的语言,对可用性和可靠性都有很高要求,所以可以说,
+它在这个领域已有20年的开发经验。这个领域中,最主要的库是开放电信平台(Open Telecom
+Platform,OTP)。你可以找到帮你构建各种应用的库,包括处在监视状态下的持久进程、访问数
+据库的连接、分布式应用等。OTP有整套的Web服务器以及众多工具都可用于构建电信应用。
+这些库特别出色的一点在于:容错性、可扩展性、事务完整性、热插拔性,全都是内置特性。
+你不必再为它们操心。你完全可以利用这些特性构建自己的服务器进程。
+
+
+4. 就让它崩溃
+在Erlang中,处理并行进程不会有副作用,这是“就让它崩溃”策略带来的结果——你不必
+理会进程为什么崩溃,因为你只要重启它就好。这是一种函数式编程模型,Erlang的分布式策略
+也由此得到了增强。
+
+
+
+
+1. 语法
+和电影一样,语法也是个见仁见智的东西。
+Erlang最核心的优势和劣势,都源于它以Prolog为基础。对于大多数编程
+者来说,Prolog是晦涩难懂的,其语法颇有些别扭的味道。如果从其他语言过渡到Prolog,一点
+点语法糖无疑对降低学习难度大有帮助。
+Erlang还有一些别的古怪之处,比如说,符合条件的数字数组会显示为字符串。
+
+2. 整合
+刚才说过,Prolog的传承者这一身份,既会带给Erlang优点,也会带来缺点。同样,不在JVM
+上实现Erlang也是一把双刃剑。最近,一个基于JVM的虚拟机Erjang取得了一定进展,但仍未达
+到JVM上的最佳选择的水准。的确,JVM是有些拖泥带水,比如无法满足Erlang所要求的进程和
+线程模型等,但在JVM上实现也有诸多好处,包括各种各样的Java库以及数以十万计的可用部署
+服务器等宝贵财富。
+
+
+
+
+
+
+
+
+
+Clojure
+
+Clojure是JVM上的Lisp实现。Lisp复杂强大,是计算机领域里最早和最新的编程语言之一。许
+多Lisp方言都曾尝试挤进主流语言的行列,却都无功而返。即便是对今天的开发者而言,其语法和
+编程模型也有些难以消化。即便如此,Lisp的特质仍叫人禁不住去重温,去回味,新的方言层出不
+穷,一些编程领域最好的院校也用Lisp语言来帮助学生们塑造创新、开放的思维方式。
+
+
+Lisp拥有一些非常有趣的特性。
+ Lisp是一种列表语言。函数调用时,取列表第一个元素作函数,列表其余元素作参数;
+ Lisp使用自有数据结构表示代码。一些Lisp追随者称之为数据即代码(data as code)。
+
+
+目前最主要的Lisp方言是Common Lisp和Scheme。Scheme和Clojure都来自lisp-1方言,而
+Common Lisp来自lisp-2方言。这两大家族之间主要的区别在于命名空间的工作方式。Common
+Lisp用不同的命名空间区分函数和变量, Scheme则不区分。
+
+
+每一种Lisp方言都有其迎合的群体。对Clojure而言,最重要的特征之一就是JVM。看看Scala
+就能明白,拥有市场上非常成功的部署平台可以带来完全不同的效果。你不必为了使用Clojure
+而向运维人员推销Clojure服务器。尽管语言本身相对较新,但却可以利用成百上千的Java类库来
+满足你的任何需要。
+
+Clojure是一门函数式语言,强调函数无副作用。
+
+
+
+sudo yum install clojure
+。。一共才3.4mb
+。没有安装leiningen。
+。终端也能用
+
+[qwer@192 single]$ clojure
+Clojure 1.8.0
+user=> (println "th:):")
+th:):
+nil
+
+user=> (-1)
+ClassCastException class java.lang.Long cannot be cast to class clojure.lang.IFn (java.lang.Long is in module java.base of loader 'bootstrap'; clojure.lang.IFn is in unnamed module of loader 'app')  user/eval3 (NO_SOURCE_FILE:2)
+user=> (- 1)
+-1
+user=> (+ 1 1)
+2
+user=> (* 10 10)
+100
+
+user=> =(/ 1 3)
+#object[clojure.core$_EQ_ 0x200606de "clojure.core$_EQ_@200606de"]
+1/3
+user=> (/ 2 4)
+1/2
+user=> (/ 2.0 4)
+0.5
+user=> (class (/ 1 3))
+clojure.lang.Ratio
+user=> (/ 1 3)
+1/3
+user=> (/ 1 7)
+1/7
+
+
+Clojure中有一个基本数据类型叫做 ratio 。这是一个很棒的特性,因为它支持延迟计算以避
+免精度损失。如果有需要,也可以用浮点数进行运算。
+
+。。不知道为什么第一次 / 1 3，会出#信息。
+
+user=> (mod 5 3)
+2
+
+user=> (/ (/ 12 2) (/ 6 2))
+2
+user=> (+ 2 2 2 2 )
+8
+user=> (- 8 1 2 3)
+2
+user=> (/ 8 2 2)
+2
+
+
+user=> (< 1 2 3)
+true
+user=> (< 1 3 2 4)
+false
+
+只要用一个简单的操作符就能知道它是否已排序。
+
+。。数学运算符能理解，可能是 arg1 op arg2 的结果，继续 op arg3。
+。。但是 逻辑运算符不能按上面的理解。逻辑运算符是  arg1 < arg2, arg2 < arg3。。。
+。。还有，不能 方向键 移动。。。
+
+
+
+Clojure中的一些基本构成部分,即形式。
+可以把形式看作是语法的一部分。当Clojure解析代码时,它会将代码分解成很多份称为形式
+的片段。然后Clojure会编译或者解释执行代码。不用区分代码和数据,因为在Lisp中这二者是同
+一种东西,是等价的。在本章中,你将会见到布尔值、字符、字符串、集合(set)、映射表(map),
+以及向量(vector),这些都是形式。
+
+
+
+
+
+user=> (println "master \n hi \b bye") 
+master 
+ hi bye
+nil
+
+user=> (println "mast" "ac:" "dwf")
+mast ac: dwf
+nil
+
+我们使用 println 时都只传了一个参数,其
+实这个函数也适用于传入零或多个参数的情况,如果没有指定参数则打印一个空行,传递多个参
+数则将多个值连起来打印。
+
+
+用 str 函数将其他类型的数据转换成字符串
+user=> (str 123)
+"123"
+
+如果目标是Java类型, str 会调用底层的 toString 方法。该函数可接受多个参数
+
+user=> (str "ABC" "QWE" "RFFV")
+"ABCQWERFFV"
+
+user=> (str "ACA", "AQW")
+"ACAAQW"
+user=> (str "AC" ,, "QSA")
+"ACQSA"
+user=> (str "AQS" 2 "qw" 3)
+"AQS2qw3"
+user=> (str "dw"2"sss"3)
+"dw2sss3"
+
+还能拼接非字符串项
+
+user=> (str \a \b\c\e\f\d)
+"abcefd"
+
+user=> (= "a" \a)
+false
+user=> (= (str \a) "a")
+true
+
+
+
+
+Clojure支持强类型和动态类型。动态类型意味着类型在运行时求值。
+
+user=> (class true)
+java.lang.Boolean
+user=> (class (= 1 1))
+java.lang.Boolean
+
+
+user=> (if true (println "true..."))
+true...
+nil
+user=> (if (> 1 2) (println "TTT"))
+nil
+user=> (if (> 1 2) (println "TTT") (println "FFF"))
+FFF
+nil
+
+
+能添加一个相当于 else 分支的部分作为第三个参数
+
+
+user=> (if 0 (println "TT"))
+TT
+nil
+user=> (if nil (println "TT") (println "FF"))
+FF
+nil
+
+
+0 和 "" 都是 true ,但 nil 不是
+
+
+在所有函数式语言中,诸如列表(list)、元组(tuple)这样的核心数据结构往往承担着更繁
+重的工作。Clojure中,类似的三员大将分别是列表、映射表(map)和向量(vector)。
+
+
+user=> (list 1 2 3)
+(1 2 3)
+user=> '(1 2 3)
+(1 2 3)
+
+列表是元素的有序集合。这些元素可以是任何东西,不过在Clojure中,习惯将列表用作代码,
+把向量用作数据。
+
+由于列表是被当作函数进行求值的,因此不能这么写: (1 2 3)
+
+
+列表最主要的操作有四个,分别是 first (头元素)
+、 rest (除头部以外的列表)、 last (最后一个元素)以及 cons (给定一个头元素和尾部,创建一个新列表)
+
+
+user=> (first '(1 2 3))
+1
+user=> (first '(:r2d2 :c3po))
+:r2d2
+user=> (last '(1 2 3))
+3
+user=> (rest '(1 2 3))
+(2 3)
+user=> (cons :battle-droid '(:r2d2 :c3po))
+(:battle-droid :r2d2 :c3po)
+
+
+当然可以和高阶函数组合使用它们,不过在遇到序列(sequence)时才会用到这种方式。
+
+
+
+
+和列表一样,向量也是元素的有序集合。向量是为随机访问优化的。用方括号括起来
+
+user=> [:hutt :wookie :ewok]
+[:hutt :wookie :ewok]
+
+user=> (first [1 2 3])
+1
+user=> (nth [1 2 3] 2)
+3
+user=> (last [1 2 3])
+3
+user=> ([1 2 3] 2)
+3
+user=> (rest [1 2 3])
+(2 3)
+
+向量也是函数,取下标为参数。可以合并两个向量
+
+user=> (concat [1][2])
+(1 2)
+
+打印出来的不是向量而是列表。许多返回集合的函数都使用了称为序列的Clojure抽象。
+
+
+set(集合)是元素的无序集合。其实set有一个固定的顺序,不过与实现方式相关,因此不
+能依赖这个顺序。
+set用 #{} 包起来
+
+user=> #{1 2 3}
+#{1 3 2}
+user=> (def set1 #{1 2 3 4 5})
+#'user/set1
+user=> set1
+#{1 4 3 2 5}
+user=> (count set1)
+5
+user=> (sort set1)
+(1 2 3 4 5)
+
+
+可以创建一个排序set,它以任意次序接受元素,并按照一个固定的次序返回元素
+user=> (sorted-set 2 3 4 1 3 2)
+#{1 2 3 4}
+
+
+可以合并两个set
+
+user=> (clojure.set/union #{1 2 3} #{3 4 5})
+ClassNotFoundException clojure.set  java.net.URLClassLoader.findClass (URLClassLoader.java:471)
+user=> (require '[clojure.set])
+nil
+user=> (require '[clojure.set :as set])
+nil
+user=> (set/union #{1 2 3}  #{3 4 5})
+#{1 4 3 2 5}
+user=> (clojure.set/union #{1 2 3} #{2 3 4 })
+#{1 4 3 2}
+
+user=> (set/difference #{1 2 3} #{2 3 4})
+#{1}
+
+其实set也是函数。比如
+#{:jar-jar, :chewbacca} ,它不仅是一个set,同时还是一个函数,可用来判别元素是否属于
+该set的成员
+
+user=> (#{1 2 3} 2)
+2
+user=> (#{1 2 3} 4)
+nil
+
+
+映射表就是键值对。在Clojure中,用大括号来表示映射表
+
+user=> {1 2 3 4}
+{1 2, 3 4}
+user=> {1 2 3}
+RuntimeException Map literal must contain an even number of forms  clojure.lang.Util.runtimeException (Util.java:221)
+
+user=> {1 2,3 4}
+{1 2, 3 4}
+
+
+以冒号 : 开始的词是关键词,类似Ruby中的符号或者Prolog或Erlang中的原子。类似命名事物
+的形式在Clojure里有两种:关键词和符号。符号指向其他东西,而关键词指向自身。 true 和 map
+就是符号。可以参照在Erlang中使用原子的方法,使用关键词去命名这类实体
+
+user=> (def map1 {1 2 , 3 4,5 6})
+#'user/map1
+user=> map1
+{1 2, 3 4, 5 6}
+
+user=> (map1:1)
+CompilerException java.lang.RuntimeException: Unable to resolve symbol: map1:1 in this context, compiling:(NO_SOURCE_PATH:45:1) 
+user=> (map1 1)
+2
+user=> (map1 :1)
+nil
+
+user=> (1 map1)
+ClassCastException class java.lang.Long cannot be cast to class clojure.lang.IFn (java.lang.Long is in module java.base of loader 'bootstrap'; clojure.lang.IFn is in unnamed module of loader 'app')  user/eval78 (NO_SOURCE_FILE:48)
+
+
+user=> (def map1 {:aa "abc",:bb "qwe"})
+#'user/map1
+user=> map1
+{:aa "abc", :bb "qwe"}
+user=> (:aa map1)
+"abc"
+
+映射表本身也是函数。关键词同样也是函数
+。。这里的关键词不是关键字，关键词是:开头的。。1不是关键词。
+
+函数 :luke 的作用是在映射表中查找自身。虽然看起来有点儿怪,但却很实用。和Ruby一样,
+在Clojure中可以使用任何数据类型作为键或者值。可以用 merge 函数合并两个映射表
+
+user=> (merge {1 2,3 4} {:ee, "ddd"})
+{1 2, 3 4, :ee "ddd"}
+
+
+对于一个散列值同时出现在两个映射表中的情况,还可以声明一个操作符,操作相同键对应的值。
+user=> (merge-with + {1 2,3 4} {1 3,5 6})
+{1 5, 3 4, 5 6}
+
+
+给定一个关联,还可以通过加入新键值对来创建新的关联
+user=> (assoc {1 2,3 4} 6 7)
+{1 2, 3 4, 6 7}
+
+
+可以创建排序映射表。排序映射表以任意次序接收条目,然后再输出排好序的结果
+user=> (sorted-map 1 2, 5 6, 3 4)
+{1 2, 3 4, 5 6}
+
+
+
+
+函数是所有Lisp语句的核心。用 defn 定义函数。
+user=> (defn fun1[] (str "return a str" "..."))
+#'user/fun1
+user=> (fun1)
+"return a str..."
+
+如果愿意的话,还可以加上描述函数的字符串,可以用 doc 函数调出该文档
+user=> (defn fun1 "1st fun" [] (str "return" " a str"))
+#'user/fun1
+user=> fun1
+#object[user$fun1 0x704b2127 "user$fun1@704b2127"]
+user=> (fun1)
+"return a str"
+user=> (doc fun1)
+-------------------------
+user/fun1
+([])
+  1st fun
+nil
+
+
+user=> (defn fun2 [name] (str "hi " name))
+#'user/fun2
+user=> (fun2 "abc")
+"hi abc"
+user=> (fun2 :abc)
+"hi :abc"
+
+。。fun2 abc,报错，找不到abc这个符号。
+
+
+
+绑定是指按照实参对形参进行赋值的过程。Clojure特点
+是它能访问到实参中的任意部分,并能把这部分作为形参
+
+
+user=> (def line [[0 0][10 20]])
+#'user/line
+user=> (defn line-end [ln] (last ln))
+#'user/line-end
+user=> (line-end line)
+[10 20]
+
+实际上可能并不需要整条线段。如果形参能绑定到线段的第二个元素上,那就更好了。
+
+user=> (defn line-end2 [[_ second]] second)
+#'user/line-end2
+user=> (line-end2 line)
+[10 20]
+
+
+解构(destructuring)。即将一个数据结构拆解开来并从中提取出需要的部分。
+
+
+对于 [[_ second]] ,外层方括号用来定义形参向量,内层方
+括号指明将要绑定的是列表的元素还是向量的元素。 _ 和 second 分别表示单独的元素,通常
+用 _ (下划线)表示被忽略的参数。
+
+
+绑定可以嵌套。
+user=> (def board[[:x :o :x][:o :x :o][:o :x :o]])
+#'user/board
+user=> (defn center[[_[_ c _] _]] c)
+#'user/center
+user=> (center board)
+:x
+
+
+对于 [[_ [_ c _] _]]
+绑定,我们只绑定了一个形参到实参上,即 [_ [_ c _] _] 。这个形参的含义是,忽略第一个
+和第三个元素,二者分别对应棋盘顶部和底部两行。取中间那行,即 [_ c _] 。
+
+
+有两种方法来简化这个函数。首先,不需要列出目标实参之后的任何通配符实参
+user=> (defn center2[[_[_ c]]] c)
+#'user/center2
+user=> (center2 board)
+:x
+
+其次,解构除了可以发生在参数列表中,还可以发生在 let 语句中。
+对任何Lisp,使用 let
+语句都能将一个变量绑定到一个值上。因而可以利用 let 函数对 center 函数的调用方隐藏解构
+
+user=> (defn center [board]
+(let [[_[_ c]] board] c))
+#'user/center
+user=> (center board)
+:x
+
+。。_c不能连一起。
+
+
+let 函数需要两个参数。第一个参数是一个向量,包含需要进行绑定的符号( [[_ [_c]]] ),
+跟上想要绑定的值( board )。第二个参数可以是将使用值( c )的表达式(我们只是返回 c )。两
+种形式都能产生等价的结果。
+
+user=> (def person {:name "AA" :prof "RR"})
+#'user/person
+user=> (let [{name :name} person](str "name is " name))
+"name is AA"
+user=> (person :name)
+"AA"
+user=> (:name person)
+"AA"
+
+
+。。第一个参数是一个公式，把某个属性赋予某个符号，第二个参数是数据源。
+
+user=> (def vill [{:name "QWA" :size "big"}{:name "FVC" :size "small"}])
+#'user/vill
+user=> (let [[_ {na :name}] vill](str "name is: "na))  
+"name is: FVC"
+
+绑定了一个向量,跳过第一个元素并提取出第二个映射表中的 name 值。你可
+以从这看出Lisp对Prolog,以及(推而广之)Erlang的影响。解构基本上就是模式匹配的一种形式。
+
+
+
+
+在Lisp中,函数就是数据。由于代码和其他任何类型数据一样都是数据,因此高阶函数从语
+言创建之初就被加入到其中。匿名函数可以创建没有名字的函数。这是本书中提到的每一种语言
+都具备的基本能力。在Clojure中,用函数 fn 来定义高阶函数。通常会忽略函数名,所以调用形式
+看起来像这个样子 (fn [parameters*] body) 。
+
+
+user=> (def people ["AAA" "BB" "CC"])
+#'user/people
+user=> (count "QWER")
+4
+user=> (map count people)
+(3 2 2)
+user=> (count people)
+3
+
+count 是高阶函数。在Clojure中,这个概念很容易理解,因
+为一个函数就是一个列表,和其他任何列表元素一样。
+。。？？？
+
+user=> (defn dou[w](* 2 (count w)))
+#'user/dou
+user=> (dou "AASD")
+8
+user=> (map dou people)
+(6 4 4)
+
+(user=> (map (fn[w](* 2 (count w))) people)
+(6 4 4)
+user=> (map #(* 2 (count %)) people)
+(6 4 4)
+
+#定义了一个匿名函数,而 % 则被绑定到序列中的每个元素上。 # 叫做宏
+读取器(reader macro)。
+
+
+user=> (def v [3 1 2])
+#'user/v
+user=> (apply + v)
+6
+user=> (apply max v)
+3
+user=> (filter odd? v)
+(3 1)
+user=> (filter #(< % 3) v)
+(1 2)
+
+apply 函数在参数列表上应用指定函数。 (apply f '(x y)) 类似 (f x y)
+filter 函数与Ruby中的 find_all 相像。给定一个测试函数它会返回所有通过测试的元素的
+序列。
+
+
+Scheme的目的是通过一个很精炼的语言来捕捉计算的本质,而Common Lisp则致
+力于标准化科研中所用到的各种Lisp方言。但它们都没能够作为一种实用工具成为业界开发者所
+使用的通用编程语言,实际上这也不是它们的设计目标。
+
+
+
+
+
+函数式语言依赖递归而非遍历
+
+user=> (defn size [v] (if (empty? v) 0 (inc (size (rest v)))))
+#'user/size
+user=> (size [1 2 3 4])
+4
+
+
+栈会增长,因此递归算法会持续消耗内存直至内存耗尽。函数式语言通过使用尾递归优化技
+术规避这个问题。受到JVM限制,Clojure并不支持隐式的尾递归优化。你必须显式地使用 loop
+和 recur 进行递归,可以把 loop 看作是 let 语句。
+
+(loop [x x-init-value, y y-init-value] (do sth with x y))
+
+初始时,对于给定向量, loop 会将向量中偶数位变量绑定到奇数位的值上。事实上,如果
+不声明 recur , loop 和 let 效果完全一样
+
+user=> (loop [x 1] x)
+1
+user=> (let [x 1] x)
+1
+
+。。把1 解构为 x，这样x就是1了。
+
+函数 recur 会再次调用循环并传入新值
+
+
+user=> (defn size [v] (loop [l v, c 0] (if (empty? l) c (recur (rest l)(inc c)))))
+#'user/size
+user=> (size [1 2 3 4])
+4
+
+在 size 的第二个版本中,使用了经过尾递归优化的 loop 和 recur 。由于并不真正返回结果值,
+因此我们在变量中保存结果,这个变量称为累加器。在这个例子里, c 用于计数。
+
+Clojure也提供了一些优秀的递归替代技术,包括后面会讲到的延迟序列。
+
+
+
+序列是与具体实现无关的抽象层,囊括了Clojure系统里各式的容器。序列封装了所有Clojure
+集合(set、映射表、向量,等等)、字符串,甚至包括文件系统结构(流、目录)。它们也为Java
+容器提供了公共抽象,包括Java集合、数组以及字符串。一般来说,只要支持函数 first 、 rest
+和 cons ,就可以用序列封装起来。
+
+user=> [1 2 3]
+[1 2 3]
+user=> (rest [1 2 3])
+(2 3)
+
+注意,开始用的是向量,但结果并不是列表。repl实际上是返回序列作为响应。这意味着所
+有集合都能以一种通用方式对待。让我们来看看公共序列函数库,它的丰富与强大,用一节的内
+容难以描述,但我会试着让你了解都有哪些可用的函数,下面简单介绍一下用于修改、测试和创
+建序列的函数。
+
+如果要测试序列,可以用判定函数。它接受序列和一个测试函数并返回布尔值。如果测试函
+数对所有序列元素测试结果都是真, every? 会返回 true
+user=> (every? number? [1 2 3 :4])
+false
+
+这里有一个元素不是数字。只要序列中有元素测试为真, some 函数就会返回 true
+user=> (some nil? [1 2 nil])
+true
+
+其中一个元素为 nil 。 not-every? 和 not-any? 则反过来
+user=> (not-every? odd? [1 3 5])
+false
+user=> (not-any? number? [:1 :2 :3])
+true
+
+
+
+filter 函数。要提取出长度大于4的单词
+user=> (def words ["asdf" "qwerty" "zxc" "yuiop"])
+#'user/words
+user=> (filter (fn [w] (> (count w) 4)) words)
+("qwerty" "yuiop")
+
+
+map 函数,它对集合所有元素调用同一函数并返回其结果。
+用向量的所有元素创建一个由其平方数组成的序列
+user=> (map (fn [x] (* x x)) [1 1 2 3 5])
+(1 1 4 9 25)
+
+
+列表解析结合了映射和过滤,如你在Erlang和Scala中见到的一样。列表解析能组合多个列表
+和过滤器,穷举列表之间所有可能的组合,然后对其使用过滤器。
+
+user=> (def cols ["red" "blue"])
+#'user/cols
+user=> (def toys ["block" "car"])
+#'user/toys
+
+列表解析可以结合函数使用,类似于映射
+user=> (for [x cols](str "i like " x))
+("i like red" "i like blue")
+
+user=> (for [x cols, y toys] (str "i like " x " " y "s"))
+("i like red blocks" "i like red cars" "i like blue blocks" "i like blue cars")
+
+列表解析创建出两个列表之间所有可能的组合。绑定时还能通过 :when 关键词来过滤
+
+user=> (def cols ["red" "blue"])
+#'user/cols
+user=> (def toys ["block" "car"])
+#'user/toys
+user=> (defn sw? [w] (< (count w) 4))
+#'user/sw?
+user=> (for [x cols, y toys, :when (sw? y)](str "i like "x" "y"s"))
+("i like red cars" "i like blue cars")
+
+x 是 colors 的成员, y 是 toys 的成员,且 y 的长度小于4个字符
+
+
+Erlang、Scala和Ruby中见过了 foldl 、 foldleft 和 inject 。在Lisp中,它们的等价
+的是 reduce 函数。
+
+user=> (reduce + [1 2 3 4])
+10
+user=> (reduce * [1 2 3 4 5])
+120
+
+user=> (sort [2 3 1 4])
+(1 2 3 4)
+
+user=> (defn abs[x] (if (< x 0) (- x) x))
+#'user/abs
+user=> (sort-by abs [-1 -4 3 2])
+(-1 2 3 -4)
+
+
+
+
+在数学中,无限数列通常很容易描述。在函数式语言中,也常能享受到同样的益处,不过不
+能真去计算一个无穷序列,这个问题的解决办法就是延迟计算。通过使用这种策略,Clojure的序
+列函数库只会在一个值真正被使用时才去计算它。事实上,绝大多数序列都是延迟计算的。
+
+
+与Ruby不同,Clojure支持 range 函数。 range 能创建一个序列
+user=> (range 1 10)
+(1 2 3 4 5 6 7 8 9)
+
+user=> (range 1 10 3)
+(1 4 7)
+
+user=> (range 10)
+(0 1 2 3 4 5 6 7 8 9)
+如果不指定步长,也可以不指定下限
+零是默认下限。
+
+用 range 创建出来的序列都是有穷的。
+
+
+
+先从最基本的无穷序列开始,即不断重复同一元素的序列,这可以用 (repeat 1) 得到。如
+果在repl中尝试这个命令的话,屏幕会不停地输出1,直到结束进程为止。
+
+我们需要某种方法来只获取其中一个有限的子集。这就需要使用函数 take
+
+user=> (take 3 (repeat "use the "))
+("use the " "use the " "use the ")
+
+创建了一个不断重复字符串 "Use the Force, Luke" 的无穷序列,接着取出了
+前三个元素。还可以用函数 cycle 来重复列表中的元素
+
+user=> (take 5 (cycle [:aaa :bbb :ccc]))
+(:aaa :bbb :ccc :aaa :bbb)
+
+还能丢弃序列中的前几个元素
+user=> (take 5 (drop 2 (cycle [:aa :bb :cc])))
+(:cc :aa :bb :cc :aa)
+
+从内向外执行,第一步还是创建循环,然后丢弃前2个元素,接着取出紧跟在后面的5个元素。
+但也不是必须从内向外执行。可以使用新的从左向右操作符 (->>), 将每个函数分别应用于一
+个结果
+user=> (->> [:aa :bb :cc] (cycle) (drop 2) (take 5))
+(:cc :aa :bb :cc :aa)
+先创建一个向量,转入函数 cycle 创建序列,然后丢弃2个元素,接着取出5个元素
+
+
+如果想在单词间添加分隔符,可以用函数interpose
+user=> (take 5 (interpose :| (cycle [:aa :bb :cc])))
+(:aa :| :bb :| :cc)
+。。不能|  必须:|。
+
+
+如果想执行一个插入,而插入用的元素取自一个序列该怎么办?那就要用到函数
+interleave
+
+user=> (take 20 (interleave (cycle (range 2)) (cycle (range 3))))
+(0 0 1 1 0 2 1 0 0 1 1 2 0 0 1 1 0 2 1 0)
+
+我们将两个无穷序列 (cycle (range 2)) 和 (cycle (range 3)) 交错。接着,取出前20个
+元素。结果正如你看到的,偶数位是 (0 1 0 1 0 1 0 1 0 1) ,奇数位是 (0 1 2 0 1 2 0 1 2 0)
+user=> (take 20 (interleave (cycle (range 2)) (cycle (range 3))))
+(0 0 1 1 0 2 1 0 0 1 1 2 0 0 1 1 0 2 1 0)
+
+。。这是2个无限队列作为数据源，然后每个队列依次取一个值。
+
+
+user=> (defn fib [[a b]] [b (+ a b)])
+#'user/fib
+user=> (fib [3 5])
+[5 8]
+user=> (take 5 (map first (iterate fib [1 1])))
+(1 1 2 3 5)
+
+函数 iterate 构建一个无穷数列
+
+利用延迟序列,描述类似斐波那契数列这样的递归问题非常容易
+
+user=> (defn factor [n] (apply * (take n (iterate inc 1))))
+#'user/factor
+user=> (factor 5)
+120
+
+上面从无穷数列 (iterate inc 1) 中取出 n 个元素。然后用 apply * 将它们相乘。
+
+
+
+
+JVM就是与类型和接口有关。
+为了使Clojure能很好地集成JVM,最初的实现中有大量Java。
+
+随着Clojure速度提升并且开始证明自己是一种高效的JVM语言,人们强烈地认为应该用
+Clojure语言本身来实现更多的Clojure。
+Clojure开发者需要找到一种方法来构建
+平台高性能的开放扩展,使得他们可以对抽象编程,而非对具体实现编程。得到的结果是
+defrecord 用于类型, defprotocol 用于围绕类型来组织函数。从Clojure的观点看,面向对象(OO)
+中最好的部分是类型和协议(比如接口),而最差的部分则是对具体实现的继承。Clojure的
+defrecord 和 defprotocol 就是去其糟粕,取其精华。
+
+。。
+defprotocol 定义接口
+defrecord 定义实现
+。。书上的例子有点。。
+
+
+user=> (String. "new Str")
+"new Str"
+user=> (String."new Str")
+"new Str"
+
+
+(defprotocol Compass
+    (direction [c])
+    (left [c])
+    (right [c])
+
+上面的协议定义了一个叫做 Compas s 的抽象,并列举了 Comp ass 必须支持的所有函
+数—— direction 、 left 和 right 及其指定的参数。
+
+(def direcxtions [:north :east :south :west])
+
+(defn turn [base amount] (rem (+ base amount) (count directions)))
+
+(defrecord SimpleCompass [bearing]
+    Compass
+    (direction [_] (directions bearing))
+    (left [_] (SimpleCompass. (turn bearing 3)))
+    (right [_] (SimpleCompass. (turn bearing 1)))
+
+    Object
+    (toString [this] (str "[" (direction this) "]")))
+)
+..最后一个)不清楚是不是这样的。因为书上没有。。
+
+toString 是 java.lang.Object 的方法,要像上面这样把它添加到类型里。
+
+在Clojure中,我们使用的是不可变值。这意味着所有转向函数都要返回一个新的、修
+改好的罗盘,而不是直接修改原来的罗盘。函数 left 和 right 使用了你以前没见过的语法。
+(SomeType. arg) 意味着调用 SimpleCompass 的构造函数,并绑定 arg 到第一个参数上。可以
+这样验证,在repl中输入 (String. "new string"), repl 会返回一个新字符串 "new string" 。
+
+
+user=> (rem 10 7)
+3
+。。取余。
+
+
+每个参数列表都有一个指向对象实例的引用(比如Ruby中的 self ,或者Java中的 this )
+,但是我们并没有使用它,因此在参数列表中加入了 _ (下划线)。
+
+
+另外还能把类型里的字段看作Clojure映射表的关键词进行访问
+(def c (SimpleCompass, 0))
+(left c)
+(:bearing c)
+。。c不会发生变化。
+
+通过 defrecord 和 protocol ,Clojure提供了在不使用Java的前提下构建JVM本地代码的能
+力。这些代码可以与JVM上的其他类型全面交互,包括Java类型和接口。你可以使用它们继承Java
+类型或者实现Java接口。Java类型也可以构建在Clojure类型之上。
+
+
+
+
+
+绝大多数语言会先执行参数,再把结果放到调用栈上。但是
+这个例子里,我们不希望对代码块进行求值,除非条件为假。在Io中,语言通过延迟执行 unless
+消息规避了这个问题。在Lisp中,我们可以使用宏。当输入 (unless test body) 时,我们想让
+Lisp将其翻译成 (if (not test) body) ,这时宏就派上用场了。
+
+user=> (defn unless [test body] (if (not test) body)) 
+#'user/unless
+user=> (unless true (println "println AAA"))
+println AAA
+nil
+。。这里就是先执行了参数。
+
+
+
+Clojure程序的执行分为两个阶段。宏展开(macro expansion)阶段将语言里的所有宏翻译成
+其展开形式。你可以用命令 macroexpand 观察宏展开。我们已经用过几个宏了,它们都叫做宏读
+取器。分号( ; )表示注释,单引号( ' )表示引用,而数学符号( # )则表示匿名函数。为了避
+免早于预期执行,在想展开的表达式前面加上一个引号
+
+user=> (macroexpand ''sth-we-do)
+(quote sth-we-do)
+user=> (macroexpand '#(count %))
+(fn* [p1__16#] (count p1__16#))
+
+
+宏展开允许你把代码当作列表来处理。如果不想立即执行一个函数,
+那就把它引起来。Clojure会完整地替换参数。
+
+user=> (defmacro unless [test body] (list 'if (list 'not test) body))
+#'user/unless
+user=> (unless true (println "print AAA"))
+nil
+
+Clojure在替换 test 和 body 时不会对它们进行求值,但是必须把 if 和 not 引起来,而且
+还要把它们打包到列表中。
+
+user=> (macroexpand '(unless condition body))
+(if (not condition) body)
+
+宏扩展恐怕是Lisp中最强大的特性了,而且没有多少语言能做到这一点。秘诀就在
+于用数据来表示代码,而不只是字符串。代码本身就已是高阶数据结构了。
+
+
+
+
+
+
+可变状态是潜伏在面对对
+象程序心脏里的魔鬼。前几章展示过几种处理可变状态的不同方法。Io和Scala使用基于actor的模
+型并提供了不可变编程结构,给予程序员在不依赖可变状态下解决这些问题的力量。Erlang提供
+了actor和轻量级进程,以及一个支持高效监控和通讯的虚拟机,带来了前所未有的可靠性。 Clojure
+的并发之路又不同。它使用了STM(software transactional memory,软件事务内存)
+。
+
+数据库使用事务来保证数据完整性。现代数据库至少使用两种类型的并发控制。锁能够防止
+两个竞争事务同时访问同一行记录。多版本支持每个事务拥有其私有的数据。如果任何一个事务
+妨碍了其他事务,数据库引擎就会直接重新执行该事务
+
+像Java这样的语言使用锁保护一个线程的资源免遭其他竞争线程的破坏。锁基本上把并发控
+制的负担交给了程序员。我们很快意识到这个负担实在太重,难以承受。
+
+像Clojure这样的语言使用STM。其策略是使用多版本维持一致性和完整性。不同于Scala、
+Ruby或是Io,在Clojure中如果想修改一个引用的状态,必须在事务内进行操作。
+
+
+在Clojure中, ref (引用的简写)是一份封装好的数据。所有访问必须遵守一定的规则。这
+种情况下,规则就是要支持STM,即不能在事务之外修改引用。
+
+user=> (def movie (ref "Star Wars"))
+#'user/movie
+user=> movie
+#object[clojure.lang.Ref 0x6db66836 {:status :ready, :val "Star Wars"}]
+user=> (deref movie)
+"Star Wars"
+user=> @movie
+"Star Wars"
+
+user=> (alter movie str "this is AA")
+IllegalStateException No transaction running  clojure.lang.LockingTransaction.getEx (LockingTransaction.java:208)
+
+只能在事务里修改状态。这要用到函数 dosync 。修改引用的首选方式是使用转
+换函数来修改它
+
+user=> (dosync (alter movie str "this is AA"))
+"Star Warsthis is AA"
+user=> @movie
+"Star Warsthis is AA"
+
+。。alter是增加？
+
+user=> (dosync (ref-set movie "this is BB"))
+"this is BB"
+
+用 ref-set 设置初始值
+
+
+尽管用这种方式修改可变变量(mutable variable)看
+起来挺痛苦的,但Clojure在这里的强制政策会免除以后的很多麻烦。我们知道以这种方式运转的
+程序绝对能正确运行,即便是考虑到竞争条件或者死锁。大部分代码用函数式编程范型,而对那
+些最能通过可变性受益的问题,则使用STM。
+
+
+
+
+如果想保证单个引用的线程安全,且不需要与其他活动协调,那么就可以用原子。这类数据
+元素可以在事务的上下文之外被修改。和引用类似,Clojure原子(atom)也是封装好的状态。
+
+user=> (def danger (atom "atom BB"))
+#'user/danger
+user=> (deref danger)
+"atom BB"
+user=> @danger
+"atom BB"
+
+可以用 reset! 重新绑定 danger 到一个新值上
+
+user=> (reset! danger "atom CC") 
+"atom CC"
+user=> @danger
+"atom CC"
+
+reset! 替换了整个原子,不过首选的方法是提供一个函数来变换原子。如果要修改一个很大
+的向量,可以使用 swap! 原地修改原子
+user=> (def top-sellers (atom []))
+#'user/top-sellers
+user=> (swap! top-sellers conj {:title "AAA", :auther "AQE"})
+[{:title "AAA", :auther "AQE"}]
+user=> (swap! top-sellers conj {:title "BBB", :auther "VVV"})
+[{:title "AAA", :auther "AQE"} {:title "BBB", :auther "VVV"}]
+
+。。可以增加，而不是全部替换。
+
+
+
+
+将一小块状态封装成包,而后用函数来修改。修改引用需要事务,原子不需要。接下来构建一个简单
+的原子缓存。这个问题很适合用原子解决。用散列来关联名字和值就行。
+
+user=> (defn create [] (atom {}))
+#'user/create
+user=> (defn get [cache key] (@cache key))
+WARNING: get already refers to: #'clojure.core/get in namespace: user, being replaced by: #'user/get
+#'user/get
+user=> (defn get2 [cache key] (@cache key))
+#'user/get2
+user=> (defn put2 ([cache value-map] (swap! cache merge value-map)) ([cache key value] (swap! cache assoc key value)))
+#'user/put2
+
+user=> (def ac (create))
+#'user/ac
+user=> (put2 ac :quote "AAAA")
+{:quote "AAAA"}
+user=> (println (str "Cahced: " (get ac :quote)))
+Cahced: AAAA
+nil
+
+定义了两个不同的函数 put 。第一个版本用 merge ,使我们能够将一个映射表中的所有
+关联全部加入进缓存。第二个版本使用 assoc 来添加一对键和值。
+
+
+
+
+
+
+像 atom 一样,代理也是封装起来的一份数据。与Io中的future相似,解引用后的代理会一直
+阻塞直到有值可用。使用者可以用函数异步修改数据,而更新会在另一个线程中发生。每次只有
+一个函数能修改代理的状态。
+
+
+定义一个函数叫 twice ,它将传入值放大两倍
+user=> (defn twice [x] (* 2 x))
+#'user/twice
+
+定义一个叫 tribbles 的代理,初始值为1
+user=> (def tribbles (agent 1))
+#'user/tribbles
+
+可以通过给代理发送一个值来修改 tribbles
+user=> (send tribbles twice)
+#object[clojure.lang.Agent 0x3a7704c {:status :ready, :val 2}]
+
+这个函数会在另一个线程上执行。我们来取出代理的值
+user=> @tribbles
+2
+
+
+从引用、代理、或原子中读取值永远都不会锁定也永远不会阻塞。读应该尽可能快,有了
+正确抽象的封装,就能做到这点
+
+
+你一定能得到一个 tribbles 值。但在你的线程上有可能拿不到最新的修改。如果需
+要确保在自己的线程里得到最新值,可以调用 (await tribbles) 或者 (awaitfor timeout
+tribbles) ,其中 timeout 是以毫秒为单位的超时时间。记住,在处理完来自线程的动作之前,
+await 和 awaitfor 会一直阻塞。
+
+
+
+在Java里,可以直接启动线程来完成指定任务。当然,你可以以这种方式通过Java集成来启
+动一个线程,不过总有更好的办法。比方说你想创建一个线程来处理复杂计算,可以用代理。又
+或者,如果你想开始计算某个值,但不想等待结果。像在Io中一样,可以使用future。
+
+
+user=> (def futu (future (Thread/sleep 5000) "take time"))
+#'user/futu
+user=> @futu
+"take time"
+
+。。@futu之后会等待一会儿 才出结果。、
+
+future接受一或多个表达式,并返回最
+后一个表达式的值。future在另外一个线程中启动。如果对其解引用,则值可用之前,future会一
+直阻塞。
+
+future是允许在计算完成前异步返回的并发编程结构。用future可以让多个需要长时间
+运行的函数并行执行。
+
+
+
+
+还有一些你应该了解的内容。
+1. 元数据
+有时,你会很高兴能在类型上关联一些元数据。Clojure允许在符号和集合上附加并访问元数
+据。 (with-meta value metadata) 返回一个与 metadata 关联的新的 value ,通常是用映射表实
+现的。
+
+2. Java集成
+Clojure有非常出色的Java集成。我们零散地提了一些Java集成的内容,然后还创建了一个JVM
+上的类型。但是完全没有用到已有的Java类库。我们也没全面介绍Java兼容形式,举个例子,
+(.toUpperCase "Fred") 会调用字符串 "Fred" 的成员函数 toUpperCase 。
+
+3. 多重方法
+面向对象语言只允许一种组织行为和数据的方式。Clojure提供多重方法(multimethods)允许
+你创建自己的代码组织方式。你可以把一个库的所有函数和一个类型关联起来,也可以用多重方法
+来实现多态,依据类型、元数据、参数甚至是属性来进行方法调度(method dispatch)
+。这个概念很强大、很灵活。比如说,完全可以实现Java风格的继承、原型继承,或者某种完全不同的东西。
+
+4. 线程状态
+Clojure为各种并发模型提供了原子、引用和代理。有时,需要在每个线程实例中分别存储数
+据。Clojure提供了vars,可以非常容易地完成这个工作。举个例子,(binding [name
+"value"] ...) 会将 name 绑定到 "value" 上,且仅对当前线程绑定。
+
+
+
+Clojure可能是本书中最强大灵活的语言。多重方法支持多种编程范型的代码,而宏允许你动
+态地重定义语言。这本书里再没有第二种语言能提供如此强大的组合。这种灵活性已经被证明是
+一种不可思议的力量。
+
+Lisp的灵活性也可以成为其弱点所在。宏展开在专家手里是强大的特性,但如果考虑不周就
+很可能导致严重的灾难。同样,也只有最熟练的程序员才可以不费吹灰之力就在些许Lisp代码中
+使用许多强大的抽象。
+
+
+
+1. 优秀的Lisp方言
+ 减少括号。通过开辟一丁点儿新语法,Clojure改进了可读性,这包括向量用方括号,映
+射表用大括号和set所使用的字符组合。
+ 生态系统。 Lisp的许多方言都在一件事上有所妥协,即提供所有方言都可用的支持和类库。
+讽刺的是,再增加一种方言却又能改善这一问题。建于JVM之上使得Clojure可以充分受
+益于Java语言中大量优雅的类库集合。
+ 克制。通过实践克制并限制Clojure语法以避免宏读取器,Hickey限制了Clojure的力量,同
+时有效地降低了出现有害的方言碎片的可能性。
+
+2. 并发支持
+Clojure的并发之路有可能彻底改变了我们设计并发系统的方式。STM由于其新颖性确实可能
+会给开发者带来一定的负担,但这是头一回,语言通过检测状态改变是否发生在(受适当保护的)
+函数内来保护开发者。如果不在事务里,就不能修改状态。
+
+3. Java集成
+
+4. 延迟计算
+Clojure增加了强大的延迟计算特性。延迟计算可以帮助简化问题。你只是简单地体验了一把
+延迟序列影响解决问题的方式。通过将计算推迟到实际需要时才执行,或者干脆避免执行,延迟
+序列可以显著减少计算开销。最后,延迟问题提供了解决困难问题的又一项工具。可以用延迟序
+列代替递归、迭代或者已实现的集合。
+
+5. 数据即代码
+程序就是列表。像其他任何Lisp一样,你可以把数据当作代码。使用Ruby时,我注意到了用
+程序写程序的价值。我认为对任何编程语言来说,这都是最重要的能力。函数式程序通过高阶函
+数提供元编程。Lisp将这个想法进一步扩展,把数据当作代码求值。
+
+
+
+1. 前缀表达法
+将代码表示为列表形式是Lisp最强大的特性之一,但也有代价,即前缀表示法
+
+2. 可读性
+
+3. 学习曲线
+
+4. 受限的Lisp
+Clojure限制了尾递归优化
+消灭用户定义的宏读取器也是一个典型的例子。好处很明显,宏读取器被滥用时,可以导致
+语言分裂。代价也很明显,你又失去一样元编程工具。
+
+5. 亲和度
+Ruby以及早期Java最美的方面之一就是它们作为编程语言的亲和度,这两种语言都相对简
+单易学。Clojure则对开发者提出了极大的要求,它包含了太多的抽象工具和概念,有时让人不
+堪重负。
+
+
+
+
+
+
+Haskell
+
+
+1987 年的“函数式编程
+语言与计算机体系结构大会”(Functional Programming Languages and Computer Architecture)成
+立了一个小组,决定建立一个关于纯函数编程语言的开放标准。Haskell就出自于这个小组,它于
+1990年诞生并于1998年重新修订。目前的标准是Haskell 98,经过多次修订,包括一份Haskell 98 标
+准的修订版和一个称为Haskell Prime的新版本定义。
+
+因此,Haskell是一门从开始就按照纯函数式编程思想构建的语言,它结合了一些最好的函数
+式语言思想,并着重于支持惰性处理。
+
+和Scala一样,Haskell也是一门强类型定义的静态类型语言。它的类型模型基于推断理论
+(inferred)并被公认为是函数语言中最高效的类型系统之一。你会发现该类型系统支持多态语义
+并有助于人们作出十分整洁清晰的设计。
+
+
+作为一门纯函数式编程语言,Haskell不会产生副作用。然而,一个Haskell函数却可以返回一
+个有副作用并且会被延迟执行。
+
+
+
+sudo dnf install haskell-platform
+
+..解压后800mb..
+
+sudo yum install ghc-compiler
+。。这个300mb，但没装。
+
+ghci进入解释器
+
+Prelude> 4
+4
+Prelude> 4 + 1
+5
+Prelude> 4 + 1.9
+5.9
+Prelude> 4 + 1.0
+5.0
+Prelude> 4+2.0*5
+14.0
+Prelude> 4*(1+5)
+24
+
+Prelude> "hello"
+"hello"
+Prelude> "hi " ++ "ghci"
+"hi ghci"
+
+。。单个+ 报错。
+
+Prelude> 'a'
+'a'
+Prelude> ['a','b']
+"ab"
+
+。。必须有, 
+
+字符串只是一个字符列表
+
+Prelude> (5+4)==9
+True
+Prelude> (5+5)/=10
+False
+
+。。没有!=，<>
+
+Prelude> if (4==4) then "tttt"
+
+<interactive>:18:22: error:
+    parse error (possibly incorrect indentation or mismatched brackets)
+。。应该是mismatched brackets的原因吧。因为和下面的一样啊。。
+
+这是Haskell与本书其他语言的第一个主要不同点。
+在Haskell中,缩进是有特殊意义的。 Haskell
+可以猜出有一个后续行缩进不正确。
+
+
+Prelude> if (4==5) then "ttt" else "fff"
+"fff"
+
+在Haskell中, if 是一个函数,不是一个控制结构。这意味着它和其他函数一样有返回值。
+
+Haskell是强类型的。 if 只严格地接受布尔类型参数。
+
+
+这门语言可通过上下文的线索推断出类型。任何时候,你都可以看到Haskell的类型推
+断在做什么。你可以使用 :t ,也可以打开 :t 选项达到同样的目的
+
+
+Prelude> :set +t
+Prelude> 5
+5
+it :: Num p => p
+Prelude> 5.0
+5.0
+it :: Fractional p => p
+Prelude> :t
+
+<no location info>: error: not an expression: ‘’
+Prelude> :t 5
+5 :: Num p => p
+Prelude> :t 5.2
+5.2 :: Fractional p => p
+Prelude> :set :t
+Some flags have not been recognized: :t
+
+。。:t 或  :set +t
+
+Prelude> (5==(2+3))
+True
+it :: Bool
+Prelude> :t (5==(2+3))
+(5==(2+3)) :: Bool
+
+
+将 :t 用于
+数字会产生令人困惑的结果,这与数字和控制台之间的相互作用有关。
+控制台会采取更泛化的方式看待数字。除非你打
+开了 :t 选项。否则你将得到一个类,而不是一个单纯的类型。
+
+
+函数是整个Haskell编程范型的核心
+Haskell既是强类型语言,又是静态语言,因此每个函数的定义都包含两个部分:一个可选的类型规格说明和一份函数的具体实现。
+
+
+
+Haskell函数按惯例通常包含两个部分:类型声明和函数声明。
+
+使用 let 函数将值与实现绑定。
+和Lisp 一样,在Haskell 中 let 用于在局部作用域内将变量与函数绑定
+
+Prelude> let x = 10
+Prelude> x
+10
+
+当你编写Haskell 模块时,你可以像下面这样声明一个函数:
+double x = x * 2
+
+然而在控制台里,我们在局部作用域内使用 let 定义一个函数。定义后就可以使用它了。
+
+Prelude> let double x = x * 2
+Prelude> double 2
+4
+
+
+在文件中编码,这样就可以使用多行定义了。
+double2 x = x + x
+
+。。不需要module Main where。。load也没了，只要:l 就可以了。 double也不能用，double应该是保留字了。
+用了module Main where 会报错：
+    The IO action ‘main’ is not defined in module ‘Main’
+
+Prelude> :l double2.hs
+[1 of 1] Compiling Main             ( double2.hs, interpreted )
+Ok, one module loaded.
+
+*Main> :t double2
+double2 :: Num a => a -> a
+
+。。上面是自动推导出的类型。
+这个定义的含义是“函
+数 double 接受一个具有类型 a 的变量作为参数,并且返回一个具有同样类型 a 的结果”。有了这
+样一个增强型定义,我们就可以将该函数用于任何支持 + 函数的类型了。
+
+
+文件改成：
+double2 :: Integer -> Integer
+double2 x = x + x
+
+*Main> :t double2
+double2 :: Integer -> Integer
+
+
+
+
+*Main> let fact x = if x == 0 then 1 else fact (x -1) * x
+*Main> fact 3
+6
+*Main> fact 5
+120
+
+
+我们可以使用模式匹配来编写出一个更好的阶乘实现
+模式匹配的语法无论是形式上还是行为上都与Erlang的模式匹配如出一辙
+
+
+module Main where
+    factorial :: Integer -> Integer
+    factorial 0 = 1
+    factorial x = x * factorial (x - 1)
+
+第一行声明了参数和返回值的类型。后两行是两个不同的函数式定义,
+采用哪个定义取决于对输入参数进行模式匹配的结果。 0 的阶乘是 1 ,而 n 的阶乘是 factorial x = x
+* factorial (x - 1) 。
+
+在这个例子中,模式的排列顺序是至
+关重要的。Haskell会使用第一次匹配成功的结果。如果你想改变模式排列的顺序,你可以使用门
+卫表达式。在Haskell中,哨兵表达式是约束参数值的条件
+
+
+module Main where
+    factorial :: Integer -> Integer
+    factorial x
+        |   x > 1 = x * factorial (x - 1)
+        |   otherwise = 1
+
+哨兵表达式的左边是布尔值,右边是待应用于参数的函数实现。当哨兵条件
+得到满足时,Haskell就会调用相应的函数。哨兵表达式经常用来替代模式匹配,这里用它来初始
+化递归的基本条件。
+
+
+*Main> :l factorial.hs
+[1 of 1] Compiling Main             ( factorial.hs, interpreted )
+Ok, one module loaded.
+*Main> factorial 5
+120
+。。这个没有module 那行。|可以的。
+
+
+
+用Haskell实现的几个不同版本的斐波那契序列
+
+module Main where
+    fib :: Integer -> Integer
+    fib 0 = 1
+    fib 1 = 1
+    fib x = fib (x - 1) + fib (x - 2)
+
+不过这个解决方法不够高效。
+
+
+可以使用元组提供一个更为高效的实现。
+元组是拥有固定数量元素的集合。
+Haskell的元组由括号内以逗号分隔的元素组成。
+
+这个实现使用一系列连续的斐波那契数构建元组,并且使用计数器辅助进行递归操作。下面是这个基本的解决方法
+fibTuple :: (Integer, Integer, Integer) -> (Integer, Integer, Integer)
+fibTuple (x, y, 0) = (x, y , 0)
+fibTuple (x, y, index) = (y, x + y, index - 1)
+
+fibTuple 接受一个三元组作为参数,并返回一个三元组。这里要注意,用一个三元组作为一
+个参数与接受三个参数是不同的。要使用这个函数,用两个数字 0 和 1 开始递归。我们还提供了一
+个计数器。随着计数器的倒数,通过前两个数字获得后续序列中较大的数字。
+
+
+答案在返回结果的第一个元素位置上。我们可以用下面的方式获得答案
+fibResult :: (Integer, Integer, Integer) -> Integer
+fibResult (x, y, z) = x
+
+使用模式匹配获得了第一个位置上的元素。我们可以简化这个使用模型
+
+fib::Integer->Integer
+fibx = fibResult(fibTuple(0,1,x))
+
+
+
+
+。。fib.hs
+
+fib3::(Integer,Integer,Integer)->(Integer,Integer,Integer)
+fib3 (x,y,0) = (x,y,0)
+fib3 (x,y,index) = fib3 (y,x+y,index-1)
+
+fibResult::(Integer,Integer,Integer)->Integer
+fibResult (x,y,z)=x
+
+fib::Integer->Integer
+fib x = fibResult(fib3(0,1,x))
+
+
+
+*Main> :l fib.hs
+[1 of 1] Compiling Main             ( fib.hs, interpreted )
+Ok, one module loaded.
+*Main> fib 5
+5
+*Main> fib 6
+8
+*Main> fib 7
+13
+
+
+
+
+有时,你需要将函数串联地组合在一起,并将结果从一个函数传给另一个。下面例子中我们
+通过匹配 tail 的 head 来获得列表的第二个元素
+
+*Main> let second = head.tail
+*Main> second[1,2]
+2
+*Main> second[3,4,5]
+4
+
+
+second = head.tail 等价于 second lst = head (tail lst) 。
+将第一个函数的返回结果传给另外一个函数
+
+
+。。是tail的 head。不是head的后一个。。。后一个是next(不知道有没有，应该没有，let next2 = head.next报错，没有next)
+。。但是head.tail还是有点。。。怎么不是tail.head..
+
+
+*Main> let ne3 = tail.head
+*Main> ne3 [[1,2,3,4,5,6]]
+[2,3,4,5,6]
+
+，，tail.head也有。。
+
+*Main> head [1,2,3,4]
+1
+*Main> tail [1,2,3,4]
+[2,3,4]
+
+。。是反序执行的。。[[1,2,3,4]]先head，是[1,2,3,4]，然后tail就是[2,3,4]了。。。
+。。不是，优先级是 右到左的。。。真奇怪。
+。。没，看上面的等价 似乎也有道理。second = head.tail 等价于 second lst = head (tail lst) 。
+。。顺序一致。实参放最后。
+
+将第一个函数的返回结果传给另外一个函数。利用这个特性实现了另外一个斐波那契序列。
+
+
+fibNext :: (Integer,Integer)->(Integer,Integer)
+fibNext (x,y) = (y, x + y)
+
+fibNth :: Integer->(Integer, Integer)
+fibNth 1 = (1,1)
+fibNth n = fibNext(fibNeth(n - 1))
+
+fib::Integer->Integer
+fib = fst . fibNth
+
+
+*Main> fst (1,2)
+1
+
+
+
+在任何一个绑定操作过程中都可以将列表拆分为 head 和
+tail 两部分,就像一条 let 语句或一个模式匹配
+
+*Main> let (h:t) = [1,2,3,4]
+*Main> h
+1
+*Main> t
+[2,3,4]
+
+
+列表的 size 和 prod 函数
+size [] = 0
+size (h:t) = 1 + size t
+
+prod [] = 1
+prod (h:t) = h * prod t
+
+
+zip 是一个用于合并列表的强大工具
+*Main> zip "1" "2"
+[('1','2')]
+*Main> zip "1" "22"
+[('1','2')]
+*Main> zip "12" "22"
+[('1','2'),('2','2')]
+*Main> zip ["aaa","bbb"]["ccc","ddd"]
+[("aaa","ccc"),("bbb","ddd")]
+
+
+。。好像是生成映射啊。。
+
+*Main> zip ["aaa","bbb"]["ccc","ddd"]["eee","fff"]
+。。报错了。
+
+
+
+用于构建列表的最基本的结构单元是 : 操作符,它将 head 和 tail 两部分合并,形成一个新列
+表。你曾经看到过这个操作符在调用一个递归函数时被逆向用于模式匹配过程中
+
+*Main> let h:t = [1,2,3,4]
+*Main> h
+1
+*Main> t
+[2,3,4]
+
+我们也可以将 : 用于构建,而不是解构。
+
+*Main> 1:[2,3,4]
+[1,2,3,4]
+*Main> h:t
+[1,2,3,4]
+
+列表是同构的(homogeneous)。你不能将一个列表类型元素合并到一个数字列表中
+
+可以将一个列表类型元素合并到一个列表的列表中,或是一个空列表中
+
+*Main> [1]:[[2],[3,4]]
+[[1],[2],[3,4]]
+*Main> [1]:[]
+[[1]]
+*Main> [1]:[[1]]
+[[1],[1]]
+
+
+下面是列表构建的一个实例。我们想要创建一个函数,该函数返回一个由列表中所有偶数构
+成的列表。实现这个函数的一种方式是使用列表构建
+allEven :: [Integer]->[Integer]
+allEven [] = []
+allEven (h:t) = if even h then h:allEven t else allEven t
+
+函数接受一个整数列表作为参数,并返回由偶数组成的列表。
+
+
+与Ruby和Scala一样,Haskell拥有作为一等对象的范围(range)和一些支持范围的语法糖。
+Haskell提供了一种简单的表示范围的形式,即由一个范围的两个端点表示
+
+*Main> [1..2]
+[1,2]
+*Main> [1,2]
+[1,2]
+*Main> [1..4]
+[1,2,3,4]
+
+。。和直接列表没有区别吧。不过简略很多很多[1..100]
+
+指定两个端点,Haskell会计算出这个范围。默认增量为 1 。
+
+*Main> [10..4]
+[]
+
+可以通过指定列表中的下一个元素来指定增量
+*Main> [10,8..4]
+[10,8,6,4]
+*Main> [10,8..3]
+[10,8,6,4]
+*Main> [10,8..2]
+[10,8,6,4,2]
+*Main> [10,9.5..4]
+[10.0,9.5,9.0,8.5,8.0,7.5,7.0,6.5,6.0,5.5,5.0,4.5,4.0]
+
+范围是一种创建序列的语法糖。序列不需要边界。和Clojure一样,你可以获取一个序列中的一些元素
+
+*Main> take 5 [1..]
+[1,2,3,4,5]
+*Main> take 5 [1,3..]
+[1,3,5,7,9]
+
+
+另外一种自动生成列表的方法,列表推导(list comprehension)。
+
+在Haskell中,列表推导的工作方式与Erlang
+相同。在左侧,你会看到一个表达式。在右侧,你会看到生成器和过滤器
+
+将一个列表中的所有元素值加倍
+*Main> [x*2 | x<-[1,2,3]]
+[2,4,6]
+
+按对角线翻转这个多边形,只需要将 x 和 y 调换位置即可
+*Main> [(y,x)|(x,y) <- [(1,2),(2,3),(3,1)]]
+[(2,1),(3,2),(1,3)]
+
+水平翻转多边形,可以用 4 减去 x
+*Main> [(4-x,y)|(x,y) <- [(1,2),(2,3),(3,1)]]
+[(3,2),(2,3),(1,1)]
+
+所有可能的组合
+*Main> let a1 = ["aa","bb","cc"]
+*Main> [(a,b) | a <- a1, b <- a1]
+[("aa","aa"),("aa","bb"),("aa","cc"),("bb","aa"),("bb","bb"),("bb","cc"),("cc","aa"),("cc","bb"),("cc","cc")]
+
+为列表推导增加一个过滤条件,
+*Main> [(a,b) | a <- a1, b <- a1, a/=b]
+[("aa","bb"),("aa","cc"),("bb","aa"),("bb","cc"),("cc","aa"),("cc","bb")]
+
+。。a/=b...
+
+包含元素按顺序排列的结果
+*Main> [(a,b) | a <- a1, b <- a1, a<b]
+[("aa","bb"),("aa","cc"),("bb","cc")]
+
+
+
+
+
+Haskell中的匿名函数语法非常简单。其语法格式是 (\param1.. paramn -> function_body)
+Prelude> (\x -> x ++ "A") "hi "
+"hi A"
+
+
+Prelude> map (\x -> x*x) [1,2,3]
+[1,4,9]
+
+Haskell内置了一个map函数
+将 map 函数应用于一个匿名函数和一个列表上。 map 会将这个匿名函数应用到列表中的每一
+项并收集返回结果。
+
+
+将所有这些都打包成一个函数,并用局部作用域函数替代匿名函数
+squareAll list = map square list
+    where square x = x * x
+
+使用一个称为 where 的新特性声明
+square 函数的一个的局部作用域的版本。你不必为 where 绑定函数,但可以绑定任何变量。
+
+
+可以将 map 和函数的某一部分一起使用,这称为 section
+Prelude> map (+ 1) [1,2,3]
+[2,3,4]
+Prelude> map (* 2) [1,2,3]
+[2,4,6]
+
+(+ 1) 实际上是一个偏应用函数。函数 + 接受两个参数,但实际上只提供了一个。最终结果是
+得到了一个类似 (x + 1) 且仅接受一个参数 x 的函数
+
+
+
+filter ,这个函数会对一个列表中每个元素进行一个测试
+Prelude> odd 5
+True
+Prelude> filter odd [1,2,3,4,5]
+[1,3,5]
+
+
+
+
+Prelude> foldl (\x c -> c + x) 0 [1 .. 10]
+55
+
+
+我们使用一个初值为 0 的进位( carryover ),然后将这个函数应用于列表中的每个元素,使
+用函数返回结果作为参数 carryOver ,使用列表中的每个元素作为另外一个参数。当你用操作符
+进行 fold 操作时,另外一种 fold 的形式更加简便
+
+Prelude> foldl1 (+) [1,2,3]
+6
+Prelude> foldl1 (+) [1..10]
+55
+
+
+使用 foldr1 从右到左地进行 fold 操作
+Prelude> foldr1 (+) [1..10]
+55
+
+Prelude> foldr1 (-) [1..10]
+-5
+Prelude> foldl1 (-) [1..10]
+-53
+
+。。这个怎么算的 -5。。？？？
+
+Prelude> foldr1 (-) [1]
+1
+Prelude> foldr1 (-) [1,2]
+-1
+Prelude> foldr1 (-) [1,2,3]
+2
+Prelude> foldr1 (-) [1,2,3,4]
+-2
+Prelude> foldr1 (-) [1,2,3,4,5]
+3
+
+。。ok，虽然是从右开始，但是每次的运算依然是从左开始的。
+1，2         1-2
+1，2，3       1-(2-3)
+1,2,3,4     1-(2-(3-4))
+
+
+
+
+每个Haskell函数都只有一个参数。
+
+Prelude> let prod x y = x * y
+Prelude> prod 4 5
+20
+Prelude> :t prod
+prod :: Num a => a -> a -> a
+
+Haskell使用了一个概念,将拥有多个参数的函数拆分为多个只有一个参数的函数。
+Haskell使用偏应用来完成这个工作。
+
+偏应用绑定某些参数,不过不是所有的
+
+对 prod运用偏应用来创建一些其他函数
+Prelude> let doub = prod 2
+Prelude> let trip = prod 3
+Prelude> doub 4
+8
+Prelude> trip 5
+15
+
+
+
+当Haskell计算 prod 2 4 时,它实际上计算 (prod 2) 4 ,像下面这样。
+ 首先,应用 prod 2 。这将返回函数 (\y -> 2 * y) 。
+ 然后,应用 (\y -> 2 * y) 4 或 2 * 4 ,结果为8。
+这个过程称为柯里化,并且几乎每个Haskell中的多参数函数都是柯里化的。这样Haskell就具
+有更大的灵活性以及更简单的语法。大多数情况下,你实际上并不需要考虑它,因为柯里化和未
+柯里化的函数的结果是相同的。
+
+
+
+和Clojure的序列库相似,Haskell广泛使用了惰性求值。有了惰性求值,你可以构建返回无穷
+列表的函数。通常,你会使用列表构建方法来产生一个无穷列表。
+
+myrange start step = start: (myrange (start + step) step)
+
+构建了一个名为 myRange 的函数,
+它接受一个范围的起点和步长作为参数。我们使用列表组合来构建这个列表,用 start 参数作为
+列表的 head ,用 (myRange (start + step) step) 作为列表的 tail 部分
+
+
+
+lazyfib x y = x:(lazyfib y (x+y))
+fib = lazyfib 1 1
+fibNth x = head (drop (x - 1) (take (x) fib))
+
+*Main> take 5 (lazyfib 0 1)
+[0,1,1,2,3]
+*Main> take 5 (fib)
+[1,1,2,3,5]
+*Main> take 5 (lazyfib 1 1)
+[1,1,2,3,5]
+
+*Main> take 5 (drop 10 (lazyfib 0 1))
+[55,89,144,233,377]
+*Main> fibNth 3
+2
+*Main> fibNth 6
+8
+
+将两个相差偏移为1的斐波那契序列相加到一起
+*Main> take 5 (zipWith (+) fib (drop 1 fib))
+[2,3,5,8,13]
+
+函数zipWith 将两个列表中下标相同的每一项结对,然后把函数 + 传递给它。
+
+*Main> take 5 (map (*2) [1..])
+[2,4,6,8,10]
+*Main> take 5 (map ((*2).(*5)) fib)
+[10,10,20,30,50]
+
+在Haskell中, f . g x 是 f (g x) 的缩写。
+
+当按照这种方式构建函数时,你可能想要按从第一个到最后一个的顺序应用这些函数。你可以用“ . ”操作符来达到这个目的。
+
+
+
+
+
+Haskell的类型系统是这门语言最强大的特性之一。它支持类型推断,因此可以为程序员减轻
+许多负担。它也足够健壮,甚至可以捕捉到程序中的一些极细微的错误。它是多态的,这意味着
+你可以按同样方式对待同一种类型的不同形式。
+
+打开控制台的类型信息选项
+*Main> :set +t
+
+*Main> 'c'
+'c'
+it :: Char
+*Main> "abc"
+"abc"
+it :: [Char]
+*Main> "a"
+"a"
+it :: [Char]
+*Main> ['a','b']
+"ab"
+it :: [Char]
+
+*Main> "ab" == ['a','b']
+True
+it :: Bool
+
+
+
+通过 data 关键字定义自己的数据类型。
+
+最简单的类型声明使用了一个有限长度的值列表。
+
+*Main> data Boolean = True | False
+data Boolean = ...
+
+。。Boolean 首字母 大写。小写会报错。
+
+这个定义的含义是 Boolean 类型有单一值,要么是 True ,要么是 False 。
+
+
+Haskell告诉我们控制台尝试显示这些值,但却并不知道如何显示。有一
+种支持显示自定义类型的快速方法,即当声明用户自定义类型时,需要继承 show 函数。
+data Suit = Spades | Hearts deriving (Show)
+data Rank = Ten | Jack | Queue | King | Ace deriving (Show)
+type Card = (Rank, Suit)
+type Hand = [Card]
+
+
+*Main> Hearts
+Hearts
+it :: Suit
+
+我们向系统里加了一些别名。 Card 是由 rank 和 suit 组成的元组, Hand 是一个 card 列表
+
+
+
+树中,值都在叶子节点上。节点,要么是叶子,要么是树的列表。
+data Tree a = Children [Tree a] | Leaf a deriving (Show)
+
+。。。。。。。。
+
+定义了一个类型构造器 Tree 和两个数据构造器 Children 和 Leaf 。将它们放在一起来表
+示树
+
+
+你无法将两个布尔值相加,但却可以将两个数字相加在一起。Haskell将类用作这个目
+的。具体地说,类定义了哪些操作可以在哪些输入上进行。你可以把它看作是一个Clojure 协议。
+它是这样工作的。类提供了一些函数签名。如果类型支持类的所有函数,那么这个类型是类
+的一个实例。
+
+。。。。
+
+
+monad
+
+一个monad让我们可以以一种具有特定属性的方式组合函数。
+
+monad允许
+你模拟程序状态。Haskell提供了一种被称为 do 语法的特定语法支持命令式风格的编程。 do 语法
+工作时依赖monad。
+
+一些简单的诸如错误条件的事情在函数式语言中却难于处理,因为返回结果的类型根
+据函数成功与否而不同。 Haskell提供了 Maybe monad来解决这个问题。
+
+
+一个monad包含以下三个基本的组成部分。
+ 一个基于某容器类型的类型构造器。这个容器可以是简单的变量、列表或者是任何一个
+可以持有值的对象。我们将使用这个容器来持有一个函数。你选择的容器将根据想要
+monad所做的事情的不同而不同。
+ 一个名为 return 的函数,它负责将一个函数包装起来并放入容器。当后续使用到 do 记号
+时,这个名字会有意义。记住, return 将函数包装到monad中。
+ 一个名为 >>= 的bind函数,它负责给函数解包。我们会使用bind将函数串联在一起。
+
+
+
+对于某个monad m ,某个函数 f
+和某个值 x 而言:
+ 你应该能够使用类型构造器创建monad,该monad可以与某个可以持有值的类型一同
+工作;
+ 你应该能够在不损失信息的前提下对值进行包装和解包;
+(monad >>= return = monad) 。
+ 嵌套绑定函数应该与顺序调用它们具有相同的结果。 ((m >>= f) >>= g = m >>= (\x
+-> f x >>= g)) 。
+
+
+
+在GHCI中,你必须用分号将代码行隔开并且用括号将 do 表达式和 let 表达式的
+正文括上。如果有多行代码,应该将每行代码都包裹在 :{ 和 }: 中。
+
+
+
+Maybe monad。我们将使用这个monad解决一
+个常见的编程问题:一些函数可能会返回失败。
+
+
+
+由于Haskell是一门纯函数式编程语言,
+所以它很难表达命令式风格的问题或当程序运行时状态累积的问题。Haskell的设计者依靠monad
+来解决这两个问题。monad是一个类型构造器,它包括了一些用于包装和将函数串联在一起的函
+数。你可以将使用不同类型容器的monad结合在一起,以支持多种不同的计算策略。
+
+。。。。？？什么东西？？？？ 就是个链式调用？？？
+。。pass。
+
+
+
+
+monad并非Haskell中唯一学习难度较高的概念。柯里化用于每个参数个数多于一个的函数中。
+
+
+
+
+
+
+chapter 9
+
+面向对象(Ruby、Scala)
+
+如今,面向对象无疑是最强势的编程范型,而Java正是面向对象语言的典型代表。这种范型
+有三大主要思想:封装、继承和多态。通过学习Ruby,我们知道了什么是鸭子类型。它不是用类
+或对象的定义施加某种类型契约,而是根据对象支持的方法确定类型。我们也了解到,通过代码
+块,Ruby能实现一些函数式编程思想。
+
+Scala同样提供了面向对象编程范型。尽管它支持的是静态类型,然而,因其具有类型推断等
+用于简化语法的特征,因此比Java简洁得多。通过类型推断这一特征,Scala可根据其语法和用法
+中的蛛丝马迹,自动推导出变量类型。在引入函数式思想这方面,Scala甚至更胜Ruby一筹。
+
+
+
+
+原型编程(Io)
+你或许认为,原型语言不过是面向对象语言的一个子集而已。然而,二者在编程实践当中的
+区别是非常明显的,因此我们将原型语言作为一种独立的编程模型加以介绍。和其他使用类来编
+程的语言不同,在原型语言中,所有原型都是对象实例,其中,某些实例经过特别设计,可用作
+其他对象实例的原型。原型语言家族的成员包括JavaScript和Io,它们既有简洁明了的形式,又有
+强大的表达能力,且通常是动态类型语言,因此在脚本开发、应用开发,尤其在用户界面等方面,
+表现都十分出色。
+正像Io所展示的那样,即便只是简单的编程模型,但若始终保持语法的小巧、简洁,也同样
+能变得威力强大。我们已经把Io语言应用到了各种各样的环境当中,从脚本并发编程,到编写自
+己的DSL。但在本书中,原型编程还算不上最专用的范型。
+
+
+
+
+约束—逻辑编程(Prolog)
+Prolog出身于一个专用于约束-逻辑编程的语言家族。我们用Prolog编写各种应用,全是为
+了解决一小类问题。然而,解决这一小类问题获得的成果却蔚为壮观。简单地说,这类问题为某
+个已知问题域定义一些逻辑约束,然后就可以用Prolog求出这类问题的解。
+
+
+
+函数式编程(Scala、Erlang、Clojure、Haskell)
+函数式编程或许是本书寄予厚望的编程范型。虽然在函数式语言里,有的惟精惟一,有的驳
+杂不纯,但它们都蕴含着同一思想。函数式程序由数学函数构成,调用同一个函数,都会返回同
+样的结果,尽可能地避免副作用,甚至严格禁止。至于如何写这些函数,方式可以多种多样。
+
+你已经了解到,函数式编程语言通常比面向对象语言有更强的表达能力。用它们写的代码显
+得比面向对象语言更短小精悍,因为它们用来编程的手段要丰富得多。我们介绍了高阶函数,还
+有柯里化这样的复杂概念,而这些概念,在面向对象语言中是难得一见的。我们在Haskell那一章
+学到过,函数式的纯正程度会产生不同的优缺点。对函数式语言来说,避免副作用是显而易见的
+优势,这能使并发编程不再棘手。一旦可变状态的阴霾烟消云散,许多传统的并发问题也就迎刃
+而解了。
+
+
+。。。但是，代价是，函数式应该比java慢吧。？？？
+。。避免副作用，这种靠程序员也能吧。
+
+
+
+
+
+
+关于并发的讨论中最常见的主题就是编程模型。面向对象编程会导致副作用和可
+变状态。若综合考虑这两个因素,程序就会变得异常复杂。当多个线程和进程共同使用时,复杂
+性会高到难以控制。
+
+函数式编程语言增加了一条重要规则,也因此增加了结构。多次触发同一函数将产生相同结
+果。变量是单赋值的。消除了副作用,竞争条件和一切与副作用相关的复杂性也就随之消除。
+
+
+
+无论用对象还是进程,actor方法都始终如一。它获取从对象内部发出的非结构化的进程间通
+信,将其转化为头等结构之间的消息传递,且每个actor都拥有一个消息队列。Erlang和Scala语言
+使用模式匹配,对传递进来的消息进行匹配,然后根据条件执行它们。
+
+
+
+除actor之外,Io还添加了两种并发结构:协程和future。协程可让两个对象合作处理多任
+务,而它们又能各自选择适当时机放弃控制权。回想一下,future就好比长时运行的并发计算
+的占位符。
+我们执行过一条语句 futureResult := URL with("http://google.com/") @fetch 。虽
+然它无法立即获得结果,但程序控制权却能马上回到我们手中。只有当我们试图访问future时,
+程序才会阻塞。到产生结果的时候,Io的future会自动转化为该结果。
+
+
+
+
+在 Clojure 中 , 我 们 见 识 到 了 一 些 有 趣 的 并 发 处 理 方 法 。 软 件 事 务 型 内 存 ( Software Transactional Memory,STM)包装了事务中某个共享资源的每一个分布式访问。相同的方法也可
+用于数据库对象,能在触发并发操作时保持数据库的完整性。
+
+
+
+STM是一种相对来说较新的思想,正逐渐被越来越多的流行语言所采用。因为Lisp是一门多
+范型语言,所以Clojure作为Lisp的传人,用起STM来也是得心应手。当用户确信即使处在高并发
+访问的条件下,应用程序也能保持完整性和高性能,那么,他们就能放心使用各种不同的编程范
+型了。
+
+
+
+
+正如你在Erlang、Clojure和Haskell中看到的那样,列表解析是一种简洁而紧凑的结构,它
+在结构中融合了筛选器、映射、笛卡儿积等几种概念,使这种结构变得非常强大。
+
+
+
+我们在书中见过的更为常用的一种编程特性是模式匹配。我们首次见到这种编程结构是在
+Prolog中,但Scala、Erlang、Clojure和Haskell中也出现过。这些语言都借助模式匹配的力量,极
+大地简化了代码。模式匹配可解决的问题包括语法分析、分布式消息传递、解构、合一、XML
+处理,等等。
+
+
+
+Prolog用到了合一,合一和模式匹配的关系,就像表兄弟一样。你已经学过,Prolog可将合
+法值替换到规则内,从而使规则的左右两边匹配。Prolog会尝试不同的值,直到穷尽所有合法值
+为止。
+合一能让程序威力大增,因为它有三大功效:测试真值、匹配左端、匹配右端。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

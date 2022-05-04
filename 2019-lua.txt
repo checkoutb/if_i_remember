@@ -1,0 +1,5211 @@
+
+
+找不到5.3的书。
+所以从网上看的。
+
+https://www.runoob.com/manual/lua53doc/manual.html
+http://cloudwu.github.io/lua53doc/manual.html#2.1
+是一样的。
+
+http://www.lua.org/manual/5.3/
+这个是英文原版。
+
+http://www.lua.org/docs.html
+paper，lua的技术论文。
+
+
+
+位运算(位与，左移等)
+5.1 需要外部库 require "bit"     bit.band(a, b)    bit.lshift(a, n)
+5.2 需要内置库 require "bit32"  bit32.band(a,b)   bit32.lshift(a, n)
+5.3 提供内置操作符  a&b a~b(。xor) ~a(。not) a<<n
+
+。。怎么选哪个版本。。擦
+
+
+
+
+
+
+=============================
+=============================
+=============================
+Lua程序设计(2nd)
+基于5.1的
+
+第一版是基于5.0的。
+3，4版找不到中文的。。
+
+
+。。helloWorld的时候试了下，=print("xx")没有问题。。a=print("xx")也没有问题。
+
+直接运行文件是，cmd下：lua xxx.lua
+
+
+function fact(n)
+	if n == 0 then
+		return 1
+	else
+		return n * fact(n-1)
+	end
+end
+
+print("enter a number: ");
+a = io.read("*number");
+print(fact(a));
+
+
+;可有可无。
+多条语句在同一行时，可以使用;。。。不是必须的。空格也能作为分隔符。。
+
+退出cmd，unix是ctrl+D，win是ctrl+z
+或者调用系统库的exit函数：os.exit()
+
+
+lua -i xxx
+在运行完xxx之后会进入交互模式(就是lua的cmd，不然就回到win的cmd)。。而且lua命令执行的话，不需要.lua文件后缀。
+
+win的cmd输入lua就进入lua的cmd。
+
+还有一种执行程序块的方式是使用函数dofile。在luaCmd中：
+dofile("xxx")
+
+。。会执行xxx文件，后续可以直接调用xxx里面的方法。
+
+dofile会重新加载文件，所以可以另一个编辑器修改代码后，cmd中dofile下，就加载修改后的代码了。
+。。不过SciTE，直接就执行了啊。。如果需要额外代码，那也是另起一个lua文件来测试，不需要cmd吧。
+
+
+避免一个下划线开头并跟着1或多个大写字母的标识符，Lua将这类标识符保留用作特殊用途。通常保留标识符"_"(一个下划线)作为"哑变量"使用。
+
+lua中，"字母"的概念依赖于区域设置，如果设置一个正确的区域，那么可以使用法文作为变量名。但是这种代码可能导致在其他区域的系统上无法工作。
+
+单行注释 --
+
+块注释
+--[[
+
+--]]
+
+只需要在第一行最前面加一个-，那么块注释就失效了。变成了2个单行注释。
+---[[
+print("x")
+--]]
+能输出x。
+
+
+默认全局变量
+访问未初始化的变量不会引发错误，访问结果是一个nil。
+
+将全局变量赋值为nil，就是将其删除。
+
+
+解释器是一个小型程序，可以通过它来直接使用lua。
+如果代码文件的第一行以一个#开头，那么在加载该文件时，解释器将忽略这一行。这项特征是为了方便在unix中将lua作为一种脚本解释器来使用。如果用下面这行开始脚本代码的编写：
+#!/usr/local/bin/lua
+或
+#!/usr/local/env lua
+那么便可以直接调用脚本文件，而无须显式调用lua解释器了。
+
+解释器程序的用法：
+lua [选项参数] [脚本[参数]]
+
+选项参数-e可以直接在win的cmd中输入代码，
+lua -e "print(\"dd\")"
+lua -e print(\"ddd\")
+。。2种都行。书上是第一种：lua -e "print(math.sin(12))"
+。。下面注释有解释：在unix中需要双引号来防止shell误解括号。下面还有"防止shell误解内层的单引号"
+
+选项参数-l用来加载库文件。
+-i，表示运行完其他命令行参数后进入交互模式。
+
+lua -i -l a -e "x=10"
+会先加载库文件a，然后执行x=10，最后进入交互模式(lua的cmd)
+
+只要定义了一个_PROMPT的全局变量，解释器就会用它的值作为交互模式的命令提示符(就是lua的cmd的每行的最前面)。
+lua -i -e "_PROMPT=' lua> '"
+外面的双引号防止shell误解内层的单引号。
+
+。。。可怕，现在才知道下面：
+在交互模式中，如果要打印任何表达式的值，可以用等号开头，并跟随一个表达式。
+=math.sin(3)		-- 0.1411200xxxx
+a=30
+=a		--30
+
+这项特征有助于将lua作为一个计算器使用。
+
+在解释器执行其参数前，会先查找一个名为LUA_INIT的环境变量，存在且内容为"@文件名"，那么解释器会先执行这个文件。如果LUA_INIT中没有以"@"开头，那么解释器就假设该环境变量中为Lua代码，并执行该代码。
+LUA_INIT可以很灵活地配置解释器，并且可以完全控制如何配置。例如，预先加载一个程序包(Package)，修改命令提示符的路径，定义函数，对函数进行改名或删除等。
+
+在脚本代码中，可以通过全局变量arg来检索脚本的启动参数。
+解释器运行脚本前，会用所有的命令行参数创建一个名为arg的table，脚本名称位于索引0上，它的第一参数位于索引1，。。。脚本之前的所有选项则位于负数索引上，如：
+lua -e "sin=math.sin" script a b
+解释器将所有参数组织排列为：
+arg[-3] = "lua"
+arg[-2] = "-e"
+arg[-1] = "sin=math.sin"
+arg[0] = "script"
+arg[1] = "a"
+arg[2] = "b"
+
+。。script是脚本名称，，a，b是2个参数。
+
+通常脚本只会使用正数索引。
+
+
+false和nil 视为假，其他都是真。
+数字0和空字符串也是真。
+
+
+lua没有整数类型，因为没有必要。一直以来都存在着一个关于浮点数算术错误的误解。有人会担心即使对浮点数进行一个简单的递增运算都有可能导致错误的结果。
+而事实上，只要使用双精度来表示一个整数，就不会出现"四舍五入"的错误(除非这个数字大于1014)。
+因此，Lua中的数字可以表示任何32位整数，而不会产生四舍五入的错误。
+此外，当今大多数cpu的浮点运算速度和整数运算速度一样快，有些cpu的浮点运算可能更快。
+。。test。。看不懂双精度不会出现四舍五入，除非1014.。。的意思。
+
+不过，通过重新编译Lua也可以非常方便地使用其他类型来表示数字，例如使用长整型long或单精度浮点数float。这对于某些没有浮点数硬件支持的平台来说尤为有用。具体做法详见发行版中的luaconf.h文件。
+。。test。。。
+
+
+字符串，Lua完全采用8位编码，lua字符串中的字符可以具有任何数值编码，包括数值0，也就是说，可以将任意二进制数据保存到一个字符串中。
+
+lua中字符串是不可变的值，不像C中能直接修改某个字符。
+。。不过c只有char*，，c++才有string。。
+
+'',"",[[]]
+3种字符串表示。前2者可以使用转义字符，第三个所见即所得。
+
+有时字符串需要包含这样的内容：a=b[c[i]]。最后2个]会导致[[]]提前结束。为了应付这种情况，需要在2个[[间加入任意的等号，就像[===[,这样修改后，字面字符串只会在遇到一个内嵌有相同数量等号的]]时才会结束(即]===])。
+
+这套机制同样适用于注释，--[==[,开始，]==]才结束。如此便简化了注释已经包含注释块的代码。
+
+
+在字符串上应用算术操作时，会尝试将这个字符串转为数字。
+不仅在算术操作中，还会在其他任何需要数字的地方这么做。
+
+在Lua期望一个字符串但却得到一个数字时，它也会将数字转换为字符串：
+print(10 .. 20)			-- 1020
+
+..是字符串连接操作符，在一个数字后面使用时，需要用一个空格来分隔，不然lua会将第一个.理解为小数点。
+
+如今，仍不确定这些自动转换是否是一项好的设计，建议最好不要依赖它们。
+
+10=="10"总是false，因为type不同。
+如果需要将一个字符串显示专为数字，使用函数tonumber,如果无法转换，则返回nil。
+如果要转为string，则使用tostring函数。或者将该数字与一个空字符串相连(..)
+
+字符串前面放置#来获得该字符串的长度。
+
+
+table类型实现了关联数字，关联数组是一种具有特殊索引方式的数组。不仅可以通过整数来索引它，还可以通过使用字符串或其他类型的值(除了nil)来索引它。
+table没有固定的大小。
+table是lua主要也是仅有的数据结构机制。
+基于table，可以以一种简单，统一和高效的方式来表示普通数组，符号表，集合，记录，队列和其他数据结构。
+lua也是通过table来表示模块，包和对象的。当输入io.read()时，其含义是"io模块的read函数"，对于lua而言，这表示"使用字符串read作为key来索引table io"。
+
+table既不是值，也不是变量，而是对象。
+
+table永远是匿名的，一个持有table的变量和table自身之间没有固定的关联性。
+
+a={}
+b=a		-- a,b引用同一个table。
+
+当程序中没有table的引用时，gc就会回收table的空间。
+
+当table的某个元素没有初始化时，内容就是nil。
+将nil赋予table的某个元素，就是删除该元素。
+
+。。#tab1..似乎只计算下标1开始直到第一个值为nil的下标，不管更大的下标是不是有值。
+
+
+为了表示一条记录，可以将字段名作为索引。lua对诸如a["name"]的写法提供了语法糖，可以直接输入a.name。
+
+a["x"]和a.x对lua来说是等价的。
+对于读者来说，点暗示将table作为一条记录，每条记录都有一组固定的预定义的key。。而[""]暗示该table会以任何字符串作为key。
+
+
+for i=1, #a do
+	print(a[i])
+end
+
+a[#a] = nil			-- 删除最后一个
+a[#a + 1] = v		-- 添加到列表末尾
+
+
+a = {}
+for i=1, 10 do
+	a[#a + 1] = io.read()
+end
+
+使用#a+1 而不是 i
+
+
+所有对未初始化的元素的索引结果都是nil，lua将nil作为界定数组结尾的标志。当一个数组有"空隙"时，即中间含有nil时，长度操作符会认为这些nil就是结尾标记。
+避免对含有"空隙"的数组使用长度操作符#。
+table.maxn能返回table的最大正索引数。
+。。不是个数，是最大正索引数。
+
+。。而且#的刷新非常奇怪，似乎只有在[#a]被设置为nil或[#a+1]被设值的时候才会刷新，所以[#a/2]=nil后，#a依然不变。
+
+
+i=10;j="10";k="+10"
+a[i],a[j] 不相同
+a[i],a[tonumber(j)],a[tonumber(k)] 相同
+
+
+
+函数作为第一类值看待，这表示函数可以存储在变量中，可以通过参数传递给其他函数，还可以作为其他函数的返回值。
+这种特性使得语言具有了极大的灵活性。为了给一个函数添加新功能，程序可以重新定义该函数。在运行一些不受信任的代码时，可以先删除某些函数，从而创建一个安全的运行环境。
+lua对函数式编程也提供了良好的支持。
+
+lua既可以调用lua语言编写的函数，也可以调用c语言编写的函数，lua的所有标准库都是c编写的。标准库中包括对字符串的操作，table的操作，I/O，操作系统的功能调用，数学函数和调试函数。
+
+
+userdata类型可以将任意c语言数据存储到lua变量上，lua中，这种类型没有太多的预定义操作，只能进行赋值和相等性测试。
+
+
+a%b == a - floor(a/b)*b
+对于整数来说，计算结果的符号永远和第二个参数相同。
+对于实数来说，x%1就是小数部分，x-x%1就是整数部分。x-x%0.01就是精确到小数点后2位。
+
+。。。。和第二个参数相同。。。floor是向下取整，floor(-1.4)=-2
+
+由于符号和第二个相同，所以可以进行角度换算。
+-180/360 == 180，
+或者角度转弧度[0, 2pi]
+-pi % (2*math.pi)
+。。就是取正。进行加减的时候就知道这个肯定为正了。
+
+
+~=，其他都一样=,>=,>,<,<=,==
+先比较类型，在比较值
+
+对于table，userdata，函数，lua比较它们引用的对象是否是同一个。
+
+大小比较只能发生在2个数字或2个字符串中。。字符串时按字母次序(a,b,c,d)比较。具体的字母次序取决于lua的区域设置。
+
+"0"和0是不同的。
+2<15 true,, "2" < "15" false。。
+
+为了避免不一致的比较，lua在遇到string和number比较大小时会抛错。
+
+
+逻辑操作符
+and or not
+
+只有false,nil为假，其他(0等)都是真
+
+会短路,返回最后一个判断的表达式
+print(4 or 5)		-- 4
+print(false or 5)	-- 5
+print(4 and 5)		-- 5
+print(nil or false) -- false
+print(false or nil) -- nil
+
+not只返回true或false
+
+x = x or v, 等价于 if not x then x = v end
+在没有设置x时，给予一个默认v
+
+b为真的情况下，(a and b) or c 等价于c语言中的 a?b:c
+如果a真，那么a and b必然真，直接返回最后一个判断的表达式：b
+如果a假，不会走and b，此时就看c是真是假了，但无论真假，都是返回c
+
+(x > y) and x or y
+选出x，y中的大者。
+
+
+
+字符串连接..，如果操作数是数字，会把数字转为string。
+只会创建新的字符串，不会修改原操作数。
+
+
+优先级 高到低
+
+^
+not # -(取负)
+* / %
++ -
+..
+< <= > >= ~= ==
+and
+or
+
+除了^和..是右结合，其他都是左结合。
+
+
+
+table 构造式
+构造式是用于创建和初始化table的表达式。是lua特有的一种表达式，也是lua中最有用，最通用的机制之一。
+
+最简单的构造式是空构造式{}，用于创建一个空table，构造式还可以用于初始化数组(即序列或列表)。如：
+days = {"Sunday", "Monday", ....}
+print(days[4])			-- Wednesday
+
+还提供了特殊语法用于初始化记录风格的table：
+a = {x = 10, y = 20}
+等价于
+a = {}; a.x=10; a.y=20
+
+。。a={"x"=30}报错，"x"是string，无法被赋值。
+..a.x 等价于 a["x"]
+..a[x]等价于 a[nil]。，，因为此时x还没有赋值，如果x="y",a[x]就是20
+
+当lua评估一个构造式时，会先创建一个新table，然后初始化它，所以用table可以写出下面的链表：
+list = nil
+for line in io.lines() do
+	list = {next = list, value = line}
+end
+
+遍历，打印
+local l = list
+while l do 
+	print(l.value)
+	l = l.next
+end
+
+有一定教学意义，但是lua中很少使用链表。列表(。。链表？)数据一般通过数组来实现。
+
+
+记录风格的初始化和列表风格的初始化混合在一个构造式中使用：
+polyline = {color="blue", tickness=2, npoints=4.
+			{x=0,y=0},
+			{x=-10,y=0},
+			{x=-10,y=1},
+			{x=0,y=1}
+}
+每个polyline[i]元素都是一个table，表示一条记录：
+print(polyline[2].x)		-- -10
+
+这2种风格的构造式各有限制，如，不能使用负数的索引，不能用运算符作为记录的字段名。为了满足这些要求，lua还提供了更通用的格式。这种格式允许在方括号之间，显示地用一个表达式来初始化索引值。
+
+opnames = {["+"]="add",["-"]="sub"}
+
+i=20; s="-"
+a = {[i+0]=s, [i+1]=s..s, [i+2]=s..s..s}
+
+列表风格的初始化，记录风格的初始化，都是这种通用语法的特例
+{x=0,y=1} 等价于 {["x"]=0,["y"]=1}
+{"r","g","b"} 等价于 {[1]="r",[2]="g",[3]="b"}
+
+某些情况需要0为下标起始的话：
+days={[0]="Sunday","Monday","Tuesday"...}
+第一个元素的索引就是0.。这个0并不影响其他元素，"Monday"的索引为1，因为它是构造式中列表风格的第一个值。后续其他值依次递增。
+不推荐在lua中0作为第一个索引。大多数内建函数都假设数组起始于1.
+
+可以在最后一个元素后面写一个逗号，这是可选的。
+这种灵活性对于那些生成lua table的程序来说很有用，不需要特别对待最后一个元素。
+
+构造式中还可以用分号代替逗号，通常用分号来分隔构造式中不同的成分，如将列表部分和记录部分分开：
+{x=10,y=20; "one","two",}
+
+。。
+a={1,2,[2]='x',3,4,5}
+#a					-- 5
+print(a[2])			-- 2
+。。似乎是先计算[2]='x'，然后再1，2，3，4，所以后者会覆盖前者。
+
+
+
+
+chapter 4 语句
+
+多重赋值，先对=右侧的所有元素求值，然后再执行赋值。所以可以一句多重赋值来swap2个变量。
+
+
+=右边少，就补nil，右边多就后面的被抛弃。
+
+a,b,c = 0
+只有a是0，b，c都是nil。
+
+
+x = 10
+if i > 20 then
+	local x
+	x = 20
+	print(x)		-- 20
+else
+	print(x)		--10
+end
+
+在交互模式中，每行输入就是一个程序块。每输入一行，lua就执行一行。
+可以显示地界定一个块，只需将浙西内容放到一对do-end中即可。每当输入do时，lua不会单独地执行后面每行的内容，而是直到遇到一个相应的end，才执行整个块的内容。
+
+如果需要更严格地控制某些局部变量的作用域，do也有所帮助。
+
+尽可能使用局部变量是良好的编程风格。
+局部变量避免一些无用的名称引入全局环境。
+访问局部变量比访问全局变量更快。
+局部变量随着作用域结束而结束，gc可以回收。
+
+lua中有一种写法
+local foo = foo
+创建局部变量foo，并使用全局变量foo来初始化它。
+保存副本
+加速在当前作用域中对foo的访问。
+
+
+
+if,for,while以end为结尾
+repeat以until为结尾
+
+if xx then
+	//
+else
+	//
+end
+
+if xx then
+	//
+end
+
+
+if xx then
+	//
+elseif xx2 then
+	//
+elseif xx3 then
+	//
+else
+	//
+end
+
+
+lua不支持switch
+
+
+local i = 1
+while a[i] do
+	print(a[i])
+	i = i + 1
+end
+
+
+repeat-until，重复，知道条件为真。至少执行一次循环体
+
+repeat
+	line = io.read()
+until line ~= ""
+print(line)
+
+
+在循环体中声明的局部变量的作用于包括了条件测试
+local sqr = x/2
+repeat
+	sqr = (sqr + x/sqr) / 2
+	local error = math.abs(sqr^x - x)
+until error < x/10000				-- 可以访问error
+
+
+
+for有2种形式，数字型for，泛型for
+
+数字型for格式：
+for var=exp1,exp2,exp3 do
+	//
+end
+
+var从exp1变化到exp2，每次步长是exp3.并执行一次循环体。
+exp3可选，不写就是1.
+
+for i=1,f(x) do print(i) end
+for i=10,1,-1 do print(i) end
+
+不设置上限的话，可以使用常量math.huge
+for i=1,math.huge do
+	if (i^3 >= 3) then
+		print(i)
+		break
+	end
+end
+
+for的3个表达式是在循环开始前一次性求值的，上面的f(x)只执行一次。
+控制变量自动声明为for的局部变量，仅在循环体内可见。
+
+for i=1,10 do print(i) end
+max = i		-- 可能是错误的，这里访问的是一个全局的i。
+
+如果需要在循环结束后访问控制变量的值，必须保存到另外一个变量中：
+local found = nil
+for i = 1,#a do
+	if a[i]<0 then
+		found = i
+		break
+	end
+end
+print(found)
+
+不要在循环过程中修改控制变量的值，会导致不可预知的后果。
+
+
+泛型for
+通过迭代器函数来遍历所有值
+for i,v in ipairs(a) do print(v) end
+
+lua基础库提供了ipairs，一个用于遍历数组的迭代器函数。
+每次循环中，i被赋予一个索引值，v被赋予一个该索引的数组元素值。
+
+通过不同的迭代器，几乎可以遍历所有的东西。
+标准库提供了几种迭代器，包括用于迭代文件中每行的(io.lines)，迭代table元素的(pairs)，迭代数组元素的(ipairs)，迭代字符串中单词的(string.gmatch)。
+
+逆向table：
+days = {"Sunday","Monday",,,,}
+revDays = {}
+for k,v in pairs(days) do
+	revDays[v] = k
+end
+
+revDays就变成了{["Sunday"]=1, ["Monday"]=2,,,,,}
+
+
+
+break 只跳出包含它的那个内部循环，不会跳出外层的循环。
+
+return 从函数返回结果，或者简单地结束一个函数的运行。任何函数结尾处都有一句隐式的return。所以没有返回值，就不必写return了。
+
+由于语法的原因，break，return必须是一个块的最后一条语句。
+有时要借助do return end来测试时防止后面的代码执行。
+
+
+
+chapter 5 函数
+
+。。。。
+调用函数没有参数时，也要一对空的圆括号。只有一个特殊情况：一个函数若只有一个参数，且此参数是一个字面字符串或table构造式，那么圆括号可有可无。
+print "hello"
+dofile 'a.lua'
+print [[a multiline
+message]]
+f{x=10,y=20}
+type{}
+
+
+为面向对象式的调用提供了一种特殊的语法---冒号操作符。
+o.foo(o, x)的另一种写法是o:foo(x).
+冒号操作符使得调用o.foo时将o隐含地作为函数第一个参数。
+
+实参多余形参，舍弃多余的，实参少，补nil。
+
+
+多重返回值
+
+s,e = string.find("hello lua users", "lua")		-- s=7， e=9
+
+.。。下面说以lua编写的也可以，说明上面的find是c的？c没这功能吧。。
+。。书37页。。估计返回了一个list。
+
+以Lua编写的函数同样可以返回多个结果。只需在return关键字后列出所有的返回值即可。
+
+函数作为表达式的一部分来调用时，一般只保留第一个返回值，除非这个函数是一系列表达式的最后一个元素，才会获得所有的返回值，一系列表达式在lua中有4种情况：多重赋值，函数调用时传入的实参列表，table的构造式，return语句。
+
+function foo0 () end
+function foo1 () return "a" end
+function foo2 () return "a",'b' end
+
+x,y,z,q = 10,foo2()		-- 10, 'a', 'b', nil
+
+x,y = foo2(), 20			-- 'a', 20
+x,y = foo0(), 20, 30		-- nil, 20
+
+print(foo2())		-- a b
+print(foo2(), 1)		-- a 1
+print(foo2().."x")		-- ax
+
+。。究竟是lua将返回值个数调整到形参个数，还是说全部返回，然后再丢弃？
+
+t = {foo2()}		-- {'a','b'}
+t = {foo0(), foo2(), 4}		== 1:nil, 2:'a', 3:4
+
+return foo2()
+将返回foo2的全部结果。
+
+将一个函数调用放入一对圆括号中，函数只返回一个结果。
+print( (foo2()) )		-- a
+
+如果return (foo2())	会导致只返回一个值。
+
+
+函数unpack，接受一个数组，从下标1返回数组所有元素
+print(unpack{10,20,30})		-- 10 20 30  用到了上面的只有一个实参，且是table构造式不需要()
+
+unpack一项重要用途体现在"泛型调用"机制中。
+泛型调用机制可以动态地以任何实参来调用任何函数。
+如果想要调用任意函数f，并且参数都在数组a中，可以:
+f(unpack(a))
+
+f = string.find
+a = {"hello", 'll'}
+
+f(unpack(a)) 将返回3，4
+
+unpack是用C编写的。。。。test。。how？
+在lua中可以通过递归实现一样的效果：
+function unpack(t, i)
+	i = i or 1
+	if t[i] then
+		return t[i], unpack(t, i + 1)
+	end
+end
+
+
+变长参数
+
+形参表中...表示接受不同数量的实参。
+
+函数要访问它的变成参数时，仍使用...，此时3个.是作为一个表达式来使用的。{...}表示一个由所有变长参数构成的数组。
+
+表达式...的行为类似于一个多重返回值的函数，返回当前函数的所有变长参数
+local a, b = ...
+
+function id (...) return ... end
+这是一个多值恒定式函数。
+
+funtion foo1 (...)
+	print("calling foo:", ...)
+	return foo(...)
+end
+类似于直接调用foo，只是在调用foo前打印出所有实参。
+
+将格式化文本和输出文本合二为一
+function fwrite (fmt, ...)
+	return io.write(string.format(fmt, ...))
+end
+
+固定参数必须放在变长参数前面。实参先给固定参数，剩下的给变长参数。
+
+通常遍历变成参数时只需要{...}，这就像访问一个table一样。
+某些情况下，变成参数中可能含有nil，此时就需要select函数来访问变长参数。
+调用select时，必须传入一个固定实参selector(选择开关)和一系列变长参数。如果selector为数字n，那么select返回它的第n个可变实参，否则selector只能为字符串"#",这样select返回变长参数的总数(包含nil)。
+
+
+具名实参
+rename(old="temp.txt", new="new.txt")
+lua不支持！！。。。
+
+通过变通来获得相同效果，主要是将所有实参组织到一个table中，并将这个table作为唯一实参传递给函数。还需要用到一种lua中特殊的函数调用语法，就是当实参只有一个table构造式时，函数调用中的圆括号是可有可无的。
+
+rename {old="old.txt", new="new.txt"}
+
+将rename函数改为只接受一个参数：
+function rename (arg)
+	return os.rename(arg.old, arg.new)
+end
+
+具名 + 可选参数
+function window(op)
+	if type(op.title) ~= "string" then error("no title") end
+	
+	_window(op.title,
+			op.x or 0,
+			op.y or 0,
+			op.background or "white"
+			)
+end
+
+
+
+chapter 6 深入函数
+
+一个函数可以嵌套在另一个函数中，内部的函数可以访问外部函数的变量。允许lua使用函数式语言中强大的编程技术。
+
+函数和其他所有值一样都是匿名的，它们没有名称。当讨论一个函数名时，实际上讨论的是一个持有某函数的变量。
+a=print
+a(1)
+
+函数是由一些表达式创建的
+function foo(x) return 2*x end
+只是一种"语法糖"，只是下面代码的一种简化书写形式：
+foo = function(x) return 2*x end
+
+
+table.sort,接受一个table并对其中元素排序，支持各种排序规则(升序or降序，按数字顺序，按字符顺序。。)
+table.sort(newwork, function (a,b) return (a.name > b.name) end)
+
+这里的匿名函数具有很好的便捷性。
+
+像sort这样，接受另一个函数作为实参的，称其是一个"高阶函数"，高阶函数是一种强大的编程机制，应用匿名函数来创建高阶函数所需的实参可以带来更大的灵活性。
+
+一个函数f在点x的导数是(f(x+d)-f(x))/d，d趋于无限小。可以用如下方式来近似地计算这个函数f的导数：
+function derivative (f, delta)
+	delta = delta or 1e-4
+	return function(x)
+				return (f(x+delta)-f(x))/delta
+			end
+end
+
+对于特定函数f，将返回其导数：
+c = derivative(math.sin)
+print(math.cos(10), c(10))		-- 2个都差不多是-0.8390 .. 后续不同值
+
+
+
+6.1 closure 闭合函数
+
+根据年纪来对姓名排序
+names = {'aaa','bbb','ccc'}
+grades = {aaa=11, bbb=5, ccc=1}
+table.sort(names, function(n1,n2) return grades[n1] > grades[n2] end)
+
+单独创建一个函数来完成这项工作：
+function sortbygrade (names, grades)
+	table.sort(name, function(n1,n2) return xx>xx end)
+end
+
+创递给sort的匿名函数可以访问参数grades，而grades是外部函数sortbygrade的局部变量。。在这个匿名函数内部，grades既不是全局也不是局部，而是一个非局部的变量。
+
+
+function newCounter()
+	local i = 0
+	return function() i=i+1 return i end
+end
+
+c1 = newCounter()
+print(c1())			-- 1
+print(c2())			-- 2
+
+初看上去，由于newCounter已经return，所以之后每次调用匿名函数，i都应该是超出了作用范围。
+其实不然，lua会以closure的概念来处理这种情况。
+简单来讲，一个closure就是一个函数加上该函数所需要访问的所有"非局部的变量"。
+如果再次调用newCounter，那么它会创建一个新的局部变量i，从而也得到一个新的closure：
+c2 = newCounter()
+print(c2())		-- 1
+print(c1())		-- 3
+print(c2())		-- 2
+
+从技术上将，lua只有closure，没有函数。函数是一种特殊的closure。
+
+重新定义sin，使其使用角度，而不是弧度：
+oldSIn = math.sin
+math.sin = function (x) return oldSin(x*math.pi/180) end
+
+还有一种更彻底的做法是这样的：
+do
+	local oldSin = math.sin
+	local k = math.pi/180
+	math.sin = function(x) return oldSin(x*k) end
+end
+
+将老版本的sin保存到一个私有变量中，现在只有通过新版本的sin才能访问到它了。
+
+可以使用同样的技术来创建一个安全的运行环境，即所谓的"沙盒"。
+如果要限制一个程序访问文件的话，只需要使用closure来重新定义函数io.open就可以了。
+do
+	local old = io.open
+	local access = function (filename, mode)
+						// 检查访问权限
+					end
+	io.open = function(filename, mode)
+		if (asscess(filename, mode)) then
+			return oldOpen(filename, mode)
+		else
+			return nil, "access denied"
+		end
+	end
+end
+
+重新定义后，一个程序就只能通过新的受限版本来调用原来那个未受限的open函数。
+
+
+6.2 非全局的函数
+
+函数是"第一类值"，所以可以保存在table的字段和局部变量中。
+
+大部分lua库采用了这种机制：将函数存储在table字段中。
+
+lib = {}
+lib.foo = function(x,y) return x+y end
+lib.goo = function(x,y) return x-y end
+
+还可以使用构造式
+lib = {
+	foo = function(x,y) return x+y end
+	goo = function(x,y) return x-y end
+}
+
+还有一种语法来定义此类函数：
+lib = {}
+function lib.foo(x,y) return x+y end
+...
+
+将一个函数存储到一个局部变量中，就得到了一个"局部函数"。也就是说该函数只能在某个特定的作用域中使用。对于程序包而言，这种函数定义是非常有用的。因为lua是将每个程序块(chunk)作为一个函数来处理的，所以在一个程序块中声明的函数就是局部函数，这些局部函数只在该程序块中可见。
+
+local f = function (参数)
+	方法体
+end
+
+local g = function (canshu)
+	f(xxx)		-- 可见的
+	方法体
+end
+
+对于这种局部函数的定义，还支持一种特殊的"语法糖"：
+local function f(参数)
+	函数体
+end
+
+定义递归的局部函数时，还有一个注意点，下面这种采用了基本函数定义语法的代码多数是错误的：
+local fact = function(n)
+	if n==0 then return 1
+	else return n*fact(n-1)		-- error
+	end
+end
+
+当lua编译到fact(n-1)时，由于局部的fact没有定义完毕，所以这里是调用一个全局的fact，而非函数本身。
+为了解决这个问题，可以先定义一个局部变量，再定义函数本身：
+local fact
+fact = function(n)
+	if n==0 then return 1
+	else return n*fact(n-1)
+	end
+end
+
+lua展开局部函数定义的"语法糖"时，并不是使用基本函数定义语法。
+对于局部函数定义：
+local function foo(参数) 函数体 end
+lua展开为：
+local foo
+foo = function(参数) 函数体 end
+
+因此这种语法定义递归不会产生错误：
+local function fact(n)
+	if n == 0 then return 1
+	else return n*fact(n-1)
+	end
+end
+
+这个技巧对于间接递归是无效的。在间接递归的情况中，必须使用一个明确的前向声明
+
+local f,g
+
+function g()
+	f()
+end
+
+function f()
+	g()
+end
+
+第二个函数定义不能写成local function f，这样会导致lua创建一个新的局部变量f，导致g中的f置于未定义状态。
+。。应该是指针f被覆盖了，导致编译时g中的f编译后的位置没有函数f。
+
+
+6.3 正确的尾调用
+lua支持"尾调用消除"
+
+尾调用就是类似goto的函数调用，当一个函数调用时另一个函数的最后一个动作时，该调用才算是一条"尾调用"。如：
+function f(x) return g(x) end
+
+f调用g之后就无事可做，这种情况下，程序就不需要返回"尾调用"所在的函数了。所以尾调用之后，程序也不需要保存任何关于调用者函数的栈信息了。当g返回时，执行控制权直接返回到调用f的那个点上。
+有些语言实现(如lua解释器)可以得益于这个特点，使得在进行"尾调用"时不耗费任何栈空间，将这种实现成为支持"尾调用消除"。
+
+由于尾调用不会耗费空间，所以一个程序可以拥有无数嵌套的尾调用。下面的例子中，传入任何数字都不会造成栈溢出：
+function foo(n) if n > 0 then return foo(n-1) end end
+
+想要受益于尾调用消除，必须确定当前的调用是一条尾调用。判断规则就是:一个函数在调用完另一个函数后，是否就无其他事情需要做了。
+有些代码似是而非。如：
+function f(x) g(x) end
+这个函数调用完g后，f并不能立即返回，它还需要丢弃g返回的临时结果。
+
+return g(x) + 1		-- 还需要做一次加法
+return x or g(x)	-- 必须调整为一个返回值
+return (g(x))		-- 必须调整为一个返回值
+
+在lua中，只有return f(x)这样的调用才是尾调用。下面的是尾调用：
+return x[i].foo(x[j] + a*b, i + j)
+
+lua中尾调用的一大应用就是编写状态机。这种程序通常以一个函数来表示一个状态，改变状态就是goto(或调用)到另一个特定的函数。
+。。test。。。状态机！！！
+
+例子是个迷宫游戏。
+function room1()
+	local move = io.read()
+	if move == "south" then return room3()
+	elseif move == "east" then return room2()
+	else
+		print("invalid")
+		return room1()
+	end
+end
+
+其他类似，每个方法体只有部分方向是可行的。
+
+function room4()
+	print("congratulations!")
+end
+
+通过调用初始房间来开始这个游戏：
+room1()
+
+如果没有尾调用消除，每次用户移动都会创建一个新的栈，长久以往会导致栈溢出。
+
+。。方法代表的是某类相同类型的迷宫格子(比如room1，只有南和东可走，并且南面是room3类型，东是room2类型，，只需要门+门后的格子一样，那么这就是一类。)。
+
+对于这个简单游戏而言，或许会觉得设计为数据驱动的会更好一点。将房间和移动记录在一些table中。不过如果游戏中每个房间都有各自特殊的情况的话，采用这种状态机的设计则更为合适。
+。。。test。。。但是各有特殊情况，那就各自独立成为一类了啊。要写多少room才能满足啊。。。数据驱动怎么驱动。每个房间的信息是一个对象，然后用户从room1对象，选择进入哪个对象？不过这种情况下，对象和方法没有什么区别啊。都是通过方法来判断是否可行，以及移动啊。
+
+
+
+chapter 7 迭代器和泛型for
+
+7.1 迭代器与closure
+迭代器就是一种可以遍历一种集合中所有元素的机制。lua中迭代器表示为函数，每调用一次函数，返回集合中下一个元素
+每个迭代器都需要在每次成功调用之间保持一些状态，这样才能知道它所在的位置及如何步进到下一个位置。closure对这类任务提供了极佳的支持，一个closure就是一种可以访问其外部嵌套环境中的局部变量的函数。对于closure而言，这些变量就可以用于成功调用之间保持状态值，从而是closure可以记住它在一次遍历中所在的位置。为了创建一个新的closure，还必须创建它的这些"非局部的变量"。因此一个closure结构通常设计到2个函数，closure本身，一个用于创建该closure的工厂函数。
+
+简单迭代器，返回元素的值：
+function values(t)
+	local i = 0
+	return function() i=i+1 return t[i] end
+end
+
+使用泛型for比while等更适合用迭代器。泛型for正是为了迭代器而设计的
+t = {1,2,3}
+for element in values(t) do
+	print(element)
+end
+
+使用迭代器很简单，编写迭代器有时很难：
+
+for word in allwords() do
+	print(word)
+end
+
+function allwords()
+	local line = io.read()				当前行
+	local pos = 1						一行中的当前位置
+	return function()
+		while line do			-- line为有效内容则
+			local s,e = string.find(line, "%w+", pos)
+			if s then				-- 是否找到一个单词
+				pos = e + 1
+				return string.sub(line, s, e)
+			else
+				line = io.read()		-- 没有找到则尝试下一行
+				pos = 1
+			end
+		end
+		return nil
+	end
+end
+
+7.2 泛型for的语义
+
+上面的那些迭代器都有一个缺点，就是需要为每个新的循环都创建一个新的closure。大多数情况下，不会有问题，开销占比是非常小的。
+有些情况下，开销就无法接受。此时，希望能通过泛型for的自身来保存迭代器状态。
+泛型for在循环过程内部保存了迭代器函数，实际上它保存着3个值：一个迭代器函数，一个恒定状态，一个控制变量。
+
+for做的第一件事情是对in后面的表达式求值，这些表达式应该返回3个值供for保存：迭代器函数，恒定状态，控制变量的初始值。，这里类似多重赋值，之后最后一个表达式会有多个结果，并且只保留前3个值。多的抛弃，少的补nil。
+
+初始化之后，for会以恒定状态和控制变量来调用迭代器函数。然后for将迭代器函数的返回值赋予变量列表中的变量。如果第一个返回值为nil，则终止循环。
+
+假设迭代器函数为f，恒定状态s，控制变量初始值a0，那么循环中控制变量的值依次为：a1=f(s,a0),a2=f(s,a1)...
+
+。。。test。。。？？？
+如果in后面是方法，就会执行，不是，就不执行，方法是指xxx(aa)，不是方法是指：xxx,aa,bb
+in后面会得到一串值，数量应该是[1,3]。第一个是迭代方法，第二个是恒定状态，第3个是变量初始值。
+迭代方法接受恒定状态，和初始值。返回实际需要print的值。
+但是初始值的变化是怎么样的？似乎是for自己+1，而不是靠迭代器返回的。根据上面的for element in values(t) do 得出的values没有返回下标。
+
+function square(iteratorMaxCount,currentNumber)
+   if currentNumber<iteratorMaxCount
+   then
+      currentNumber = currentNumber+1
+   return  currentNumber*currentNumber			-- 剔除了 currentNumber,有收获。
+   end
+end
+
+for i,n in square,5,0
+do
+   print(i,n)
+end
+
+似乎for i,n中的第一个i是上面的控制变量。因为上面是输出
+1 nil
+4 nil
+25 nil
+如果改成square,4,0,就是输出
+1 nil
+4 nil
+意味着i当作square的第2个参数进入了其中，5是for内部保存的。
+
+也就是说迭代器的前2个参数分别是 恒定状态，控制变量。
+迭代器return的第一个数被当作了后续的控制变量。
+
+是的：
+function values(t)
+	local i = 0
+	return function(arg,arg2)
+		print("iter" .. (arg2 or "aa"))
+		i=i+1 return t[i] end
+end
+
+t = {1,2,3}
+for element in values(t) do
+	print(element)
+end
+输出：
+iteraa
+1
+iter1
+2
+iter2
+3
+iter3
+由于values只有一个返回，所以恒定状态，控制变量都是nil。
+所以第一次进入是iteraa.
+第二次由于values的第一次的返回是1，这个1被当作控制变量传入进来，所以第二次是iter1.
+
+
+function values(t)
+	local i = 0
+	return function(arg,arg2)
+		print("iter  " .. (arg2 or "aa") .. " , " .. (arg or "vv"))
+		i=i+1 return t[i] end
+		, 10231, 5325
+end
+
+t = {32,1,2,3}
+for element, hengd, kongzhi in values(t) do
+	print(element)		-- 这里加入hengd,kongzhi的话报异常:
+		-- attempt to concatenate local 'hengd' (a nil value)
+	element=11		-- 没有任何影响。
+end
+
+输出：
+iter  5325 , 10231
+32
+iter  32 , 10231
+1
+iter  1 , 10231
+2
+iter  2 , 10231
+3
+iter  3 , 10231
+
+
+。。更能证明上面的猜测：
+in后面如果是方法，就执行，得到结果。
+第一个是迭代器函数，第二个是终止状态(恒定状态)，第三个是控制变量初始值。
+迭代器函数：function(arg,arg2)，终止状态10231，控制变量初始值5235
+..这3个都是保存在for内部的。外部不会看到！即使值一样，但变量不同
+
+第一次调用迭代器函数，传入终止状态，控制量。得到结果，结果传给element，并且把这个结果刷新 控制变量。。print。。然后再次调用迭代器函数。
+
+。。test。。唯一的问题是，element 和 控制量是否是同一个。不是，element=11不会影响程序。
+。。所以，值相同，但是不是同一个变量。
+
+
+。。就是书上的那个等价。。。没看清。。。
+
+for v1,...vn in <explist> do <block> end
+等价于：
+do
+local _f,_s,_v = <explist>		-- 会先对=右侧求值，所以方法会被执行
+	while true do
+		local v1,...,vn = _f(_s, _v)
+		_v = v1							-- !!!!!!
+		if _v == nil then break end
+		<block>
+	end
+end
+
+而且_f,_s,_v是local，外部确实看不见的。
+
+..f(x)是方法，f只是一个指针。
+
+
+7.3 无状态的迭代器
+自身不保存任何状态的迭代器。可以在多个循环中使用同一个无状态的迭代器，避免创建新的closure开销。
+每次迭代，for都会用恒定状态和控制变量来调用迭代函数。
+
+。。上面想错了，，，恒定状态是数组自己，不是长度。。不然无法无状态。
+
+典型的例子就是ipairs，用来迭代一个数组的所有元素
+迭代的状态就是需要遍历的table(一个恒定状态，它不会在循环中改变)，当前索引值(控制变量)。ipairs和迭代器都很简单，可以使用lua编写：
+local function iter (a, i)
+	i = i + 1
+	local v = a[i]
+	if v then
+		return i, v
+	end
+end
+
+function ipairs (a)
+	return iter, a, 0
+end
+
+
+pairs和ipairs类似，也是用于遍历一个table中的所有元素。不同的是，它的迭代器函数是lua的一个基本函数next
+function pairs (t)
+	return next, t, nil
+end
+调用next(t,k)时，k是table的一个key。调用会以table中的任意次序返回一组值：此table的下一个key，及这个key所对于的值(。。？？这个key是下一个key还是真的本次key？真的本次key，因为后面写了：没有下一组时返回nil，nil不可能有对应的值吧。)。调用next(t,nil)会返回table的第一组值。如果没有下一组值时，next返回nil。
+
+直接使用next
+for k, v in next, t do
+	//
+end
+
+。。如何获得下一个key？或者说如何直接从table中get到key？
+。。而且估计不是任意次序吧，估计是一个list，key组成的list，不然任意次序怎么保证不重复。。
+
+
+可以遍历链表的迭代器
+local function getnext (list, node)
+	if not node then
+		return list
+	else
+		return node.next
+	end
+end
+
+function traverse (list)
+	return getnext, list, nil
+end
+
+这里一个技巧就是将链表的头作为恒定状态，当前节点作为控制变量。第一次调用getnext时，node为nil，函数返回list为第一个节点。后续调用中node不再为nil，所以迭代器如期望的那样返回node.next。
+。。。但是为什么不是直接返回 getnext, nil, list ???
+
+
+7.4 具有复杂状态的迭代器
+通常迭代器需要保存很多状态，开始泛型for只提供一个恒定状态和一个控制变量用于状态的保存。
+一个简单的解决方法就是使用closure。或者还可以将迭代器需要的所有状态打包为一个table，保存在恒定状态中。一个迭代器通过这个table就可以保存任意多的数据。还能在循环过程中改变这些数据。
+
+重写allwords，把状态保存到一个table中，这个table具有2个字段，line和pos。
+
+local iterator
+
+function allwords()
+	local state = {line = io.read(), pos = 1}
+	return iterator, state
+end
+
+function iterator(state)
+	while state.line do
+		local s, e = string.find(state.line, "%w+", state.pos)
+		if s then
+			state.pos = e + 1
+			return string.sub(state.line, s, e)
+		else
+			state.line = io.read()
+			state.pos = 1
+		end
+	end
+	return nil
+end
+
+尽可能地尝试编写无状态的迭代器，那些迭代器将所有状态保存在for变量中，不需要在开始一个循环是创建任何新的对象。如果迭代器无法套用这个模型，那么就应该尝试使用closure，closure更优雅，通常一个基于closure的迭代器会比使用table的迭代器更高效。这是因为，创建closure比创建table更廉价，其次访问"非局部的变量"也比访问table字段更快。
+以后会看到另一种是以协同程序编写迭代器的方式，这种是最强的，但稍微有一点开销。
+
+。。但是使用table的话，迭代函数是共用的，使用closure的话，迭代器函数是每次都要新建的吧。。
+
+
+7.5 真正的迭代器
+
+迭代器并没有做实际的迭代，真正做迭代的是for循环。迭代器只是为每次迭代提供一些成功后的返回值。或许，更准确的是是生成器。
+
+还有一种创建迭代器的方式是，在迭代器中做实际的迭代操作。使用这种迭代器时，就不需要写循环了。相反，需要一个描述了在每次迭代是需要做什么的参数，并以此参数来调用迭代器。
+更确切地说，迭代器接受一个函数作为参考，并在内部的循环中调用这个函数。
+
+allwords迭代器：
+function allwords(f)
+	for line in io.lines() do
+		for word in string.gmatch(line, "%w+") do
+			f(word)
+		end
+	end
+end
+
+使用这个迭代器时，需要传入一个表述循环体的函数，
+例如，想打印每个单词，那么可以：
+allwords(print)
+
+可以使用匿名函数作为循环体。
+计算hello出现次数：
+local count = 0
+allwords(function (w)
+			if w == "hello" then count = count + 1 end
+		end
+		)
+print(count)
+
+真正的迭代器在老版本的lua中曾非常流行，那时还没有for语句。
+
+生成器风格。
+
+2种风格的开销大致相同。编写真正的迭代器相对比较容易，不过生成器风格的迭代器则更具灵活性。灵活体现在2方面：1.它允许多个并行的迭代过程。2.允许在迭代体中使用break和return。。对于真正的迭代器来说，return语句只能从匿名函数中返回，而不能从做迭代的函数中返回。
+
+生成器更好一点。
+
+
+
+chapter 8 编译，执行与错误
+
+尽管将lua称为是一种解释型语言，但lua确实允许在运行源代码之前，先将源代码预编译为一种中间形式。
+似乎编译不是解释型语言的能力。但，区别解释型语言的主要特征不是是否能编译，而是编译器是否是语言运行时库的一部分，即是否有能力(并且轻易地)执行动态生成的代码。
+可以说，正是因为存在诸如dofile这样的函数，才可以将lua称为是一种解释型的语言。
+
+8.1 编译
+
+dofile是一种内置操作，用于运行lua代码块。
+实际上dofile是一个辅助函数，loadfile才做了真正核心的工作。类似dofile，loadfile会从一个文件夹在lua代码块，但它不会运行代码，只是编译代码，然后将编译结果作为一个函数返回。。loadfile不会引发错误(dofile会)，它只是返回错误值并不处理错误。
+一般dofile可以这样定义：
+function dofile (filename)
+	local f = assert(loadfile(filename))
+	return f()
+end
+
+如果loadfile失败，assert就会引发一个错误。
+
+。。test。。f是一个编译结果，，f()是什么？
+..下面的loadstring返回的f是一个函数/语句指针。
+。。怎么确保lua文件中只有一个方法？不不不，还是说把整个lua文件内容作为一个方法，对，应该是这样的。。f()就是lua整个文件执行后return的东西。
+
+
+dofile非常便捷，一次调用完成整件事情。loadfile更灵活，发生错误时，local返回nil和错误信息，可以自定义处理。如果要运行一个文件多次，只需要在调用一次loadfile后，多次调用它的返回结果就可以了。相比多次调用dofile，由于只需要编译一次，开销就小得多。
+
+loadstring和loadfile类似，它从一个字符串读取代码，而非从文件读取。
+f = loadstring("i=i+1")
+f就变成了一个函数，每次调用时就执行i=i+1
+
+i=0
+f() print(i)		-- 1
+f() print(i)		-- 2
+
+
+loadstring很强大，但要谨慎使用。它是一个高开销的函数，并且可能会导致难以理解的代码。
+
+如果想塑造一个便捷但略为粗糙的dostring(完成夹在并运行代码)，那么直接调用loadstring的返回值即可：
+loadstring(s)()
+
+如果代码中有语法错误，loadstring会返回nil。
+assert(loadstring(s))()
+
+一般将loadstring用于字面字符串是没有意义的。
+f = loadstring("i = i + 1")
+基本就等价于
+f = function() i=i+1 end
+
+但后者快很多，因为只有编译对应程序块时编译了一次，而第一段代码却在每次调用loadstring时都要被重新编译。
+
+由于loadstring在编译时不涉及词法域，所以上述2段代码并不等价。
+i=32
+local i = 0
+f = loadstring("i=i+1; print(i)")
+g = funcation() i=i+1; print(i) end
+f()		-- 33
+g()		-- 1
+
+loadstring总在全局环境中编译它的字符串。
+
+loadstring最典型的用处是执行外部代码，也就是那些位于程序之外的代码。如，让用户来参与一个函数的定义，让用户输入函数代码，然后调用loadstring来对其求值。
+loadstring期望输入时一个程序块，也就是一系列的语句。如果要对一个表达式求值，则必须在其之前添加return，这样才能构成一条语句，返回表达式的值。
+
+print "enter your expression:"
+loadl l = io.read()
+local func = assert(loadstring("return " .. l))
+print("result ：" .. func())
+
+loadstring返回的函数是一个正规的函数，因此可以多次调用它。
+
+
+loadfile和loadstring分别会从文件，字符串中读取程序块，load则接受一个"读取器函数"，并在内部调用它来获取程序块。
+读取器函数可以分几次返回一个程序块，load会反复调用它，直到返回nil。
+很少用load，只有当程序块不在文件中，或者程序块过大而无法放入内存时，才使用它。
+
+lua将所有独立的程序块视为一个匿名函数的函数体，并且该匿名函数还具有可变长实参。loadstring("a=1")的返回结果等价于：
+function (...) a=1 end
+
+程序块中可以声明局部变量：
+f = loadstring("local a=10; print(a+20)")
+f()			-- 30
+
+print "enter function to be plotted (with variable 'x'):"
+local l = io.read()
+local f = assert(locastring("local x = ...; return " ... l))
+for i=1, 20 do
+	print(string.rep("*", f(i)))
+end
+
+load函数不会引发错误，错误时，返回nil和一条错误消息。
+
+这些函数不会带来任何副作用，它们只是将程序块编译为一种中间表示，然后将结果作为一个匿名函数来返回。常见的误解就是认为加载了一个程序块，也就是定义了其中的函数。。其实在lua中，函数定义是一种赋值操作。也就是数，它们是在运行时才完成的操作。
+假如有一个foo.lua文件：
+function foo (x)
+	print(x)
+end
+
+执行下面代码：
+f = loadfile("foo.lua")
+
+在此之后，函数foo就完成编译了，但是还没有定义它。为了定义它，必须执行一些程序块：
+print(foo)			-- nil
+f()					-- 定义foo
+foo("ok")			-- ok
+
+
+
+8.2 C代码
+
+c代码需要在使用前先链接入一个应用程序。大多数主流系统中，达成这种链接最简单的方法是动态链接机制。不过，动态链接不是ansiC标准的一部分，也就是说不存在任何可移植的方案来实现它。
+
+lua通常不会包含任何无法通过ansiC实现的机制。
+不过动态链接却有些不同。将其视为所有其他机制的母机制，只要拥有它，就可以动态加载任何不在lua中的机制了。因此，lua打破了其对于可移植性的准则，为几种平台实现了一套动态链接机制(win,mac,linux,FreeBSD,Solaris...)。
+
+lua提供的所有关于动态链接的功能都聚集在一个函数中，即package.loadlib。该函数有2个字符串参数，动态库的完整路径和一个函数名称。
+local path = "/usr/local/lib/lua/5.1/socket.so"
+local f = package.loadlib(path, "luaopen_socket")
+
+loadlib加载指定库，并将其链接入lua。将一个c函数作为lua函数返回。如果加载发生错误，返回nil和一条错误消息。
+loadlib是一个非常底层的函数。必须提供库的完整路径及正确的函数名称。通常使用require来加载c程序库，这个函数会搜索指定的库，然后用loadlib来加载库，并返回初始化函数。这个初始化函数将库中提供的函数注册到lua中。
+
+
+8.3 错误
+
+显示引发错误，调用error函数并传入一个错误消息的参数。
+
+n = io.read("*number")
+if not n then error("invalid input") end
+
+if not xxx then error end 这种组合非常通用，所以lua提供了内建的assert来完成此类工作
+n = assert(io.read("*number"), "invalid")
+
+assert函数检查其第一个参数是否为true，true则简单地返回该参数，否则就引发一个错误。第二个参数是可选的信息字符串。
+assert是一个正规的函数，所以lua同样会在调用该函数前对其参数求值
+n=io.read()
+assert(tonumber(n), "invalid " .. n .. " is not a num")
+
+即使n是一个数字，lua也会进行字符串链接。这里更好的做法是使用一句显示的测试代码。
+
+返回错误代码还是引发一个错误，一般来说：易于避免的异常引发一个错误，否则返回错误代码。
+
+file=assert(io.open("no-file", "r"))
+会报错：stdin:1:no-file:No such file
+这里的错误消息是io.open的第二个返回值。
+。。如果有第二个参数的话，是输出第二个参数。。没有则输出io.open的第二个返回值。
+
+
+8.4 错误处理与异常
+
+如果需要在lua中处理错误，必须使用pcall函数来包装需要执行的代码。
+protected call
+
+假设需要执行一段lua代码，捕获其中可能的错误，那么第一步就是将这段代码封装到一个函数中:
+
+funtion foo ()
+	// ...
+	if xxx then error() end
+	// ...
+	print(a[i])		-- a可能不是一个table
+	// ...
+end
+
+使用pcall来调用foo
+
+if pcall(foo) then
+	// 没有错误时的处理代码
+else
+	// 有错误时的处理代码
+end
+
+foo也可以是一个匿名函数
+
+pcall可以捕获函数执行中的任何错误，如果没有错误，返回true及函数返回值，否则返回false及错误消息。
+
+错误消息不一定是字符串，任何类型的lua值都可以作为错误消息传递给error。这些值也会成为pcall的返回值。
+
+local status, err = pcall(function() error({code=121}) end)
+print(err.code)			-- 121
+
+
+8.5 错误消息与追溯
+
+虽然错误消息可以是任何值，但通常是一个描述出错内容的字符串。
+只要错误消息是一个字符串，lua就会附加一些关于错误发生位置的信息。
+
+error函数还有第二个参数level，用于指出应有调用层级中的哪个(层)函数来报告当前的错误，也就是说明了谁应该为错误负责。
+这里举的例子是：一个函数在最开始的地方检查形参是否符合，不符合就error，由于形参是外部传入的，所以应该是函数的调用者来负责这个错误。所以：
+error("string excepted", 2)
+2代表：错误发生在调用层级的第二层中(第一层是读函数)
+。。test。？？？
+
+pcall返回错误消息时，已经销毁了调用栈的部分内容。
+
+xpcall，除了接受一个需要被调用的函数外，还接受第二个参数---一个错误处理函数。当错误发生时，lua会在调用栈展开之前调用错误处理函数。于是就可以在这个函数中使用debug库来获取关于错误的额外信息了。
+debug库提供了2个通用的错误处理函数，一个是debug.debug，提供一个lua提示符，让用户来检查错误的原因。。。另一个是debug.traceback，根据调用栈来构建一个扩展的错误消息。
+解释器程序也使用debug.traceback来构建其错误消息。
+任何时候都可以调用这个函数来获取当前执行的调用栈：
+print(debug.tractback())
+
+
+
+chapter 9 协同程序 coroutine
+
+9.1 协同程序基础
+所有关于协同程序的函数放置在名为coroutine的table中
+函数create用于创建新的协同程序，只有一个参数，就是一个函数。该函数的代码就是协同程序需要执行的内容。
+create返回一个thread类型的值，用以表示新的协同程序。
+通常create的参数是一个匿名函数，如：
+co = coroutine.create(function() print("hi") end)
+print(co)		-- thread:0x12345dd
+
+一个协同程序有4种状态，挂起suspended，运行running，死亡dead，正常normal。
+创建时，处于挂起状态。即创建时不会自动执行。
+通过statue检查协同程序的状态
+print(coroutine.status(co))		-- suspended
+
+coroutine.resume用于启动或再次启动一个协程的执行，将状态由挂起改为运行
+coroutine.resume(co)		-- hi
+
+本例中，协程只打印hi便终止，然后它就处于死亡状态，死亡状态是终态。
+
+
+协程的真正强大之处在于函数yield的使用上，该函数可以让一个运行中的协程挂起，之后可以再恢复它的运行
+
+co = coroutine.create(function ()
+					for i=1, 10 do
+						print("co", i)
+						coroutrine.yield()
+					end
+				end
+				)
+
+唤醒这个协同程序时，它就开始执行，直到第一个yield
+coroutine.resume(co)			-- co 1
+
+此时处于挂起状态：
+print(coroutine.status(co))		-- suspended
+
+10次resume后，就处死死亡状态。此时resume会返回false和一条错误信息
+
+resume是在保护模式中运行的。因此，如果在一个协程的执行中发生任何错误，lua是不会显示错误消息的，而是将执行权返回给resume调用。
+
+当一个协程A唤醒另一个协程B时，协程A就处于一个特殊状态，既不是挂机，也不是运行状态。这时的状态称为"正常"状态
+
+协程还有一项有用的机制，就是可以通过一对resume-yield来交换回溯据。
+第一次调用resume时，没有对于的yield在等待它，所以所有传递给resume的额外参数都是为协程的参数：
+co = coroutine.create(function (a,b,c)
+						print("co", a,b,c)
+					end
+					)
+coroutine.resume(co,1,2,3)		-- co 1 2 3
+
+resume返回的内容中，第一个是true表示没有错误，后面所有的值都是对应yield传入的参数：
+
+co = coroutine.create(function (a,b)
+			coroutine.yield(a+b, a-b)
+		end
+		)
+print(coroutine.resume(co, 20, 10))		-- true 20 10
+
+与此对应，yield返回的额外值就是对于resume传入的参数：
+co = coroutine.create(function()
+			print("co", coroutine.yield())
+		end
+		)
+coroutine.resume(co)
+coroutine.resume(co, 4, 5)		-- co 4 5
+。。第一次resume，先执行yield，挂起了，第二次被唤醒，返回4，5.
+
+当一个协程结束时，主函数返回的值都将作为对于resume的返回值：
+co = coroutine.create(function() return 6,7 end)
+print(coroutine.resume(co))		-- true 6 7
+
+
+lua提供的是一种非对称的协同程序，即，lua提供2个函数来控制协程的执行，一个用于挂起执行，一个用于恢复执行。，一些其他语言提供的对称的协同程序，只有一个函数用于转让协程之间的执行权。
+可以基于lua提供的非对称功能实现出对称的协程。这是一个非常简单的任务，基本上只需要在每次改变执行权时连续地调用一次yield，和一次resume即可。
+。。test。。really？yield+resume。。我想的是，在方法内部判断状态，根据状态来执行yield，或resume。。或者if not xxx.yield() then xx.resume
+
+
+9.2 管道和过滤器
+
+协程的经典例子就是生产者-消费者模型。涉及2个函数，一个不断产生值，一个不断消费值。。大致是这样的：
+function producer()
+	while true do
+		local x = io.read()
+		send(x)
+	end
+end
+
+function consumer()
+	while true do
+		local x = receive()
+		io.write(x, '\n')
+	end
+end
+
+一个问题就是如何将send和receive匹配起来，这是一个典型的"谁具有主循环"的问题。
+
+协程被称为是一种匹配生产者和消费者的理想工具，一对resume-yield完全一改典型的调用者和被调用者之间的关系。当一个协程调用yield时，它不是进入一个新的函数，而是从一个悬而未决的resume调用中返回。同样，对于resume的调用也不会启动一个新函数，而是从一次yield调用中返回。这项特性正好用于匹配send和receive，这2者都认为自己是主动方，对方是被动方。receive唤醒生产者的执行，促使其能产出一个新值。而send则产出一个新值返还给消费者：
+function receive()
+	local status, value = coroutine.resume(producer)
+	return value
+end
+
+function send(x)
+	coroutine.yield(x)
+end
+
+因此，生产者现在一定是一个协同程序：
+producer = coroutine.create(
+	function ()
+		while true do
+			local x = io.read()
+			send(x)
+		end
+	end
+)
+
+这种设计中，程序通过调用消费者来启动。当消费者需要一个新值时，它唤醒生产者。生产者返回一个新值后停止，等待消费者再次唤醒。这种设计称为"消费者驱动"。
+
+
+还可以扩展上述设计，实现"过滤器"。过滤器是一种位于生产者和消费者之间的处理功能，可用于对数据的一些变换。过滤器既是一个消费者又是一个生产者，它唤醒一个生产者促使其产生新值，然后又将变换后的值传递给消费者。例如可以在前面代码中添加一个过滤器，在每行起始处插入一个行号：
+function receive (prod)
+	local status, value = coroutine.resume(prod)
+	return value
+end
+
+function send(x)
+	coroutine.yield(x)
+end
+
+function producer()
+	return coroutine.create(function()
+					while true do
+						local x = io.read()
+						send(x)
+					end
+				end
+	)
+end
+
+function filter (prod)
+	return coroutine.create(function()
+			for line = 1, math.huge do
+				local x = receive(prod)
+				x = string.format("%5d %s", line, x)
+				send(x)
+			end
+		end
+	)
+end
+
+function consumer(prod)
+	while true do
+		local x = receive(prod)
+		io.write(x, "\n")
+	end
+end
+
+将这些函数串联起来，然后启动消费者：
+p = producer()
+f = filter(p)
+consumer(f)
+
+也可以：
+consumer(filter(producer()))
+
+consumer调用receive，唤醒filter，filter调用receive唤醒producer。producer调用send，send调用yield挂起自己。。挂起完，正好是coroutine.resume(prod)唤醒。。
+
+。。resume需要一个参数确定唤醒哪个，yield是挂起自己。。resume的2，3，。。，yield的1，2，3，，参数是传递消息的。
+
+
+9.3 以协同程序实现迭代器
+将循环迭代器视为"生产者-消费者"模式的一种特例，一个迭代器会产生一些内容，而循环体会消费者会消费者写内容。
+协程可以改变传统的调用者与被调用者之间关系。有了这种特性，在编写迭代器时，就无需顾及如何在每次成功的迭代调用之间保存信息了。
+
+下面写一个迭代器，使其可以遍历某个数组的所有排列组合形式。直接编写不容易，但编写一个递归函数来产生所有的排列组合则不会很困难。想法很简单，只要将每个数组元素都一次放到最后一个位置，然后递归地生成其余元素的排列。
+function permgen(a, n)
+	n = n or #a
+	if n<=1 then
+		printResult(a)
+	else
+		for i=1, n do
+			a[n],a[i] = a[i],a[n]
+			permgen(a, n-1)
+			a[n],a[i] = a[i],a[n]
+		end
+	end
+end
+
+function printResult(a)
+	for i=1, #a do
+		io.write(a[i], ' ')
+	end
+	io.write("\n")
+end
+
+permgen({1,2,3,4})
+
+生成函数完成后，将其转换为一个迭代器就非常容易了。首先将printResult改为yield：
+function permgen(a, n)
+	n = n or #a
+	if n <= 1 then
+		coroutine.yield(a)
+	else
+		<as before>
+
+然后，定义一个工厂函数，用于将生产函数放到一个协同程序中运行，并创建迭代器函数。迭代器只是简单地唤醒协程，让其产生下一站排列：
+function permutations (a)
+	local co = coroutine.create(function() permgen(a) end)
+	return function()
+				local code,res = coroutine.resume(co)
+				return res
+			end
+end
+
+有了上面的函数，for中遍历一个数组的所有排列就非常简单了：
+for p in permutations{"a","b","c"} do
+	printResult(p)
+end
+
+。。for是先执行迭代器，然后再执行方法体。
+
+permutations函数使用了一种在lua中比较常见的模式，就是将一条唤醒协程的调用包装在一个函数中。由于这种模式比较常见，所以lua专门提供了coroutine.wrap来完成这个功能。类似create，wrap创建一个新的协程，但不返回协程本身，而是返回一个函数，每次调用这个函数时，可以唤醒协程一次。这个函数不会返回错误代码，出错时，引发错误。
+function permutations(a)
+	return coroutine.wrap(unction() permgen(a) end)
+end
+
+通常，wrap比create更易用。提供了一个对于协同程序编程实际所需的功能，即一个可以唤醒协程的函数。但也缺乏灵活性，无法检查wrap所创建的协程的状态，无法检测出运行时的错误。
+
+
+9.4 非抢占式的多线程
+协程提供了一种协作式的多线程。每个协程都等于是一个线程。一对yield-resume可以将执行权在不同线程之间切换。
+协程和常规多线程的不同在于：协程是非抢占式的。即，当一个协程运行时，是无法从外部停止它的。只有当协程显式地要求挂起时(调用yield)，它才会停止。
+不存在抢先时，编程会简单许多，无须为同步的bug而抓狂。
+对于非抢占式的多线程来说，只要有一个线程调用了一个阻塞操作，整个程序在该操作完成前，都会停止下来。对于大多数应用程序来说，这种行为是无法接受的。
+
+通过一个有趣的方法来解决这个问题。
+
+典型的多线程使用情况：通过http下载几个远程文件。
+下载，本例通过LuaSocket，打开一个到该站点的连接，然后发送下载文件的请求，并接收文件，最后关闭连接。
+require "socket"
+host = "www.w3.org"
+file = "/TR/REC-html32.html"
+
+打开tcp连接，连接到80端口
+c = assert(socket.connect(host, 80))
+这步操作将返回一个连接对象，可以用它来发送文件请求。
+c:send("GET " .. file .. " HTTP/1.0\r\n\r\n")
+
+按1k的字节块来接收文件，并将每块写到标准输出：
+while true do
+	local s,status,partial = c:receive(2^10)
+	io.write(s or partial)
+	if status == "closed" then break end
+end
+
+正常情况下，receive函数返回一个字符串，发生错误，则返回nil，并附加错误代码和出错前读取到的内容。当主机关闭连接时，就将其余接收到的内容打印出来，然后退出接收循环。
+
+关闭连接
+c:close()
+
+
+接收远程文件时，程序将大部分的时间花费在等待数据接收上。
+当一个连接没有可用数据时，程序便可以从其他连接处读取数据。
+协程提供了一种简单的方式来构建这种并发下载接口。可以为每个下载任务创建一个新的线程，只要一个线程无数据可用，它就将控制权转让给一个简单的调度程序，而这个调度程序则会去调用其他的下载线程。
+
+先为下载代码重写一个函数：
+function download(host, file)
+	local c = assert(socket.connect(host, 80))
+	local count = 0
+	c:send("GET " .. file .. " HTTP/1.0\r\n\r\n")
+	while true do
+		local s,status,partial = receive(c)
+		count = count + #(s or partial)
+		if status == "closed" then break end
+	end
+	c:close()
+	print(file, count)
+end
+
+对远程文件内容并不感兴趣，所以不需要将文件内容写到标准输出中(而且几个线程同时接受几个文件并输出的话，内容很混乱)。
+
+function receive(connection)
+	return connection:receive(2^10)
+end
+
+在并发的实现中，这个函数在接受数据时绝对不能阻塞。因此，它需要在没有足够可用数据时挂起执行。新代码如下：
+function receive(connection)
+	connection:settimeout(0)
+	local s,status,partial = connextion:receive(2^10)
+	if status == "timeout" then
+		coroutine.yield(connection)
+	end
+	return s or partial, status
+end
+
+settimeout(0)后，对此连接的所有操作不会阻塞。
+超时的情况下，会挂起，但最终return的还是之前已近读到的内容。
+
+下面展示了调度程序和一些辅助代码。table-threads为调度程序保存所有正在运行中的线程。函数get保证每个下载任务都在一个独立的线程中执行。调度程序本身主要就是一个循环，遍历所有线程，逐个唤醒它们的执行。线程完成任务后，将该线程从列表中删除。在所有线程都完成运行后，停止循环。
+
+threads = {}
+
+function get(host, file)
+	local co = coroutine.create(function()
+					download(host, file)
+				end
+	)
+	table.insert(threads, co)
+end
+
+function dispatch()
+	local i = 1
+	while true do
+		if threads[i] == nil then
+			if threads[1] == nil then break end
+			i = 1
+		end
+		local status,res = coroutine.resume(threads[i])
+		if not res then
+			table.remove(threads, i)
+		else
+			i = i + 1
+		end
+	end
+end
+
+最后主程序需要创建所有的线程，并调用调度程序。
+例如，要下载w3c上的4个文件：
+host = "www.w3.org"
+get(host, "/TR/html1401/html40.txt")
+get(host, "/TR/REC-html32.html")
+get(host, "xxxxxxxxxxxxxxxxxx")
+get(host, "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+dispatch()
+
+上面还不够完美，只要有一个线程在读取，就不会有问题。
+但若所有的线程都没有数据可读，调度程序就会执行一个"忙碌等待"，不断地从一个线程切换到另一个线程，仅仅是为了检测是否还有数据可读。
+
+为了避免这样的问题，可以使用LuaSocket中的select函数，这个函数可以用于等待一组socket的状态改变，在等待时程序陷入阻塞状态。
+只需要修改调度程序即可：
+
+function dispatch()
+	local i = 1
+	local connection = {}
+	while true do
+		if threads[i]==nil then
+			if threads[1]==nil then break end
+			i = 1
+			connections = {}
+		end
+		local status,res = coroutine.resume(threads[i])
+		if not res then
+			table.remove(threads, i)
+		else
+			i = i + 1
+			connections(#connextions + 1) = res
+			if #connections == #threads then
+				socket.select(connections)
+			end
+		end
+	end
+end
+
+所有连接都超时时，调用select来等待这些连接的状态发生变化。
+
+
+
+chapter 10 完整的示例
+
+第一个示例展示将lua作为一种数据描述语言的用法
+第二个示例实现了马尔可夫链
+
+10.1 数据描述
+用table代替数据库。
+将table数据输出成html
+
+
+10.2 马尔可夫链
+马尔可夫链算法的实现，根据原始文本中n个单词的序列来确定后面的单词，从而生成随机的文本。本例中，n为2
+
+读取原始文本，创建一个table。创建过程万为：以每2个单词为一个前缀，在table中创建一个列表，该列表记录了原始文本中所有位于该前缀之后的单词。
+构建好之后，就利用这个table生成随机文本。结果中的每个单词都来自于它在原始文本中的前缀，而具有相同前缀的单词出现在结果中的概率也和原始文本一样。
+。。。？？
+
+两个单词以空格相连，编码成一个前缀：
+function prefix(w1, w2)
+	return w1 .. " " .. w2
+end
+
+使用字符串"\n"来初始化一个前缀单词，并且标记文本的结果。
+对于原始文本：the more we try the more we do
+构造出的table：
+{
+	["\n \n"] = {"the"}
+	["\n the"] = {"more"};
+	["the more"] = {"we", "we"}
+	["more we"] = {"try", "do"}
+	["we try"] = {"the"}
+	["try the"] = {"more"}
+	["we do"] = {"\n"}
+}
+保存到statetab中。
+
+若要想此table中的某个前缀列表插入一个新单词，使用下面的方法：
+function insert(index, value)
+	local list = statetab[index]
+	if list == nil then
+		statetab[index] = {value}
+	else
+		list[#list + 1] = value
+	end
+end
+
+
+创建完table后，开始生成具有MAXGEN单词的文本。首先，重新初始化变量w1和w2。然后，对于每个前缀，程序从其对应的单词列表中随机地选出下一个单词，并打印。最后更新w1和w2.
+
+function allwords()
+	local line = io.read()
+	local pos = 1
+	return function()
+				while line do
+					local s,e = string.find(line, "%w+", pos)
+					if s then
+						pos = e+1
+						return string.sub(line,s,e)
+					else
+						line = io.read()
+						pos = 1
+					end
+				end
+				return nil
+			end
+end
+
+local statetab = {}
+
+主程序：
+local N = 2
+local MAXGEN = 10000
+local NOWORD = "\n"
+
+--构建table
+local w1,w2 = NOWORD,NOWORD
+for w in allwords() do
+	insert(prefix(w1, w2), w)
+	w1 = w2; w2 = w;
+end
+insert(prefix(w1, w2), NOWORD)
+
+--生成文本
+w1 = NOWORD; w2 = NOWORD
+for i=1, MAXGEN do
+	local list = statetab[prefix(w1, w2)]
+	local r= math.random(#list)
+	local nextword = list[r]
+	if nextword == NOWORD then return end
+	io.write(nextword, " ")
+	w1 = w2; w2 = nextword
+end
+
+。。[w1,w2]保存的是w2的后面一个单词，所以[w2,next]必然也是一个key。
+
+
+
+chapter 11 数据结构
+
+11.1 数组
+使用整数来所有table即可在lua中实现数组
+
+a={}
+for i=-5,5 do
+	a[i]=0
+end
+
+squares = {1,4,9,16,25}
+
+lua中一般以1作为数组的起始索引，lua库和长度操作符都遵循这个约定，如果数组不是从1开始，那么就无法使用这些功能。
+
+
+11.2 矩阵和多维数组
+2种方式来表示矩阵。第一种是使用一个"数组的数组"，即一个table中的每个元素是另一个table。如：
+mt = {}
+for i=1,N do
+	m[i] = {}
+	for j=1,M do
+		mt[i][j]=0
+	end
+end
+
+比C中直接声明更繁琐，但是也跟灵活，可以直接创建三角矩阵。
+
+第二种表示矩阵的方式：将2个索引合并为一个索引。如果2个索引是整数，可以将第一个索引乘以一个适当的常量，并加上第二个索引。
+mt = {}
+for i = 1, N do
+	for j = 1, M do
+		mt[(i-1) * M + j] = 0
+	end
+end
+
+如果索引是字符串，那么可以把索引拼接起来，中间使用一个字符来分隔。
+例如，使用字符串s和字符串t来索引一个矩阵，那么可以通过代码m[s..":"..t]。其中s和t都不能含有分号(分割时按哪个无法确定。)。如果无法保证，那么就是要'\0'这样的控制字符来分隔两个索引。
+
+稀疏矩阵。
+lua的table本身就是稀疏的。不需要为稀疏矩阵做特别的处理。
+
+在大多数对稀疏矩阵的操作中，由于存在许多空条目，遍历矩阵是非常低效的。所以一般使用pairs且只遍历那些非nil的元素。
+
+table中，key是无序的，所以使用pairs的迭代并不保证会按递增次序来访问元素。
+
+
+11.3 链表
+由于table是动态的实体，所以实现链表很方便。每个结点以一个table来表示，一个链接只是结点table中的一个字段，该字段包含了对其他table的引用。
+
+例如，要实现一个基础的链表，其中每个结点具有2个字段，next和value，先创建一个用作链表头结点的变量：
+list = nil
+在表头插入一个元素，元素值为v：
+list = {next = list, value = v}
+遍历此列表：
+local l = list
+while l do
+	// 访问l.value
+	l = l.next
+end
+
+双向链表，环形表，都可以使用相同的方法实现。但lua中很少需要这类结构，因为存在一些更简单的方式，如，可以通过一个(几乎无限大的)数组来表示一个栈。
+
+
+11.4 队列和双向队列
+lua中实现队列的一种简单方式是使用table库的函数insert和remove。这2个函数可以在一个数组的任意位置插入或删除元素，并且根据操作要求移动后续元素。不过对于较大的结构，移动的开销是很大的。
+一种更高效的实现是使用2个索引，分别用于首尾的2个元素：
+function ListNew()
+	return {first = 0, list = -1}
+end
+
+为了避免污染全局名称空间，将在一个table内部定义所有的队列操作，这个table且称为List，将上面重写为：
+List = {}
+function List.new()
+	return {first = 0, last = -1}
+end
+
+这样就可以在常量时间内完成在两端插入或删除元素了:
+function List.pushfirst(list, value)
+	local first = list.first - 1
+	list.first = first
+	list[first] = value
+end
+
+function List.pushlast(list, value)
+	local last = list.last + 1
+	list.last = last
+	list[last] = value
+end
+。。local没必要吧。
+
+function List.popfirst(list)
+	local first = list.first
+	if first > list.last then error("list is empty") end
+	local value = list[first]
+	list[first] = nil		-- 为了垃圾收集
+	list.first = first + 1
+	return value
+end
+
+function List.poplast(list)
+	local last = list.last
+	if list.first > last then error("empty") end
+	local value = list[last]
+	list.last = last - 1
+	return value
+end
+
+lua使用双精度表示数字，程序一秒100万次插入操作，运行200年也不会溢出。
+
+
+11.5 集合与无序组(bag)
+假设列出一份程序代码中的所有标志符，并过滤掉其中的保留字，C程序员会使用字符串的数组来表示保留字集合，搜索这个数组来查看一个单词是否属于该集合。为了提高搜索速度，他们可能还会使用二叉树来表示该集合。
+
+lua中有一种高效，简单的方式来表示这类集合，就是将集合元素作为索引放入一个table中，那么对于任意值都无需搜索table，只需要用该值来索引table，并查看结果是否为nil。
+
+reserved = {["while"]=true, ["end"]=true, ["local"]=true, }
+
+for w in allwords() do
+	if not reserved[w] then
+		// ...
+	end
+end
+
+如果要使初始化过程变得更清晰，可以借助一个辅助函数来创建集合：
+function Set(list)
+	local set = {}
+	for _, l in ipairs(list) do set[l] = true end
+	return set
+end
+
+reversed = Set{"while", "end", "local", }
+
+
+包，有时也称为"多重集合(Multiset)"
+与普通集合的不同之处在于其每个元素可以出现多次。在lua中包的表示类似与上面的集合表示，只不过包需要将一个计数器与table的key关联。若要插入一个元素，则需要递增其计数器
+function insert(bag, element)
+	bag[element] = (bag[element] or 0) + 1
+end
+
+删除，递减其计数器
+function remove(bag, element)
+	local count = bag[element]
+	bag[element] = (count and count > 1) and count - 1 or nil
+end
+只有当计数器已存在或大于0时，才保留它
+
+
+11.6 字符串缓冲
+假设正在编写一段关于字符串的代码。例如，正在逐行地读取一个文件。典型的读取代码是这样的：
+local buff = ""
+for line in io.lines() do
+	buff = buff .. line .. "\n"
+end
+
+看似可以正常工作，但是如果面对较大的文件时，它会导致极大的性能开销。例如，用这段代码来读取一个350KB的文件就需要将近1分钟
+
+假设每行20个字节。如果现在buff已经50KB大小，lua做字符串连接buff .. line .. "\n"时，就创建一个50020字节的新字符串，并从buff中复制50000字节到这个新字符串。
+
+在读取100行(仅2KB)后，lua就已经移动了至少5mb的内存。当lua读取完350KB后，它至少移动了50GB的数据。
+
+只要编程语言中，字符串是不可变值，就会有类似的问题。
+。。C好像直接一个数组/指针，一直读读到\0为止。。
+
+当然，这种情况并不常见。。当需要读取整个文件时，lua提供了io.read("*all")选项，这样可以一次性读取整个文件。
+
+在lua中，我们可以将一个table作为字符串缓冲。关键是使用函数table.concat。它会将给定列表中的所有字符串连接起来，并返回连接后的结果。
+local t = {}
+for line in io.lines() do
+	t[#t + 1] = line .. "\n"
+end
+local s = table.concat(t)
+
+现在350KB只需要<0.5s的时间。
+
+concat还有第二个参数可选，可以指定一个插在字符串间的分隔符。有了这个分隔符，就不需要每行后面..一个"\n"了。
+
+从内部来看，concat，和io.read("*all")都使用了一个相同的算法来连接许多小的字符串。标准库中的其他几个函数也使用这个算法来创建较大的字符串。
+
+算法使用了一种二分的方法，只在某些情况下将几个较小的字符串连接起来，然后再将结果字符串与更大的字符串进行连接。
+核心是一个栈，已创建的大字符串位于栈的底部，较小的字符串通过栈顶进入。栈中的任意字符都比下面的字符串短。如果压入的新字符串比下面已存在的字符串长，就将两者连接，然后再将连接后的新字符串与更下面的字符串比较，如果是新建字符串更长的话，则再次连接它们。一直向下，直到遇到一个更大的字符串或者到达栈底为止。
+
+function addString(stack, s)
+	stack[#s + 1] = s
+	for i = #stack - 1, 1, -1 do
+		if #stack[i] > #stack[i + 1] then
+			break
+		end
+		stack[i] = stack[i] .. stack[i + 1]
+		stack[i + 1] = nil
+	end
+end
+
+
+11.7 图
+lua允许程序员写出多种图的实现，每种实现都有其所适合的算法。
+介绍一种简单的面向对象的实现
+每个结点为一个table，2个属性：name(结点名称)，adj(与此结点邻接的结点集合)。
+由于从一个文本文件中读取图数据，所以需要一种通过一个结点名来找到该结点的方法。因此需要一个额外table来将名称对应到结点。
+local function name2node(graph, name)
+	if not grapg[name] then
+		graph[name] = {name=name,adj={}}
+	end
+	return graph[name]
+end
+
+下面这个函数用于构造一个图，逐行读取一个文件，文件中每行都有2个节点名称，表示2个节点间有一条边，方向是从第一个节点到第二个节点。
+function readgraph()
+	local graph = {}
+	for line in io.lines do
+		local namefrom, nameto = string.match(line, "(%S+)%s+(%S+)")
+		local from = name2node(graph, namefrom)
+		local to = name2node(graph, nameto)
+		from.adj[to] = true
+	end
+	return graph
+end
+
+下面是一个使用图的算法。dfs，在两个节点间搜索一条路径。它的第一个参数是当前节点，第二个参数是其目标节点，第三个参数用于保存从起点到当前节点的路径，第四个参数是所有已访问过的节点的集合。该算法直接对节点进行操作，而不是它们的名称。
+function findpath(curr, to, path, visited)
+	path = path or {}
+	visited = visited or {}
+	if visited[curr] then
+		return null
+	end
+	visited[curr] = true
+	path[#path + 1] = curr
+	if curr == to then
+		return path
+	end
+	for node in pairs(curr.adj) do
+		local p = findpath(node, to, path, visited)
+		if p then return p end
+	end
+	path[#path] = nil
+end
+
+
+
+chapter 12 数据文件与持久性
+涉及数据文件的处理时，人们往往认为写数据比读数据简单很多。
+当写一个文件时，对写的内容有完全的控制权，但是读一个文件时，却无从得知会读到什么内容。一个强健的程序需要很好地处理损坏的文件。
+
+12.1 数据文件
+可以借助table构造式来定义一种文件格式。只需在写数据时做一点额外的工作，读取数据就会变得相当容易。这项技术也就是将数据作为lua代码来输出，当运行这些代码时，程序也就读取了数据。而table的构造式可以使这些输出代码看上去更像是一个普通的数据文件。
+
+一个示例还更清楚地理解这种做法。如果数据文件是一种预定义的格式，例如CSV，xml。那么可以选择的做法很少。不过，如果是为了应用而创建数据文件的话，那么就可以使用lua的构造式作为格式，这种格式中，每条数据记录表示为一个lua构造式。
+原来以这种形式书写的数据文件：
+Donald E. Knuth,Literate Programming,CSLI,1992
+Job Bentley,More Programming Pearls,Addison-Wesley,1990
+现在可以改为：
+Entry{"Donald E. Knuth","Literate Programming","CSLI",1992}
+Entry{"Job Bentley","More Programming Pearls","Addison-Wesley",1990}
+
+Entry{xx}和Entry({xx})完全等价。
+
+为了读取该文件，我们需要定义一个合适的Entry，然后运行此程序就可以了。下面计算了数据文件中条目的数量：
+local count = 0
+function Entry (_) count = count + 1 end
+dofile("data")
+print("number of entries: " .. count)
+。。这个是重写了构造器？
+
+下面可以收集所有作者的姓名
+local authors = {}
+function Entry (b) authors[b[1]] = true end
+dofile("data")
+for name in pairs(authors) do print(name) end
+。。。。
+
+这些代码片段都采用了事件驱动的做法。Entry函数作为一个回调函数，在dofile时为数据文件中每个条目所调用。
+。。没有传进去吧，怎么回调？
+
+若文件不是非常大，可以使用名值对来表示每个字段
+Entry{
+	author = "",
+	title = "Literate",
+	publisher = "CSLI",
+	year = 1992
+}
+
+这种格式是"自描述的数据"格式。更具可读性，需要修改时，也更容易，可以在基本格式中作出一个细小的改动，而不需要同时改变数据文件。例如，增加一个字段，只需修改读取程序中的一小块就可以了，内容就是当该字段不存在时提供一个默认值。
+
+使用k-v对后，收集作者姓名的程序：
+local authors = {}
+function Entry (b) authors[b.author] = true end
+dofile("data")
+for name in pairs(authors) do print(name) end
+
+现在字段次序不再重要，即使有些条目没有作者字段，也只需要修改Entry函数
+function Entry (b)
+	if b.author then authors[b.author] = true end
+end
+
+lua不仅运行快，编译也快。上面用于列出作者的程序在处理2MB数据时，只需不到1秒的时间。
+
+
+12.2 串行化
+串行化：将数据转换为一个字节流或字符流。。然后就可以保存到文件中，或通过网络发送。串行化后的数据可以用lua代码来表示，这样当运行这些代码时，存储的数据就可以在读取程序中得到重构了。
+如果想要恢复一个全局变量的值，那么串行化的结果或许可以是"varname=<exp>"，其中<exp>是一段用于创建该值的lua代码，varname只是一个简单的标识符。
+编写创建一个值的代码：对于一个数字值
+function serialize (o)
+	if type(o) == "number" then
+		io.write(o)
+	else
+		<其他情况>
+	end
+end
+
+对于一个字符串值：
+if type(o) == "string" then
+	io.write("'", o, "'")
+
+如果字符串包含特殊字符(如引号，换行)，那么最终代码就不是一段有效的lua程序了。
+也可以使用另一种字符串字面表示方法，如：
+if type(o) == "string" then
+	io.write("[[", o, "]]")
+
+如果有用户故意使用"]]..os.execute('rm *')..[["。最终结果会变成：
+varname = [[]] .. os.execute('rm *') .. [[]]
+
+可以使用简单且安全的方法来括住一个字符串：以"%q"来使用string.format函数。它会用双引号来括住字符串，并正确地转义其中的双引号和换行符等特殊字符。
+
+a = 'a "problematic" \\string'
+print(string.format("%q", a))
+
+function serialize (o)
+	if type(o) == "number" then
+		io.write(o)
+	elseif type(o) == "string" then
+		io.write(string.format("%q", o))
+	else
+		<other>
+	end
+end
+
+lua5.1还提供了一种安全的方式：新的标记方式[=[..]=],用于长字符串。这种方式主要是为手写的代码提供方便，通过它就不需要改变任何字符串的内容了。在自动生成的代码中，要转移那些问题字符，还是使用stirng.format与"%q"更为方便。
+如果仍然在自动生成的代码中使用长字符串标记的话，注意2个细节：
+1.必须使用正确数量的等号，这个正确的数量应比字符串中出现的最长的等号序列还大1.
+2.lua总是会忽略所有长字符串开头的换行符，简单方法：在字符串起始处添加一个换行符。
+
+下面的quote就是根据上面提到的两个注意点编写的处理函数。
+function quote (s)
+	local n = -1
+	for w in string.gmatch(s, "]=*") do
+		n = match.max(n, #w - 1)
+	end
+	local eq = string.rep("=", n + 1)
+	return string.format(" [%s[\n%s]%s] ", eq, s, eq)
+end
+
+对string.gmatch的调用会创建一个迭代器，通过该迭代器可以遍历s中所有出现模式']=*'的地方。在每处出现等号的地方，循环就会更新n，使其保持为当前所遇到的最大等号数量。
+
+
+12.2.1 保存无环的table
+保存table有几种方法，选取哪种取决于table的结构有哪些限制性的假设。没有一种算法适用于所有的情况。
+
+第一个算法：
+function serialize (o)
+	if type(o) == "number" then
+		io.write(o)
+	elseif type(o) == "string" then
+		io.write(string.format("%q", o))
+	elseif type(o) == "table" then
+		io.write("{\n")
+		for k, v in pairs(o) do
+			io.write(" ", k, " = ")
+			serialize(v)
+			io.write(", \n")
+		end
+		io.write("}\n")
+	else
+		error("cannot serialize a " .. type(o))
+	end
+end
+
+可以完成基本的保存工作，只要table的结构是一个树结构，它甚至还能处理嵌套的table(table中的table)。
+
+上例函数假设所有key都是合法的字符，如果key为数字或非法的lua标识符，就会出现问题，简单的解决方法是：
+。。table的构造式{xxx=...}等价于{["xxx"]=...}，第二种形式中xxx可以是任意内容的字符串，第一种形式中xxx必须是一个合法的lua标志符。{["if"]=...}合法，{if=...}非法
+
+io.write(" ", k, " = ")
+改为
+io.write(" ["); serialize(k); io.write("] = ")
+
+增强了健壮，损失了结果文件的美观性
+
+
+12.2.2 保存有环的table
+如要处理带环的table或共享子table，就要采用另一种方法了，table构造式是无法表示这类table的。
+为了表示环，就需要引入名称，需要记录所有已保存过的table的名称记录，来检测环并复用其中的table。使用一个额外的table用作此项记录，这个table以其他table作为key，并以其他table的名称作为value。
+
+function basicSerialize (o)
+	if type(o) == "number" then
+		return tostring(o)
+	else
+		return string.format("%q", o)
+	end
+end
+
+function save (name, value, saved)
+	saved = saved or {}
+	io.write(name, " = ")
+	if type(value) == "number" or type(value) == "string" then
+		io.write(basicSerialize(value), "\n")
+	elseif type(value) == "table" then
+		if saved[value] then
+			io.write(saved[value], "\n")
+		else
+			saved[value] = name
+			io.write("{}\n")
+			for k,v in pairs(value) do
+				k = basicSerialize(k)
+				local fname = string.format("%s[%s]", name, k)
+				save(fname, v, saved)
+			end
+		end
+	else
+		error("cannot save a " .. type(value))
+	end
+end
+
+
+
+chapter 13 元表(metatable)与元方法(metamethod)
+
+通常，lua中每个值都有一套预定义的操作集合。例如，可以将数字相加，可以连接字符串，还可以在table中插入一对key-value等。
+可以通过元表来修改一个值的行为，使其在面对一个非预定义的操作时执行一个指定的操作。
+当lua试图将2个table相加时，它会先检查两者之一是否有元表，然后检查该元表中是否有一个叫__add的字段。如果lua找到了该字段，就调用该字段对应的值。这个值也就是所谓的"元方法"，它应该是一个函数。
+
+lua中每个值都有一个元表。table和userdata可以有各自独立的元表，而其他类型的值则共享类型所属的单一元表。lua在创建新的table时不会创建元表。
+t = {}
+print(getmetatable(t)) --> nil
+可以使用setmetatable来设置或修改任何table的元表：
+t1 = {}
+setmetatable(t, t1)
+assert(getmetatable(t) == t1)
+
+任何table都可以作为任何值的元表，而一组相关的table也可以共享一个通用的元表，此元表描述了它们共同的行为。
+
+lua中，只能设置table的元素，如果要设置其他类型的值的元表，则必须通过C代码来完成。
+
+
+13.1 算术类的元方法
+本例中，假设用table来表示集合，并且有一些函数用来计算集合的并集和交集。为了保持名称空间的整齐，则将这些函数存入一个名为Set的table中。
+
+Set = {}
+
+function Set.new (l)
+	local set = {}
+	for _, v in pairs(l) do set[v] = true end
+	return set
+end
+
+function Set.union (a, b)
+	local res = Set.new()
+	for k in pairs(a) do res[k] = true end
+	for k in pairs(b) do res[k] = true end
+	return res
+end
+
+function Set.intersection (a, b)
+	local res = Set.new()
+	for k in pairs(a) do
+		res[k] = b[k]
+	end
+	return res
+end
+
+function Set.tostring (set)
+	local l = {}
+	for e in pairs(set) do
+		l[#l + 1] = e
+	end
+	return "{" .. table.concat(l, ", ") .. "}"
+end
+
+function Set.print (s)
+	print(Set.tostring(s))
+end
+
+
+如果使用+来计算两个集合的并集，那么就需要让所有用于表示集合的table共享一个元素，并且在该元表中定义如何执行一个加法操作。
+第一步是创建一个常规的table，准备用作集合的元素：
+local mt = {}
+
+修改Set.new函数。这个函数用于创建集合，在新版本中只加了一行：
+function Set.new (l)
+	local set = {}
+	setmetatable(set, mt)
+	for _, v in pairs(l) do set[v] = true end
+	return set
+end
+
+从此，通过Set.new创建的集合都具有一个相同的元表
+
+最后，将元方法加入元表中。
+mt.__add = Set.union
+
+以后，只要lua试图将2个集合相加，它就会调用Set.union函数，并将2个操作数作为参数传入。
+
+
+元表中，每种算术操作符都有对应的字段名。__add,__mul,__sub,__div,__unm,__mod,__pow,还有__concat
+
+当2个集合相加时，可以使用任意一个集合的元表。
+
+当一个表达式中混合了具有不同元表的值，如：
+s = Set.new{1,2,3}
+s = s + 8
+
+lua按如下步骤来寻找：如果第一个值有元表，且元表中有__add字段，那么就用这个字段为元方法。第一个没有，那么查看第二个值，如果第二个有元表，且有__add字段，那么就以此字段为元方法。如果2个值都没有元方法，就引发一个错误。
+s = s + 8 会在Set.union内部发生错误(期望一个table，但是一个number)。
+
+。。应该有重载吧。
+
+
+13.2 关系类的元方法
+元表还可以指定关系操作符的含义，元方法为__eq,__lt,__le，其他的关系操作符直接根据前面的转化。
+a~=b  		not(a == b)
+a > b 		b < a
+a >= b		b <= a
+
+lua4.0之前，所有顺序操作符都被转化为一种操作符(小于)，a<=b转化为not(b<a)。这种转化遇到"部分有序"就会发生错误。"部分有序"是指，对于一种类型，并不是所有的值都能排序的。
+例如，大多数计算机中的浮点数就不是完全可以排序的，因为存在一种"Not a Number(NaN)"的值。IEEE754是一份当前所有浮点硬件都采用的事实标准，其中将NaN视为一种未定义的值，0/0就是Nan，标准规定了任何涉及NaN的比较都应该返回false。这意味着NaN<=x为假，x<NaN也是假。此时a<=b转化为not(b<a)就不合法了。
+
+在上面的集合的例子中，也存在类似的问题，在集合操作中<=通常表示集合间的包含关系：a<=b 通常意味着a是b的一个子集。可能得到a<=b和b<a同时为假的情况。因此需要__lt,__le
+
+mt.__le = function (a, b)
+	for k in pairs(a) do
+		if not b[k] then return false end
+	end
+	return true
+end
+
+mt.__lt = function (a, b)
+	return a<=b and not (b<=a)
+end
+
+还可以定义集合的相等性:
+mt.__eq = function (a, b)
+	return a<=b and b<=a
+end
+
+
+关系类的元方法不能用于混合的类型。对于混合类型而言，关系类元方法的行为就模拟这些操作符在lua中普通的行为。。试图将一个字符串与一个数字做顺序性比较，试图比较2个具有不同元方法的对象，lua都会引发错误。
+
+等于比较永远不会引发错误。如果两个对象拥有不同的元方法，直接返回false，不会调用任何元方法。这种行为模拟了lua的普遍性行为，lua中，字符串总是不等于数字，与它们的值无关。。只有当2个比较对象共享一个元方法时，lua才会调用这个等于比较的元方法。
+
+
+13.3 库定义的元方法
+__tostring
+__metatable,设置这个以后，getmetatable返回这个的值，setmetatable抛出异常。
+
+
+13.4 table访问的元方法
+算术类和关系类运算符的元方法都为各种错误情况定义了行为，它们不会改变语言的常规行为。
+lua提供了一种可以改变table行为的方法。有2种可以改变的table行为：查询table及修改table中不存在的字段。
+
+13.4.1 __index元方法
+访问table中不存在的字段时，会去查找__index元方法，如果没有，那么返回nil，否则，由这个元方法提供最终结果。
+
+假设要创建一些描述窗口的table，每个table必须描述一些窗口参数，如位置，大小，主题颜色等。所有这些参数都有默认值，因此希望在创建窗口对象时可以仅指定那些不同于默认值的参数。
+第一个方法是使用一个构造式，在其中填写那些不存在的字段。
+第二个方法是让新窗口从一个原型窗口处继承所有不存在的字段。
+首先，声明一个原型和一个构造函数，构造函数创建新的窗口，并使它们共享同一个元表：
+Window = {}
+Window.prototype = {x=0, y=0, width=100, height=100}
+Window.mt = {}
+function Window.new(o)
+	setmetatable(o, Window.mt)
+	return o
+end
+
+Window.mt.__index = function(table, key)
+	return Window.prototype[key]
+end
+
+
+w = Window.new{x=10,y=20}
+print(w.width)			-- 100
+
+lua中，__index元方法用于继承是很普遍的方法，因此lua还提供了一种更便捷的方式来实现此功能。__index元方法不必一定是一个函数，它还可以是一个table。当它是一个函数时，lua以table和不存在的key作为参数来调用该函数。当它是一个table是，lua就以相同的方式来重新访问这个table。
+
+Window.mt__index = Window.prototype
+现在，lua查找到__index时，发现是一个table，那么lua就会在Window.prototype中继续查找。
+
+将一个table作为__index元方法是一种快捷的，实现单一继承的方式。虽然将函数作为__index来实现相同功能的开销较大，但函数更灵活。可以通过函数来实现多重继承，缓存及其他一些功能。
+
+如果不想在访问一个table时设计到它的__index元方法，可以使用函数rawget。调用rawget(t,i)就是对table t进行一个原始的访问，即是一次不考虑元表的简单访问。原始访问并不会加速代码执行(。。应该是提升的非常小，可以忽略的那种)，但有时需要它。
+
+13.4.2 __newindex元方法
+__newindex和__index类似，不同之处：前者用于table的更新，后者用于查询。当对一个table中不存在的索引赋值时，解释器就会查找__newindex元方法。有就调用它，而不是执行赋值。如果这个元方法是一个table，解释器就在此table中执行赋值，而不是原来的table。有一个原始函数允许绕过它，rawset(t,k,v)可以不涉及任何元方法而直接设置table t中与key k关联的value v
+组合使用__newindex,__index，可以实现lua中一些强大的功能，如，只读的table，具有默认值的table和面向对象编程中的继承。
+
+
+13.4.3 具有默认值的table
+常规table中任何字段默认值都是nil，通过元表就可以很容易地修改这个默认值：
+function setDefault(t, d)
+	local mt = {__index = function() return d end}
+	setmetatable(t, mt)
+end
+
+tab = {x=10, y=20}
+print(tab.x, tab.z)			-- 10 nil
+setDefault(tab, 0)
+print(tab.x, tab.z)			-- 10 0
+
+调用setDefault后，任何对tab中存在字段的访问都将调用它的__index元方法，这个元方法会返回0.
+
+setDefault为所有需要默认值的table创建了一个新的元表。如果准备创建很多需要默认值的table，这种方法的开销太大了。
+由于在元表中默认值d是与元方法关联在一起的，所以setDefault无法为所有的table都是使用同一个元表。
+
+若要让具有不同默认值的table都使用同一个元表，那么就需要将每个元表的默认值存放到table本身中。可以使用额外的一个字段来保持默认值。如果不担心名字冲突的话，可以使用"___"这样的key作为这个额外的字段：
+local mt = {__index = function(t) return t.___end}
+function setDefault(t, d)
+	t.___ = d
+	setmetatable(t, mt)
+end
+
+如果担心名称冲突，那么要确保这个特殊key的唯一性也很容易。只需创建一个新的table，并用它作为key即可
+local key = {}
+local mt = {__index = function(t) return t[key] end}
+function setDefault(t, d)
+	t[key] = d
+	setmetatable(t, mt)
+end
+。。local k2 = {} 这种没用？那么就是说是取地址的啊。
+
+还有一种方法可以将table与其默认值关联起来，使用一个独立的table，它的key为各种table，value就是各种table的默认值。为了正确实现，还需要一种特殊的table，就是弱引用table。17章讨论。
+
+。。话说，__index有没有参数限制，最上面是0，这里是一个参数，第一个参数应该是默认自己，那么如果__index需要2个参数，会报错？3ge,4ge参数呢？
+
+
+13.4.4 跟踪table的访问
+__index,__newindex都是在table中没有所需访问的index时才发挥作用。
+因此，只有一个table保持空，才有可能捕捉到所有对它的访问。为了监视一个table的所有访问，就应该为真正的table创建一个代理。这个代理就是一个空的table，__index,__newindex可以跟踪所有的访问，并将访问重定向到原来的table上。
+
+t = {}		-- 原table，在其他地方创建
+
+local _t = t
+t = {}		-- 代理
+local mt = {
+	__index = function(t, k)
+			print("access to element " .. tostring(k))
+			return _t[k]		-- 访问原table
+		end,
+	
+	__newindex = function (t, k, v)
+			print("update of element " .. tostring(k) .. " to " .. tostring(v))
+			_t[k] = v
+		end
+}
+
+存在一个问题，无法遍历原table。函数pairs只能操作代理table。
+
+如果想要同时监视几个table，无需为每个table创建不同的元表。只要以某种形式将每个代理与其原table关联起来，并且所有代理都共享一个公共的元表。
+local index = {}
+local mt = {
+	__index = function(t, k)
+			print("access")
+			return t[index][k]
+		end,
+	
+	__newindex = function(t, k, v)
+			print("update")
+			t[index][k] = v
+		end
+}
+
+function track(t)
+	local proxy = {}
+	proxy[index] = t
+	setmetatable(proxy, mt)
+	return proxy
+end
+
+。。多个被监视table，需要多个不同的index吧。
+
+
+13.4.5 只读的table
+
+通过代理，很容易实现只读的table。只需跟踪所有对table的更新操作，并引发一个错误即可。由于无需跟踪查询访问，所以对于__index元方法可以直接使用原table来代替函数。不过这种做法要求为每个只读代理创建一个新的元表，其中__index指向原来的table
+
+function readOnly(t)
+	local proxy = {}
+	local mt = {
+		__index = t,
+		__newindex = function(t, k, v)
+				error("readonly!", 2)
+			end
+	}
+	setmetatable(proxy, mt)
+	return proxy
+end
+
+
+days = readOnly("Sunday", "Monday", "Tuesday", )
+print(days[1])
+days[2] = "Noday"
+
+
+
+chapter 14 环境
+
+125
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+====================
+====================
+====================
+runoob。上lua例子是5.3的。。本地的lua是5.1.4。使用SciTE或CMD来编写。
+看两个版本有什么不同吧。
+
+
+--	单行注释
+--[[
+ 多行注释
+ 多行注释
+ --]]
+
+在默认情况下，变量总是认为是全局的。
+
+全局变量不需要声明，给一个变量赋值后即创建了这个全局变量，访问一个没有初始化的全局变量也不会出错，只不过得到的结果是：nil。 
+
+如果你想删除一个全局变量，只需要将变量赋值为nil。
+
+Lua 中有 8 个基本类型分别为：nil、boolean、number、string、userdata、function、thread 和 table。
+
+nil	只有值nil属于该类，表示一个无效值（在条件表达式中相当于false）。
+boolean	包含两个值：false和true。
+number	表示双精度类型的实浮点数
+string	字符串由一对双引号或单引号来表示
+function	由 C 或 Lua 编写的函数
+userdata	表示任意存储在变量中的C数据结构
+thread	表示执行的独立线路，用于执行协同程序
+table	Lua 中的表（table）其实是一个"关联数组"（associative arrays），数组的索引可以是数字、字符串或表类型。在 Lua 里，table 的创建是通过"构造表达式"来完成，最简单构造表达式是{}，用来创建一个空表。
+
+
+print(type("Hello world"))      --> string
+print(type(10.4*3))             --> number
+print(type(print))              --> function
+print(type(type))               --> function
+print(type(true))               --> boolean
+print(type(nil))                --> nil
+print(type(type(X)))            --> string
+
+
+打印一个没有赋值的变量，便会输出一个 nil 值：
+> print(type(a))
+nil
+
+
+对于全局变量和 table，nil 还有一个"删除"作用，给全局变量或者 table 表里的变量赋一个 nil 值，等同于把它们删掉：
+tab1 = { key1 = "val1", key2 = "val2", "val3" }
+for k, v in pairs(tab1) do
+    print(k .. " - " .. v)
+end
+tab1.key1 = nil
+for k, v in pairs(tab1) do
+    print(k .. " - " .. v)
+end
+
+输出：
+1 - val3
+key1 - val1
+key2 - val2
+1 - val3
+key2 - val2
+
+nil 作比较时应该加上双引号
+> type(X)
+nil
+> type(X)==nil
+false
+> type(X)=="nil"
+true
+。。本地cmd，外面必须包含一个print。直接type(X)没有任何输出(回车都没)
+。。单引号的'nil'也可以。
+
+。。
+b=False
+print(type(b))	输出是nil
+print(b)		是nil
+。。
+
+字符串由一对双引号或单引号来表示。
+
+也可以用 2 个方括号 "[[]]" 来表示"一块"字符串。
+
+。。
+b=[[[this is
+a string
+block]]
+print(b)		输出就是上面的，带回车的，而且最前面是一个[，正确的，因为上面是3个[开头。
+
+b=[[[this is ]]]  unexcepted symbol near ']'
+任何其他[]数量都是语法错误。
+只有前2，后2，或者前3后2 是正确的。。后者第一个字符是[。。其他情况都是语法错误。
+b=[df
+b=[fd]
+都是语法错误。。上面b=False没有报错，只是type为nil，输出也是nil
+。。。
+
+在对一个数字字符串上进行算术操作时，Lua会尝试将这个数字字符串转成一个数字
+
+> print("2" + 6)
+8.0
+> print("2" + "6")
+8.0
+> print("2 + 6")
+2 + 6
+> print("-2e2" * "6")
+-1200.0
+
+字符串连接使用的是 ..
+
+> print("a" .. 'b')
+ab
+> print(157 .. 428)
+157428
+
+。。
+两个str和..之间是无所谓空格的。
+数字..其他，的时候，数字和..必须有个空格。不然.就翻译成小数点了，语法错误。。。报错：malformed number...单词中文意思是畸形的。。。
+。。
+。。
+print(1234 .. .43)		输出12340.43
+print(23 .. .34)	输出230.34
+print(12345 .. .4567)		123450.4567
+。。test。。这是未定义的操作吗？...b=.55是正确的0.55
+
+
+使用 # 来计算字符串的长度，放在字符串前面
+> len = "www.runoob.com"
+> print(#len)
+14
+> print(#"www.runoob.com")
+14
+
+
+在 Lua 里，table 的创建是通过"构造表达式"来完成，最简单构造表达式是{}，用来创建一个空表。也可以在表里添加一些数据，直接初始化表:
+-- 创建一个空的 table
+local tbl1 = {}
+-- 直接初始表
+local tbl2 = {"apple", "pear", "orange", "grape"}
+
+。。
+local tab1 = {}
+print(type(tab1))		nil
+print(tab1)		nil
+
+tab1 = {}
+tab1 = {"aaa"}
+可以的。
+5.3的文档上也是本地变量得local声明和初始化分开。。不知道为什么runoob上直接的。。估计是runoob的问题。
+。。test。。
+。。
+print(#tab1)			元素的个数
+print(tab1[1])		第一个元素
+print(tab1[-1])		nil ...这里的-1是map的key的含义，不是最后一个。而且一个也没有这种用法
+tab1[-1]="qqq"
+print(tab1[-1])		qqq
+。。不知道这2种赋值方式的区别。第一种应该只能用于初始化时，默认的key就是下标1，2，3.。。。其他时候只能tab1[key]来取值设值吧。
+是的
+tab1[1] = 'fff'
+print(tab1[1])		fff
+。。
+
+for key, val in pairs(tbl) do
+    print(key .. val)
+end
+可以看到 key和val。初始化时key是从1递增的。
+
+
+Lua 里表的默认初始索引一般以 1 开始。
+
+table 不会固定长度大小，有新数据添加时 table 长度会自动增长，没初始的 table 都是 nil。
+
+
+在 Lua 中，函数是被看作是"第一类值（First-Class Value）"，函数可以存在变量里:
+。。
+function factorial1(n)
+    if n == 0 then
+        return 1
+    else
+        return n * factorial1(n - 1)
+    end
+end
+print(factorial1(5))
+factorial2 = factorial1
+print(factorial2(5))
+。。输出120 120
+
+function 可以以匿名函数（anonymous function）的方式通过参数传递:
+。。
+function testFun(tab,fun)
+        for k ,v in pairs(tab) do
+                print(fun(k,v));
+        end
+end
+tab={key1="val1",key2="val2"};
+testFun(tab,
+function(key,val)	--匿名函数
+        return key.."="..val;
+end
+);
+。。输出   key1=val1   key2=val2
+
+
+在 Lua 里，最主要的线程是协同程序（coroutine）。它跟线程（thread）差不多，拥有自己独立的栈、局部变量和指令指针，可以跟其他协同程序共享全局变量和其他大部分东西。
+线程跟协程的区别：线程可以同时多个运行，而协程任意时刻只能运行一个，并且处于运行状态的协程只有被挂起（suspend）时才会暂停。
+
+
+userdata 是一种用户自定义数据，用于表示一种由应用程序或 C/C++ 语言库所创建的类型，可以将任意 C/C++ 的任意数据类型的数据（通常是 struct 和 指针）存储到 Lua 变量中调用。
+
+
+
+
+Lua 变量有三种类型：全局变量、局部变量、表中的域。
+Lua 中的变量全是全局变量，那怕是语句块或是函数里，
+除非用 local 显式声明为局部变量。 局部变量的作用域为从声明位置开始到所在语句块结束。 
+变量的默认值均为 nil。 
+
+。。test。。
+cmd直接local b=5 print(b)是nil。
+但是SciTE中lua文件中，local b=5是可以的。
+print(a,b)还有这种形式的print。
+还可以print("aa",a,b);。可变长参数。2个参数间一个tab
+。。。
+
+
+Lua 可以对多个变量同时赋值，变量列表和值列表的各个元素用逗号分开，赋值语句右边的值会依次赋给左边的变量。
+a, b = 10, 2*x       <-->       a=10; b=2*x
+
+遇到赋值语句Lua会先计算右边所有的值然后再执行赋值操作，所以我们可以这样进行交换变量的值： 
+x, y = y, x                     -- swap 'x' for 'y'
+a[i], a[j] = a[j], a[i]         -- swap 'a[i]' for 'a[j]'
+
+ 当变量个数和值的个数不一致时，Lua会一直以变量个数为基础采取以下策略：
+a. 变量个数 > 值的个数             按变量个数补足nil
+b. 变量个数 < 值的个数             多余的值会被忽略
+
+。。即使b原来有值，a,b=0后，a是0，b是nil。
+
+应该尽可能的使用局部变量，有两个好处：
+    1. 避免命名冲突。
+    2. 访问局部变量的速度比全局变量更快。
+
+
+对 table 的索引使用方括号 []。Lua 也提供了 . 操作。 
+t[i]
+t.i                 -- 当索引为字符串类型时的一种简化写法
+gettable_event(t,i) -- 采用索引访问本质上是一个类似这样的函数调用
+。。t.i 只能索引i是string时有用，i为数字是语法错误。
+
+
+Lua 编程语言中 while 循环语法：
+while(condition)
+do
+   statements
+end
+
+a=10
+while( a < 20 )
+do
+   print("a 的值为:", a)
+   a = a+1
+end
+
+
+Lua 编程语言中 for语句有两大类：
+    数值for循环
+    泛型for循环
+
+	
+Lua 编程语言中数值for循环语法格式:
+for var=exp1,exp2,exp3    do  
+    <执行体>  
+end  
+
+var 从 exp1 变化到 exp2，每次变化以 exp3 为步长递增 var，并执行一次 "执行体"。exp3 是可选的，如果不指定，默认为1。
+
+for的三个表达式在循环开始前一次性求值，以后不再进行求值
+。。exp可以是方法
+
+
+泛型 for 循环通过一个迭代器函数来遍历所有值，类似 java 中的 foreach 语句。
+Lua 编程语言中泛型 for 循环语法格式:
+--打印数组a的所有值  
+a = {"one", "two", "three"}
+for i, v in ipairs(a) do
+    print(i, v)
+end 
+i是数组索引值，v是对应索引的数组元素值。ipairs是Lua提供的一个迭代器函数，用来迭代数组。
+。。不知道有没有其他迭代器函数？。。test。。不过lua只有table一种数据结构。。
+
+
+Lua 编程语言中 repeat...until 循环语句不同于 for 和 while循环，for 和 while 循环的条件语句在当前循环执行开始时判断，而 repeat...until 循环的条件语句在当前循环结束后判断。
+。。do。。while
+
+Lua 编程语言中 repeat...until 循环语法格式:
+repeat
+   statements
+until( condition )
+
+a = 10
+repeat
+   print("a的值为:", a)
+   a = a + 1
+until( a > 15 )
+
+
+Lua可以循环嵌套。
+
+Lua的循环控制语句只有break，没有continue。
+
+a = 10
+while( a < 20 )
+do
+   print("a 的值为:", a)
+   a=a+1
+   if( a > 15)
+   then
+      break
+   end
+end
+
+
+Lua认为false和nil为假，true和非nil为真。
+
+Lua if 语句语法格式如下：
+if(布尔表达式)
+then
+   --[ 在布尔表达式为 true 时执行的语句 --]
+end
+
+
+Lua if...else 语句语法格式如下：
+if(布尔表达式)
+then
+   --[ 布尔表达式为 true 时执行该语句块 --]
+else
+   --[ 布尔表达式为 false 时执行该语句块 --]
+end
+
+
+Lua if...elseif...else 语句语法格式如下：
+if( 布尔表达式 1)
+then
+   --[ 在布尔表达式 1 为 true 时执行该语句块 --]
+
+elseif( 布尔表达式 2)
+then
+   --[ 在布尔表达式 2 为 true 时执行该语句块 --]
+
+elseif( 布尔表达式 3)
+then
+   --[ 在布尔表达式 3 为 true 时执行该语句块 --]
+else 
+   --[ 如果以上布尔表达式都不为 true 则执行该语句块 --]
+end
+
+if可以嵌套。
+
+
+
+Lua 编程语言函数定义格式如下：
+optional_function_scope function function_name( argument1, argument2, argument3..., argumentn)
+    function_body
+    return result_params_comma_separated
+end
+
+optional_function_scope: 该参数是可选的制定函数是全局函数还是局部函数，未设置该参数默认为全局函数，如果你需要设置函数为局部函数需要使用关键字 local。
+
+function_name: 指定函数名称。
+
+argument1, argument2, argument3..., argumentn: 函数参数，多个参数以逗号隔开，函数也可以不带参数。
+
+function_body: 函数体，函数中需要执行的代码语句块。
+
+result_params_comma_separated: 函数返回值，Lua语言函数可以返回多个值，每个值以逗号隔开。
+
+。。
+local function my1stFun(str)
+	print("this is my 1st fun, " .. str)
+	return str..".."
+end
+a = my1stFun
+a = a(1.3)
+print(a)
+。。
+任何类型和nil相加都是异常。
+。。
+
+> s, e = string.find("www.runoob.com", "runoob") 
+> print(s, e)
+5    10
+。。返回开始和结束。
+
+
+Lua 函数可以接受可变数目的参数，和 C 语言类似，在函数参数列表中使用三点 ... 表示函数有可变的参数。
+
+function add(...)  
+local s = 0  
+  for i, v in ipairs{...} do   --> {...} 表示一个由所有变长参数构成的数组  
+    s = s + v  
+  end  
+  return s  
+end  
+print(add(3,4,5,6,7))  --->25
+。。ipairs不需要()..直接{...}..really?是的。
+
+function average(...)
+   result = 0
+   local arg={...}    --> arg 为一个表，局部变量
+   for i,v in ipairs(arg) do
+      result = result + v
+   end
+   print("总共传入 " .. #arg .. " 个数")
+   return result/#arg
+end
+print("平均值为",average(10,5,3,4,5,6))
+。。local arg={...} ipairs(arg)。。都是对的。
+
+
+我们也可以通过 select("#",...) 来获取可变参数的数量:
+function average(...)
+   result = 0
+   local arg={...}
+   for i,v in ipairs(arg) do
+      result = result + v
+   end
+   print("总共传入 " .. select("#",...) .. " 个数")
+   return result/select("#",...)
+end
+print("平均值为",average(10,5,3,4,5,6))
+
+。。
+print("all : " .. select("#", ...))		// 对的，返回形参个数
+local s = 0;
+local arg = {...}
+print("all2 : " .. select("#", arg))		// 返回1.
+。。
+
+有时候我们可能需要几个固定参数加上可变参数，固定参数必须放在变长参数之前
+
+通常在遍历变长参数的时候只需要使用 {…}，然而变长参数可能会包含一些 nil，那么就可以用 select 函数来访问变长参数了：select('#', …) 或者 select(n, …)
+    select('#', …) 返回可变参数的长度
+    select(n, …) 用于访问 n 到 select('#',…) 的参数 
+。。test。。不是，select(n, ...) 就是访问形参的第n个啊(从1开始)
+。。n超过实际长度，异常。
+。。而且select(n)不会跳过nil的，如果正好这个位置上是nil，会有异常。
+。。下面的解释也说明select(n)只访问一个。
+
+调用select时，必须传入一个固定实参selector(选择开关)和一系列变长参数。如果selector为数字n,那么select返回它的第n个可变实参，否则只能为字符串"#",这样select会返回变长参数的总数。
+
+。。网页的笔记。
+--print("aaa : " .. #...)		-- 异常
+local s = 0;
+local arg = {...}
+print("aa2 : " .. #arg)		-- ok正确的长度。
+。。
+print("ddd : " .. ...)		-- 返回形参的第一个。。
+。。所以上面的print #... 的异常是：尝试获得一个数字的长度。。
+
+arg=select(3,1,2,3,4,5,6,7,8,9)
+print(arg)						-- 3
+print(select(3,1,2,3,4,5,6,7,8,9))		-- 3 4 5 6 7 8 9
+。。test。。确实这种输出。不知道为什么。网页的笔记上的。
+
+
+
+Lua提供了以下几种运算符类型：
+    算术运算符
+    关系运算符
+    逻辑运算符
+    其他运算符
+
+
+
+设定 A 的值为10，B 的值为 20：
+操作符	描述	实例
++		加法	A + B 输出结果 30
+-		减法	A - B 输出结果 -10
+*		乘法	A * B 输出结果 200
+/		除法	B / A w输出结果 2
+%		取余	B % A 输出结果 0
+^		乘幂	A^2 输出结果 100
+-		负号	-A 输出结果 -10
+
+。。5.3的doc上有//，，本地5.1没有这种运算符。
+。。3/10 = 3.333333，，毕竟lua只有数字这一种，不分整数和小数。
+
+
+Lua 语言中的常用关系运算符，设定 A 的值为10，B 的值为 20：
+操作符	描述												实例
+==		等于，检测两个值是否相等，相等返回 true，否则返回 false		(A == B) 为 false。
+~=		不等于，检测两个值是否相等，相等返回 false，否则返回 true	(A ~= B) 为 true。
+>		大于，如果左边的值大于右边的值，返回 true，否则返回 false	(A > B) 为 false。
+<		小于，如果左边的值大于右边的值，返回 false，否则返回 true	(A < B) 为 true。
+>=		大于等于，如果左边的值大于等于右边的值，返回 true，否则返回 false		(A >= B) 返回 false。
+<=		小于等于， 如果左边的值小于等于右边的值，返回 true，否则返回 false		(A <= B) 返回 true。 
+
+
+Lua 语言中的常用逻辑运算符，设定 A 的值为 true，B 的值为 false：
+操作符	描述											实例
+and		逻辑与操作符。 若 A 为 false，则返回 A，否则返回 B。	(A and B) 为 false。
+or		逻辑或操作符。 若 A 为 true，则返回 A，否则返回 B。	(A or B) 为 true。
+not		逻辑非操作符。与逻辑运算结果相反，如果条件为 true，逻辑非为 false。	not(A and B) 为 true。 
+
+
+Lua 语言中的连接运算符与计算表或字符串长度的运算符：
+操作符	描述							实例
+..		连接两个字符串				a..b ，其中 a 为 "Hello " ， b 为 "World", 输出结果为 "Hello World"。
+#		一元运算符，返回字符串或表的长度。	#"Hello" 返回 5
+
+
+从高到低的顺序：
+
+^
+not    - (unary)
+*      /
++      -
+..
+<      >      <=     >=     ~=     ==
+and
+or
+
+除了 ^ 和 .. 外所有的二元运算符都是左连接的。
+
+
+
+Lua 语言中字符串可以使用以下三种方式来表示：
+    单引号间的一串字符。
+    双引号间的一串字符。
+    [[和]]间的一串字符。
+。。[[]]是所见即所得。。回车是看不见换行符的，只能看到换行。
+
+有转义字符
+
+
+Lua 提供了很多的方法来支持字符串操作：
+string.upper(argument)		全部大写
+。。print(string.upper("asdf"))
+
+string.lower(arg)		全部小写
+
+string.gsub(mainString,findString,replaceString,num)
+在字符串中替换。
+mainString 为要操作的字符串， findString 为被替换的字符，replaceString 要替换的字符，num 替换次数（可以忽略，则全部替换）
+。。
+print(string.gsub("aasdaa","a",'qq',3))
+输出：qqqqsdqqa		3
+
+string.find(str, subStr, [init, [end]])
+在一个指定的目标字符串中搜索指定的内容(第三个参数为索引),返回其具体位置。不存在则返回 nil。 
+。。test。。end是什么意思不清楚，init应该是str的起始位置，
+print(string.find('abcdefghij','cd',5))		输出nil
+print(string.find('abcdefghij','ij',1,5))	输出9	10
+。。不清楚end是什么作用。。
+
+string.reverse(arg)		字符串反转
+
+string.format(...)
+返回一个类似printf的格式化字符串
+> string.format("the value is:%d",4)
+the value is:4
+
+string.char(arg) 和 string.byte(arg[,int])
+char 将整型数字转成字符并连接， byte 转换字符为整数值(可以指定某个字符，默认第一个字符)。 
+> string.char(97,98,99,100)
+abcd
+> string.byte("ABCD",4)
+68
+> string.byte("ABCD")
+65
+
+string.len(arg)		计算字符串长度。 
+
+string.rep(string, n)	返回字符串string的n个拷贝
+> string.rep("abcd",2)
+abcdabcd
+
+
+..		连接两个字符串 
+
+
+string.gmatch(str, pattern)
+返回一个迭代器函数，每一次调用这个函数，返回一个在字符串 str 找到的下一个符合 pattern 描述的子串。如果参数 pattern 描述的字符串没有找到，迭代函数返回nil。 
+> for word in string.gmatch("Hello Lua user", "%a+") do print(word) end
+Hello
+Lua
+user
+
+
+string.match(str, pattern, init)
+string.match()只寻找源字串str中的第一个配对. 参数init可选, 指定搜寻过程的起点, 默认为1。
+在成功配对时, 函数将返回配对表达式中的所有捕获结果; 如果没有设置捕获标记, 则返回整个配对字符串. 当没有成功的配对时, 返回nil。
+> = string.match("I have 2 questions for you.", "%d+ %a+")
+2 questions
+> = string.format("%d, %q", string.match("I have 2 questions for you.", "(%d+) (%a+)"))
+2, "questions"
+
+
+string.format()
+格式字符串可能包含以下的转义码:
+    %c - 接受一个数字, 并将其转化为ASCII码表中对应的字符
+    %d, %i - 接受一个数字并将其转化为有符号的整数格式
+    %o - 接受一个数字并将其转化为八进制数格式
+    %u - 接受一个数字并将其转化为无符号整数格式
+    %x - 接受一个数字并将其转化为十六进制数格式, 使用小写字母
+    %X - 接受一个数字并将其转化为十六进制数格式, 使用大写字母
+    %e - 接受一个数字并将其转化为科学记数法格式, 使用小写字母e
+    %E - 接受一个数字并将其转化为科学记数法格式, 使用大写字母E
+    %f - 接受一个数字并将其转化为浮点数格式
+    %g(%G) - 接受一个数字并将其转化为%e(%E, 对应%G)及%f中较短的一种格式
+    %q - 接受一个字符串并将其转化为可安全被Lua编译器读入的格式
+    %s - 接受一个字符串并按照给定的参数格式化该字符串
+
+为进一步细化格式, 可以在%号后添加参数. 参数将以如下的顺序读入:
+    (1) 符号: 一个+号表示其后的数字转义符将让正数显示正号. 默认情况下只有负数显示符号.
+    (2) 占位符: 一个0, 在后面指定了字串宽度时占位用. 不填时的默认占位符是空格.。。。只能0？应该是。
+    (3) 对齐标识: 在指定了字串宽度时, 默认为右对齐, 增加-号可以改为左对齐.
+    (4) 宽度数值
+    (5) 小数位数/字串裁切: 在宽度数值后增加的小数部分n, 若后接f(浮点数转义符, 如%6.3f)则设定该浮点数的小数只保留n位, 若后接s(字符串转义符, 如%5.3s)则设定该字符串只显示前n位.
+
+
+print("连接字符串",string1..string2..string3)
+
+
+Lua 中的匹配模式直接用常规的字符串来描述。 它用于模式匹配函数 string.find, string.gmatch, string.gsub, string.match。 
+
+字符类指可以匹配一个特定字符集合内任何字符的模式项。比如，字符类 %d 匹配任意数字。所以你可以使用模式串 %d%d/%d%d/%d%d%d%d 搜索 dd/mm/yyyy 格式的日期
+
+Lua支持的所有字符类：
+单个字符(除 ^$()%.[]*+-? 外): 与该字符自身配对
+    .(点): 与任何字符配对
+    %a: 与任何字母配对
+    %c: 与任何控制符配对(例如\n)
+    %d: 与任何数字配对
+    %l: 与任何小写字母配对
+    %p: 与任何标点(punctuation)配对
+    %s: 与空白字符配对
+    %u: 与任何大写字母配对
+    %w: 与任何字母/数字配对
+    %x: 与任何十六进制数配对
+    %z: 与任何代表0的字符配对
+    %x(此处x是非字母非数字字符): 与字符x配对. 主要用来处理表达式中有功能的字符(^$()%.[]*+-?)的配对问题, 例如%%与%配对
+    [数个字符类]: 与任何[]中包含的字符类配对. 例如[%w_]与任何字母/数字, 或下划线符号(_)配对
+    [^数个字符类]: 与任何不包含在[]中的字符类配对. 例如[^%s]与任何非空白字符配对
+
+当上述的字符类用大写书写时, 表示与非此字符类的任何字符配对. 例如, %S表示与任何非空白字符配对.例如，'%A'非字母的字符
+
+在模式匹配中有一些特殊字符，他们有特殊的意义，Lua中的特殊字符如下：
+( ) . % + - * ? [ ^ $
+
+'%' 用作特殊字符的转义字符，因此 '%.' 匹配点；'%%' 匹配字符 '%'。转义字符 '%'不仅可以用来转义特殊字符，还可以用于所有的非字母的字符。
+
+模式条目可以是：
+    单个字符类匹配该类别中任意单个字符；
+    单个字符类跟一个 '*'， 将匹配零或多个该类的字符。 这个条目总是匹配尽可能长的串；
+    单个字符类跟一个 '+'， 将匹配一或更多个该类的字符。 这个条目总是匹配尽可能长的串；
+    单个字符类跟一个 '-'， 将匹配零或更多个该类的字符。 和 '*' 不同， 这个条目总是匹配尽可能短的串；
+    单个字符类跟一个 '?'， 将匹配零或一个该类的字符。 只要有可能，它会匹配一个；
+    %n， 这里的 n 可以从 1 到 9； 这个条目匹配一个等于 n 号捕获物（后面有描述）的子串。
+    %bxy， 这里的 x 和 y 是两个明确的字符； 这个条目匹配以 x 开始 y 结束， 且其中 x 和 y 保持 平衡 的字符串。 意思是，如果从左到右读这个字符串，对每次读到一个 x 就 +1 ，读到一个 y 就 -1， 最终结束处的那个 y 是第一个记数到 0 的 y。 举个例子，条目 %b() 可以匹配到括号平衡的表达式。
+    %f[set]， 指 边境模式； 这个条目会匹配到一个位于 set 内某个字符之前的一个空串， 且这个位置的前一个字符不属于 set 。 集合 set 的含义如前面所述。 匹配出的那个空串之开始和结束点的计算就看成该处有个字符 '\0' 一样。
+
+模式 指一个模式条目的序列。 在模式最前面加上符号 '^' 将锚定从字符串的开始处做匹配。 在模式最后面加上符号 '$' 将使匹配过程锚定到字符串的结尾。 如果 '^' 和 '$' 出现在其它位置，它们均没有特殊含义，只表示自身。 
+
+模式可以在内部用小括号括起一个子模式； 这些子模式被称为 捕获物。 当匹配成功时，由 捕获物 匹配到的字符串中的子串被保存起来用于未来的用途。 捕获物以它们左括号的次序来编号。 例如，对于模式 "(a*(.)%w(%s*))" ， 字符串中匹配到 "a*(.)%w(%s*)" 的部分保存在第一个捕获物中 （因此是编号 1 ）； 由 "." 匹配到的字符是 2 号捕获物， 匹配到 "%s*" 的那部分是 3 号。
+
+作为一个特例，空的捕获 () 将捕获到当前字符串的位置（它是一个数字）。 例如，如果将模式 "()aa()" 作用到字符串 "flaaap" 上，将产生两个捕获物： 3 和 5 。
+
+
+
+
+一维数组是最简单的数组，其逻辑结构是线性表。一维数组可以用for循环出数组中的元素
+array = {"Lua", "Tutorial"}
+for i= 0, 2 do
+   print(array[i])
+end
+
+输出结果为：
+nil
+Lua
+Tutorial
+
+在 Lua 索引值是以 1 为起始，但你也可以指定 0 开始。
+除此外我们还可以以负数为数组索引值：
+array = {}
+for i= -2, 2 do
+   array[i] = i *2
+end
+。。还是觉得是map。应该就是map。
+
+
+多维数组即数组中包含数组或一维数组的索引键对应一个数组。
+以下是一个三行三列的阵列多维数组：
+array = {}
+for i=1,3 do
+   array[i] = {}
+      for j=1,3 do
+         array[i][j] = i*j
+      end
+end
+
+for i=1,3 do
+   for j=1,3 do
+      print(array[i][j])
+   end
+end
+
+
+不同索引键的三行三列阵列多维数组：
+array = {}
+maxRows = 3
+maxColumns = 3
+for row=1,maxRows do
+   for col=1,maxColumns do
+      array[row*maxColumns +col] = row*col
+   end
+end
+
+for row=1,maxRows do
+   for col=1,maxColumns do
+      print(array[row*maxColumns +col])
+   end
+end
+。。索引和值都是1-9.。。。
+。。map<map>
+
+
+
+迭代器（iterator）是一种对象，它能够用来遍历标准模板库容器中的部分或全部元素，每个迭代器对象代表容器中的确定的地址。
+在 Lua 中迭代器是一种支持指针类型的结构，它可以遍历集合的每一个元素。
+
+泛型 for 迭代器
+泛型for在自己内部保存迭代函数，实际上它保存三个值：迭代函数、状态常量、控制变量。
+泛型 for 迭代器提供了集合的 key/value 对，语法格式如下：
+for k, v in pairs(t) do
+    print(k, v)
+end
+k, v为变量列表；pairs(t)为表达式列表。
+
+
+array = {"Google", "Runoob"}
+for key,value in ipairs(array)
+do
+   print(key, value)
+end
+使用了 Lua 默认提供的迭代函数 ipairs。
+
+
+泛型 for 的执行过程：
+    首先，初始化，计算 in 后面表达式的值，表达式应该返回泛型 for 需要的三个值：迭代函数、状态常量、控制变量；与多值赋值一样，如果表达式返回的结果个数不足三个会自动用 nil 补足，多出部分会被忽略。
+    第二，将状态常量和控制变量作为参数调用迭代函数（注意：对于 for 结构来说，状态常量没有用处，仅仅在初始化时获取他的值并传递给迭代函数）。
+    第三，将迭代函数返回的值赋给变量列表。
+    第四，如果返回的第一个值为nil循环结束，否则执行循环体。
+    第五，回到第二步再次调用迭代函数
+
+在Lua中我们常常使用函数来描述迭代器，每次调用该函数就返回集合的下一个元素。Lua 的迭代器包含以下两种类型：
+    无状态的迭代器
+    多状态的迭代器
+
+
+无状态的迭代器是指不保留任何状态的迭代器，因此在循环中我们可以利用无状态迭代器避免创建闭包花费额外的代价。
+ 每一次迭代，迭代函数都是用两个变量（状态常量和控制变量）的值作为参数被调用，一个无状态的迭代器只利用这两个值可以获取下一个元素。
+这种无状态迭代器的典型的简单的例子是 ipairs，它遍历数组的每一个元素。
+
+使用了一个简单的函数来实现迭代器，实现 数字 n 的平方：
+function square(iteratorMaxCount,currentNumber)
+   if currentNumber<iteratorMaxCount
+   then
+      currentNumber = currentNumber+1
+   return currentNumber, currentNumber*currentNumber
+   end
+end
+
+for i,n in square,3,0
+do
+   print(i,n)
+end
+
+。。真是for i,n in square,3,0
+。。应该就是上面说的"三个值：迭代函数、状态常量、控制变量"
+..3,0是传给square的参数，可以3,1。
+
+。。
+a = -1
+function fun1(n1)
+	if (a < n1)
+	then
+		a = a + 1;
+		return a, a*a+1;
+	else
+		return nil
+	end
+end
+
+for i,n in fun1,10
+do
+	print(i, n)
+end
+。。。好难。。。无法fun1(10),不知道ipairs怎么做到的。。return nil和不return一样，会中止循环。
+
+
+ipairs 和迭代函数都很简单，我们在 Lua 中可以这样实现： 
+function iter (a, i)
+    i = i + 1
+    local v = a[i]
+    if v then
+       return i, v
+    end
+end
+ 
+function ipairs (a)
+    return iter, a, 0
+end
+
+。。
+a={5,4,3,"dsf","zzz"}
+
+for i,n in ipairs(a) do
+	print(" this is " .. i .. " and " .. n)
+end
+。。能用的。
+
+当 Lua 调用 ipairs(a) 开始循环时，他获取三个值：迭代函数 iter、状态常量 a、控制变量初始值 0；然后 Lua 调用 iter(a,0) 返回 1, a[1]（除非 a[1]=nil）；第二次迭代调用 iter(a,1) 返回 2, a[2]……直到第一个 nil 元素。
+
+。。怎么分辨迭代函数？
+。。靠，fun1就是迭代函数。。而ipairs是返回迭代函数+xx+xx。xx没有就是nil。看这个例子，是把fun1后面的2个参数都传递给fun1.由于fun1只需要一个，且只提供了一个，所以是正确运行的。
+。。怎么确认fun1是迭代函数还是返回迭代函数的函数。。难道通过参数个数？
+。。test。。。
+。。靠，分辨就是靠()，，带()的就是函数，执行它获得迭代函数+xx+xx，不带()的就直接是迭代函数了，所以怪不得fun1(10)的时候好像报错是关于number的。看来是试图把number解释为迭代器，出错了。
+
+
+多状态的迭代器
+
+很多情况下，迭代器需要保存多个状态信息而不是简单的状态常量和控制变量，最简单的方法是使用闭包，还有一种方法就是将所有的状态信息封装到 table 内，将 table 作为迭代器的状态常量，因为这种情况下可以将所有的信息存放在 table 内，所以迭代函数通常不需要第二个参数。
+
+array = {"Google", "Runoob"}
+
+function elementIterator (collection)
+   local index = 0
+   local count = #collection
+   -- 闭包函数
+   return function ()
+      index = index + 1
+      if index <= count
+      then
+         --  返回迭代器的当前元素
+         return collection[index]
+      end
+   end
+end
+
+for element in elementIterator(array)
+do
+   print(element)
+end
+
+。。。。。
+
+
+
+table 是 Lua 的一种数据结构用来帮助我们创建不同的数据类型，如：数组、字典等。
+
+Lua table 使用关联型数组，你可以用任意类型的值来作数组的索引，但这个值不能是 nil。
+
+Lua也是通过table来解决模块（module）、包（package）和对象（Object）的。 例如string.format表示使用"format"来索引table string。
+
+
+构造器是创建和初始化表的表达式。表是Lua特有的功能强大的东西。最简单的构造函数是{}，用来创建一个空表。可以直接初始化数组:
+-- 初始化表
+mytable = {}
+
+-- 指定值
+mytable[1]= "Lua"
+
+-- 移除引用
+mytable = nil
+-- lua 垃圾回收会释放内存
+
+
+当我们为 table a 并设置元素，然后将 a 赋值给 b，则 a 与 b 都指向同一个内存。如果 a 设置为 nil ，则 b 同样能访问 table 的元素。如果没有指定的变量指向a，Lua的垃圾回收机制会清理相对应的内存。
+
+Table 操作常用的方法：
+table.concat (table [, sep [, start [, end]]]):
+concat是concatenate(连锁, 连接)的缩写. table.concat()函数列出参数中指定table的数组部分从start位置到end位置的所有元素, 元素间以指定的分隔符(sep)隔开。
+。。这个是toString..将元素组成str，。。不是2个table连接。。
+
+table.insert (table, [pos,] value):
+在table的数组部分指定位置(pos)插入值为value的一个元素. pos参数可选, 默认为数组部分末尾.
+
+table.maxn (table)
+指定table中所有正数key值中最大的key值. 如果不存在key值为正数的元素, 则返回0。(Lua5.2之后该方法已经不存在了,本文使用了自定义函数实现)
+
+table.remove (table [, pos])
+返回table数组部分位于pos位置的元素. 其后的元素会被前移. pos参数可选, 默认为table长度, 即从最后一个元素删起。
+
+table.sort (table [, comp])
+对给定的table进行升序排序。 
+
+table.getn
+获得元素个数。
+
+当我们获取 table 的长度的时候无论是使用 # 还是 table.getn 其都会在索引中断的地方停止计数，而导致无法正确取得 table 的长度。
+。。但是a[2]=nil之后，#a，table.getn(a)都是返回4啊。
+。。concat异常，因为下标2这个值(nil)是非法的。
+。。test。。
+。。但是记得之前也说过，设置为nil后，这个元素就不存在了。为什么这里下标2还存在？
+。。奇怪，a[-1]=22,之后，#a，getn(a)没有变化。不知道这2个是怎么弄的。
+。。insert就是insert，即使原位置是nil，插入后，这个nil后移。
+。。insert后#a，getn(a)，增加了。
+。。不知道是不是5.1的原因。。
+。。还是说map和数组是分离的，优先数组，如果数组没有，就在map中寻找？
+
+
+
+
+模块类似于一个封装库，从 Lua 5.1 开始，Lua 加入了标准的模块管理机制，可以把一些公用的代码放在一个文件里，以 API 接口的形式在其他地方调用，有利于代码的重用和降低代码耦合度。
+
+
+Lua 的模块是由变量、函数等已知元素组成的 table，因此创建一个模块很简单，就是创建一个 table，然后把需要导出的常量、函数放入其中，最后返回这个 table 就行。以下为创建自定义模块 module.lua
+
+-- 文件名为 module.lua
+-- 定义一个名为 module 的模块
+module = {}
+
+-- 定义一个常量
+module.constant = "这是一个常量"
+ 
+-- 定义一个函数
+function module.func1()
+    io.write("这是一个公有函数！\n")
+end
+ 
+local function func2()
+    print("这是一个私有函数！")
+end
+ 
+function module.func3()
+    func2()
+end
+ 
+return module
+
+
+Lua提供了一个名为require的函数用来加载模块。
+require("<模块名>")
+或者
+require "<模块名>"
+。。<>是名字一部分。。。
+
+require("module")
+
+
+给加载的模块定义一个别名变量，方便调用
+local m = require("module")
+。。不知道require "module"  行不行。。
+
+对于自定义的模块，模块文件不是放在哪个文件目录都行，函数 require 有它自己的文件路径加载策略，它会尝试从 Lua 文件或 C 程序库中加载模块。 
+
+require 用于搜索 Lua 文件的路径是存放在全局变量 package.path 中，当 Lua 启动后，会以环境变量 LUA_PATH 的值来初始这个环境变量。如果没有找到该环境变量，则使用一个编译时定义的默认路径来初始化。 
+。。能print(package.path)
+
+
+如果没有 LUA_PATH 这个环境变量，也可以自定义设置，在当前用户根目录下打开 .profile 文件（没有则创建，打开 .bashrc 文件也可以），例如把 "~/lua/" 路径加入 LUA_PATH 环境变量里：
+#LUA_PATH
+export LUA_PATH="~/lua/?.lua;;"
+文件路径以 ";" 号分隔，最后的 2 个 ";;" 表示新加的路径后面加上原来的默认路径。 
+
+更新环境变量参数，使之立即生效。
+source ~/.profile
+
+假设 package.path 的值是：
+/Users/dengjoe/lua/?.lua;./?.lua;/usr/local/share/lua/5.1/?.lua;/usr/local/share/lua/5.1/?/init.lua;/usr/local/lib/lua/5.1/?.lua;/usr/local/lib/lua/5.1/?/init.lua
+
+那么调用 require("module") 时就会尝试打开以下文件目录去搜索目标。
+/Users/dengjoe/lua/module.lua;
+./module.lua
+/usr/local/share/lua/5.1/module.lua
+/usr/local/share/lua/5.1/module/init.lua
+/usr/local/lib/lua/5.1/module.lua
+/usr/local/lib/lua/5.1/module/init.lua
+
+如果找过目标文件，则会调用 package.loadfile 来加载模块。否则，就会去找 C 程序库。
+
+搜索的文件路径是从全局变量 package.cpath 获取，而这个变量则是通过环境变量 LUA_CPATH 来初始。
+
+搜索的策略跟上面的一样，只不过现在换成搜索的是 so 或 dll 类型的文件。如果找得到，那么 require 就会通过 package.loadlib 来加载它。 
+
+
+C 包
+Lua和C是很容易结合的，使用 C 为 Lua 写包。
+
+与Lua中写包不同，C包在使用以前必须首先加载并连接，在大多数系统中最容易的实现方式是通过动态连接库机制。
+。。lua包不也是require加载的吗？。都是先加载，才能使用吧。
+
+Lua在一个叫loadlib的函数内提供了所有的动态连接的功能。这个函数有两个参数:库的绝对路径和初始化函数。所以典型的调用的例子如下:
+local path = "/usr/local/lua/lib/libluasocket.so"
+local f = loadlib(path, "luaopen_socket")
+
+loadlib 函数加载指定的库并且连接到 Lua，然而它并不打开库（也就是说没有调用初始化函数），反之他返回初始化函数作为 Lua 的一个函数，这样我们就可以直接在Lua中调用他。
+
+如果加载动态库或者查找初始化函数时出错，loadlib 将返回 nil 和错误信息。我们可以修改前面一段代码，使其检测错误然后调用初始化函数：
+local path = "/usr/local/lua/lib/libluasocket.so"
+-- 或者 path = "C:\\windows\\luasocket.dll"，这是 Window 平台下
+local f = assert(loadlib(path, "luaopen_socket"))
+f()  -- 真正打开库
+。。真正打开库 是否== 调用初始化？似乎是的。
+
+一般情况下我们期望二进制的发布库包含一个与前面代码段相似的 stub 文件，安装二进制库的时候可以随便放在某个目录，只需要修改 stub 文件对应二进制库的实际路径即可。
+将 stub 文件所在的目录加入到 LUA_PATH，这样设定后就可以使用 require 函数加载 C 库了。 
+
+
+
+在 Lua table 中我们可以访问对应的key来得到value值，但是却无法对两个 table 进行操作。
+
+因此 Lua 提供了元表(Metatable)，允许我们改变table的行为，每个行为关联了对应的元方法。
+。。这就是类方法，用户可以重写。。
+。。但是getmetatable(a)。。返回nil。。说明没有默认的数据。。
+。。a=3后，getmetatable也是nil。
+
+使用元表我们可以定义Lua如何计算两个table的相加操作a+b。
+当Lua试图对两个表进行相加时，先检查两者之一是否有元表，之后检查是否有一个叫"__add"的字段，若找到，则调用对应的值。"__add"等即时字段，其对应的值（往往是一个函数或是table）就是"元方法"。
+
+有两个很重要的函数来处理元表：
+setmetatable(table,metatable):对指定table设置元表(metatable)，如果元表(metatable)中存在 __metatable 键值，setmetatable 会失败。
+getmetatable(table): 返回对象的元表(metatable)。
+
+
+以下实例演示了如何对指定的表设置元表：
+mytable = {}                          -- 普通表
+mymetatable = {}                      -- 元表
+setmetatable(mytable,mymetatable)     -- 把 mymetatable 设为 mytable 的元表 
+
+以上代码也可以直接写成一行：
+mytable = setmetatable({},{})
+
+以下为返回对象元表：
+getmetatable(mytable)                 -- 这回返回mymetatable
+
+
+__index 元方法
+这是 metatable 最常用的键。
+当你通过键来访问 table 的时候，如果这个键没有值，那么Lua就会寻找该table的metatable（假定有metatable）中的__index 键。如果__index包含一个表格，Lua会在表格中查找相应的键。 
+
+。。
+> other = { foo = 3 }
+> t = setmetatable({}, { __index = other })
+> t.foo
+3
+> t.bar
+nil
+。。print能输出这样的。
+。。other[foo]是nil。。。other.foo是3.。。other就不是数组，不是map。。这是个什么？。。元表？那是什么？。。似乎只在setmetatable中有用？
+。。难道map是通过.来运算的，无法通过[]来算？..a={k1="asd"}..只能.来
+。。a["k3"]="ddd"，也只能.来，不能[]。。难道5.1的问题？
+。。a[-4]="ff"，只能[],不能.来，a.-4语法错误。
+。。test。。看来table是2合一的？数字下标只能[]，其他只能.
+。。但是默认的__index是什么？。。似乎没有啊。
+
+
+如果__index包含一个函数的话，Lua就会调用那个函数，table和键会作为参数传递给函数。
+__index 元方法查看表中元素是否存在，如果不存在，返回结果为 nil；如果存在则由 __index 返回结果。
+
+mytable = setmetatable({key1 = "value1"}, {
+  __index = function(mytable, key)
+    if key == "key2" then
+      return "metatablevalue"
+    else
+      return nil
+    end
+  end
+})
+print(mytable.key1,mytable.key2)
+
+输出结果为：
+value1    metatablevalue
+
+。。先触发默认的__index。。然后是上面自定义的。因为mytable.key1是正确的输出。
+
+实例解析：
+    mytable 表赋值为 {key1 = "value1"}。
+    mytable 设置了元表，元方法为 __index。
+    在mytable表中查找 key1，如果找到，返回该元素，找不到则继续。
+    在mytable表中查找 key2，如果找到，返回 metatablevalue，找不到则继续。
+    判断元表有没有__index方法，如果__index方法是一个函数，则调用该函数。
+    元方法中查看是否传入 "key2" 键的参数（mytable.key2已设置），如果传入 "key2" 参数返回 "metatablevalue"，否则返回 mytable 对应的键值。
+
+。。上面说的。。。第4条应该和第三条一样吧，找到就返回，找不到继续。
+。。而且最后一条说的，好像元方法优先一样，实际上，如果key2存在，第四条就直接返回了。不会调用元方法来。不会存在："否则返回mytable对于的键值"这种的。
+
+可以将以上代码简单写成：
+mytable = setmetatable({key1 = "value1"}, { __index = { key2 = "metatablevalue" } })
+print(mytable.key1,mytable.key2)
+
+
+Lua 查找一个表元素时的规则，其实就是如下 3 个步骤:
+    1.在表中查找，如果找到，返回该元素，找不到则继续
+    2.判断该表是否有元表，如果没有元表，返回 nil，有元表则继续。
+    3.判断元表有没有 __index 方法，如果 __index 方法为 nil，则返回 nil；如果 __index 方法是一个表，则重复 1、2、3；如果 __index 方法是一个函数，则返回该函数的返回值。
+。。这个倒是正确的。
+。。好难，这里要注意的是，有元表，走元表的__index,,如果元表没有__index,,即使存在元素，也是返回nil。所以可能会tab2.__index=tab2。这样，tab2如果存在元素，才会返回，没有这个赋值，返回就是nil
+
+
+__newindex 元方法
+__newindex 元方法用来对表更新，__index则用来对表访问 。
+当你给表的一个缺少的索引赋值，解释器就会查找__newindex 元方法：如果存在则调用这个函数而不进行赋值操作。
+
+mymetatable = {}
+mytable = setmetatable({key1 = "value1"}, { __newindex = mymetatable })
+print(mytable.key1)
+
+mytable.newkey = "新值2"
+print(mytable.newkey,mymetatable.newkey)
+
+mytable.key1 = "新值1"
+print(mytable.key1,mymetatable.key1)
+
+输出结果为：
+value1
+nil    新值2
+新值1    nil
+
+。。。我在想，是不是没有__index,__newindex的时候，这2个就是自己。或者说没有__index,__newindex时，各种操作就是直接在自身上操作的。。但是上面的"有元表，走元表的__index"。就不是作用在自身，而是作用在__index上。。
+
+
+
+-- 两表相加操作
+mytable = setmetatable({ 1, 2, 3 }, {
+  __add = function(mytable, newtable)
+    for i = 1, table_maxn(newtable) do
+      table.insert(mytable, table_maxn(mytable)+1,newtable[i])
+    end
+    return mytable
+  end
+})
+
+secondtable = {4,5,6}
+
+mytable = mytable + secondtable
+for k,v in ipairs(mytable) do
+	print(k,v)
+end
+
+
+__add	对应的运算符 '+'
+__sub	对应的运算符 '-'
+__mul	对应的运算符 '*'
+__div	对应的运算符 '/'
+__mod	对应的运算符 '%'
+__unm	对应的运算符 '-'
+__concat	对应的运算符 '..'
+__eq	对应的运算符 '=='
+__lt	对应的运算符 '<'
+__le	对应的运算符 '<='
+
+
+
+__call 元方法在 Lua 调用一个值时调用
+
+-- 定义元方法__call
+mytable = setmetatable({10}, {
+  __call = function(mytable, newtable)
+        sum = 0
+        for i = 1, table_maxn(mytable) do
+                sum = sum + mytable[i]
+        end
+    for i = 1, table_maxn(newtable) do
+                sum = sum + newtable[i]
+        end
+        return sum
+  end
+})
+newtable = {10,20,30}
+print(mytable(newtable))
+
+输出70
+。。就是以本变量作为方法时会真正调用的方法。。
+
+
+__tostring 元方法用于修改表的输出行为。
+
+mytable = setmetatable({ 10, 20, 30 }, {
+  __tostring = function(mytable)
+    sum = 0
+    for k, v in pairs(mytable) do
+                sum = sum + v
+        end
+    return "表所有元素的和为 " .. sum
+  end
+})
+print(mytable)
+
+输出结果为：
+表所有元素的和为 60
+
+
+
+Lua 协同程序(coroutine)与线程比较类似：拥有独立的堆栈，独立的局部变量，独立的指令指针，同时又与其它协同程序共享全局变量和其它大部分东西。 
+
+线程与协同程序的主要区别在于，一个具有多个线程的程序可以同时运行几个线程，而协同程序却需要彼此协作的运行。
+在任一指定时刻只有一个协同程序在运行，并且这个正在运行的协同程序只有在明确的被要求挂起的时候才会被挂起。
+协同程序有点类似同步的多线程，在等待同一个线程锁的几个线程有点类似协同。
+
+coroutine.create()	
+创建 coroutine，返回 coroutine， 参数是一个函数，当和 resume 配合使用的时候就唤醒函数调用
+
+coroutine.resume()	
+重启 coroutine，和 create 配合使用
+
+coroutine.yield()	
+挂起 coroutine，将 coroutine 设置为挂起状态，这个和 resume 配合使用能有很多有用的效果
+
+coroutine.status()	
+查看 coroutine 的状态
+注：coroutine 的状态有三种：dead，suspended，running，具体什么时候有这样的状态请参考下面的程序
+
+coroutine.wrap（）	
+创建 coroutine，返回一个函数，一旦你调用这个函数，就进入 coroutine，和 create 功能重复
+
+coroutine.running()	
+返回正在跑的 coroutine，一个 coroutine 就是一个线程，当使用running的时候，就是返回一个 corouting 的线程号
+
+
+演示了以上各个方法的用法：
+
+-- coroutine_test.lua 文件
+co = coroutine.create(
+    function(i)
+        print(i);
+    end
+)
+ 
+coroutine.resume(co, 1)   -- 1
+print(coroutine.status(co))  -- dead
+ 
+print("----------")
+ 
+co = coroutine.wrap(
+    function(i)
+        print(i);
+    end
+)
+ 
+co(1)
+ 
+print("----------")
+ 
+co2 = coroutine.create(
+    function()
+        for i=1,10 do
+            print(i)
+            if i == 3 then
+                print(coroutine.status(co2))  --running
+                print(coroutine.running()) --thread:XXXXXX
+            end
+            coroutine.yield()
+        end
+    end
+)
+ 
+coroutine.resume(co2) --1
+coroutine.resume(co2) --2
+coroutine.resume(co2) --3
+ 
+print(coroutine.status(co2))   -- suspended
+print(coroutine.running())
+ 
+print("----------")
+
+
+执行输出结果为：
+1
+dead
+----------
+1
+----------
+1
+2
+3
+running
+thread: 0x7fb801c05868    false
+suspended
+thread: 0x7fb801c04c88    true
+----------
+
+
+
+一个更详细的实例：
+function foo (a)
+    print("foo 函数输出", a)
+    return coroutine.yield(2 * a) -- 返回  2*a 的值
+end
+ 
+co = coroutine.create(function (a , b)
+    print("第一次协同程序执行输出", a, b) -- co-body 1 10
+    local r = foo(a + 1)
+     
+    print("第二次协同程序执行输出", r)
+    local r, s = coroutine.yield(a + b, a - b)  -- a，b的值为第一次调用协同程序时传入
+     
+    print("第三次协同程序执行输出", r, s)
+    return b, "结束协同程序"                   -- b的值为第二次调用协同程序时传入
+end)
+       
+print("main", coroutine.resume(co, 1, 10)) -- true, 4
+print("--分割线----")
+print("main", coroutine.resume(co, "r")) -- true 11 -9
+print("---分割线---")
+print("main", coroutine.resume(co, "x", "y")) -- true 10 end
+print("---分割线---")
+print("main", coroutine.resume(co, "x", "y")) -- cannot resume dead coroutine
+print("---分割线---")
+
+执行输出结果为：
+第一次协同程序执行输出    1    10
+foo 函数输出    2
+main    true    4
+--分割线----
+第二次协同程序执行输出    r
+main    true    11    -9
+---分割线---
+第三次协同程序执行输出    x    y
+main    true    10    结束协同程序
+---分割线---
+main    false    cannot resume dead coroutine
+---分割线---
+
+调用resume，将协同程序唤醒,resume操作成功返回true，否则返回false；
+协同程序运行；
+运行到yield语句；
+yield挂起协同程序，第一次resume返回；（注意：此处yield返回，参数是resume的参数）
+第二次resume，再次唤醒协同程序；（注意：此处resume的参数中，除了第一个参数，剩下的参数将作为yield的参数）
+yield返回；
+协同程序继续运行；
+如果使用的协同程序继续运行完成后继续调用 resume方法则输出：cannot resume dead coroutine
+
+
+resume和yield的配合强大之处在于，resume处于主程中，它将外部状态（数据）传入到协同程序内部；而yield则将内部的状态（数据）返回到主程中。
+
+
+
+协同程序来完成生产者-消费者这一经典问题。
+local newProductor
+
+function productor()
+     local i = 0
+     while true do
+          i = i + 1
+          send(i)     -- 将生产的物品发送给消费者
+     end
+end
+
+function consumer()
+     while true do
+          local i = receive()     -- 从生产者那里得到物品
+          print(i)
+     end
+end
+
+function receive()
+     local status, value = coroutine.resume(newProductor)
+     return value
+end
+
+function send(x)
+     coroutine.yield(x)     -- x表示需要发送的值，值返回以后，就挂起该协同程序
+end
+
+-- 启动程序
+newProductor = coroutine.create(productor)
+consumer()
+
+
+
+Lua I/O 库用于读取和处理文件。分为简单模式（和C一样）、完全模式。
+
+简单模式（simple model）拥有一个当前输入文件和一个当前输出文件，并且提供针对这些文件相关的操作。
+完全模式（complete model） 使用外部的文件句柄来实现。它以一种面对对象的形式，将所有的文件操作定义为文件句柄的方法 
+
+
+file = io.open (filename [, mode])
+
+mode 的值有：
+r	以只读方式打开文件，该文件必须存在。
+w	打开只写文件，若文件存在则文件长度清为0，即该文件内容会消失。若文件不存在则建立该文件。
+a	以附加的方式打开只写文件。若文件不存在，则会建立该文件，如果文件存在，写入的数据会被加到文件尾，即文件原先的内容会被保留。（EOF符保留）
+r+ 	以可读写方式打开文件，该文件必须存在。
+w+ 	打开可读写文件，若文件存在则文件长度清为零，即该文件内容会消失。若文件不存在则建立该文件。
+a+ 	与a类似，但此文件可读可写
+b 	二进制模式，如果文件是二进制文件，可以加上b
++ 	号表示对文件既可以读也可以写
+
+
+
+简单模式使用标准的 I/O 或使用一个当前输入文件和一个当前输出文件。
+-- 以只读方式打开文件
+file = io.open("test.lua", "r")
+
+-- 设置默认输入文件为 test.lua
+io.input(file)
+
+-- 输出文件第一行
+print(io.read())
+
+-- 关闭打开的文件
+io.close(file)
+
+-- 以附加的方式打开只写文件
+file = io.open("test.lua", "a")
+
+-- 设置默认输出文件为 test.lua
+io.output(file)
+
+-- 在文件最后一行添加 Lua 注释
+io.write("--  test.lua 文件末尾注释")
+
+-- 关闭打开的文件
+io.close(file)
+
+
+io.read() 中我们没有带参数，参数可以是下表中的一个：
+"*n"	读取一个数字并返回它。例：file.read("*n")
+"*a"	从当前位置读取整个文件。例：file.read("*a")
+"*l"（默认）	读取下一行，在文件尾 (EOF) 处返回 nil。例：file.read("*l")
+number	返回一个指定字符个数的字符串，或在 EOF 时返回 nil。例：file.read(5)
+
+其他的 io 方法有：
+io.tmpfile():返回一个临时文件句柄，该文件以更新模式打开，程序结束时自动删除
+io.type(file): 检测obj是否一个可用的文件句柄
+io.flush(): 向文件写入缓冲中的所有数据
+io.lines(optional file name): 返回一个迭代函数,每次调用将获得文件中的一行内容,当到文件尾时，将返回nil,但不关闭文件
+
+
+
+通常我们需要在同一时间处理多个文件。我们需要使用 file:function_name 来代替 io.function_name 方法。以下实例演示了如何同时处理同一个文件:
+
+-- 以只读方式打开文件
+file = io.open("test.lua", "r")
+
+-- 输出文件第一行
+print(file:read())
+
+-- 关闭打开的文件
+file:close()
+
+-- 以附加的方式打开只写文件
+file = io.open("test.lua", "a")
+
+-- 在文件最后一行添加 Lua 注释
+file:write("--test")
+
+-- 关闭打开的文件
+file:close()
+
+。。上面的简单模式是通过io来进行读写，所以每次只能一个读写。这里是直接file读写，每个file都可以。
+
+read 的参数与简单模式一致。
+
+其他方法:
+
+file:seek(optional whence, optional offset): 设置和获取当前文件位置,成功则返回最终的文件位置(按字节),失败则返回nil加错误信息。参数 whence 值可以是:
+	"set": 从文件头开始
+	"cur": 从当前位置开始[默认]
+	"end": 从文件尾开始
+	offset:默认为0
+不带参数file:seek()则返回当前位置,file:seek("set")则定位到文件头,file:seek("end")则定位到文件尾并返回文件大小
+
+file:flush(): 向文件写入缓冲中的所有数据
+
+io.lines(optional file name): 打开指定的文件filename为读模式并返回一个迭代函数,每次调用将获得文件中的一行内容,当到文件尾时，将返回nil,并自动关闭文件。
+若不带参数时io.lines() <=> io.input():lines(); 读取默认输入设备的内容，但结束时不关闭文件,如：
+for line in io.lines("main.lua") do
+　　print(line)
+end
+
+
+使用了 seek 方法，定位到文件倒数第 25 个位置并使用 read 方法的 *a 参数，即从当期位置(倒数第 25 个位置)读取整个文件。
+-- 以只读方式打开文件
+file = io.open("test.lua", "r")
+
+file:seek("end",-25)
+print(file:read("*a"))
+
+-- 关闭打开的文件
+file:close()
+
+
+
+任何程序语言中，都需要错误处理。错误类型有：
+    语法错误
+    运行错误
+
+
+我们可以使用两个函数：assert 和 error 来处理错误。
+
+assert(type(a) == "number", "a 不是一个数字")
+
+assert首先检查第一个参数，若没问题，assert不做任何事情；否则，assert以第二个参数作为错误信息抛出。
+
+
+error (message [, level])
+终止正在执行的函数，并返回message的内容作为错误信息
+Level参数指示获得错误的位置:
+    Level=1[默认]：为调用error位置(文件+行号)
+    Level=2：指出哪个调用error的函数的函数
+    Level=0:不添加错误位置信息
+
+
+Lua中处理错误，可以使用函数pcall（protected call）来包装需要执行的代码。
+
+pcall接收一个函数和要传递给后者的参数，并执行，执行结果：有错误、无错误；返回值true或者或false, errorinfo。
+
+if pcall(function_name, ….) then
+-- 没有错误
+else
+-- 一些错误
+end
+
+
+> =pcall(function(i) print(i) end, 33)
+33
+true
+> =pcall(function(i) print(i) error('error..') end, 33)
+33
+false        stdin:1: error..
+
+。。 > =是什么。。页面上真这样的。。可能是某种cmd吧。
+
+
+通常在错误发生时，希望落得更多的调试信息，而不只是发生错误的位置。但pcall返回时，它已经销毁了调用桟的部分内容。
+
+Lua提供了xpcall函数，xpcall接收第二个参数——一个错误处理函数，当错误发生时，Lua会在调用桟展开（unwind）前调用错误处理函数，于是就可以在这个函数中使用debug库来获取关于错误的额外信息了。
+
+debug库提供了两个通用的错误处理函数:
+    debug.debug：提供一个Lua提示符，让用户来检查错误的原因
+    debug.traceback：根据调用桟来构建一个扩展的错误消息
+
+>=xpcall(function(i) print(i) error('error..') end, function() print(debug.traceback()) end, 33)
+33
+stack traceback:
+stdin:1: in function <stdin:1>
+[C]: in function 'error'
+stdin:1: in function <stdin:1>
+[C]: in function 'xpcall'
+stdin:1: in main chunk
+[C]: in ?
+false        nil
+
+
+
+function myfunction ()
+   n = n/nil
+end
+function myerrorhandler( err )
+   print( "ERROR:", err )
+end
+status = xpcall( myfunction, myerrorhandler )
+print( status)
+
+会出现如下错误：
+ERROR:    test2.lua:2: attempt to perform arithmetic on global 'n' (a nil value)
+false
+
+
+
+Lua 提供了 debug 库用于提供创建我们自定义调试器的功能。Lua 本身并未有内置的调试器，但很多开发者共享了他们的 Lua 调试器代码。
+
+Lua 中 debug 库包含以下函数：
+
+debug():
+进入一个用户交互模式，运行用户输入的每个字符串。 使用简单的命令以及其它调试设置，用户可以检阅全局变量和局部变量， 改变变量的值，计算一些表达式，等等。
+输入一行仅包含 cont 的字符串将结束这个函数
+
+getfenv(object):
+返回对象的环境变量。
+
+gethook(optional thread):
+返回三个表示线程钩子设置的值： 当前钩子函数，当前钩子掩码，当前钩子计数
+
+getinfo ([thread,] f [, what]):
+返回关于一个函数信息的表。 你可以直接提供该函数， 也可以用一个数字 f 表示该函数。 数字 f 表示运行在指定线程的调用栈对应层次上的函数： 0 层表示当前函数（getinfo 自身）； 1 层表示调用 getinfo 的函数 （除非是尾调用，这种情况不计入栈）；等等。 如果 f 是一个比活动函数数量还大的数字， getinfo 返回 nil。 
+
+debug.getlocal ([thread,] f, local):
+此函数返回在栈的 f 层处函数的索引为 local 的局部变量 的名字和值。 这个函数不仅用于访问显式定义的局部变量，也包括形参、临时变量等。 
+
+getmetatable(value):
+把给定索引指向的值的元表压入堆栈。如果索引无效，或是这个值没有元表，函数将返回 0 并且不会向栈上压任何东西。
+。。？压栈？get？
+
+getregistry():
+返回注册表表，这是一个预定义出来的表， 可以用来保存任何 C 代码想保存的 Lua 值。
+
+getupvalue (f, up)
+此函数返回函数 f 的第 up 个上值的名字和值。 如果该函数没有那个上值，返回 nil 。
+以 '(' （开括号）打头的变量名表示没有名字的变量 （去除了调试信息的代码块）。
+
+sethook ([thread,] hook, mask [, count]):
+将一个函数作为钩子函数设入。 字符串 mask 以及数字 count 决定了钩子将在何时调用。 掩码是由下列字符组合成的字符串，每个字符有其含义：
+'c': 每当 Lua 调用一个函数时，调用钩子；
+'r': 每当 Lua 从一个函数内返回时，调用钩子；
+'l': 每当 Lua 进入新的一行时，调用钩子。
+
+setlocal ([thread,] level, local, value):
+这个函数将 value 赋给 栈上第 level 层函数的第 local 个局部变量。 如果没有那个变量，函数返回 nil 。 如果 level 越界，抛出一个错误。
+
+setmetatable (value, table):
+将 value 的元表设为 table （可以是 nil）。 返回 value。
+
+setupvalue (f, up, value):
+这个函数将 value 设为函数 f 的第 up 个上值。 如果函数没有那个上值，返回 nil 否则，返回该上值的名字。
+
+traceback ([thread,] [message [, level]]):
+如果 message 有，且不是字符串或 nil， 函数不做任何处理直接返回 message。 否则，它返回调用栈的栈回溯信息。 字符串可选项 message 被添加在栈回溯信息的开头。 数字可选项 level 指明从栈的哪一层开始回溯 （默认为 1 ，即调用 traceback 的那里）。
+
+
+调试类型
+    命令行调试
+    图形界面调试
+
+命令行调试器有：RemDebug、clidebugger、ctrace、xdbLua、LuaInterface - Debugger、Rldb、ModDebug。
+
+图形界调试器有：SciTE、Decoda、ZeroBrane Studio、akdebugger、luaedit。
+
+
+Lua 采用了自动内存管理。
+
+Lua 实现了一个增量标记-扫描收集器。 它使用这两个数字来控制垃圾收集循环： 垃圾收集器间歇率和垃圾收集器步进倍率。 这两个数字都使用百分数为单位 （例如：值 100 在内部表示 1 ）。 
+
+
+垃圾收集器间歇率控制着收集器需要在开启新的循环前要等待多久。 增大这个值会减少收集器的积极性。 当这个值比 100 小的时候，收集器在开启新的循环前不会有等待。 设置这个值为 200 就会让收集器等到总内存使用量达到 之前的两倍时才开始新的循环。
+
+垃圾收集器步进倍率控制着收集器运作速度相对于内存分配速度的倍率。 增大这个值不仅会让收集器更加积极，还会增加每个增量步骤的长度。 不要把这个值设得小于 100 ， 那样的话收集器就工作的太慢了以至于永远都干不完一个循环。 默认值是 200 ，这表示收集器以内存分配的"两倍"速工作。 
+
+
+Lua 提供了以下函数collectgarbage ([opt [, arg]])用来控制自动内存管理:
+
+collectgarbage("collect"): 做一次完整的垃圾收集循环。通过参数 opt 它提供了一组不同的功能：
+
+collectgarbage("count"): 以 K 字节数为单位返回 Lua 使用的总内存数。 这个值有小数部分，所以只需要乘上 1024 就能得到 Lua 使用的准确字节数（除非溢出）。
+
+collectgarbage("restart"): 重启垃圾收集器的自动运行。
+
+collectgarbage("setpause"): 将 arg 设为收集器的 间歇率 （参见 §2.5）。 返回 间歇率 的前一个值。
+
+collectgarbage("setstepmul"): 返回 步进倍率 的前一个值。
+
+collectgarbage("step"): 单步运行垃圾收集器。 步长"大小"由 arg 控制。 传入 0 时，收集器步进（不可分割的）一步。 传入非 0 值， 收集器收集相当于 Lua 分配这些多（K 字节）内存的工作。 如果收集器结束一个循环将返回 true 。
+
+collectgarbage("stop"): 停止垃圾收集器的运行。 在调用重启前，收集器只会因显式的调用运行。
+
+
+
+
+面向对象特征
+
+1） 封装：指能够把一个实体的信息、功能、响应都装入一个单独的对象中的特性。
+2） 继承：继承的方法允许在不改动原程序的基础上对其进行扩充，这样使得原功能得以保存，而新功能也得以扩展。这有利于减少重复编码，提高软件的开发效率。
+3） 多态：同一操作作用于不同的对象，可以有不同的解释，产生不同的执行结果。在运行时，可以通过指向基类的指针，来调用实现派生类中的方法。
+4）抽象：抽象(Abstraction)是简化复杂的现实问题的途径，它可以为具体问题找到最恰当的类定义，并且可以在最恰当的继承级别解释问题。
+
+
+对象由属性和方法组成。LUA中最基本的结构是table，所以需要用table来描述对象的属性。
+
+lua 中的 function 可以用来表示方法。那么LUA中的类可以通过 table + function 模拟出来。
+
+至于继承，可以通过 metetable 模拟出来（不推荐用，只模拟最基本的对象大部分时间够用了）。
+
+
+Account = {balance = 0}
+function Account.withdraw (v)
+    Account.balance = Account.balance - v
+end
+这个定义创建了一个新的函数，并且保存在Account对象的withdraw域内，下面我们可以这样调用：
+Account.withdraw(100.00)
+
+。。不过，这是直接新建对象，不是新建类。。没办法复用吧。。可以new的。。下面。。
+
+
+以下简单的类包含了三个属性： area, length 和 breadth，printArea方法用于打印计算结果：
+-- 元类
+Rectangle = {area = 0, length = 0, breadth = 0}
+
+-- 派生类的方法 new
+function Rectangle:new (o,length,breadth)
+  o = o or {}
+  setmetatable(o, self)
+  self.__index = self
+  self.length = length or 0
+  self.breadth = breadth or 0
+  self.area = length*breadth;
+  return o
+end
+
+-- 派生类的方法 printArea
+function Rectangle:printArea ()
+  print("矩形面积为 ",self.area)
+end
+
+。。length or 0....
+
+r = Rectangle:new(nil,10,20)
+
+使用点号(.)来访问类的属性：
+print(r.length)
+
+可以使用冒号 : 来访问类的成员函数：
+r:printArea()
+
+
+
+-- 元类
+Shape = {area = 0}
+
+-- 基础类方法 new
+function Shape:new (o,side)
+  o = o or {}
+  setmetatable(o, self)
+  self.__index = self
+  side = side or 0
+  self.area = side*side;
+  return o
+end
+
+-- 基础类方法 printArea
+function Shape:printArea ()
+  print("面积为 ",self.area)
+end
+
+-- 创建对象
+myshape = Shape:new(nil,10)
+
+myshape:printArea()
+
+执行以上程序，输出结果为：
+
+面积为     100
+
+
+
+一个简单的继承实例：
+-- Meta class
+Shape = {area = 0}
+-- 基础类方法 new
+function Shape:new (o,side)
+  o = o or {}
+  setmetatable(o, self)
+  self.__index = self
+  side = side or 0
+  self.area = side*side;
+  return o
+end
+-- 基础类方法 printArea
+function Shape:printArea ()
+  print("面积为 ",self.area)
+end
+
+接下来的实例，Square 对象继承了 Shape 类:
+Square = Shape:new()
+-- Derived class method new
+function Square:new (o,side)
+  o = o or Shape:new(o,side)
+  setmetatable(o, self)
+  self.__index = self
+  return o
+end
+
+
+
+以下实例我们继承了一个简单的类，来扩展派生类的方法，派生类中保留了继承类的成员变量和方法：
+
+-- Meta class
+Shape = {area = 0}
+-- 基础类方法 new
+function Shape:new (o,side)
+  o = o or {}
+  setmetatable(o, self)
+  self.__index = self
+  side = side or 0
+  self.area = side*side;
+  return o
+end
+-- 基础类方法 printArea
+function Shape:printArea ()
+  print("面积为 ",self.area)
+end
+
+-- 创建对象
+myshape = Shape:new(nil,10)
+myshape:printArea()
+
+Square = Shape:new()
+-- 派生类方法 new
+function Square:new (o,side)
+  o = o or Shape:new(o,side)
+  setmetatable(o, self)
+  self.__index = self
+  return o
+end
+
+-- 派生类方法 printArea
+function Square:printArea ()
+  print("正方形面积为 ",self.area)
+end
+
+-- 创建对象
+mysquare = Square:new(nil,10)
+mysquare:printArea()
+
+Rectangle = Shape:new()
+-- 派生类方法 new
+function Rectangle:new (o,length,breadth)
+  o = o or Shape:new(o)
+  setmetatable(o, self)
+  self.__index = self
+  self.area = length * breadth
+  return o
+end
+
+-- 派生类方法 printArea
+function Rectangle:printArea ()
+  print("矩形面积为 ",self.area)
+end
+
+-- 创建对象
+myrectangle = Rectangle:new(nil,10,20)
+myrectangle:printArea()
+
+执行以上代码，输出结果为：
+
+面积为     100
+正方形面积为     100
+矩形面积为     200
+
+
+
+
+Lua 中我们可以重写基础类的函数，在派生类中定义自己的实现方式：
+-- 派生类方法 printArea
+function Square:printArea ()
+  print("正方形面积 ",self.area)
+end
+
+
+
+
+Lua 数据库的操作库：LuaSQL。他是开源的，支持的数据库有：ODBC, ADO, Oracle, MySQL, SQLite 和 PostgreSQL。
+本文为大家介绍MySQL的数据库连接。
+LuaSQL 可以使用 LuaRocks 来安装可以根据需要安装你需要的数据库驱动。
+
+
+
+require "luasql.mysql"
+
+--创建环境对象
+env = luasql.mysql()
+
+--连接数据库
+conn = env:connect("数据库名","用户名","密码","IP地址",端口)
+
+--设置数据库的编码格式
+conn:execute"SET NAMES UTF8"
+
+--执行数据库操作
+cur = conn:execute("select * from role")
+
+row = cur:fetch({},"a")
+
+--文件对象的创建
+file = io.open("role.txt","w+");
+
+while row do
+    var = string.format("%d %s\n", row.id, row.name)
+
+    print(var)
+
+    file:write(var)
+
+    row = cur:fetch(row,"a")
+end
+
+
+file:close()  --关闭文件对象
+conn:close()  --关闭数据库连接
+env:close()   --关闭数据库环境
+
+
+5.2 版本之后，require 不再定义全局变量，需要保存其返回值。
+require "luasql.mysql"
+需要写成:
+luasql = require "luasql.mysql"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+==============================
+==============================
+==============================
+以下来自
+http://cloudwu.github.io/lua53doc/manual.html
+
+。。只能作为工具书，不能入门学习。。本txt中所有的库函数都没有抄。
+
+chapter 1 简介
+
+作为一个强大、轻量的嵌入式脚本语言，可供任何需要的程序使用。
+
+Lua 由 clean C（标准 C 和 C++ 间共通的子集） 实现成一个库。
+
+Lua 没有 "main" 程序的概念： 它只能 嵌入 一个宿主程序中工作， 该宿主程序被称为 被嵌入程序 或者简称 宿主 。 
+宿主程序可以调用函数执行一小段 Lua 代码，可以读写 Lua 变量，可以注册 C 函数让 Lua 代码调用。 依靠 C 函数，Lua 可以共享相同的语法框架来定制编程语言，从而适用不同的领域。 
+Lua 的官方发布版包含一个叫做 lua 的宿主程序示例， 它是一个利用 Lua 库实现的完整独立的 Lua 解释器，可用于交互式应用或批处理。 
+
+
+
+chapter 2 基本概念
+
+Lua 是一门动态类型语言。 这意味着变量没有类型；只有值才有类型。 语言中不设类型定义。 所有的值携带自己的类型。 
+
+八种基本类型： nil、boolean、number、string、function、userdata、 thread 和 table。
+。。下面类型有时首字母大写，有时首字母小写。。。
+
+nil 和 false 都会导致条件判断为假； 而其它任何值都表示为真。
+
+Number 代表了整数和实数（浮点数）。 String 表示一个不可变的字节序列。
+
+程序员多数情况下可以选择忽略整数与浮点数之间的差异或者假设完全控制每个数字的内部表现方式。 标准 Lua 使用 64 位整数和双精度（64 位）浮点数， 但你也可以把 Lua 编译成使用 32 位整数和单精度（32 位）浮点数。 (参见 luaconf.h 文件中的宏 LUA_32BITS )
+
+Lua 可以调用（以及操作）用 Lua 或 C （参见 §3.4.10）编写的函数。 这两种函数有统一类型 function。 
+
+userdata 类型允许将 C 中的数据保存在 Lua 变量中。
+用户数据类型的值是一个内存块， 有两种用户数据： 
+完全用户数据 ，指一块由 Lua 管理的内存对应的对象； 
+轻量用户数据 ，则指一个简单的 C 指针。
+
+thread 类型表示了一个独立的执行序列，被用于实现协程 （参见 §2.6）。 Lua 的线程与操作系统的线程毫无关系。 Lua 为所有的系统，包括那些不支持原生线程的系统，提供了协程支持。 
+
+table 是一个关联数组， 也就是说，这个数组不仅仅以数字做索引，除了 nil 和 NaN 之外的所有 Lua 值 都可以做索引。
+表可以是 异构 的； 也就是说，表内可以包含任何类型的值（ nil 除外）。 
+任何键的值若为 nil 就不会被记入表结构内部。
+。。Map<Object, Object>.。方法也可以。。
+
+表是 Lua 中唯一的数据结构， 它可被用于表示普通数组、序列、符号表、集合、记录、图、树等等。
+
+序列 这个术语来表示一个用 {1..n} 的正整数集做索引的表。 这里的非负整数 n 被称为该序列的长度
+
+索引一张表的原则遵循语言中的直接比较规则。 当且仅当 i 与 j直接比较相等时 （即不通过元方法的比较）， 表达式 a[i] 与 a[j] 表示了表中相同的元素。
+
+一个可以完全表示为整数的浮点数和对应的整数相等 （例如：1.0 == 1）。
+
+当一个可以完全表示为整数的浮点数做为键值时， 都会被转换为对应的整数储存。 例如，当你写 a[2.0] = true 时， 实际被插入表中的键是整数 2 。
+
+2 与 "2" 是两个不同的 Lua 值， 故而它们可以是同一张表中的不同项。
+
+库函数 type 用于以字符串形式返回给定值的类型。
+
+
+引用一个叫 var 的自由名字（指在任何层级都未被声明的名字） 在句法上都被翻译为 _ENV.var
+被 _ENV 用于值的那张表被称为 环境。 
+Lua 保有一个被称为 全局环境 特别环境。它被保存在 C 注册表 （参见 §4.5）的一个特别索引下。 在 Lua 中，全局变量 _G 被初始化为这个值。
+。。约等于一个命名空间？
+
+
+Lua 是一门嵌入式扩展语言，其所有行为均源于宿主程序中 C 代码对某个 Lua 库函数的调用。 （单独使用 Lua 时，lua 程序就是宿主程序。）
+在编译或运行 Lua 代码块的过程中，无论何时发生错误， 控制权都返回给宿主，由宿主负责采取恰当的措施（比如打印错误消息）。 
+
+可以在 Lua 代码中调用 error 函数来显式地抛出一个错误。 如果你需要在 Lua 中捕获这些错误， 可以使用 pcall 或 xpcall 在 保护模式 下调用一个函数。
+
+使用 xpcall 或 lua_pcall 时， 你应该提供一个 消息处理函数 用于错误抛出时调用。
+
+
+Lua 中的每个值都可以有一个 元表。 这个 元表 就是一个普通的 Lua 表， 它用于定义原始值在特定操作下的行为。 
+如果你想改变一个值在特定操作下的行为，你可以在它的元表中设置对应域。 
+例如，当你对非数字值做加操作时， Lua 会检查该值的元表中的 "__add" 域下的函数。 如果能找到，Lua 则调用这个函数来完成加这个操作。
+。。类与类方法。operator+。
+
+在元表中事件的键值是一个双下划线（__）加事件名的字符串； 键关联的那些值被称为 元方法。 
+在上一个例子中，__add 就是键值， 对应的元方法是执行加操作的函数。
+
+用 getmetatable 函数 来获取任何值的元表。
+
+使用 setmetatable 来替换一张表的元表。
+在 Lua 中，你不可以改变表以外其它类型的值的元表；
+若想改变这些非表类型的值的元表，请使用 C API。 
+
+表和完全用户数据有独立的元表（当然，多个表和用户数据可以共享同一个元表）
+其它类型的值按类型共享元表； 也就是说所有的数字都共享同一个元表
+默认情况下，值是没有元表的
+。。值是int，，对象是Integer？
+
+元表决定了一个对象在数学运算、位运算、比较、连接、 取长度、调用、索引时的行为。
+
+元表还可以定义一个函数，当表对象或用户数据对象在垃圾回收时调用它
+
+对于一元操作符（取负、求长度、位反），元方法调用的时候，第二个参数是个哑元，其值等于第一个参数。 
+这样处理仅仅是为了简化Lua的内部实现（这样处理可以让所有的操作都和二元操作一致），这个行为有可能在将来的版本中移除。（使用这个额外参数的行为都是不确定的。） 
+
+
+__add: + 操作。 如果任何不是数字的值（包括不能转换为数字的字符串）做加法， Lua 就会尝试调用元方法。 首先、Lua 检查第一个操作数（即使它是合法的）， 如果这个操作数没有为 "__add" 事件定义元方法， Lua 就会接着检查第二个操作数。 一旦 Lua 找到了元方法， 它将把两个操作数作为参数传入元方法， 元方法的结果（调整为单个值）作为这个操作的结果。 如果找不到元方法，将抛出一个错误。
+
+__sub: - 操作。 行为和 "add" 操作类似。
+
+__mul: * 操作。 行为和 "add" 操作类似。
+
+__div: / 操作。 行为和 "add" 操作类似。
+
+__mod: % 操作。 行为和 "add" 操作类似。
+
+__pow: ^ （次方）操作。 行为和 "add" 操作类似。
+
+__unm: - （取负）操作。 行为和 "add" 操作类似。
+
+__idiv: // （向下取整除法）操作。 行为和 "add" 操作类似。
+
+__band: & （按位与）操作。 行为和 "add" 操作类似， 不同的是 Lua 
+会在任何一个操作数无法转换为整数时 （参见 §3.4.3）尝试取元方法。
+
+__bor: | （按位或）操作。 行为和 "band" 操作类似。
+
+__bxor: ~ （按位异或）操作。 行为和 "band" 操作类似。
+
+__bnot: ~ （按位非）操作。 行为和 "band" 操作类似。
+
+__shl: << （左移）操作。 行为和 "band" 操作类似。
+
+__shr: >> （右移）操作。 行为和 "band" 操作类似。
+
+__concat: .. （连接）操作。 行为和 "add" 操作类似， 不同的是 Lua 在任何操作数即不是一个字符串 也不是数字（数字总能转换为对应的字符串）的情况下尝试元方法。
+
+__len: # （取长度）操作。 如果对象不是字符串，Lua 会尝试它的元方法。 如果有元方法，则调用它并将对象以参数形式传入， 而返回值（被调整为单个）则作为结果。 如果对象是一张表且没有元方法， Lua 使用表的取长度操作（参见 §3.4.7）。 其它情况，均抛出错误。
+
+__eq: == （等于）操作。 和 "add" 操作行为类似， 不同的是 Lua 仅在两个值都是表或都是完全用户数据 且它们不是同一个对象时才尝试元方法。 调用的结果总会被转换为布尔量。
+
+__lt: < （小于）操作。 和 "add" 操作行为类似， 不同的是 Lua 仅在两个值不全为整数也不全为字符串时才尝试元方法。 调用的结果总会被转换为布尔量。
+
+__le: <= （小于等于）操作。 和其它操作不同， 小于等于操作可能用到两个不同的事件。 首先，像 "lt" 操作的行为那样，Lua 在两个操作数中查找 "__le" 元方法。 如果一个元方法都找不到，就会再次查找 "__lt" 事件， 它会假设 a <= b 等价于 not (b < a)。 而其它比较操作符类似，其结果会被转换为布尔量。
+
+__index: 索引 table[key]。 当 table 不是表或是表 table 中不存在 key 这个键时，这个事件被触发。 此时，会读出 table 相应的元方法。
+尽管名字取成这样， 这个事件的元方法其实可以是一个函数也可以是一张表。 如果它是一个函数，则以 table 和 key 作为参数调用它。 如果它是一张表，最终的结果就是以 key 取索引这张表的结果。 （这个索引过程是走常规的流程，而不是直接索引， 所以这次索引有可能引发另一次元方法。）
+
+__newindex: 索引赋值 table[key] = value 。 和索引事件类似，它发生在 table 不是表或是表 table 中不存在 key 这个键的时候。 此时，会读出 table 相应的元方法。
+同索引过程那样， 这个事件的元方法即可以是函数，也可以是一张表。 如果是一个函数， 则以 table、 key、以及 value 为参数传入。 如果是一张表， Lua 对这张表做索引赋值操作。 （这个索引过程是走常规的流程，而不是直接索引赋值， 所以这次索引赋值有可能引发另一次元方法。）
+一旦有了 "newindex" 元方法， Lua 就不再做最初的赋值操作。 （如果有必要，在元方法内部可以调用 rawset 来做赋值。）
+
+__call: 函数调用操作 func(args)。 当 Lua 尝试调用一个非函数的值的时候会触发这个事件 （即 func 不是一个函数）。 查找 func 的元方法， 如果找得到，就调用这个元方法， func 作为第一个参数传入，原来调用的参数（args）后依次排在后面。
+
+
+Lua 采用了自动内存管理
+
+Lua 实现了一个增量标记-扫描收集器。
+使用这两个数字来控制垃圾收集循环： 垃圾收集器间歇率 和 垃圾收集器步进倍率。 这两个数字都使用百分数为单位 （例如：值 100 在内部表示 1 ）。 
+
+垃圾收集器间歇率控制着收集器需要在开启新的循环前要等待多久。 增大这个值会减少收集器的积极性。 当这个值比 100 小的时候，收集器在开启新的循环前不会有等待。 设置这个值为 200 就会让收集器等到总内存使用量达到 之前的两倍时才开始新的循环。 
+
+垃圾收集器步进倍率控制着收集器运作速度相对于内存分配速度的倍率。 增大这个值不仅会让收集器更加积极，还会增加每个增量步骤的长度。 不要把这个值设得小于 100 ， 那样的话收集器就工作的太慢了以至于永远都干不完一个循环。 默认值是 200 ，这表示收集器以内存分配的“两倍”速工作。 
+
+在 C 中调用 lua_gc 或在 Lua 中调用 collectgarbage 来改变这俩数字。 这两个函数也可以用来直接控制收集器（例如停止它或重启它）。 
+
+当一个被标记的对象成为了垃圾后， 垃圾收集器并不会立刻回收它。 取而代之的是，Lua 会将其置入一个链表。 在收集完成后，Lua 将遍历这个链表。 Lua 会检查每个链表中的对象的 __gc 元方法：如果是一个函数，那么就以对象为唯一参数调用它； 否则直接忽略它。 
+
+由于被回收的对象还需要被终结器使用， 该对象（以及仅能通过它访问到的其它对象）一定会被 Lua 复活。 通常，复活是短暂的，对象所属内存会在下一个垃圾收集循环释放。
+
+
+弱表 指内部元素为 弱引用 的表。 垃圾收集器会忽略掉弱引用。 换句话说，如果一个对象只被弱引用引用到，垃圾收集器就会回收这个对象。 
+
+一张表的元表中的 __mode 域控制着这张表的弱属性。 
+当 __mode 域是一个包含字符 'k'的字符串时，这张表的所有键皆为弱引用。 
+当 __mode 域是一个包含字符 'v'的字符串时，这张表的所有值皆为弱引用。 
+
+属性为弱键强值的表也被称为暂时表。对于一张暂时表，它的值是否可达仅取决于其对应键是否可达。 
+特别注意，如果表内的一个键仅仅被其值所关联引用，这个键值对将被表内移除。 
+
+
+Lua支持协程，也叫协同式多线程。一个协程在Lua中代表了一段独立的执行线程。
+然而，与多线程系统中的线程的区别在于，协程仅在显式调用一个让出（yield）函数时才挂起当前的执行。 
+
+调用函数coroutine.create可创建一个协程。其唯一的参数是该协程的主函数。create函数只负责新建一个协程并返回其句柄（一个thread类型的对象）； 而不会启动该协程。
+
+调用 coroutine.resume 函数执行一个协程。 
+第一次调用 coroutine.resume 时，第一个参数应传入 coroutine.create 返回的线程对象，然后协程从其主函数的第一行开始执行。 
+传递给 coroutine.resume 的其他参数将作为协程主函数的参数传入。 
+协程启动之后，将一直运行到它终止或 让出。 
+
+协程的运行可能被两种方式终止： 
+正常途径是主函数返回 （显式返回或运行完最后一条指令）； 非正常途径是发生了一个未被捕获的错误。 
+对于正常结束，coroutine.resume将返回true，并接上协程主函数的返回值。 
+当错误发生时， coroutine.resume 将返回 false 与错误消息。
+
+通过调用 coroutine.yield 使协程暂停执行，让出执行权。
+协程让出时，对应的最近 coroutine.resume 函数会立刻返回
+在协程让出的情况下， coroutine.resume 也会返回 true， 并加上传给 coroutine.yield 的参数。 当下次重启同一个协程时， 协程会接着从让出点继续执行。 
+此时，此前让出点处对 coroutine.yield 的调用 会返回，返回值为传给 coroutine.resume 的第一个参数之外的其他参数。 
+
+与 coroutine.create 类似， coroutine.wrap 函数也会创建一个协程。 不同之处在于，它不返回协程本身，而是返回一个函数。调用这个函数将启动该协程。
+传递给该函数的任何参数均当作 coroutine.resume 的额外参数。 
+coroutine.wrap返回coroutine.resume的所有返回值，除了第一个返回值（布尔型的错误码）。 
+和coroutine.resume不同，coroutine.wrap不会捕获错误；而是将任何错误都传播给调用者。 
+
+也可以通过 C API 来创建及操作协程： 参见函数 lua_newthread， lua_resume， 以及 lua_yield。 
+
+
+chapter 3
+
+Lua 语言的格式自由。 
+它会忽略语法元素（符记）间的空格（包括换行）和注释，仅把它们看作为名字和关键字间的分割符。 
+
+Lua中的名字（也被称为标识符）可以是由非数字打头的任意字母下划线和数字构成的字符串。 
+标识符可用于对变量、表的域、以及标签命名。 
+
+下列 关键字 是保留的，不可用于名字：
+     and       break     do        else      elseif    end
+     false     for       function  goto      if        in
+     local     nil       not       or        repeat    return
+     then      true      until     while
+
+Lua 语言对大小写敏感
+作为一个约定，程序应避免创建以下划线加一个或多个大写字母构成的名字 （例如 _VERSION）。 
+
+下列字符串是另外一些符记：
+     +     -     *     /     %     ^     #
+     &     ~     |     <<    >>    //
+     ==    ~=    <=    >=    <     >     =
+     (     )     {     }     [     ]     ::
+     ;     :     ,     .     ..    ...
+
+字面串可以用单引号或双引号括起。字面串内部可以包含C风格的转义串.
+
+Lua 中的字符串可以保存任意 8 位值，其中包括用 '\0' 表示的 0 .
+
+可以用字符的数字值来表示这个字符。
+方式是用转义串 \xXX， 此处的 XX 必须是恰好两个字符的 16 进制数。 
+或者你也可以使用转义串 \ddd ， 这里的 ddd 是一到三个十进制数字。
+
+对于用 UTF-8 编码的 Unicode 字符，你可以用 转义符 \u{XXX} 来表示 （这里必须有一对花括号）， 此处的 XXX 是用 16 进制表示的字符编号。 
+
+字面串还可以用一种 长括号 括起来的方式定义。 我们把两个正的方括号间插入 n 个等号定义为 第 n 级开长括号。
+一个长字面串可以由任何一级的开长括号开始，而由第一个碰到的同级的闭长括号结束
+这种方式描述的字符串可以包含任何东西，当然特定级别的反长括号除外。 
+整个词法分析过程将不受分行限制，不处理任何转义符，并且忽略掉任何不同级别的长括号。其中碰到的任何形式的换行串（回车、换行、回车加换行、换行加回车），都会被转换为单个换行符。 
+
+下面五种方式描述了完全相同的字符串：
+     a = 'alo\n123"'
+     a = "alo\n123\""
+     a = '\97lo\10\04923"'
+     a = [[alo
+     123"]]
+     a = [==[
+     alo
+     123"]==]
+
+
+数字常量 （或称为 数字量） 可以由可选的小数部分和可选的十为底的指数部分构成， 指数部分用字符 'e' 或 'E' 来标记
+
+Lua 也接受以 0x 或 0X 开头的 16 进制常量
+16 进制常量也接受小数加指数部分的形式，指数部分是以二为底， 用字符 'p' 或 'P' 来标记。 
+
+数字常量中包含小数点或指数部分时，被认为是一个浮点数；否则被认为是一个整数。
+
+一些合法的整数常量的例子：
+     3   345   0xff   0xBEBADA
+
+以下为合法的浮点常量：
+     3.0     3.1416     314.16e-2     0.31416E1     34e1
+     0x0.1E  0xA23p-4   0X1.921FB54442D18P+1
+
+在字符串外的任何地方出现以双横线 (--) 开头的部分是 注释 。 
+如果--后没有紧跟着一个开大括号，该注释为短注释，注释到当前行末截至。 
+否则，这是一段长注释，注释区一直维持到对应的闭长括号。长注释通常用于临时屏蔽掉一大段代码。 
+
+
+Lua 中有三种变量： 全局变量、局部变量和表的域。 
+
+单个名字(标识符)可以指代一个全局变量也可以指代一个局部变量（或者是一个函数的形参，这是一种特殊形式的局部变量）。 
+
+所有没有显式声明为局部变量的变量名都被当做全局变量。
+
+在变量的首次赋值之前，变量的值均为 nil。 
+
+方括号被用来对表作索引
+。。举的例子太差了。。。
+
+
+语句块是一个语句序列，它们会按次序执行
+block ::= {stat}
+
+Lua 支持 空语句， 你可以用分号分割语句，也可以以分号开始一个语句块， 或是连着写两个分号
+
+函数调用和赋值语句都可能以一个小括号打头， 这可能让Lua的语法产生歧义
+
+     a = b + c
+     (print or io.write)('done')
+从语法上说，可能有两种解释方式：
+     a = b + c(print or io.write)('done')
+     a = b + c; (print or io.write)('done')
+
+当前的解析器总是用第一种结构来解析， 它会将开括号看成函数调用的参数传递开始处。 为了避免这种二义性， 在一条语句以小括号开头时，前面放一个分号是个好习惯：
+     ;(print or io.write)('done')
+
+一个语句块可以被显式的定界为单条语句：
+	stat ::= do block end
+
+显式的对一个块定界通常用来控制内部变量声明的作用域。 有时，显式定界也用于在一个语句块中间插入 return 
+
+ Lua 的一个编译单元被称为一个 代码块。 从句法构成上讲，一个代码块就是一个语句块。
+	chunk ::= block
+	
+Lua 把一个代码块当作一个拥有不定参数的匿名函数来处理。 正是这样，代码块内可以定义局部变量，它可以接收参数，返回若干值。
+
+该函数总是把 _ENV 作为它唯一的一个上值， 即使这个函数不使用这个变量，它也存在。 
+
+代码块可以被保存在文件中，也可以作为宿主程序内部的一个字符串。 要执行一个代码块， 首先要让 Lua 加载 它， 将代码块中的代码预编译成虚拟机中的指令， 而后，Lua 用虚拟机解释器来运行编译后的代码。
+
+代码块可以被预编译为二进制形式；用源码表示的程序和编译后的形式可自由替换； Lua 会自动检测文件格式做相应的处理 （参见 load）。 
+
+
+Lua 允许多重赋值
+赋值的语法定义是等号左边放一个变量列表， 而等号右边放一个表达式列表
+
+在作赋值操作之前， 值列表会被 调整 为左边变量列表的个数。 如果值比需要的更多的话，多余的值就被扔掉。 如果值的数量不够需求， 将会按所需扩展若干个 nil。
+
+如果表达式列表以一个函数调用结束，这个函数所返回的所有值都会在调整操作之前被置入值列表中 （除非这个函数调用被用括号括了起来）
+
+赋值语句首先让所有的表达式完成运算， 之后再做赋值操作。 因此，下面这段代码
+     i = 3
+     i, a[i] = i+1, 20
+会把 a[3] 设置为 20，而不会影响到 a[4] 。 
+
+     x, y = y, x
+会交换 x 和 y 的值， 及
+     x, y, z = y, z, x
+会轮换 x，y，z 的值。 
+
+对于全局变量 x = val 的赋值等价于 _ENV.x = val
+
+
+
+if, while, repeat 这些控制结构符合通常的意义，而且也有类似的语法：
+	stat ::= while exp do block end
+	stat ::= repeat block until exp
+	stat ::= if exp then block {elseif exp then block} [else block] end
+
+Lua 也有一个 for 语句，它有两种形式
+
+控制结构中的条件表达式可以返回任何值。 
+false 与 nil 两者都被认为是假。 
+所有不同于 nil 与 false 的其它值都被认为是真 （特别需要注意的是，数字 0 和空字符串也被认为是真）。 
+
+在 repeat–until 循环中， 内部语句块的结束点不是在 until 这个关键字处， 它还包括了其后的条件表达式。 因此，条件表达式中可以使用循环内部语句块中的定义的局部变量。
+
+goto 语句将程序的控制点转移到一个标签处。
+
+break 被用来结束 while、 repeat、或 for 循环， 它将跳到循环外接着之后的语句运行
+break 跳出最内层的循环。 
+
+return 被用于从函数或是代码块（其实它就是一个函数） 中返回值。 函数可以返回不止一个值
+
+
+for 有两种形式：一种是数字形式，另一种是通用形式。 
+。。根本不能看啊。。比如语法是：
+stat ::= for Name ‘=’ exp ‘,’ exp [‘,’ exp] do block end
+
+block 将把 name 作循环变量。 从第一个 exp 开始起，直到第二个 exp 的值为止， 其步长为第三个 exp 。 
+
+通用形式的 for 通过一个叫作 迭代器 的函数工作。 每次迭代，迭代器函数都会被调用以产生一个新的值， 当这个值为 nil 时，循环停止。
+
+
+局部变量可以在语句块中任何地方声明。 声明可以包含一个初始化赋值操作：
+	stat ::= local namelist [‘=’ explist]
+
+可变参数的表达式写作三个点（'...'）， 它只能在有可变参数的函数中直接使用；
+。。上面还有exp ::= ‘...’，可以把可变参数列表作为一个变量值？
+
+函数调用和可变参数表达式都可以放在多重返回值中。 如果函数调用被当作一条语句（参见 §3.3.6）， 其返回值列表被调整为零个元素，即抛弃所有的返回值。 如果表达式被用于表达式列表的最后（或是唯一的）一个元素， 那么不会做任何调整（除非表达式被括号括起来）。 在其它情况下， Lua 都会把结果调整为一个元素置入表达式列表中， 即保留第一个结果而忽略之后的所有值，或是在没有结果时， 补单个 nil。 
+
+一些例子：
+     f()                -- 调整为 0 个结果
+     g(f(), x)          -- f() 会被调整为一个结果
+     g(x, f())          -- g 收到 x 以及 f() 返回的所有结果
+     a,b,c = f(), x     -- f() 被调整为 1 个结果 （c 收到 nil）
+     a,b = ...          -- a 收到可变参数列表的第一个参数，
+                        -- b 收到第二个参数（如果可变参数列表中
+                        -- 没有实际的参数，a 和 b 都会收到 nil）
+     
+     a,b,c = x, f()     -- f() 被调整为 2 个结果
+     a,b,c = f()        -- f() 被调整为 3 个结果
+     return f()         -- 返回 f() 的所有返回结果
+     return ...         -- 返回从可变参数列表中接收到的所有参数parameters
+     return x,y,f()     -- 返回 x, y, 以及 f() 的所有返回值
+     {f()}              -- 用 f() 的所有返回值创建一个列表
+     {...}              -- 用可变参数中的所有值创建一个列表
+     {f(), nil}         -- f() 被调整为一个结果
+
+被括号括起来的表达式永远被当作一个值。 所以， (f(x,y,z)) 即使 f 返回多个值， 这个表达式永远是一个单一值。 （(f(x,y,z)) 的值是 f 返回的第一个值。 如果 f 不返回值的话，那么它的值就是 nil 。） 
+
+
+Lua 支持下列数学运算操作符：
+    +: 加法
+    -: 减法
+    *: 乘法
+    /: 浮点除法
+    //: 向下取整除法
+    %: 取模
+    ^: 乘方
+    -: 取负
+
+乘方和浮点除法 （/） 总是把操作数转换成浮点数进行，其结果总是浮点数。 乘方使用 ISO C 函数 pow， 因此它也可以接受非整数的指数。
+
+向下取整的除法 （//） 指做一次除法，并将商圆整到靠近负无穷的一侧， 即对操作数做除法后取 floor 。
+
+取模被定义成除法的余数，其商被圆整到靠近负无穷的一侧（向下取整的除法）。 
+
+
+Lua 支持下列位操作符：
+    &: 按位与
+    |: 按位或
+    ~: 按位异或
+    >>: 右移
+    <<: 左移
+    ~: 按位非
+。。最上面也是，异或应该是^吧？。不过也能分辨，一个是二元运算，一个一元运算。
+
+所有的位操作都将操作数先转换为整数,然后按位操作，其结果是一个整数。
+
+对于右移和左移，均用零来填补空位。 移动的位数若为负，则向反方向位移； 若移动的位数的绝对值大于等于 整数本身的位数，其结果为零 （所有位都被移出）。 
+
+
+Lua 对一些类型和值的内部表示会在运行时做一些数学转换。
+
+位操作总是将浮点操作数转换成整数。 乘方和浮点除法总是将整数转换为浮点数。 其它数学操作若针对混合操作数 （整数和浮点数）将把整数转换为浮点数；
+
+C API 同样会按需把整数转换为浮点数以及 把浮点数转换为整数。 此外，字符串连接操作除了字符串，也可以接受数字作为参数。 
+
+当操作需要数字时，Lua 还会把字符串转换为数字。 
+
+当把一个整数转换为浮点数时， 若整数值恰好可以表示为一个浮点数，那就取那个浮点数。 否则，转换会取最接近的较大值或较小值来表示这个数。 这种转换是不会失败的。 
+
+若想完全控制数字到字符串的转换过程， 可以使用字符串库中的 format 函数
+
+Lua 支持下列比较操作符：
+    ==: 等于
+    ~=: 不等于
+    <: 小于
+    >: 大于
+    <=: 小于等于
+    >=: 大于等于
+这些操作的结果不是 false 就是 true。 
+
+等于操作 （==）先比较操作数的类型。 
+如果类型不同，结果就是 false。 否则，继续比较值。 
+字符串按一般的方式比较。 
+数字遵循二元操作的规则： 如果两个操作数都是整数， 它们按整数比较； 否则，它们先转换为浮点数，然后再做比较。 
+
+表，用户数据，以及线程都按引用比较： 只有两者引用同一个对象时才认为它们相等。
+
+等于操作不会将字符串转换为数字，反之亦然。 即，"0"==0 结果为 false， 且 t[0] 与 t["0"] 指代着表中的不同项。 
+
+~= 操作完全等价于 (==) 操作的反值。 
+
+
+Lua 中的逻辑操作符有 and， or，以及 not。
+所有的逻辑操作符把 false 和 nil 都作为假， 而其它的一切都当作真。 
+
+取反操作 not 总是返回 false 或 true 中的一个。 
+与操作符 and 在第一个参数为 false 或 nil 时 返回这第一个参数； 否则，and 返回第二个参数。 
+或操作符 or 在第一个参数不为 nil 也不为 false 时， 返回这第一个参数，否则返回第二个参数。 
+and 和 or 都遵循短路规则； 
+
+。。test。。直接赋值的时候，有个i=3.i,x = 20, a[i+1],.。。那么这里如果第二个参数也有这种计算，那么是否会执行？。。估计不会。
+
+     10 or 20            --> 10
+     10 or error()       --> 10
+     nil or "a"          --> "a"
+     nil and 10          --> nil
+     false and error()   --> false
+     false and nil       --> false
+     false or nil        --> nil
+     10 and 20           --> 20
+
+
+Lua 中字符串的连接操作符写作两个点（'..'）。 如果两个操作数都是字符串或都是数字， 连接操作将以 §3.4.3 中提到的规则把其转换为字符串。 否则，会调用元方法 __concat 
+
+
+取长度操作符写作一元前置符 #。 字符串的长度是它的字节数（就是以一个字符一个字节计算的字符串长度）。 
+
+如果 __len 元方法没有给出， 表 t 的长度只在表是一个 序列 时有定义。 序列指表的正数键集等于 {1..n} ， 其中 n 是一个非负整数。 在这种情况下，n 是表的长度。 注意这样的表
+
+     {10, 20, nil, 40}
+不是一个序列，因为它有键 4 却没有键 3。 （因此，该表的正整数键集不等于 {1..n} 集合，故而就不存在 n。） 注意，一张表是否是一个序列和它的非数字键无关。 
+
+
+Lua 中操作符的优先级写在下表中，从低到高优先级排序：
+     or
+     and
+     <     >     <=    >=    ~=    ==
+     |
+     ~
+     &
+     <<    >>
+     ..
+     +     -
+     *     /     //    %
+     unary operators (not   #     -     ~)
+     ^
+
+可以用括号来改变运算次序。 连接操作符 ('..') 和乘方操作 ('^') 是从右至左的。 其它所有的操作都是从左至右。 
+
+。。gg。。。这网页太难了。。。随便看看了。
+
+function f () body end
+被转译成
+f = function () body end
+
+function t.a.b.c.f () body end
+被转译成
+t.a.b.c.f = function () body end
+
+local function f () body end
+被转译成
+local f; f = function () body end
+而不是
+local f = function () body end
+（这个差别只在函数体内需要引用 f 时才有。） 
+
+
+一个函数定义是一个可执行的表达式， 执行结果是一个类型为 function 的值。
+
+function f(a, b) end
+function g(a, b, ...) end
+function r() return 1,2,3 end
+
+
+冒号 语法可以用来定义 方法， 就是说，函数可以有一个隐式的形参 self。 因此，如下语句
+function t.a.b.c:f (params) body end
+是这样一种写法的语法糖
+t.a.b.c.f = function (self, params) body end
+
+
+每次执行到一个 local 语句都会定义出一个新的局部变量。 看看这样一个例子：
+     a = {}
+     local x = 20
+     for i=1,10 do
+       local y = 0
+       a[i] = function () y=y+1; return x+y end
+     end
+这个循环创建了十个闭包（这指十个匿名函数的实例）。 这些闭包中的每一个都使用了不同的 y 变量， 而它们又共享了同一份 x。 
+
+
+Lua 的 C API ， 也就是宿主程序跟 Lua 通讯用的一组 C 函数。
+所有的 API 函数按相关的类型以及常量都声明在头文件 lua.h 中。 
+
+C 库中所有的 Lua API 函数都不去检查参数是否相容及有效。 然而，你可以在编译 Lua 时加上打开一个宏开关 LUA_USE_APICHECK 来改变这个行为。 
+
+Lua 使用一个 虚拟栈 来和 C 互传值。 栈上的的每个元素都是一个 Lua 值
+
+当你使用 Lua API 时， 就有责任保证做恰当的调用。 
+你有责任控制不要堆栈溢出。 你可以使用 lua_checkstack 这个函数来扩大可用堆栈的尺寸。 
+
+无论何时 Lua 调用 C ， 它都只保证至少有 LUA_MINSTACK 这么多的堆栈空间可以使用。 LUA_MINSTACK 一般被定义为 20 
+
+当你调用一个 Lua 函数却没有指定要接收多少个返回值时 （参见 lua_call）， Lua 可以保证栈一定有足够的空间来接收所有的返回值， 但不保证此外留有额外的空间。 因此，在做了一次这样的调用后，如果你需要继续压栈， 则需要使用 lua_checkstack。 
+
+API 中的函数若需要传入栈索引，这个索引必须是 有效索引 或是 可接受索引。 
+
+在内部实现中，Lua 使用了 C 的 longjmp 机制来处理错误。
+如果你使用 C++ 编译，Lua 将换成异常； 细节请在源代码中搜索 LUAI_THROW。
+
+
+lua_Debug
+
+typedef struct lua_Debug {
+  int event;
+  const char *name;           /* (n) */
+  const char *namewhat;       /* (n) */
+  const char *what;           /* (S) */
+  const char *source;         /* (S) */
+  int currentline;            /* (l) */
+  int linedefined;            /* (S) */
+  int lastlinedefined;        /* (S) */
+  unsigned char nups;         /* (u) 上值的数量 */
+  unsigned char nparams;      /* (u) 参数的数量 */
+  char isvararg;              /* (u) */
+  char istailcall;            /* (t) */
+  char short_src[LUA_IDSIZE]; /* (S) */
+  /* 私有部分 */
+  其它域
+} lua_Debug;
+
+
+辅助库 提供了一些便捷函数，方便在 C 中为 Lua 编程。 基础 API 提供了 C 和 Lua 交互用的主要函数， 而辅助库则为一些常见的任务提供了高阶函数。
+
+所有辅助库中的函数和类型都定义在头文件 lauxlib.h 中， 它们均带有前缀 luaL_。 
+
+
+所有的库都是直接用 C API 实现的，并以分离的 C 模块形式提供。 目前，Lua 有下列标准库：
+    基础库 (§6.1);
+    协程库 (§6.2);
+    包管理库 (§6.3);
+    字符串控制 (§6.4);		。。StringUtil。正则。打包
+    基础 UTF-8 支持 (§6.5);
+    表控制 (§6.6);
+    数学函数 (§6.7) (sin ，log 等);
+    输入输出 (§6.8);
+    操作系统库 (§6.9);
+    调试库 (§6.10).
+
+
+
+虽然 Lua 被设计成一门扩展式语言，用于嵌入一个宿主程序。 但经常也会被当成独立语言使用。 独立版的 Lua 语言解释器随标准包发布，就叫 lua。
+
+
+
+Lua 的版本更替总是会修改一些 C API 并涉及源代码的改变
+你不能假设在不同的 Lua 版本间可以做到二进制兼容。 当你使用新版时，一定要将使用了 Lua API 的客户程序重新编译。 
+
+同样，Lua 版本更替还会改变预编译代码块的内部呈现方式； 在不同的 Lua 版本间，预编译代码块不兼容。 
+
+
+
+==============================
+==============================
+==============================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

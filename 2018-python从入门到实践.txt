@@ -1,0 +1,1006 @@
+
+
+Geany是一款简单的文本编辑器。
+
+msg = "ada is GOOD"
+print(msg.title())
+
+title()是每个单词的首字母大写，其余字母小写。
+这种就是能把ADA，ada，aDA，转成同一个名字。
+
+upper 全大
+lower 全小
+
++拼接字符串
+
+\t,\n
+
+rstrip()	删除末尾的空白
+lstrip	开头
+strip	两端
+
+
+py语句最后写不写;都可以。
+
++-*/
+**	乘方
+
+py好像没有整数的概念，都是浮点数。
+
+
+age = 23
+msg = "happy " + str(age) + "th"
+print(msg)
+。。必须str，不然报错。int不知道怎么处理。
+
+
+py2中3/2返回1，和c类似，是int/int。
+py3中就返回1.5了
+
+#注释
+
+
+import this
+。。返回一些python之禅
+
+列表
+[]表示列表，,分隔元素
+
+list = [1, 2, 'A', 'WE']
+print(list)
+print(list[0])
+print(list[11])		// 越界
+
+下标从0开始，和底层实现有关，地址。
+
+py为访问最后一个列表元素提供了一种特殊的语法，XX[-1]返回最后一个。
+print(list[-1])
+print(list[-2])
+
+创建的大多数列表都将是动态的。
+修改：list[1] = 3
+
+在队列末尾添加元素
+list.append('QA')
+
+列表中插入元素
+list.insert(1, 100)
+是插入完以后的下标是1.
+list.insert(-2,  'QW')
+这个要先转成正数的下标然后插入的。插入完以后是倒数第三个，不是倒数第二个。
+
+del list[-2]
+删除倒数第二个。
+
+29
+pop()删除列表末尾元素并返回它。
+pop(下标)删除下标的元素
+list.pop(0)
+
+remove(值) 根据值删除元素
+list.remove('QA')
+remove(值)只删除第一个和值相等的元素，不是全部删除。
+。。remove后面的值，和list中的值是不同地址的吧？..相同地址
+。。而且remove不会返回的。。
+
+
+在列表中，元素的排序常常是无法预测的。有时，希望保留列表元素最初的排列顺序，有时有需要调整顺序。py提供了很多组织列表的方式。
+
+list.sort() 对列表进行永久性排序，这个是升序
+list.sort(reverse=True) 降序。
+。。。？能直接list.sort(True) ? 不能。报错。，
+
+list.sort() 需要元素能互相比较，string和int混合的list的话，sort会报错。
+
+list.sorted() 临时排序。保留原来的排列顺序，同时按特定的顺序呈现它们
+sorted(reverse = True)
+...是print(sorted(list)) ...不是list的方法。。可以list2 = sorted(list)
+
+print(sorted(list,  reverse = True))
+..似乎是：reverse是sorted的一个形参名，而且=赋予的形参，必须在最后。，嗯，可能方法是不定形参个数的
+
+list.reverse() 反转list的元素顺序。
+。。永久反转，返回null。
+
+len(list) 返回元素个数。
+
+当list为空[]时，list[-1]才会报错。
+
+
+33
+for i in list:
+    print('{0} ,'.format(i))
+print(i)
+..有:  而且print自带换行？那有不带换行的吗？.。end=''。就不会换行。
+。。最后一个print(i)是有用的，输出i保存的值(就是list的最后一个元素)。。。这里应该是格式化输出，最后一个元素后面是没有,的，所以最后额外print
+。。没用啊。。最后一个的i就是for中的最后一个元素。并不是下一个元素。
+。。即使b=a[:-1]，for i in b:......; print(b)。最后一个输出是b的最后一个元素，即a的倒数第二个元素。
+。。。书里也没有这些代码，，不知道怎么来的。。。
+
+创建数值列表
+range()能轻松地生成一系列的数组，
+
+for i in range(8, 5):
+    print(i)
+。。可以的，只不过没有输出，，range是[,)
+
+可以使用list()将range()的结果直接转为列表
+。。擦，自定义的变量list把系统的list()覆盖了。。。
+list2 = list(range(2, 4))
+print(list2)
+。。。把list变量注释掉以后就可以了。。
+
+range()还可以指定步长
+list2 = list(range(2, 12, 2))
+print(list2)
+。。[2, 4, 6, 8, 10]，，12和11是一样的效果。
+
+list2 = []
+for i in range(1, 11):
+    list2.append(i ** 2)
+print(list2)
+
+有几个专门处理数字列表的py函数
+min(list2)
+max(list2)
+sum(list2)
+
+
+print(min(list2), 
+max(list2), 
+sum(list2)
+)
+。。这个也可以。。
+
+
+列表解析
+38
+list2 = [i**2 for i in (range(1, 11))]
+。。in range(1, 11) 也可以的。。。这里for没有:,,,2个变量i需要同名
+
+切片
+list2[1:3],返回下标1，2，组成的列表。[,)
+。。由于是)所以可以认为3是第三个(从第一开始)
+
+list2[:3],,从0开始
+list2[2:]，，从下标2开始到最后。
+list2[-3:],,,最后3个。
+
+for i in list2[-3:]:
+    print(i)
+输出最后3个。。
+
+复制列表
+list3 = list2
+。。是指向同一个
+list3 = list2[:]
+。。复制。用id()查看的。
+
+
+元组
+不可变的列表，用()替代[]
+修改元组里的元素会报错。只能整个元组替换(就是给变量换个元组)。
+
+代码格式，pep8
+
+if语句
+True，False
+==，!=
+>=,<=,<,>
+print('aa' > 'b2'),,可以的，False
+
+and,or,,,对应c的&&,||，，py没有&&,||
+。。异或^,非!呢
+
+检查特定值是否在列表中。in
+print(1 in [2, 3])	False
+print(1 in (1, 2))	True
+
+不在，not in
+
+
+bool = False
+if bool:
+    print("Yes")
+else:
+    print("No")
+。。。if和else都要:
+
+if-elif-else
+elif 可以多个。
+if-elif 省略最后的else也可以。elif可以多个。
+
+
+list2 = []
+if list2:
+。。这种是可以的，，空的当作false
+
+
+py字典，和java的map类似，都是键-值对的集合
+map2 = {'AA':2,  'BB':'AA'}
+print(map2[map2["BB"]])
+。。字典是大括号。
+
+map2[3] = "BB"
+这样就添加了一个键值对到map2。
+修改也是这样的。
+
+删除键值对
+del map2['BB']
+
+map2 = {'AA':2,  'BB':'AA', }
+这种也行，，和最后不带,的一样的效果。
+
+遍历
+for i, j in map2.items():
+    print(str(i) + " : " + str(j))
+遍历时，顺序乱序的。
+。。i,j用key，value替代，更明了，，或者k,v
+
+for k in map2.keys():
+    print(k)
+遍历所有的键，keys()返回字典的所有键组成的列表
+
+如果需要顺序，则可以
+for k in sorted(map2.keys()):
+    print(k)
+。。不过得确认map2的全部键是可以比较的。
+
+values(),,用法和keys()一样，不过这个返回所有值组成的列表
+
+set(),,返回集合，，集合类似列表，但是集合不能重复。
+for v in set(map2.values()):
+    print(v)
+。。
+
+嵌套
+字典存储在列表中，列表作为值存储在字典中，字典存储字典，列表存储列表，等
+
+
+用户输入和while循环
+input()让程序暂停，等用户输入文本。
+msg = input("input:")
+print(msg)
+。。input()也可以，形参是打印出来作为输入提示的。
+
+msg = "input what:"
+msg = input(msg)
+print(msg)
+。。有迷惑性啊，input后的msg输出提示的，并不是把input的放到形参msg中。
+
+int()。。转换成数值，，因为input返回的是字符串。
+
+%，模运算
+
+py2.7用raw_input()来获得输入
+py2.7也有input，不过它将输入解读为py代码，并尝试运行
+
+while循环
+i += 1
+。。不知道py有没有++,--..没有
+
+break退出循环
+
+continue直接执行下次循环
+
+while处理列表和字典
+for是一种遍历列表的有效方式，但是for中不应该修改列表，否则将导致py难以跟踪其中的元素。要在遍历的同时进行修改，可以使用while循环。
+while list2:
+。。可以的，list2空的时候是False
+
+remove()只删除第一个相同的。要全部删除的话
+while 'cat' int pets:
+	pets.remove('cat')
+....
+
+
+函数
+def fun1():
+	"""Api"""
+	print("fun1")
+。。。方法
+
+位置实参
+每个实参都要关联到函数的一个形参，最简单的关联方式是基于实参的位置，这种关联方式成为位置实参。
+
+关键字实参
+传递给函数名称-值对，这样就无需考虑顺序。
+def fun3(p1,  p2):
+    print(p1 + ", " + p2)
+fun3(p2="AA",  p1='1')
+。。输出1, AA
+
+默认值
+可以指定形参默认值。
+def fun4(p1,  p2="Default"):
+    print(p1 + ". " + p2)
+fun4('b')
+。。b. Default...。。。.而且有默认值的形参必须在没有默认值的形参后面。
+fun4('X',  'AAA')
+。。X. AAA
+
+等效的函数调用
+就是上面3种的，等效写法，位置实参，关键字实参，默认值。
+
+返回值
+72
+def fun5(name = 'zxc'):
+    return name.title();
+print(fun5())
+print(fun5("ada"))
+。。py不会在方法上声明返回值。
+
+可以return字典
+def fun6():
+    return {1:'AA',  2:'QA'}
+print(fun6())
+
+if "":
+    print("111")
+else:
+    print("222")
+。。222，，，，" "就是111
+
+传递列表
+def fun7(list2):
+    for i in list2:
+        print(i)
+fun7([1, 2, 'e', 'WEWWE', 111])
+
+def fun8(list2):
+#    for i in list2:
+#        i *= 2
+    list2.append(123)
+    list2[0] = 0
+list2 = [1, 2, 3]
+fun8(list2)
+print(list2)
+。。被注释掉的，是因为无法影响list2，，没被注释掉的会影响list2
+
+禁止函数修改列表
+fun8(list2[:])
+。。调用的时候
+#def fun9(list2[:]):            #invalid
+。。非法的。
+
+传递任意数量的实参
+def fun10(*arg1):
+    print(arg1)
+fun10(1, 2, 3, 4)
+。。输出(1，2，3，4).。。圆括号，元组，不可变的列表
+
+结合使用位置实参和任意数量实参
+def fun11(size,  *arg):
+    print("there are " + str(size))
+    for i in arg:
+        print(i)
+fun11(4, 1, 4, 2, 3)
+
+使用任意数量的关键字实参
+有时，需要接受任意数量的实参，但预先不知道传递的是什么样的信息，这种情况下，可将函数编成可以接受任意数量的键值对。
+
+def fun12(size,  **arg):
+    print("there are " + str(size))
+    print(arg)
+    for k, v in arg.items():
+        print(str(k) + ", " + str(v))
+fun12(5,  a = 'A',  b = 'B',  c = '1')
+。。。a,b,c必须是变量名字，，不能是str，不能是单纯的数值。。xx.items()遍历map
+
+77
+将函数存储在模块中
+将函数存储在被称为模块的文件中，import导入
+pizza.py文件
+import pizza
+运行时，import pizza将pizza.py中所有的函数复制到这个程序中。
+pizza.make_pizza()来调用方法。模块名.函数名
+
+导入特定函数
+from module_name import function_name
+from module_name import fun1_name, fun2_name, fun3_name
+使用这种导入语法，调用函数时，无需使用模块名.，，而是直接函数名
+
+as给函数起别名，可以防止名称冲突
+from pizza import make_pizza as mp
+
+as给模块起别名
+import pizza as p
+
+导入模块中所有函数
+from pizza import *
+直接函数名调用。。最好不使用，容易导致方法覆盖
+
+
+第9章，类
+根据类创建对象的过程称为实例化
+__init__()
+形参self，py会自动传入一个指向实例本身的引用。。形参叫什么无所谓的，self1也可以的。
+self是py自动传入的，所以实参会少一个。
+
+py2.7中，创建类要多一个object....class Dog(object):
+
+
+class Cat():
+    def miao(self1):
+        print(self1.name + " miao")
+    
+    def sit():
+        print("sit")
+    
+    def __init__(self1,  name='L'):
+        self1.name = name
+
+
+cat = Cat()
+cat.miao()      # miao必须有self，不然报错。
+
+cat = Cat('Ada')
+cat.miao()
+
+可以直接访问属性
+print(cat.name)
+
+不写__init__也是可以的，只不过只能Cat()，写了__init__以后，默认的构造器就没有了，和java差不多，
+
+继承
+class ElectricCar(Car):
+..可以的，py2.7的那个object就是java的Object类啊。py3和java一样，类默认继承Object了。
+
+class BigCat(Cat):
+    def __init__(self,  name='A',  size="Big"):
+#        self.name = name
+        self.size = size;
+        super().__init__(name)
+    
+    def size1(self):            # str有size这个方法，不知道为什么会重复。
+        print("this is a " + self.size + ", name is " + self.name)
+
+cat = BigCat()
+cat.miao()
+cat.size1()
+
+创建子类时，父类必须包含在当前文件中，且位于子类前面，定义子类时，要在括号内指定父类的名称。
+。。。不知道import行不行，可以的，能导入类
+
+super()是一个特殊函数，调用父类
+
+py2.7的基础
+class Car(object):
+	def __init__(self, make, model, year):
+
+class ElectricCar(Car):
+	def __init__(self, make, model, year):
+		super(ElectricCar, self).__init__(make, model, year)
+。。super不同。这里要传进去类名，self
+
+可以重写父类方法。
+    def miao(self):
+        print("Big Miao")
+---
+    def miao(self):
+        print("Big Miao")
+    
+    def miao(self,  aa="A"):
+        print("Big Miao2")
+。。不会报错，只不过后者把前者覆盖了，两者颠倒一下也是，后者覆盖前者。编辑器提示warning。
+
+类可以作为其他类的属性。
+
+py可以将类存储在模块中，然后在主程序中导入所需的模块。
+car.py中有个Car类
+from car import Car
+
+一个模块可以有多个类。所以可以导入多个类
+from car import Car, ElectricCar
+
+import car
+导入整个模块。不过得car.Car(),car.ElectricCar(),上面的导入方式在使用时是不需要文件名的。
+
+from car import *
+不推荐，容易重名
+
+需要导入一个模块中的很多类是，最好import car,然后car.Car().
+
+
+有时，需要将类分散到多个模块，以免模块太大，或在同一个模块中存储不相关的类。。。当类存储在多个模块中时，你可能会发现一个模块中的类依赖于另一个模块中的类。这种情况下，可以在前一个模块中导入必要的类。
+。。。好像没有什么，这不是很正常吗。。
+
+
+类名使用驼峰命名法，单词首字母大写，而不是使用下划线。。实例名和模块名都小写，使用下划线分隔。
+类中一个空行分隔方法，，模块中2个空行分隔类
+类定义后紧跟类注释，，模块也要有注释对类进行描述。
+。。不知道现在是不是这样的。。
+
+92
+文件和异常
+with open('D:\done\Python\eric5\mytxt.txt') as f:
+    contents = f.read()
+    print(contents)
+。。直接写mytxt.txt不行，不知道默认是什么文件夹。可能是py执行器所在的文件。
+。。而且反斜杠应该有问题吧，\和/怎么都可以。。前置r也行。
+
+书上说，open()是当前执行的文件所在目录查找的。
+open()返回一个表示文件的对象。
+
+关键字with，在不再需要访问文件后将其关闭，所以只用open，不需要close，
+也可以用open，close，但是如果程序抛出异常，close没有执行，会导致数据丢失或受损。
+
+read()读取全部内容，将其作为一个字符串返回。
+相比原始文件，返回的字符串末尾多一个空行，因为read到达文件末尾时，返回一个空字符串，而这个空字符串显示出来就是一个空行，要删除多余的空行，可以使用rstrip().
+
+win有时能正确解读文件路径中的斜杠，如果不能，则使用反斜杠。
+
+逐行读取，对文件对象使用for循环
+with open('D:/done/Python/eric5/mytxt.txt') as file:
+    for line in file:
+        print(line)
+。。。发现，read()然后print，并没有上面所说的多一个空行，，for每行之后有空行。。也不是，的确read最后有一个空行，但rstrip是没办法消除的，那个空行是print自带的回车的。。。for的最后一个空行是print自带的，每行之间的空行能用rstrip消除。
+
+
+with时，open的文件对象只能在with代码块中使用，要在with外使用，可以在with代码块中将文件的各行存储到一个列表中，在with外使用这个列表。这样，你可以立即处理文件，也可以推迟到后面才处理。
+
+with open("D:/done/Python/eric5/mytxt.txt") as f:
+    lines = f.readlines()
+
+for line in lines:
+    print(line)
+。。这个print每行之间有空行
+
+s = ""
+for line in lines:
+    s += line.rstrip()
+print(s)
+。。这个把文件中的换行取消了，把文件变成一行了
+
+py读取文本时，返回的是字符串，所以需要使用数字的话，要int()或者float()转换。
+
+print(s[:3])
+。。string能直接这样。像数组。。列表像数组+list，
+
+birthday = input("::::")
+if (birthday in s):
+    print("in")
+。。if还能带括号，括号在这里是多余的，是用来多个条件的时候调整优先级的，
+。。string还能in，像列表。
+
+s = "asdfg"
+s1 = s.replace('a',  'qqq')
+print(s)
+print(s1)
+。。s没有变，s1是qqqsdfg
+
+写入文件
+with open('D:/done/Python/eric5/mytxt.txt', 'w') as file:
+    file.write('write')
+
+with open('D:/done/Python/eric5/mytxt.txt') as file:
+    msg = file.read()
+    print(msg)
+。。擦，这个是把以前的数据清空+写，不是追加写，'w'模式的不能读。只能再open
+
+w 写
+r 读
+a 附加模式，就是追加写，可以单独用的。
+r+ 读+写
+默认 读
+
+如果要写入的文件不存在，open会自动创建
+w模式要小心，如果指定的文件存在，py在返回文件对象前，清空文件。。。是的,open(w)，不做任何写入操作，文本已经清空。
+
+py只能将字符串写入，如果要存储数字到文件，用str()
+
+write不会在文本末尾自动添加换行符。所以要自己手动写\n
+
+附加到文件。
+使用附加模式打开文件时，py不会在返回文件对象前清空文件。写入的字符串都将追加到文件末尾。。如果文件不存在，就创建一个。
+
+
+异常
+try-except代码块处理异常。
+try:
+    print(5/0)
+except:
+    print("error")
+
+try:
+    print(5/0)
+except ZeroDivisionError:
+    print("error")
+。。不加异常类名就是全部？
+
+try-except-else
+else里放try没有异常才会执行的
+#a = ''
+while(True):
+    try:
+        a = input('ddd:')
+        b = 5/int(a)
+    except:
+        if(a == 'q'):
+            break
+        print('error')
+    else:
+        print(b)
+。。if a == 'q':，，也可以，别忘了:::::::::
+。。:等于{},且必须要。
+
+s = "ada ckb"
+print(s.split(' '))
+。。split就是划分，无参和(' ')是相等的。
+
+py有pass语句，就是什么都不干。pass是一个空语句，不会影响下面的代码的执行。
+pass
+print('AA')
+。。可以输出AA
+
+存储数据
+100
+
+保存信息：一种简单的方式是使用模块json来存储。
+模块json能将简单的py数据结构转储到文件中，并在程序再次运行时加载。
+json.dump(),json.load()
+
+import json
+arr = [4, 3, 3, 4]
+f = "arr.json"
+with open(f,  'w') as f_obj:
+    json.dump(arr,  f_obj)
+print("now, load")
+with open(f,  'r') as f_2:
+    arr2 = json.load(f_2)
+print(arr2)
+。。eric5运行py保存的文件看F2后的working directory。
+。。用来a追加来dump，load的时候失败了，只能w清空+写
+。。。？？？这节讲的是什么？，这节只能把所有数据当作一个json，2个的话，load就炸了。
+
+
+11章，测试
+py标准库的unittest提供了代码测试工具。
+
+。。测试方法要以test开头。输出的 . 表示一个测试通过。输出字母表示有个测试失败了。
+
+import unittest
+class fun_test_class(unittest.TestCase):
+    def test_fun_test_1(self):
+        result = fun_test(1, 2)
+        print(result)
+        self.assertEqual(result,  3)
+    def test_who_2(self):
+        print("just test")
+def fun_test(a,  b):
+    return a+b
+unittest.main()
+
+
+def name(first,  last,  middle=''):
+    if middle:
+        return first+middle+last
+    else:
+        return first+last
+
+print(name("AA", "BB"))
+print(name("ZZ", "QQ", "MM"))
+
+。。''是false，' '是true
+
+常用的断言：
+assertEqual(a, b)
+assertNotEqual
+assertTrue(x)
+assertFalse
+assertIn(item, list)
+assertNotIn
+
+
+unittest.TestCase包含setUp方法，让我们只需创建一次对象，在每个测试方法中使用它们。
+py会先运行setUp(如果有的话)，然后再运行每个test开头的方法。
+。。就是setUp中可以增加测试类的属性(self.xxx)，然后test方法能直接调这些属性。。
+
+每完成一个单元测试，py都会打印一个字符：.代表测试通过，E代表异常，F代表断言失败
+
+
+109
+项目：外星人入侵游戏，数据可视化，web应用程序
+
+..pass
+
+151
+数据可视化
+py有一系列可视化和分析工具，最流行之一是matplotlib，是一个数学绘图库。
+还将使用Pygal，用于生成适合在数字设备上显示的图表。
+
+。。擦，只有1.4.3支持py3.3，再高最低就是3.4了。2015-2-17的。
+。。还要装pip，py3.3版本有点低了，换又懒。。
+。。擦，matplotlib下的是cp3.3的结果安装的时候要求大于等于3.4.。
+。。win的环境配置，哪个在前，python就是哪个
+。。现在是py3.6的时代了。
+。。默认安装了pip。只需要python -m pip install PyQt5就开始安装pyqt了。
+..安装3.6以后，就无法打开eric5了，把环境配置到原来的也不行，但是能直接py3.3的shell运行，最后，打开方式变成py3.3的就可以了，应该是装py3.6以后，默认用py3.6的来运行。应该是的，反正用py3.6的shell运行是报错找不到PyQt4
+.。那就是快捷键上要绑定用哪个py打开，毕竟以后肯定全部py3.6了，就只有eric5是py3.3的。
+。。以前有个eric5.bat实现了
+@echo off
+start "" "D:\Python33\pythonw.exe" "D:\Python33\Lib\site-packages\eric5\eric5.pyw" %1 %2 %3 %4 %5 %6 %7 %8 %9
+。。不过这次装eric6的时候没有，不知道是不是被我删了。。
+
+
+cooooooooooooool
+
+
+
+
+import matplotlib.pyplot as plt
+
+squares = [1, 4, 9, 16, 25]
+plt.plot(squares,  linewidth = 5)       # 曲线的宽度
+#图表标题
+plt.title("Square Numbers",  fontsize = 24)
+#x轴
+plt.xlabel("Value",  fontsize = 14)
+#y轴
+plt.ylabel("Square of Value",  fontsize = 14)
+#刻度标记大小
+plt.tick_params(axis = 'both',  labelsize=14)
+plt.show()
+
+plot时，默认第一个数据点对应的x坐标为0。
+可以同时传入输入值和输出值。来修改数据对应的x轴坐标
+
+input_x = [1, 2, 3, 4, 5]
+squares = [1, 4, 9, 16, 25]
+plt.plot(input_x,  squares,  linewidth = 2)
+指定了每个y轴对应的x轴的值。
+
+scatter()绘制点。上面是plot绘制线
+scatter绘制散点图，会设置各个(各个！)数据点的样式
+
+x_values = list(range(1, 1001))
+y_values = [x ** 2 for x in x_values]
+plt.scatter(x_values, y_values, s = 1)
+plt.axis([0, 1100, 0, 1100000])     #轴的坐标范围
+。。都忘记了。。
+
+
+matplotlib允许给散点图的每个点指定颜色，默认为蓝色点和黑色轮廓。
+。。好像是蓝色点和蓝色轮廓，scatter加上参数edgecolor = 'none'以后点更小了
+。。这里的轮廓是指把点包围的空心圆。
+
+scatter加上参数c = 'red',点的颜色就变了，而且轮廓的颜色也变得和点一样。
+可以使用RGB模式自定义颜色。一个元组，包含3个[0,1]之前的数，分别表示红，绿，蓝的分量，
+
+#plt.scatter(x_values, y_values, c = 'red', edgecolor = 'none', s = 1)
+plt.scatter(x_values, y_values, c = (1, 1, 0.99), s = 5)        #white...
+。。RGB模式，全1代表白色，全0代表黑色。越接近0，指定颜色越深，越接近1，颜色越浅。。。0,0,0.1是黑色。到000反而是白色。物极必反？
+
+颜色映射(colormap)，是一系列颜色，从起始颜色渐变到结束颜色，
+pyplot内置了一组颜色映射，
+
+x_values = list(range(1, 101))
+y_values = [x ** 2 for x in x_values]
+plt.scatter(x_values, y_values,  c = y_values,  cmap = plt.cm.Blues,  edgecolor = 'none',  s = 20)
+y值小颜色浅，y值大颜色深
+c在有cmap的情况下是一个list，没有cmap的情况下是单纯的颜色值？
+
+
+自动保存图表
+将plt.show()换为plt.savefig()
+plt.savefig('squares_plot.png', bbox_inches='tight')
+第一个参数指定文件名字，保存在py文件所在目录，第二个实参表示将图表多余空白区域裁减掉。
+
+
+随机漫步
+from random import choice
+yd = choice([1, -1])
+y_distance = choice([0, 1, 2, 3, 4])
+
+
+#突出起点，终点
+plt.scatter(0, 0, c = 'green',  edgecolor = 'none', s = 20)
+plt.scatter(rw.xv[-1], rw.yv[-1],  c = 'red',  edgecolor = 'none',  s = 20)
+
+#隐藏坐标轴      这个会打印warn到控制台
+plt.axes().get_xaxis().set_visible(False)
+plt.axes().get_yaxis().set_visible(False)
+
+
+#调整绘图窗口的尺寸          得在scatter之前，不然之前的scatter就无效了，会新建一个窗口来处理之后的scatter
+plt.figure(figsize = (10, 6))
+
+figure用于指定宽度，高度，分辨率，背景色，figsize接受元组，指出绘图窗口的尺寸，单位为英寸。
+py假定屏幕分辨率为80像素/英寸，可以向dpi形参传递每英寸像素数。
+plt.figure(dpi = 128,  figsize = (10, 6))
+
+
+161
+pygal是py的可视化包，可以生成可缩放的矢量图形文件，对于需要在不同尺寸屏幕上显示的图表，这很有用，因为他们会自动缩放。
+pygal-2.4.0才127kb。
+
+
+results = []
+for roll_num in range(100):
+    result = die.roll()
+    results.append(result)
+
+counts = []
+for value in range(1, die.num_sides + 1):
+    count = results.count(value)
+    counts.append(count)
+.die有骰子的意思。
+
+
+hist = pygal.Bar()
+hist.title = "Results of Die"
+hist.x_labels = ['1', '2', '3', '4', '5', '6']
+hist.x_title = 'Result'
+hist.y_title = 'Count'
+
+hist.add('D6', counts)
+hist.render_to_file('die_v.svg')
+。生成的文件在py所在文件夹中。
+。。后面就是2个骰子，1个6面+1个10面骰子。。的直方图。。
+
+
+16章，下载数据
+csv文件：将数据作为一系列以逗号分隔的值写入文件。
+逗号分隔值（Comma-Separated Values，CSV
+
+。。就是csv文件配合上面的图表
+
+import csv		// 这个是py标准库中的。
+with open(filename) as f:
+	reader = csv.reader(f)
+	header_row = next(reader)
+	print(header_row)
+	for index, column_header in enumerate(header_row):
+		print(index,column_header)	
+csv包含函数next，返回文件中的下一行。
+header_row是返回一行，这一行中可能会有多个逗号分隔的数据。
+for index..是将一行中的数据按逗号分隔，然后输出次序(0开始)和数据
+
+将字符串转为时间对象
+from datetime import datetime
+first_date = datetime.strptime('2014-7-1','%Y-%m-%d')
+
+strptime可以接受各种实参，并根据他们来决定如何解读日期。
+%A	星期的名字，如：Monday
+%B	月份名，如：January
+%m	用数字表示月份(01-12)
+%d	用数字表示月份中的一天(01-31)
+%Y	四位的年份
+%y	两位的年份
+%H	24小时制的小时数(00-23)
+%I	12小时制的小时数
+%p	am或pm
+%M	分钟数
+%s	秒数
+
+
+fig=plt.figure(...)
+...
+fig.autofmt_xdate()		// 绘制斜的日期标签
+
+绘制两条线，最高气温，最低气温
+plt.plot(dates, highs, c = 'red')
+plt.plot(dates, lows, c = 'blue')
+
+在高温和低温间着色
+plt.fill_between(dates, highs, lows, facecolor='blue', alpha = 0.1)
+alpha指定颜色透明度，0表示完全透明，1(默认)表示完全不透明，
+
+try-except-else
+
+
+json格式
+
+import json
+with open(filename) as f:
+	pop_date = json.load(f)
+
+for pop_dict in pop_date:
+	if pop_dict['Year'] = '2010':
+		country_name = pop_dict['Country Name']
+		population = pop_dict['Value']
+.
+用int函数将string转为int值。
+str方法是转为string
+但是int无法将带小数点的字符串转为整型，所以需要先将字符串转为浮点数，然后再变成整型
+int(float(pop_dict['Value']))
+
+pygal使用的国别码存储在i18n中，字典COUNTRIES保存了国别码和国家名。
+
+有了国别码以后，制作世界地图易如反掌，pygal提供了图表类型Worldmap。
+
+174
+
+python -m pip install pygal_maps_world
+。。
+
+import pygal.maps.world
+
+wm = pygal.maps.world.World()
+wm.tital = "North, Central, and South America"
+
+#wm.add('North America',  ['ca',  'mx',  'us'])
+#wm.add('Central America',  ['bz',  'cr',  'gt',  'hn'])
+#wm.add('South America',  ['ar', 'bo', 'br', 'cl'])
+
+wm.add('North America',  {'ca' : 34126000,  'us' : 309349000,  'mx' : 113423000})
+#列表与字典
+
+wm.render_to_file('americas.svg')
+。。。
+
+。。书上的代码，pygal.Worldmap是没有的。
+from pygal.style import RotateStyle
+wm_style = RotateStyle('#336699')
+wm = pygal.Worldmap(style = wm_style)
+
+from pygal.style import LightColorizedStyle
+wm_style = LightColorizedStyle
+。。这里不能控制使用的颜色，pygal将使用默认的基色。
+
+wm_style = RotateStyle('#336699', base_style = LightColorizedStyle)
+
+
+使用别名更简便：
+from pygal.style import LightColorizedStyle as LCS, RotateStyle as RS
+wm_style = RS('#336699', base_style = LCS)
+
+
+第17章 使用API
+
+https://api.github.com/search/repositories?q=language:java&&sort=star
+。。c和c++返回的json是一样的，total:90万，java500万，python260万。
+。。。恐怖如斯
+
+requests包让py能轻松地向网站请求信息，以及检查返回的响应。
+python -m pip install --user requests
+。。python -m 是自己加的，可能是window和linux的区别吧。。
+。。。疯狂retry。。是大局域网的问题？。。md，read time out
+。。还有以前是怎么写的？我记得以前没有手动install requests，也能上网啊。
+。。还有怎么看到py的类源码？一头雾水啊。
+
+requests的api
+http://docs.python-requests.org/zh_CN/latest/user/quickstart.html
+
+
+import requests
+url = 'https://api.github.com/search/repositories?q=language:python&&sort=star'
+r = requests.get(url)
+print("Status code: ",  r.status_code)
+request_dict = r.json()
+print("Total repositories: ",  request_dict['total_count'])
+repo_dicts = request_dict['items']
+print("Repositories returned: ",  len(repo_dicts))
+repo_dict = repo_dicts[0]
+print("\nkeys: ",  len(repo_dict))
+for key in sorted(repo_dict.keys()):
+    print(key)
+print(request_dict.keys())
+
+
+182
+pygal对上面获得的github数据进行可视化。(主要是用star降序排列)
+
+184
+对hacker news提供的api进行调用
+
+
+186
+第18章 Django入门
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

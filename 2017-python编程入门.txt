@@ -1,0 +1,1644 @@
+Python编程入门_第3版的第11章(pdf186，书177)及以后，是一些实例了，还有就是一些介绍。
+
+
++ - * /
+** % //		乘方  取余	整除(直接丢弃)
+。。/是除法，不过python是脚本语言，没有int，所以/就是float的除法
+
+python对整数长度没有限制，100**1000都能算。。
+。。不过这个怎么保证精度？应该是float/double的吧？会存在精度损失啊。但是py又能科学计算。
+。。不是float，py对整数没有限制，但111.1**100返回3.727399083464802e+204
+。。py的整数是用list实现的。只要有空间，list可以无限长
+
+
+浮点数可以** // %
+>>>2.3**2.3
+6.791630075247877
+>>> 22.3%2.5
+2.3000000000000007
+>>> 22.3//2.5
+8.0
+。。第二个出现精度误差了
+
+科学计数法e，当然也可以**10。。靠看错了，书上的意思是看值，结果想当然了，这个是10次方，和e完全没有任何关系。
+>>> 1134**-3.5
+2.0363588343488085e-11
+。。负次方是指倒数，刚见到，竟然想不起来。。。
+
+>>> 2.
+2.0
+>>> .4
+0.4
+。。2和2.完全不一样。一个可以无限制，一个就有限制(精度，长度)
+>>> 100.5**1000
+Traceback (most recent call last):
+  File "<pyshell#28>", line 1, in <module>
+    100.5**1000
+OverflowError: (34, 'Result too large')
+
+
+>>> 1-2/3
+0.33333333333333337
+。。书上的例子，精度。。。py只算到小数点后17位，第17位是估读
+
+py有复数。1j代表-1的平方根
+
+
+ceil(x)		>=x的整数
+degree(x)	弧度x转为角度
+exp(x)		e的x次方
+factorial(n)	n!
+radians(x)	角度x转为弧度
+。。还有余弦。正弦。正切。余切，平方根sqrt，log
+
+使用模板前要先导入
+>>> math.sqrt(5)
+Traceback (most recent call last):
+  File "<pyshell#32>", line 1, in <module>
+    math.sqrt(5)
+NameError: name 'math' is not defined
+>>> import math
+>>> math.sqrt(5)
+2.23606797749979
+。。math里的方法像static方法。
+
+import math
+from math import *
+两种导入方法。。。第一个是全部导入，第二个可以只导一/几种
+
+>>> sqrt(5)
+Traceback (most recent call last):
+  File "<pyshell#35>", line 1, in <module>
+    sqrt(5)
+NameError: name 'sqrt' is not defined
+>>> from math import sqrt
+>>> sqrt(5)
+2.23606797749979
+
+。。。。。第二种可以直接sqrt。。意思是第一种依然要math.sqrt?，似乎也是，import是一种声明，记得可以import math as m
+
+>>> from math import tan log
+SyntaxError: invalid syntax
+>>> from math import tan,log
+>>> 
+。。要用,分割
+
+导入模板后，可以用dir(模板名)显示所有函数
+>>> dir(math)
+['__doc__', '__loader__', '__name__', '__package__', 'acos', 'acosh', 'asin', 'asinh', 'atan', 'atan2', 'atanh', 'ceil', 'copysign', 'cos', 'cosh', 'degrees', 'e', 'erf', 'erfc', 'exp', 'expm1', 'fabs', 'factorial', 'floor', 'fmod', 'frexp', 'fsum', 'gamma', 'hypot', 'isfinite', 'isinf', 'isnan', 'ldexp', 'lgamma', 'log', 'log10', 'log1p', 'log2', 'modf', 'pi', 'pow', 'radians', 'sin', 'sinh', 'sqrt', 'tan', 'tanh', 'trunc']
+。。__开头的用于复杂的py编程
+
+
+>>> dir(__builtins__)
+显示所有内置函数，不用import也可以用的函数
+
+help(函数名) 查看函数的文档。
+>>> help(log)
+Help on built-in function log in module math:
+
+log(...)
+    log(x[, base])
+    
+    Return the logarithm of x to the given base.
+    If the base not specified, returns the natural logarithm (base e) of x.
+
+
+help()，推出是q回车，或者ctrl+d
+
+
+>>> print(math.sqrt.__doc__)
+sqrt(x)
+
+Return the square root of x.
+>>> help(sqrt)
+Help on built-in function sqrt in module math:
+
+sqrt(...)
+    sqrt(x)
+    
+    Return the square root of x.
+
+>>> 
+
+可以dir(函数名)获得函数中的？变量？都是__开头的。
+>>> dir(sqrt)
+['__call__', '__class__', '__delattr__', '__dir__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__le__', '__lt__', '__module__', '__name__', '__ne__', '__new__', '__qualname__', '__reduce__', '__reduce_ex__', '__repr__', '__self__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__']
+
+
+
+
+
+字符串' '	" "		""" """
+
+>>> """ asdad
+feee
+ffd"""
+' asdad\nfeee\nffd'
+。。三引号包含回车符。
+
+
+>>> ''' fdfdf
+fdfd
+df'''
+' fdfdf\nfdfd\ndf'
+。。。三单引号也可以。。。
+
+。。但是这个tab有点问题，按tab有时是tab，有时是插入的提示，而且这个跳出的提示框，还不能下拉/点击。。应该是个bug吧。
+
+
+字符串s的长度len(s)
+
+
+字符串拼接
++ *
+>>> 3*'asd' + '!'*2
+'asdasdasd!!'
+。。可以前后颠倒
+
+>>> len(12 * 'ASDFG')
+60
+>>> len("ASD" + "fgh") * 'WE'
+'WEWEWEWEWEWE'
+
+
+类型转换
+
+float() 整数/字符串 转为 浮点数
+。。字符串必须是数字构成的。
+
+str() 整数/浮点数 转为 字符串
+
+int() 浮点 转为 整数
+round() 同上
+int是直接舍弃小数，round是四舍五入
+。。round还有门道，，，round(8.5)是8.。。哦，py的五入是入到最近的偶数。这种被称为银行家圆整(因为总是向上会带有偏差)
+
+
+int() 字符串 转为 数字
+float()
+。。int后面的字符串必须是一个整数的，不然会报错。
+
+
+为了截掉小数，py还有math.trunc(),math.ceil(),math.floor().
+就是四舍五入，上取整，下取整
+
+
+py中每个变量都是一个对象。
+
+赋值时，是直接指向，不是赋值。。是的，用id()方法可以查到变量的物理地址，赋值时，是指向，当你改变值时，才会令建一个对象。
+
+多重赋值
+>>> z, x, c = 1, 'qwe', 3.5
+>>> z
+1
+>>> x
+'qwe'
+>>> c
+3.5
+>>> z,x,c
+(1, 'qwe', 3.5)
+
+
+swap
+>>> z = 4
+>>> x = 22
+>>> z, x = x, z
+>>> x
+4
+>>> z
+22
+
+
+file-new file是建一个py文件。
+
+
+>>> n = input("input your name:")
+input your name:ouha
+>>> print(n.capitalize())
+Ouha
+>>> n
+'ouha'
+。。capitalize是首字母大写，其他全小写。
+。。和title()有什么区别,title是单词首字母大写."aa b,cc".title() == "Aa B,Cc"...capitalize是"Aa b,cc"
+
+注释#开头
+
+dir('')能显示string的方法，括号里只要是string就行了
+
+strip()删除string头和尾的空白字符
+
+name = input(" sddds:  ").strip()
+。。将输入的string删除头尾空白
+
+int/float和string不能直接+连接然后输出，要强制类型转换str()才能连接起来输出
+
+>>> print('222', '333',"111")
+222 333 111
+。。。会用空格分隔
+
+>>> print('aaa', 'bbb',"www" ,'qqq', sep='.')
+aaa.bbb.www.qqq
+。。自定义分隔符
+
+默认情况下，print完会自动加一个换行
+
+print('aaa', end = '')
+print('bbb')
+。。这样就不会送换行了。
+
+
+py2中print不算函数，是语言的一部分，所以可以print 'qwe'。这样难以修改sep和end
+
+py2的input用于用户输入的字符串的求值
+py3可以用eval(input())来对输入字符串求值
+。。应该是对算术式求值，随便输个string，eval会报错
+py2的raw_input对应py3的input
+
+
+True False
+== != not and or  优先级高->低
+。。没有===
+。。似乎py中只要值相等，地址就相等？
+>>> z = 4
+>>> x = 2
+>>> id(z)
+505915160
+>>> id(x)
+505915128
+>>> x = x + 2
+>>> id(x)
+505915160
+>>> x = 44
+>>> id(x)
+505915800
+>>> x = int("4")
+>>> id(x)
+505915160
+
+。。有没有短路？有
+
+
+if xxx:
+	xxx
+else:
+	xxx
+。。if后要至少一个空格
+。。py有{}吧。。没有。
+
+py使用缩进来标识代码块。同一个代码块中，缩进量必须一样
+
+
+py可以
+if 3 < x < 10:
+
+py是elif代表else if
+
+>>> food = 'asd'
+>>> r = 'a' if food=='asd' else 'b'
+>>> r
+'a'
+等价于
+if food=='asd':
+	r = 'a'
+else:
+	r = 'b'
+
+for i in range(10):
+	print(i)
+会输出0-9，每个数字后面有个换行(print自带换行)
+
+可以range(5,10),是5-9
+
+range(10, 0, -1)是10到1，-1是步长，可以用任何数字
+也可以print(10 - i)
+
+range里只能是int
+
+py怎么完成char的自增？
+
+while循环可以包含一个else。但是很少使用，书上都没具体代码。靠，自己写不出。。。写else时要回退一格。不然格式不对。。没什么大用，else只有while退出前会经过一次。可以将变量恢复到初始。
+
+py没有++ --。。。有+=。。
+
+>>> print(a,'asd')
+6 asd
+。。。混合输出，a是数字6
+
+
+range的范围是第一位到(第二位-1)
+
+
+py有没有格式化输出，%5.2f，这种，难道要自己写格式？
+gy应该可以，毕竟是简化的java
+。。第八章有。。
+print('value:%.2f' % x)
+
+
+函数是一大块可重用的代码。66666666666
+
+>>> dir
+<built-in function dir>
+>>> x = print("d")
+d
+>>> x
+>>> id(x)
+505676812
+>>> id(q)
+Traceback (most recent call last):
+  File "<pyshell#4>", line 1, in <module>
+    id(q)
+NameError: name 'q' is not defined
+>>> print(x)
+None
+。。。不带()py会告诉你dir指向函数
+
+>>> dir()
+['__builtins__', '__doc__', '__loader__', '__name__', '__package__', 'x']
+>>> dir = 3
+>>> dir
+3
+>>> dir()
+Traceback (most recent call last):
+  File "<pyshell#9>", line 1, in <module>
+    dir()
+TypeError: 'int' object is not callable
+。。。不要对内置函数赋值。。这时只能重启py才行，
+
+
+函数要def来表示。
+>>> def a = 5
+SyntaxError: invalid syntax
+
+
+py的文档字符串一般遵守一个标准：三引号标志文档的开始和结束，第一行是简要描述,然后是详情和实例
+和内置函数一样，你可以轻松的查看自己编写的函数的文档字符串
+
+>>> def a(r):
+	"""
+ssss
+dfw
+d
+"""
+	print(r)
+
+	
+>>> print(a.__doc__)
+
+ssss
+dfw
+d
+
+>>>
+
+
+doctest这个工具可以自动运行文档字符串中的py实例代码，但本书不详细介绍，但非常实用。
+。。不过似乎没什么大用
+
+
+函数中要访问全局变量，前面要加个global，不然是一个同名的局部变量
+
+
+py中，main函数是一个约定。
+
+
+参数的传递是按引用传递，虽然说是按引用传递，但是当这个值发生改变，py会再创建一个值。。
+>>> def a(w):
+	print(id(w))
+	w += 5
+	print(id(w))
+	
+>>> w = 4
+>>> id(w)
+505915160
+>>> a(w)
+505915160
+505915240
+>>> w
+4
+。。。。。效果==按值传递。。
+
+
+形参默认值
+>>> def f(n, g = 'ddd'):
+	print(g, n+'!')
+
+>>> f("sd")
+ddd sd!
+>>> f('dd' 'ff')
+ddd ddff!
+>>> f('ddd' 'wa' , '3421')
+3421 dddwa!
+。。这个不是,就一直读，当作形参。。
+
+默认参数可以有任意数量，但是默认参数必须在所有非默认参数后
+
+
+py中另一种参数指定方式是使用关键字，，是调用方式的不同。
+>>> f(n='asd', g='ww')
+ww asd!
+>>> f(g='111', n='eee')
+111 eee!
+。。能清晰的指出参数和值，形参顺序可以打乱
+
+
+模块是一系列相关的函数和变量
+。。就是一个没有main函数的java类，只能被调用(当然，被调用的函数也可以调用别人)。。还有变量。
+
+还要导入。。和java一样。。import 文件名
+import 文件名
+文件名.方法/变量来调用的
+from 文件名 import *
+方法/变量直接调用
+
+
+名称空间
+，，就是文件的名字，，当然，不能在from 文件名 import * 了，这样方法名会冲突，只能import 文件名
+
+
+
+
+字符串可以直接用下标来找char。下标从0开始。。可以用负数，最后一个char是-1.向前就再-1
+
+遍历可以用for
+for c in s:
+
+for i in range(len(s)):
+
+py的ord()方法是返回字符的编码。是ascii码(是unicode，只不过unicode的前256个字符和ascii一样(就是前面多8?个0))，参数expected string of length 1
+
+chr()返回数字对应的字符。。可以上万。
+
+转义字符和c差不多
+不同os，对文本行末尾的换行也不同标准
+
+转义字符的第一个\不算长度的。
+
+s[1:4]可以获得s的第二个到第4个组成的字符串，s[1]能取到,s[4]取不到
+s[i]和s[i:i+1]是一样的。都是一个字符
+>>> s
+'qwert'
+>>> s[1]
+'w'
+>>> s[1:2]
+'w'
+>>> s[1:4]
+'wer'
+>>> s[1:-1]
+'wer'
+>>> s[1:0]
+''
+>>> s[1:-2]
+'we'
+>>> s[:2]
+'qw'
+>>> s[1:]
+'wert'
+>>> s[]
+SyntaxError: invalid syntax
+>>> s[:]
+'qwert'
+>>> s[0:-1]
+'qwer'
+>>> s[-1]
+'t'
+>>> s[0:0]
+''
+>>> s[3:3]
+''
+省略第一个，默认从0开始，省略第二个，默认-1，。。不是-1，是到最后，因为第二个是取不到的，所以-1是不对的。。。全不写就是s
+
+>>> 'asd.er'.rfind('.')
+3
+>>> 'asd.qwe.ghj'.rfind('.')
+7
+>>> 'asd.qwe.ghj'.find('.')
+3
+>>> 'qwe.sdf.xcv'.lfind('.')
+Traceback (most recent call last):
+  File "<pyshell#31>", line 1, in <module>
+    'qwe.sdf.xcv'.lfind('.')
+AttributeError: 'str' object has no attribute 'lfind'
+用来取文件后缀。返回的是最后一次出现的。。靠，r代表right，所以rfind是从右向左查找，返回第一个。。没有lfind，有find
+
+
+dir()里面写随意个string(''也可以)就显示string的方法，写个数字就是数字的方法，数字还分int和float。可以直接写int，float。也可以写一个int型数字，或float型数字。。。。string类型不行。。可能没有这个类型吧，Stirng，string，char，Char都不行。。
+
+'capitalize', 'casefold', 'center', 'count', 'encode', 'endswith', 'expandtabs', 'find', 'format', 'format_map', 'index', 'isalnum', 'isalpha', 'isdecimal', 'isdigit', 'isidentifier', 'islower', 'isnumeric', 'isprintable', 'isspace', 'istitle', 'isupper', 'join', 'ljust', 'lower', 'lstrip', 'maketrans', 'partition', 'replace', 'rfind', 'rindex', 'rjust', 'rpartition', 'rsplit', 'rstrip', 'split', 'splitlines', 'startswith', 'strip', 'swapcase', 'title', 'translate', 'upper', 'zfill'
+
+t in s		字符串s是否包含字符串t
+index和find的差别在于没找到子串时
+>>> 'a' in 'asd'
+True
+>>> s
+'qwert'
+>>> s.find('as')
+-1
+>>> s.index('as')
+Traceback (most recent call last):
+  File "<pyshell#47>", line 1, in <module>
+    s.index('as')
+ValueError: substring not found
+>>> s.find('er')
+2
+>>> s.index('er')
+2
+。。返回的是匹配的子串在s中的第一个字符的下标
+
+py的修改字母大小写的都是重新建立字符串的。
+
+
+字符串格式
+s.center,s.ljust,s.rjust,都是(n,ch),就是n个字符的string，s位于中间/左边/右边，两侧/右边/左边用ch填充
+>>> s.center(14,'/')
+'////qwert/////'
+>>> s.center(6,'.')
+'qwert.'
+。。不对称的话是后面多一个ch字符
+>>> s.center(4,'.')
+'qwert'
+。。不会截短
+>>> s.ljust(11,'.')
+'qwert......'
+
+format()
+>>> s = '{0}...{1}'.format("asd", 'ggg')
+>>> s
+'asd...ggg'
+>>> s = "{1}.///.{2}".format('wwww','fff')
+Traceback (most recent call last):
+  File "<pyshell#10>", line 1, in <module>
+    s = "{1}.///.{2}".format('wwww','fff')
+IndexError: tuple index out of range
+>>> s = "{1}.//////.{2}".format(1='ddd', 2='ff')
+SyntaxError: keyword can't be an expression
+>>> s = "{1}.//////.{2}".format("1"='ddd', "2"='ff')
+SyntaxError: keyword can't be an expression
+>>> s = '{aaa}...{vvv}'.format(aaa="ddd",vvv='dfg')
+>>> s
+'ddd...dfg'
+
+。。format还可以指定字符串间距，将数字转换为字符串。。但书上没详细说。。只说在线文档中去看。。
+
+
+s.strip/lstrip/rstrip(ch)从s的开头和末尾/开头/末尾删除所有包含在字符串ch中的字符
+>>> s = 'qqwertyysdwqwertyy'
+>>> s.strip('qw')
+'ertyysdwqwertyy'
+>>> s.lstrip(rewqt)
+Traceback (most recent call last):
+  File "<pyshell#18>", line 1, in <module>
+    s.lstrip(rewqt)
+NameError: name 'rewqt' is not defined
+>>> s.lstrip('eewwwwqttr')
+'yysdwqwertyy'
+>>> s.rstrip('ye')
+'qqwertyysdwqwert'
+>>> s.rstrip('sdsddwerw')
+'qqwertyysdwqwertyy'
+
+>>> s = '  dsdd df d   '
+>>> s.lstrip()
+'dsdd df d   '
+>>> s.lstrip('')
+'  dsdd df d   '
+>>> s.lstrip(' ')
+'dsdd df d   '
+>>> s = '....dasd..ds..d...'
+>>> s.lstrip()
+'....dasd..ds..d...'
+>>> s.lstrip('.')
+'dasd..ds..d...'
+>>> s = '  .sd.ff .ff.  '
+>>> s.rstrip()
+'  .sd.ff .ff.'
+>>> s.strip()
+'.sd.ff .ff.'
+。。就是说lstrip()方法形参的默认值是' ',不是s的第一个字符
+
+
+s.partition/rpartition/split/rsplit(t)
+s.splitline()
+partition将s拆分成3个字符串(head,t,tail)，rpartition是从右端开始搜索t
+split以t为分隔符，将s分为一系列子串，返回这些子串组成的列表rsplit从s的右端开始搜索t
+splitline返回s的各行组成的列表
+>>> s = 'qwe.ert.sdf.a f.de. . .   gg.  .  '
+>>> s.partition('.')
+('qwe', '.', 'ert.sdf.a f.de. . .   gg.  .  ')
+>>> s.rpartition('.')
+('qwe.ert.sdf.a f.de. . .   gg.  ', '.', '  ')
+>>> s.partition(' ')
+('qwe.ert.sdf.a', ' ', 'f.de. . .   gg.  .  ')
+>>> s.partition()
+Traceback (most recent call last):
+  File "<pyshell#37>", line 1, in <module>
+    s.partition()
+TypeError: partition() takes exactly one argument (0 given)
+>>> s.partition('')
+Traceback (most recent call last):
+  File "<pyshell#38>", line 1, in <module>
+    s.partition('')
+ValueError: empty separator
+>>> s.split()
+['qwe.ert.sdf.a', 'f.de.', '.', '.', 'gg.', '.']
+>>> s.split('')
+Traceback (most recent call last):
+  File "<pyshell#41>", line 1, in <module>
+    s.split('')
+ValueError: empty separator
+>>> s.split('.')
+['qwe', 'ert', 'sdf', 'a f', 'de', ' ', ' ', '   gg', '  ', '  ']
+>>> s.split('sdf')
+['qwe.ert.', '.a f.de. . .   gg.  .  ']
+>>> s.partition('a')
+('qwe.ert.sdf.', 'a', ' f.de. . .   gg.  .  ')
+>>> s.partition('de')
+('qwe.ert.sdf.a f.', 'de', '. . .   gg.  .  ')
+>>> s = 'asd     fefe'
+>>> s.partition(' ')
+('asd', ' ', '    fefe')
+。。partition没有默认形参。split有默认形参(是空格，并且将数个空格也视为1个空格。)。
+。。。
+>>> s.split(' ')
+['asd', '', '', '', '', 'fefe']
+>>> s.split()
+['asd', 'fefe']
+。。不是。。splite的默认形参是空白。不是空格。
+
+s.replace(old, new)将s中的每个old换为new
+s.expandtabs(n)将s中的每个制表符替换为n个空格。
+>>> s = 'sdfeeeeffdseeff'
+>>> s.replace('e','i')
+'sdfiiiiffdsiiff'
+>>> s.replace('ee','i')
+'sdfiiffdsiff'
+>>> s.replace('ff',';')
+'sdfeeee;dsee;'
+
+replace并不是很灵活，所以用其他方式来设置字符串格式(然后没了。)
+
+join()将一系列字符串拼接起来。
+>>> '-'.join(['asd', 'er','qwe'])
+'asd-er-qwe'
+>>> ''.join(['asd', 'er','qwe'])
+'asderqwe'
+。。参数是一个数组。[]
+。。后面还看到'\n'.join(),这样的话，每个字符串占一行。
+
+maketrans和translate很cooooool
+>>> 'eelr'.maketrans('el','31')
+{108: 49, 101: 51}
+>>> 'eelr'.translate({108: 49, 101: 51})
+'331r'
+>>> maketrans('es','35')
+Traceback (most recent call last):
+  File "<pyshell#60>", line 1, in <module>
+    maketrans('es','35')
+NameError: name 'maketrans' is not defined
+>>> ''.maketrans('es','35')
+{115: 53, 101: 51}
+>>> '\n'.maketrans('e','3')
+{101: 51}
+。。就是maketrans来设置对应关系，然后translate转换。
+
+>>> ' '.maketrans('sd','1')
+Traceback (most recent call last):
+  File "<pyshell#63>", line 1, in <module>
+    ' '.maketrans('sd','1')
+ValueError: the first two maketrans arguments must have equal length
+>>> ''.maketrans('s','dw')
+Traceback (most recent call last):
+  File "<pyshell#64>", line 1, in <module>
+    ''.maketrans('s','dw')
+ValueError: the first two maketrans arguments must have equal length
+>>> ''.maketrans('1','s')
+{49: 115}
+>>> ''.maketrans('\n','ss')
+Traceback (most recent call last):
+  File "<pyshell#66>", line 1, in <module>
+    ''.maketrans('\n','ss')
+ValueError: the first two maketrans arguments must have equal length
+>>> ''.maketrans('\n','s')
+{10: 115}
+。。前后字符串的长度要相等。
+
+>>> ''.maketrans('se','11')
+{115: 49, 101: 49}
+。。只要相等，可以转成同一个。
+
+>>> ''.maketrans('ss','23')
+{115: 51}
+>>> ''.maketrans('s','23')
+Traceback (most recent call last):
+  File "<pyshell#70>", line 1, in <module>
+    ''.maketrans('s','23')
+ValueError: the first two maketrans arguments must have equal length
+。。。重复的话，最后一个为准。
+
+
+'23'.zfill(width)用于设置数值字符串的格式。就是左边+0，让字符串长度为width
+>>> '23'.zfill(5)
+'00023'
+>>> '2.43'.zfill(5)
+'02.43'
+>>> '-12.45'.zfill(8)
+'-0012.45'
+>>> '-12.332323'.zfill(4)
+'-12.332323'
+。。小数点和-也各算一个字符，不会截短
+
+
+s.encode()设置s的编码，在线文档。
+s.count(t)s中t出现的次数
+>>> s
+'sdfeeeeffdseeff'
+>>> s.count('e')
+6
+>>> s.count('ee')
+3
+>>> s.count('f')
+5
+>>> s.count('ff')
+2
+
+
+正则。
+?代表前面的那个字符可有可无
+|代表或者，前面或者后面，'a|b|c'描述3个字符串:'a','b','c'
+*代表前面的那个字符0个到无穷个。
++代表前面的1到无穷
+()代表中间的是一个整体。。。(ha)+代表ha，hahah。。ha+是ha，haa
+
+import re
+re.match('a*',s)
+
+。。py用None代表NULL？
+。。真的是《py入门》。。。没了。自己看api文档
+
+
+
+数据结构
+py中有元组，列表，字典和集合。，主要是列表和字典
+
+type用于检测值/变量的数据类型
+
+。。。string的类型是str。。。
+
+
+py中序列是一组按顺序排列的值，有3中内置序列类型：字符串，元组，列表。
+序列优点：支持索引和切片。支持0到(len-1)的索引，-1到-len的索引，s[begin:end]，用+和*拼接。x in s
+
+>>> a = (1,)
+>>> a
+(1,)
+>>> a=(1)
+>>> a
+1
+>>> type((1,))
+<class 'tuple'>
+>>> type((1))
+<class 'int'>
+单元素的元组，末尾的逗号必须的。多元素末尾的逗号随意。一般+，这样就记一条规则就ok了
+>>> a = (,)
+SyntaxError: invalid syntax
+>>> a = ()
+>>> a
+()
+。。元组可以包含0个
+
+元组不可变。
+>>> a = (1,2,3,4,5)
+>>> a[:-3]
+(1, 2)
+>>> a[2] = 4
+Traceback (most recent call last):
+  File "<pyshell#149>", line 1, in <module>
+    a[2] = 4
+TypeError: 'tuple' object does not support item assignment
+
+要频繁修改时用列表
+。。话说元组究竟有什么用？
+。。似乎就是一个enum？不是，元组可以重复。。或许就是一个数组吧，不过是一个不适合频繁修改的数组
+
+x in tup，x是元组tup中的一个元素，则返回True
+len(tup)tup中元素个数
+tup.count(x)元素x在tup中出现的次数
+tup.index(x)tup中第一个x的下标，如果没有，ValueError异常
+
+元组何以用+，*拼接
+>>> a = ('a','aa')
+>>> b = ('b','bb')
+>>> c = a + b
+>>> c
+('a', 'aa', 'b', 'bb')
+>>> c = a * 3
+>>> c
+('a', 'aa', 'a', 'aa', 'a', 'aa')
+>>> c = a + (1,)
+>>> c
+('a', 'aa', 1)
+>>> a += a
+>>> a
+('a', 'aa', 'a', 'aa')
+>>> a *= 2
+>>> a
+('a', 'aa', 'a', 'aa', 'a', 'aa', 'a', 'aa')
+>>> a = a[0:3]
+>>> a
+('a', 'aa', 'a')
+
+
+列表和元组基本相同，一个重要区别，列表可变。
+实际上列表比元组用的多得多得多。
+
+列表用[]，，可以len，+，*，，列表中可以包含元组，反过来也可以。。可以下标来去，可以[begin:end](可以单个为空，或者两个为空)。。而且begin默认是0，end默认是最后一个+1.。。所以a[:-3]是下标0到下标-3
+>>> a = [1,2,3,4,5]
+>>> a[:-3]
+[1, 2]
+>>> a = (1,2,3,4,5)
+>>> a[:-3]
+(1, 2)
+。。元组也是。
+
+
+。。才发现元组的元素是用[]来取的。()是错误的
+
+>>> a = [1]
+>>> a
+[1]
+>>> a = [1,]
+>>> a
+[1]
+>>> a = []
+>>> a
+[]
+。。单元素不强制,。。。可以包含0个元素(元组也可以0个元素)
+
+
+>>> a = (1,2,3,4,5)
+>>> a[:-3]
+(1, 2)
+>>> a[2] = 4
+Traceback (most recent call last):
+  File "<pyshell#149>", line 1, in <module>
+    a[2] = 4
+TypeError: 'tuple' object does not support item assignment
+>>> a = [1,2,3,4,5]
+>>> a[3] = 11
+>>> a
+[1, 2, 3, 11, 5]
+>>> id(a)
+39265664
+>>> a[2] = 8
+>>> a
+[1, 2, 8, 11, 5]
+>>> id(a)
+39265664
+。。元组不可变，列表可变
+
+>>> a[3] = a
+>>> a
+[1, 2, 8, [...], 5]
+。。自我引用。。
+
+>>> id(a[1])
+505915128
+>>> a[1] = '2'
+>>> id(a[1])
+20060480
+。。元素是替换，不是修改。。这样就是一个list啊。
+
+>>> id(a)
+39265664
+>>> id(a[0])
+505915112
+。。就是，list有个head结点，指向了a[0]所在的结点。
+
+
+s.append(x)		s末尾添加x
+s.count(x)		x在s中出现的次数
+s.extend(lst)	lst所有元素都添加到s末尾		和+一样。。不一样
+s.index(x)		第一次x出现的下标
+s.insert(i, x)	如果i非负，insert后s[i]==x,i为负,插后s[i-1]==x，看来py处理负数索引的时候是转换为正数的。
+s.pop(i)		删除并返回s[i]。。不写i，就是删除返回最后一个。不写就是默认-1
+s.remove(x)		删除s中第一个x元素
+s.reverse()		反转顺序
+s.sort()		升序排列，要求类型一致，不然unorderable types: str() < int()
+
+。。这里push的功能是append完成的
+
+>>> s.extend('123')
+>>> s
+[3, 1, '1', '2', '3']
+>>> s.extend(['123'])
+>>> s
+[3, 1, '1', '2', '3', '123']
+
+
+>>> s
+[3, 1, '1', '2', '3']
+>>> id(s[1])
+505915112
+>>> s.reverse()
+>>> s
+['3', '2', '1', 1, 3]
+>>> id(s[-2])
+505915112
+。。不会删除，只是listNode的指针反转。
+
+sort也不会删除。
+
+py的sort还会把含有元组的列表排列
+>>> s = [(1,5),(1,3),(5,8),(3,2)]
+>>> s
+[(1, 5), (1, 3), (5, 8), (3, 2)]
+>>> s.sort()
+>>> s
+[(1, 3), (1, 5), (3, 2), (5, 8)]
+。。就是先按第一个元素排，在按第二个。。。
+
+>>> s.append((3,))
+>>> s
+[(1, 3), (1, 5), (2,), (3, 2), (5, 8), (3,)]
+>>> s.sort()
+>>> s
+[(1, 3), (1, 5), (2,), (3,), (3, 2), (5, 8)]
+。。空是最前面的。
+
+
+列表解析
+用于创建列表
+>>> [n *n for n in range(1,11)]
+[1, 4, 9, 16, 25, 36, 49, 64, 81, 100]
+。。。别忘了最外面的[]
+
+>>> [c for c in 'asdfg']
+['a', 's', 'd', 'f', 'g']
+>>> [c.upper() for c in 'qwe']
+['Q', 'W', 'E']
+>>> [c.capitalize() for c in ['asd','fefe','wwwer']]
+['Asd', 'Fefe', 'Wwwer']
+。。配合string的方法用。
+
+>>> [n for n in [2,4,66,4,11,33,21] if n > 20]
+[66, 33, 21]
+
+>>> ' '.join([c for c in 'qwerasdfzxcv' if c.upper() not in 'SWDXC'])
+'q e r a f z v'
+
+>>> 'a' in 'asd'
+True
+>>> 'a' not in 'asd'
+False
+
+>>> ' '.join(c for c in 'qwerasdfzxcv' if c.upper() not in 'SWDXC')
+'q e r a f z v'
+。。删除也可以。不过就这里。传递给join的表达式是一个生成器表达式，在复杂的py编程中，可以用生成器表达式高效生成所需的列表或序列部分：根据需要生成元素，，而不是列表解析那种一次性生成所有元素。
+
+
+字典
+散列值
+
+>>> q = {'r':1, 'b':2, 'c':3}
+>>> q
+{'r': 1, 'c': 3, 'b': 2}
+>>> q['r']
+1
+。。无序的？
+
+>>> q['r'] = 11
+>>> q
+{'r': 11, 'c': 3, 'b': 2}
+
+前面是key。后面是value
+key必须独一无二
+。。如果有两个，那么py会存储第二个，。。。saveandupdate
+键不能改变，，对键的hash得到对应的物理地址。。改变会导致物理地址的改变
+值无限制
+
+>>> q.get('r')
+11
+>>> q['r']
+11
+
+如果不存在key会KeyError的异常。
+
+可以先
+>>> 'asd' in q
+False
+>>> 'c' in q
+True
+。。字典中in的效率极高，和序列的in比更是。
+
+
+d.items()		返回由d的键-值对组成的视图
+d.keys()		d的键组成的视图
+d.values()		d的值组成的视图
+d.get(key)		返回key对应的值
+d.pop(key)		删除并返回key对应的值
+d.popitem()		返回d中某个键-值对
+d.clear()		删除d中所有元素
+d.copy()		赋值d
+d.fromkeys(s, t)		创建新字典，键来于s，值来自t
+d.setdefault(key, v)	如果key在d中，返回其value；不在，d中加入key-v对，然后返回v
+d.update(e)		e中k-v对添加到d中，e可能是字典，可能是k-v序列
+。。。k-v对序列怎么写。。
+。。popitem是返回并删除某个键-值对
+
+视图是永远存在的，只不过用方法来获得，所以每次输出视图都是最新的(就是修改字典的时候，会自动修改视图，而且方法返回的只是一个指针，每次输出，都会是最新的)。
+k = q.keys()
+for i in k : print(i)
+
+
+集合
+集合是一系列不重复的元素，类似字典，但是没有value
+可变集合，不可变集合
+
+集合最常见的用途就是删除序列中的重复元素
+>>> s = [1,2,3,4,5,2,2,2,1,2,3,4,5,3,4,5,2,1,8]
+>>> s
+[1, 2, 3, 4, 5, 2, 2, 2, 1, 2, 3, 4, 5, 3, 4, 5, 2, 1, 8]
+>>> q = set(s)
+>>> q
+{1, 2, 3, 4, 5, 8}
+
+集合元素排序不确定
+dir(set)
+看在线文档。。。。。。
+
+
+
+输入输出。
+
+>>> x = 1/81
+>>> x
+0.012345679012345678
+>>> print(x)
+0.012345679012345678
+>>> print('%.5f' % x)
+0.01235
+>>> print('%10.5f' % x)
+   0.01235
+>>> print('%4.5f' % x)
+0.01235
+>>> x = 123456789.123456789
+>>> print('%5.5f' % x)
+123456789.12346
+>>> print('%5d' % -3)
+   -3
+。。小数点前面是全部的长度，不会截断，小数点后是小数的个数，会四舍五入，小数点，-算在全部长度中
+
+d	整数
+o	8进制
+x	小写的16进制
+X	大写的16进制
+e	小写的科学计数法
+E	大写
+f	浮点数
+s	字符串
+%	%符号
+
+>>> print('%e' % x)
+1.234568e+08
+
+>>> print('%eee..%ddd..' % (x,x))
+1.234568e+08ee..123456789dd..
+
+很上面的format方法
+
+在字符串插入和格式字符串都不够强大或灵活时，可能要使用模板包，如Cheetah，Django，在需要创建大量动态生成的网页时，这是个不错的选择。
+
+
+还可以插入格式。。
+>>> 'asd:{x}'.format(x=1/61)
+'asd:0.01639344262295082'
+>>> 'asd:{x:f}'.format(x = 1/44)
+'asd:0.022727'
+>>> 'asd:{x:10.3f}'.format(x = 1/22)
+'asd:     0.045'
+
+。。更吊的。
+>>> 'a:{x:.{d}f}'.format(x = 1/21, d = 5)
+'a:0.04762'
+
+要表示{,},要用{{,}}
+
+简单字符串用字符串插入，格式字符串适合庞大负责的，如创建页面或格式邮件
+
+
+读写文件
+分为两类，文本文件，二进制文件
+
+当前工作目录(cwd),操作文件/文件夹时，没有提供完整的路径名，py将假定你指的是当前目录中的文件/文件夹
+
+windows路径名用\来分割路径，并以盘符(C:)打头
+mac和linux使用/分隔，不以盘符打头。
+
+py使用\要用转义字符\\
+可以使用原始字符串:
+r'\\\'
+
+，，才发现。。print和直接变量回车是不一样的。
+>>> s = '\n'
+>>> s
+'\n'
+>>> print(s)
+
+
+>>> 
+
+>>> s='\\'
+>>> print(s)
+\
+>>> s = r'\\'
+>>> print(s)
+\\
+>>> s
+'\\\\'
+。。。。。。。。。
+
+
+import os
+from os import *
+
+os.getcwd()			返回当前工作目录的名称
+os.listdir(p)		返回字符串列表，包含路径p指定的文件夹中所有的文件和文件夹名称
+os.chdir(p)			将当前工作目录设置为路径p
+os.path.isfile(p)	当路径p指定的是一个文件的名称时，返回True
+os.path.isdir(p)	p是一个文件夹的名称时，True，否者False
+os.stat(fname)		返回fname的信息，如大小(字节)和最后一次修改时间
+。。后面有个例子。用的是os.stat(fname).st_size来获得大小。
+
+
+。。。
+>>> def asd(path):
+	path = os.getcwd()
+	return [fname for fname in os.listdir(path)
+		if os.path.isfile(fname)
+		if fname.endswith('.py')
+		]
+>>> a = os.getcwd()
+>>> aa = asd(a)
+>>> aa
+['新建文本文档.py']
+
+。。。return666666666
+
+。。python的生成器表达式。已经超过此书范围，
+。。os.stat()非常复杂，提供的信息非常非常多，自己网上看
+
+
+
+py文件打开模式
+'r'		为读取而打开(默认模式)
+'w'		为写入
+'a'		为在文件末尾附加而打开。上面那个一进去是在哪里写？上面那个是新建文件，如果原先有，会删除然后新建。
+'b'		二进制模式
+'t'		文本模式(默认)
+'+'		为读写打开文件
+
+
+>>> os.path.isfile('D:\done\java\a111.java')
+False
+>>> os.path.isfile("D:\done\java\a111.java")
+False
+>>> os.path.isfile('D:/done/java/a111.java')
+True
+>>> os.path.isfile('D:\\done\\java\\a111.java')
+True
+>>> os.path.isfile("D:\\done\\java\\a111.java")
+True
+>>> os.path.isfile('''D:\done\java\a111.java''')
+False
+。。。不是说''是不使用转义字符的么。难道是gy的？恩。。
+>>> os.path.isfile(r"D:\done\java\a111.java")
+True
+。。py使用r''
+
+>>> def qwe(fname):
+	f = open(fname)
+	for line in f:
+		print(line)
+。。靠，读/写打开呢。。
+	
+>>> qwe('D:/done/java/a111.java')
+public class a111
+
+{
+
+	public static void main(String[] args)
+
+	{
+
+		int i = 0;
+
+		i = i++;
+
+		System.out.println(i);
+
+	}
+
+}
+。。。应该把end=''也抄上。
+
+open并不是读取，foreach的时候才是读取。
+上面省略了f.close()
+
+
+另一种读取是将文本作为一个大型字符串。
+def p(fname):
+	f = open(fname,'r')
+	print(f.read())
+	f.close()
+。。没写
+。。短小，简单，但是如果读取的文件非常大，内存。。
+
+还可以
+print(open(fname,'r').read())
+
+
+写入
+>>> def mm():
+	f = open(r"D:\done\java\a1112.java",'w')
+	f.write('aaaaa,,\n')
+	f.write('bbb')
+运行两次，第二次会把前面的删掉。。书中也写到了
+可以用if os.path.isfile(r"D:\done\java\a1112.java")来判断，上面的写else中
+也可以用'a'模式打开(最后附加)
+
+
+在文件头加字符串。
+不容易，应为linux，windows都没有为这种操作提供直接支持。
+最简单的可能如下：
+将文件读取到一个字符串中，然后新文本插入到字符串，然后在写到原来的文件中。
+
+def a(title,fname):
+	f = open(fname,'r+')
+	temp = f.read()
+	temp = title + '\n\n' + temp
+	f.seek(0)
+	f.write(temp)
+
+。。似乎write就是覆盖写，所以可以seek(0)，但不能直接加入(因为，只有覆盖，没有插入)。
+
+
+。。那要是要删字符怎么弄？删尾巴，删头。。。没写
+，，似乎就是读取一行，然后判断。替换。或者读取全部，然后当一个string操作
+
+
+
+如果不是文本文件，就被视为2进制文件。
+。。文本文件？只有txt？？
+
+上面的那些模式是可以组合的。
+'b'只是二进制模式打开，并没有说明是读还是写。。。
+
+。。二进制可以判断文件的类型。
+。。就是每种文件的开头几个字节都不一样。
+书上只说了可以通过前4个字节判断gif。不知道是不是可以实现上面的。
+
+二进制用f.read(n)，n来确定读取的字节数。。也可以使用文件指针来记录接下来应读取文件的哪个字节(就是f.seek(m)??)。
+
+
+
+py的pickle对对象串行化。将复杂的数据结构转换为字节流。
+pickle能让你轻松读写几乎所有数据结构。。就是序列化/一个转换标准，这样你读取的时候能按这个标准读取到数据结构
+
+pickle.dump()将数据结构存储到磁盘，
+pickle.load()读取
+pickle还可以存储函数
+pickle不能用于读写特殊格式的二进制文件，如gif，对于这样的文件，必须逐字节处理
+
+
+py的shelve模块，更高级的方式(字典)存储和检索数据。。自己查
+
+sqlite3模块，提供了SQlite数据库的接口
+
+
+读取网页。
+
+webbrowser模块，能让你以编程方式在浏览器中显示网页。(就是py电泳浏览器，并打开某个指定的网页。)
+
+urllib模块，让程序自动读取网页，将网页作为字符串存储到计算机中，然后就能对字符串进行操作了！。
+
+urllib还能让你以编程方式发送数据。。参阅文档
+
+
+
+
+异常处理
+py的异常就是error，不是exception
+
+
+在代码的任何地方都可以使用raise来引发异常
+>>> raise IOError("this is not a test")
+Traceback (most recent call last):
+  File "<pyshell#0>", line 1, in <module>
+    raise IOError("this is not a test")
+OSError: this is not a test
+
+
+忽略异常，捕获异常。
+
+捕获用try except。
+>>> def a():
+	while True:
+		try:
+			n = int(input("number"))
+			return n
+		except ValueError:
+			print("enter a number")
+
+			
+>>> a()
+numbera
+enter a number
+number1.2
+enter a number
+number4
+4
+
+。。。就是一个if，else外面套个while。不过简单很多，不需要自己写判断语句来判断是不是int类。
+
+>>> q = int(input(" :"))
+ :e
+Traceback (most recent call last):
+  File "<pyshell#10>", line 1, in <module>
+    q = int(input(" :"))
+ValueError: invalid literal for int() with base 10: 'e'
+
+。。java好像没有这种异常啊。忘记了，给int输一个float，java 应该会截掉小数，但是把char给int会出什么？。。jedit，连float f = 1.5;都错，要写float f = 1.5f;直接1.5是double。double不能自动转为float，float也不能自动转为int。string也转不到int。，只有char能自动转int，是ascii码
+
+。。主要是py的q = int(input(" :"))中的int应该是用来规定后面读取的类型的，但是java没有，java写int是强制类型转换了。
+
+
+py出现异常就会跳过其他剩下未执行的语句，立刻到except块。。
+int()将引发ValueError。
+。。。java会直接强制类型转换吧。或者nextInt直接无视float。
+
+
+if根据布尔表达式，
+try根据是否出现异常。
+
+
+要捕获多个异常
+except (ValueError, TypeError):
+
+要分别处理多个异常就是多个except:
+try:
+	...
+except ValueError:
+	...
+except TypeError:
+	...
+应该也能一个except处理2个，另一个处理一个的。
+
+。。如果except中出了异常，会怎么办？应该是直接报错吧。
+
+>>> def aa():
+	while True:
+		try:
+			raise IOError("www")
+		except IOError:
+			print("error")
+			raise ValueError('aaa')
+		except ValueError:
+			print('Value')
+
+			
+>>> aa()
+error
+Traceback (most recent call last):
+  File "<pyshell#20>", line 4, in aa
+    raise IOError("www")
+OSError: www
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<pyshell#21>", line 1, in <module>
+    aa()
+  File "<pyshell#20>", line 7, in aa
+    raise ValueError('aaa')
+ValueError: aaa
+
+。。好像把上一个也暴出来了。。。
+
+
+except后直接:是捕捉所有异常
+
+
+。。。
+现在才说有个finally块。。。
+和java作用一样。肯定会执行，话说直接try中return呢？
+
+
+>>> def ss():
+	while True:
+		try:
+			return 5
+		except:
+			return 2
+		finally:
+			return 11
+
+		
+>>> q = ss()
+>>> q
+11
+
+。。和java一样，如果try和finally都有return，return的是finally的，只有try有，就是try的return
+
+>>> def ww():
+	while True:
+		try:
+			return 1
+		except:
+			return 2
+		finally:
+			print('asd')
+
+			
+>>> q = ww()
+asd
+>>> q
+1
+
+
+
+py的with，确保即使发生异常，也将尽早执行清理操作(如：关闭文件)
+
+
+num = 1
+f = open(fname)
+for line in f:
+	print('%04d %s' % (num, line), end = '')
+	num = num + 1
+这个程序不能确定f将何时关闭
+
+num = 1
+with open(fname, 'r') as f:
+	for line in f:
+		print('%04d %s' % (num, line), end = '')
+		num = num + 1
+这个能确保for结束就关闭f
+
+也可以用print('{0:04} {1}'.format(num, line), end = '')
+
+
+>>> print("%05d   %s" % (3, 'asd'))
+00003   asd
+。。""中的空格也输出，的确要输出，""就是一个string。
+
+>>> print("{0:05}    {1}".format(3,'awww'))
+00003    awww
+
+
+
+面向对象编程。。。。。
+
+class Person:
+	def __init__(self):
+		self.name = ''
+		self.age = 0
+定义了一个类，包含数据name，age
+__init__用于初始化。py在创建时，自动跳动__init__方法，等于构造方法，方法第一个参数必须是self。，所有在类中定义的方法，第一个参数都必须是self。。self可以用你自己的，全部替换，但是self算是一种约定。。。就是第一个形参是指向自己的指针。而且调用属性的时候要指针.属性名，不能直接属性名，所以必须要一个指针
+
+p = Person()
+就创建了。
+p.name = 'A'
+p.age = 11
+就是赋值
+
+
+py提供了一些特殊方法，以支持打印，
+
+__str__这个方法似乎是当你调用str(类)时会用类的这个方法的return数据？
+可以在某个类方法中print(str(self))
+
+
+。。。不过py的定位是脚本语言啊。对象这种可有可无的吧。即使有，支持也没java好啊。
+
+__repr__方法，就是直接类对象，回车时，改变输出。。书上是里面调用了str(self)，，当然__str__要写。
+
+当你定义了__repr__,没有定义__str__时，对对象调用str()，会调用__repr__
+
+有__repr__后，可以在某个类方法中print(self)
+
+
+def __init__ (self, name='', age=0)
+。。但是想上面这种就可以创建空的person，这样在用的时候就要检查，为了不检查，所以很多时候并不会给name，age指定默认值
+
+
+setter/getter函数，，算是自定义的，，主要是为了在设置的时候加一些限制，比如年龄的限制，这样就可以写在setter函数中了
+
+但是调用方法赋值很烦。py引入了特性装饰器(property decorator)
+
+装饰器是py的一种通过结构，用于系统地修改既有函数，，通常放在函数开头，并以@字符打头。
+
+装饰器指出方法有点特殊。
+
+@property，获取方法返回变量的值，
+@property
+def age(self):
+	return self._age
+@proprty指出这是一个获取函数，这个函数的名称将被用于设置变量。。是说这个方法的名称要和属性名一样？下面就改了。。就等于说这个方法的名字就是外面看到的属性名，对真正的属性做一个封装。
+而且还将self.age变成了self._age，只是一种常见做法，不是py的规定，这样可以将这个变量和age方法分开。
+上面那个是getter方法。
+
+
+@age.setter。。。
+@age.setter
+def age(self, age):
+	if 0 < age <= 150:
+		self._age = age
+这样就可以
+p.age = 11了，而且p.age = -2不会起作用
+
+。。就是@property方法的名字指定了类对外显示的属性名，并且还是一个get函数
+
+依然可以访问p._age,并且可以p._age = -2
+
+。。。。可以改为self.__age，两个_代表私有变量。。。那上面是一个_，还说是常见做法。。。
+
+要访问self.__age，要在前面加上_Person，。p._Person__age = -2
+。。。无意间直接改变内部变量已经微乎其微了
+
+不以下划线打头的都是公有变量。
+。。。只打一个的呢？也是共有啊。
+
+编写大型程序时，先将所有的变量都变成私有，然后看情况开放成公有变量。避免无意中修改对象内部变量。。。。有点。。。无意义的感觉。。不是还有setter函数么。
+。。不知道py有没有私有方法，我猜没。
+
+在age方法中，碰到界限外的是什么都不做，，也可以触发异常，这样可以知道系统中自动设置变量时，有问题。。。直接if，else输出一条语句也可以。。。
+
+
+继承
+
+class Human(Player):
+	pass
+py中pass表示什么也不做，但对Human类来说，是一个完整的定义，他继承了Player的代码。。
+
+class Human(Player):
+	def __repr__(self):
+		return "Human"
+毕竟Player的__repr__不一样的，所以在子类中重写的方法。其他方法和Player中一样
+
+
+多态
+。。似乎py中多态更简单，毕竟没有类型限制，java还有设为他们的公共父类，py直接一个变量就ok了。
+
+就是自己写一个函数，比如调用形参的某个方法，只要形参所代表的类实现了这个方法，就能用这个方法来调用。。
+
+
+要了解设计模式。书上推荐的是groupOfFour的《设计模式：可复用面向对象软件的基础》，erich，richard，ralph，john
+
+
+第11章(pdf186，书177)及以后，是一些实例了，还有就是一些介绍。
+
+
+bill = open('bill.txt', 'r').read()
+len(bill)				字符个数
+bill.count('\n')		行数
+len(bill.split())		
+len(normalize(bill).split())	
+。。书上通过最后两个得出了英语文章中的单词数目。两者数量差不多。应该是归一化后的差别。大约1%的差距
+，，split是按形参分割，无代表空格，多个空格视为一个空格。
+。。normalize不知道是什么，，只查到数据归一化。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
