@@ -1,0 +1,2403 @@
+
+				<!DOCTYPE html>
+				<html>
+					<head>
+						<meta charset="UTF-8">
+						<meta name="viewport" content="width=device-width, initial-scale=1" />
+						<link rel="stylesheet" href="pluginAssets/katex/katex.css"><link rel="stylesheet" href="pluginAssets/highlight.js/atom-one-light.css">
+						<title>软件架构设计：技术与业务</title>
+					</head>
+					<body>
+						<div class="exported-note"><div class="exported-note-title">软件架构设计：技术与业务</div>
+
+<style>
+		/* https://necolas.github.io/normalize.css/ */
+		html{line-height:1.15;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%}body{margin:0}
+		article,aside,footer,header,nav,section{display:block}h1{font-size:2em;margin:.67em 0}hr{box-sizing:content-box;height:0;overflow:visible}
+		pre{font-family:monospace,monospace;font-size:1em}a{background-color:transparent;-webkit-text-decoration-skip:objects}
+		b,strong{font-weight:bolder}small{font-size:80%}img{border-style:none}
+
+		body {
+			font-size: 15px;
+			color: #32373F;
+			word-wrap: break-word;
+			line-height: 1.6em;
+			background-color: #ffffff;
+			font-family: 'Avenir', 'Arial', sans-serif;
+			padding-bottom: 0px;
+			padding-top: 0px;
+		}
+		kbd {
+			border: 1px solid rgb(220, 220, 220);
+			box-shadow: inset 0 -1px 0 rgb(220, 220, 220);
+			padding: 2px 4px;
+			border-radius: 3px;
+			background-color: rgb(243, 243, 243);
+		}
+		::-webkit-scrollbar {
+			width: 7px;
+			height: 7px;
+		}
+		::-webkit-scrollbar-corner {
+			background: none;
+		}
+		::-webkit-scrollbar-track {
+			border: none;
+		}
+		::-webkit-scrollbar-thumb {
+			background: rgba(100, 100, 100, 0.3); 
+			border-radius: 5px;
+		}
+		::-webkit-scrollbar-track:hover {
+			background: rgba(0, 0, 0, 0.1); 
+		}
+		::-webkit-scrollbar-thumb:hover {
+			background: rgba(100, 100, 100, 0.7); 
+		}
+
+		
+
+		/* Remove top padding and margin from first child so that top of rendered text is aligned to top of text editor text */
+
+		#rendered-md > h1:first-child,
+		#rendered-md > h2:first-child,
+		#rendered-md > h3:first-child,
+		#rendered-md > h4:first-child,
+		#rendered-md > ul:first-child,
+		#rendered-md > ol:first-child,
+		#rendered-md > table:first-child,
+		#rendered-md > blockquote:first-child,
+		#rendered-md > img:first-child,
+		#rendered-md > p:first-child {
+			margin-top: 0;
+			padding-top: 0;
+		}
+		
+		p, h1, h2, h3, h4, h5, h6, ul, table {
+			margin-top: .6em;
+			margin-bottom: 1.35em;
+
+			/*
+				Adds support for RTL text in the note body. It automatically detects the direction using the content.
+				Issue: https://github.com/laurent22/joplin/issues/3991
+			*/
+			unicode-bidi: plaintext;
+		}
+
+		h1, h2, h3, h4, h5, h6, ul, table {
+			margin-bottom: 0.65em;
+		}
+
+		h1, h2, h3, h4, h5, h6 {
+			line-height: 1.5em;
+		}
+		h1 {
+			font-size: 1.5em;
+			font-weight: bold;
+			border-bottom: 1px solid #dddddd;
+			padding-bottom: .3em;
+		}
+		h2 {
+			font-size: 1.3em;
+			font-weight: bold;
+			padding-bottom: .1em; */
+		}
+		h3 {
+			font-size: 1.1em;
+			font-weight: bold;
+		}
+		h4, h5, h6 {
+			font-size: 1em;
+			font-weight: bold;
+		}
+
+		.exported-note-title {
+			font-size: 2em;
+			font-weight: bold;
+			margin-bottom: 0.8em;
+			line-height: 1.5em;
+			padding-bottom: .35em;
+			border-bottom: 1px solid #dddddd;
+		}
+
+		a {
+			color: #155BDA;
+		}
+		ul, ol {
+			padding-left: 0;
+			margin-left: 1.7em;
+		}
+		li {
+			margin-bottom: .4em;
+		}
+		li p {
+			margin-top: 0.2em;
+			margin-bottom: 0;
+		}
+
+		.resource-icon {
+			display: inline-block;
+			position: relative;
+			top: 0.3em;
+			text-decoration: none;
+			width: 1.2em;
+			height: 1.4em;
+			margin-right: 0.4em;
+			background-color:  #155BDA;
+		}
+    /* These icons are obtained from the wonderful ForkAwesome project by copying the src svgs 
+     * into the css classes below.
+     * svgs are obtained from https://github.com/ForkAwesome/Fork-Awesome/tree/master/src/icons/svg
+     * instead of the svg width, height property you must use a viewbox here, 0 0 1536 1792 is typically the actual size of the icon
+     * each line begins with the pre-amble -webkit-mask: url("data:image/svg+xml;utf8,
+     * and of course finishes with ");
+     * to precvent artifacts it is also necessary to include -webkit-mask-repeat: no-repeat;
+     * on the following line
+     * */
+		.fa-joplin {
+			/* Awesome Font file */
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M373.834 128C168.227 128 0 296.223 0 501.834v788.336C0 1495.778 168.227 1664 373.834 1664h788.336c205.608 0 373.83-168.222 373.83-373.83V501.834C1536 296.224 1367.778 128 1162.17 128zm397.222 205.431h417.424a7.132 7.132 0 0 1 7.132 7.133v132.552c0 4.461-3.619 8.073-8.077 8.073h-57.23c-24.168 0-43.768 19.338-44.284 43.374v2.377h-.017v136.191h-.053l-.466 509.375c-5.02 77.667-39.222 149.056-96.324 201.046-60.28 54.834-141.948 85.017-229.962 85.017-12.45 0-25.208-.61-37.907-1.785-92.157-8.682-181.494-48.601-251.662-112.438-71.99-65.517-117.147-150.03-127.164-238-11.226-98.763 23.42-192.783 95.045-257.937 81.99-74.637 198.185-101.768 316.613-75.704 5.574 1.227 9.55 6.282 9.55 11.997v199.52c-.199 2.625-1.481 6.599-8.183 2.896-.663-.365-1.194-.511-1.653-.531-21.987-10.587-45.159-17.57-68.559-19.916-.38-.04-.757-.124-1.138-.163-.537-.048-1.034-.033-1.556-.075-4.13-.354-8.183-.517-12.203-.58-.87-.011-1.771-.127-2.641-.127-.486 0-.951.05-1.437.057-1.464.011-2.886.115-4.33.163-2.76.102-5.497.211-8.182.448-.273.024-.547.07-.835.097-25.509 2.4-47.864 11.104-65.012 25.47-.954.802-1.974 1.53-2.9 2.36a1.34 1.34 0 0 1-.168.146c-23.96 21.8-34.881 53.872-30.726 90.316 4.62 40.737 26.94 81.156 62.841 113.823 35.908 32.67 80.335 52.977 125.113 57.186 35.118 3.36 66.547-3.919 89.899-20.461a97.255 97.255 0 0 0 9.365-7.501c2.925-2.661 5.569-5.5 8.086-8.416.3-.348.672-.673.975-1.024 8.253-9.864 14.222-21.067 17.996-33.148.639-2.034 1.051-4.148 1.564-6.227.381-1.563.81-3.106 1.112-4.693.555-2.784.923-5.632 1.253-8.49.086-.709.183-1.414.237-2.128.492-4.893.693-9.858.55-14.91h.013V521.623c-2.01-22.626-20.78-40.434-43.928-40.434h-57.23a8.071 8.071 0 0 1-8.077-8.073V340.564a7.132 7.132 0 0 1 7.136-7.133z'/></svg>");
+		}
+		.fa-file-image {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zm-128-448v320H256v-192l192-192 128 128 384-384zm-832-192c-106 0-192-86-192-192s86-192 192-192 192 86 192 192-86 192-192 192z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-pdf {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zm-514-593c25 20 53 38 84 56 42-5 81-7 117-7 67 0 152 8 177 49 7 10 13 28 2 52-1 1-2 3-3 4v1c-3 18-18 38-71 38-64 0-161-29-245-73-139 15-285 46-392 83-103 176-182 262-242 262-10 0-19-2-28-7l-24-12c-3-1-4-3-6-5-5-5-9-16-6-36 10-46 64-123 188-188 8-5 18-2 23 6 1 1 2 3 2 4 31-51 67-116 107-197 45-90 80-178 104-262-32-109-42-221-24-287 7-25 22-40 42-40h22c15 0 27 5 35 15 12 14 15 36 9 68-1 3-2 6-4 8 1 3 1 5 1 8v30c-1 63-2 123-14 192 35 105 87 190 146 238zm-576 411c30-14 73-57 137-158-75 58-122 124-137 158zm398-920c-10 28-10 76-2 132 3-16 5-31 7-44 2-17 5-31 7-43 1-3 2-5 4-8-1-1-1-3-2-5-1-18-7-29-13-36 0 2-1 3-1 4zm-124 661c88-35 186-63 284-81-10-8-20-15-29-23-49-43-93-103-127-176-19 61-47 126-83 197-15 28-30 56-45 83zm646-16c-5-5-31-24-140-24 49 18 94 28 124 28 9 0 14 0 18-1 0-1-1-2-2-3z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-word {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zM233 768v107h70l164 661h159l128-485c5-15 8-30 10-46 1-8 2-16 2-24h4l3 24c3 14 4 30 9 46l128 485h159l164-661h70V768h-300v107h90l-99 438c-4 16-6 33-7 46l-2 21h-4c0-6-2-14-3-21-3-13-5-30-9-46L825 768H711l-144 545c-4 16-5 33-8 46l-4 21h-4l-2-21c-1-13-3-30-7-46l-99-438h90V768H233z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-powerpoint {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zm-992-234v106h327v-106h-93v-167h137c43 0 82-2 118-15 90-31 146-124 146-233s-54-193-137-228c-38-15-84-19-130-19H416v107h92v555h-92zm353-280H650V882h120c35 0 62 6 83 18 36 21 56 62 56 115 0 56-20 99-62 120-21 10-47 15-78 15z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-excel {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zm-979-234v106h281v-106h-75l103-161c12-19 18-34 21-34h2c1 4 3 7 5 10 4 8 10 14 17 24l107 161h-76v106h291v-106h-68l-192-273 195-282h67V768H828v107h74l-103 159c-12 19-21 34-21 33h-2c-1-4-3-7-5-10-4-7-9-14-17-23L648 875h76V768H434v107h68l189 272-194 283h-68z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-audio {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zM620 850c12 5 20 17 20 30v544c0 13-8 25-20 30-4 1-8 2-12 2-8 0-16-3-23-9l-166-167H288c-18 0-32-14-32-32v-192c0-18 14-32 32-32h131l166-167c10-9 23-12 35-7zm417 689c19 0 37-8 50-24 83-102 129-231 129-363s-46-261-129-363c-22-28-63-32-90-10-28 23-32 63-9 91 65 80 100 178 100 282s-35 202-100 282c-23 28-19 68 9 90 12 10 26 15 40 15zm-211-148c17 0 34-7 47-20 56-60 87-137 87-219s-31-159-87-219c-24-26-65-27-91-3-25 24-27 65-2 91 33 36 52 82 52 131s-19 95-52 131c-25 26-23 67 2 91 13 11 29 17 44 17z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-video {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zM768 768c70 0 128 58 128 128v384c0 70-58 128-128 128H384c-70 0-128-58-128-128V896c0-70 58-128 128-128h384zm492 2c12 5 20 17 20 30v576c0 13-8 25-20 30-4 1-8 2-12 2-8 0-17-3-23-9l-265-266v-90l265-266c6-6 15-9 23-9 4 0 8 1 12 2z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-archive {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M640 384V256H512v128h128zm128 128V384H640v128h128zM640 640V512H512v128h128zm128 128V640H640v128h128zm700-388c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H768v128H640V128H128v1536h1280zM781 943c85 287 107 349 107 349 5 17 8 34 8 52 0 111-108 192-256 192s-256-81-256-192c0-18 3-35 8-52 0 0 21-62 120-396V768h128v128h79c29 0 54 19 62 47zm-141 465c71 0 128-29 128-64s-57-64-128-64-128 29-128 64 57 64 128 64z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-code {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zM480 768c11-14 31-17 45-6l51 38c14 11 17 31 6 45l-182 243 182 243c11 14 8 34-6 45l-51 38c-14 11-34 8-45-6l-226-301c-8-11-8-27 0-38zm802 301c8 11 8 27 0 38l-226 301c-11 14-31 17-45 6l-51-38c-14-11-17-31-6-45l182-243-182-243c-11-14-8-34 6-45l51-38c14-11 34-8 45 6zm-620 461c-18-3-29-20-26-37l138-831c3-18 20-29 37-26l63 10c18 3 29 20 26 37l-138 831c-3 18-20 29-37 26z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-alt, .fa-file-csv {
+      /* fork-awesome doesn't have csv so we use the text icon */
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zM384 800c0-18 14-32 32-32h704c18 0 32 14 32 32v64c0 18-14 32-32 32H416c-18 0-32-14-32-32v-64zm736 224c18 0 32 14 32 32v64c0 18-14 32-32 32H416c-18 0-32-14-32-32v-64c0-18 14-32 32-32h704zm0 256c18 0 32 14 32 32v64c0 18-14 32-32 32H416c-18 0-32-14-32-32v-64c0-18 14-32 32-32h704z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		blockquote {
+			border-left: 4px solid rgb(220, 220, 220);
+			padding-left: 1.2em;
+			margin-left: 0;
+			opacity: 0.7;
+		}
+
+		.jop-tinymce table,
+		table {
+			text-align: left;
+			border-collapse: collapse;
+			border: 1px solid rgb(220, 220, 220);
+			background-color: #ffffff;
+		}
+
+		.jop-tinymce table td, .jop-tinymce table th,
+		table td, th {
+			text-align: left;
+			padding: .5em 1em .5em 1em;
+			font-size: 15;
+			color: #32373F;
+			font-family: 'Avenir', 'Arial', sans-serif;
+		}
+
+		.jop-tinymce table td,
+		table td {
+			border: 1px solid rgb(220, 220, 220);
+		}
+
+		.jop-tinymce table th,
+		table th {
+			border: 1px solid rgb(220, 220, 220);
+			border-bottom: 2px solid rgb(220, 220, 220);
+			background-color: rgb(247, 247, 247);
+		}
+
+		.jop-tinymce table tr:nth-child(even),
+		table tr:nth-child(even) {
+			background-color: rgb(247, 247, 247);
+		}
+
+		.jop-tinymce table tr:hover,
+		table tr:hover {
+			background-color: #e5e5e5;
+		}
+
+		hr {
+			border: none;
+			border-bottom: 2px solid #dddddd;
+		}
+		img {
+			max-width: 100%;
+			height: auto;
+		}
+		
+		.inline-code,
+		.mce-content-body code {
+			border: 1px solid rgb(220, 220, 220);
+			background-color: rgb(243, 243, 243);
+			padding-right: .2em;
+			padding-left: .2em;
+			border-radius: .25em;
+			color: rgb(0,0,0);
+			font-size: .9em;
+		}
+
+		.highlighted-keyword {
+			background-color: #F3B717;
+			color: black;
+		}
+
+		.not-loaded-resource img {
+			width: 1.15em;
+			height: 1.15em;
+			background: white;
+			padding: 2px !important;
+			border-radius: 2px;
+			box-shadow: 0 1px 3px #000000aa;
+		}
+
+		a.not-loaded-resource img {
+			margin-right: .2em;
+		}
+
+		a.not-loaded-resource {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+		}
+
+		.md-checkbox input[type=checkbox]:checked {
+			opacity: 0.7;
+		}
+
+		.jop-tinymce ul.joplin-checklist .checked,
+		.md-checkbox .checkbox-label-checked {
+			opacity: 0.5;
+		}
+
+		.exported-note {
+			padding: 1em;
+		}
+
+		.joplin-editable .joplin-source {
+			display: none;
+		}
+
+		mark {
+			background: #F7D26E;
+			color: black;
+		}
+
+		/* =============================================== */
+		/* For TinyMCE */
+		/* =============================================== */
+
+		.mce-content-body {
+			/* Note: we give a bit more padding at the bottom, to allow scrolling past the end of the document */
+			padding: 5px 10px 10em 0;
+		}
+
+		/*
+		.mce-content-body code {
+			background-color: transparent;
+		}
+		*/
+
+		.mce-content-body [data-mce-selected=inline-boundary] {
+			background-color: transparent;
+		}
+
+		.mce-content-body .joplin-editable {
+			cursor: pointer !important;
+		}
+
+		.mce-content-body.mce-content-readonly {
+			opacity: 0.5;
+		}
+
+		/* We need that to make sure click events have the A has a target */
+		.katex a span {
+			pointer-events: none;
+		}
+
+		.media-player {
+			width: 100%;
+			margin-top: 10px;
+		}
+
+		.media-player.media-pdf {
+			min-height: 35rem;
+			width: 100%;
+			max-width: 1000px;
+			margin: 0;
+			border: 0;
+			display: block;
+		}
+
+		/* Clear the CODE style if the element is within a joplin-editable block */
+		.mce-content-body .joplin-editable code {
+			border: none;
+			background: none;
+			padding: 0;
+			color: inherit;
+			font-size: inherit;
+		}
+
+		/* To make code blocks horizontally scrollable */
+		/* https://github.com/laurent22/joplin/issues/5740 */
+		pre.hljs {
+			overflow-x: auto;
+		}
+
+		/* =============================================== */
+		/* For TinyMCE */
+		/* =============================================== */
+
+		@media print {
+			body {
+				height: auto !important;
+			}
+
+			pre {
+				white-space: pre-wrap;
+			}
+
+			.code, .inline-code {
+				border: 1px solid #CBCBCB;
+			}
+
+			#joplin-container-content {
+				/* The height of the content is set dynamically by JavaScript (in updateBodyHeight) to go
+				   around various issues related to scrolling. However when printing we don't want this
+				   fixed size as that would crop the content. So we set it to auto here. "important" is
+				   needed to override the style set by JavaScript at the element-level. */
+				height: auto !important;
+			}
+		}
+	
+
+				/*
+					FOR THE MARKDOWN EDITOR
+				*/
+
+				/* Remove the indentation from the checkboxes at the root of the document
+				   (otherwise they are too far right), but keep it for their children to allow
+				   nested lists. Make sure this value matches the UL margin. */
+
+				li.md-checkbox {
+					list-style-type: none;
+				}
+
+				li.md-checkbox input[type=checkbox] {
+					margin-left: -1.71em;
+					margin-right: 0.7em;
+				}
+				
+				ul.joplin-checklist {
+					list-style:none;
+				}
+
+				/*
+					FOR THE RICH TEXT EDITOR
+				*/
+
+				ul.joplin-checklist li::before {
+					content:"\f14a";
+					font-family:"Font Awesome 5 Free";
+					background-size: 16px 16px;
+					pointer-events: all;
+					cursor: pointer;
+					width: 1em;
+					height: 1em;
+					margin-left: -1.3em;
+					position: absolute;
+					color: #32373F;
+				}
+
+				.joplin-checklist li:not(.checked)::before {
+					content:"\f0c8";
+				}</style><div id="rendered-md"><p>《软件架构设计：大型网站技术架构与业务架构融合之道》</p>
+<p>2024-03-07 12:41</p>
+<nav class="table-of-contents"><ul><li><a href="#ch1-五花八门的架构师职业">ch1 五花八门的架构师职业</a></li><li><a href="#12-架构的分类">1.2 架构的分类</a></li><li><a href="#ch4-操作系统">ch4 操作系统</a><ul><li><a href="#41-缓冲io和直接io">4.1 缓冲IO和直接IO</a><ul><li><a href="#关键概念">关键概念</a></li></ul></li><li><a href="#42-内存映射文件与零拷贝">4.2 内存映射文件与零拷贝</a><ul><li><a href="#内存映射文件">内存映射文件</a></li><li><a href="#零拷贝">零拷贝</a></li></ul></li><li><a href="#43-网络io模型">4.3 网络IO模型</a><ul><li><a href="#实现层面的网络io模型">实现层面的网络IO模型</a></li><li><a href="#432-reactor-proactor-模式">4.3.2 reactor, proactor 模式</a></li><li><a href="#433-selectepoll-的-ltet">4.3.3 select,epoll 的 LT,ET</a><ul><li><a href="#epoll-的-ltet">epoll 的 LT,ET</a></li></ul></li><li><a href="#434-服务器编程的-1nm-模型">4.3.4 服务器编程的 1+N+M 模型</a></li></ul></li><li><a href="#44-进程线程协程">4.4 进程，线程，协程</a></li><li><a href="#45-无锁内存屏障与cas">4.5 无锁(内存屏障与CAS)</a><ul><li><a href="#451-内存屏障">4.5.1 内存屏障</a></li><li><a href="#cas">CAS</a></li></ul></li></ul></li><li><a href="#ch5-网络">ch5 网络</a><ul><li><a href="#http-10">http 1.0</a><ul><li><a href="#http-10-的问题">http 1.0 的问题</a></li><li><a href="#keep-alive-content-length">Keep-Alive, Content-Length</a></li></ul></li><li><a href="#52-http-11">5.2 HTTP 1.1</a><ul><li><a href="#连接复用与chunk机制">连接复用与Chunk机制</a></li><li><a href="#pipeline-和-head-of-line-blocking-问题">Pipeline 和 Head-of-line Blocking 问题</a></li><li><a href="#http2-出现之前的-性能提升方法">http/2 出现之前的 性能提升方法</a></li><li><a href="#一来多回-问题">一来多回 问题</a></li><li><a href="#断点续传">断点续传</a></li></ul></li><li><a href="#53-http2">5.3 http/2</a><ul><li><a href="#531-与http-11兼容">5.3.1 与http 1.1兼容</a></li><li><a href="#二进制分帧">二进制分帧</a></li><li><a href="#头部压缩">头部压缩</a></li></ul></li><li><a href="#54-ssltls">5.4 SSL/TLS</a><ul><li><a href="#对称加密的问题">对称加密的问题</a></li><li><a href="#双向非对称加密">双向非对称加密</a></li><li><a href="#单向非对称加密">单向非对称加密</a></li><li><a href="#中间人攻击">中间人攻击</a></li><li><a href="#数字证书和证书认证中心">数字证书和证书认证中心</a></li><li><a href="#根证书与ca信任链">根证书与CA信任链</a></li><li><a href="#548-ssltls-协议四次握手">5.4.8 SSL/TLS 协议：四次握手</a></li></ul></li><li><a href="#55-https">5.5 HTTPS</a></li><li><a href="#56-tcpudp">5.6 TCP/UDP</a><ul><li><a href="#可靠与不可靠">可靠与不可靠</a><ul><li><a href="#解决不丢包问题-ack-重发">解决不丢包问题： ACK + 重发</a></li><li><a href="#解决不重复问题-顺序ack">解决不重复问题： 顺序ACK</a></li><li><a href="#解决时序错乱问题-顺序ack">解决时序错乱问题： 顺序ACK</a></li></ul></li><li><a href="#tcp的假连接">TCP的&quot;假&quot;连接</a></li><li><a href="#563-三次握手">5.6.3 三次握手</a></li><li><a href="#四次挥手">四次挥手</a></li></ul></li><li><a href="#57-quic">5.7 QUIC</a><ul><li><a href="#不丢包-raid5-raid6-算法">不丢包 (Raid5 Raid6 算法)</a></li><li><a href="#更少的-rtt">更少的 RTT</a></li><li><a href="#连接迁移">连接迁移</a></li></ul></li></ul></li><li><a href="#ch6-数据库">ch6 数据库</a><ul><li><a href="#范式与反范式">范式与反范式</a></li><li><a href="#分库分表">分库分表</a><ul><li><a href="#为什么要分">为什么要分</a></li><li><a href="#分布式id生成服务">分布式ID生成服务</a></li><li><a href="#拆分维度的选择">拆分维度的选择</a></li><li><a href="#join查询问题">join查询问题</a></li><li><a href="#分布式事务">分布式事务</a></li></ul></li><li><a href="#b树">B+树</a><ul><li><a href="#b树逻辑结构">B+树逻辑结构</a></li><li><a href="#b树物理结构">B+树物理结构</a></li><li><a href="#非主键索引">非主键索引</a></li></ul></li><li><a href="#64-事务与锁">6.4 事务与锁</a><ul><li><a href="#4个隔离级别">4个隔离级别</a></li><li><a href="#悲观锁乐观锁">悲观锁，乐观锁</a></li><li><a href="#死锁检测">死锁检测</a></li></ul></li><li><a href="#事务实现原理值1-redo-log">事务实现原理值1： redo log</a><ul><li><a href="#write-ahead">write-ahead</a></li><li><a href="#redo-log-的逻辑与物理结构">redo log 的逻辑与物理结构</a></li><li><a href="#pyhsiological-logging">pyhsiological logging</a></li><li><a href="#io写入的原子性-double-write">IO写入的原子性， double write</a></li><li><a href="#redo-log-block-结构">redo log block 结构</a></li><li><a href="#事务lsnlog-black-的关系">事务，LSN，Log black 的关系</a></li><li><a href="#657-事务rollback-与-崩溃恢复-aries算法">6.5.7 事务rollback 与 崩溃恢复 (ARIES算法)</a><ul><li><a href="#aries算法">ARIES算法</a></li></ul></li></ul></li><li><a href="#66-事务实现原理之2-undo-log">6.6 事务实现原理之2： undo log</a><ul><li><a href="#undo-log-是否一定需要">undo log 是否一定需要</a></li><li><a href="#662-undo-log-mvcc">6.6.2 undo log (MVCC)</a></li><li><a href="#undo-log-不是-log">undo log 不是 log</a></li><li><a href="#undo-log-与-redo-log-的关联">undo log 与 redo log 的关联</a></li><li><a href="#各种锁">各种锁</a></li></ul></li><li><a href="#binlog-与-主从复制">Binlog 与 主从复制</a><ul><li><a href="#binlog-和-redo-log-的主要差异">Binlog 和 Redo Log 的主要差异</a></li><li><a href="#内部xa-binlog和-redo-log-一致性问题">内部XA - binlog和 redo log 一致性问题</a></li><li><a href="#3种主从复制方式">3种主从复制方式</a></li><li><a href="#并行复制">并行复制</a></li></ul></li></ul></li><li><a href="#ch7-框架软件与中间件">ch7 框架，软件与中间件</a><ul><li><a href="#对生态体系的认知">对生态体系的认知</a></li><li><a href="#框架">框架</a></li><li><a href="#软件与中间件">软件与中间件</a></li></ul></li><li><a href="#第三部分-技术架构之道">第三部分 技术架构之道</a></li><li><a href="#ch8-高并发问题">ch8 高并发问题</a><ul><li><a href="#问题分类">问题分类</a><ul><li><a href="#侧重于-高并发读-的系统">侧重于 高并发读 的系统</a><ul><li><a href="#搜索引擎">搜索引擎</a></li><li><a href="#电商的商品搜索">电商的商品搜索</a></li><li><a href="#电商系统的商品描述图片价格">电商系统的商品描述，图片，价格</a></li></ul></li><li><a href="#侧重于-高并发写-的系统">侧重于 高并发写 的系统</a><ul><li><a href="#广告扣费提供">广告扣费提供</a></li></ul></li><li><a href="#同时侧重-高并发读高并发写-的系统">同时侧重 高并发读，高并发写 的系统</a><ul><li><a href="#电商-库存系统-和-秒杀系统">电商 库存系统 和 秒杀系统</a></li><li><a href="#支付系统-和-微信红包">支付系统 和 微信红包</a></li><li><a href="#im即时通讯qq微信微博朋友圈">IM(即时通讯，qq，微信)，微博，朋友圈</a></li></ul></li></ul></li><li><a href="#高并发读">高并发读</a><ul><li><a href="#策略1加缓存">策略1：加缓存</a><ul><li><a href="#本地缓存-或-memcachedredis-集中式缓存">本地缓存 或 memcached/redis 集中式缓存</a></li><li><a href="#mysql-的masterslave">mysql 的master/slave</a></li><li><a href="#cdn-静态文件加速-动静分离">CDN 静态文件加速 (动静分离)</a></li></ul></li><li><a href="#策略2并发读">策略2：并发读</a><ul><li><a href="#异步rpc">异步RPC</a></li><li><a href="#google-的冗余请求">google 的冗余请求</a></li></ul></li><li><a href="#策略3重写轻读">策略3：重写轻读</a><ul><li><a href="#微博feeds-流">微博Feeds 流</a></li><li><a href="#多表的关联查询宽表与搜索引擎">多表的关联查询：宽表与搜索引擎</a></li></ul></li><li><a href="#总结读写分离-cqrs架构">总结：读写分离 (CQRS架构)</a></li></ul></li><li><a href="#高并发写">高并发写</a><ul><li><a href="#策略1数据分片">策略1：数据分片</a><ul><li><a href="#数据库的分库分表">数据库的分库分表</a></li><li><a href="#jdk的-concurrenthashmap">JDK的 ConcurrentHashMap</a></li><li><a href="#kafka-的-partition">kafka 的 partition</a></li><li><a href="#es的分布式索引">ES的分布式索引</a></li></ul></li><li><a href="#策略2任务分片">策略2：任务分片</a><ul><li><a href="#cpu的指令流水线">CPU的指令流水线</a></li><li><a href="#mapreduce">Map/Reduce</a></li><li><a href="#1nm-网络模型">1+N+M 网络模型</a></li></ul></li><li><a href="#策略3异步化">策略3：异步化</a><ul><li><a href="#短信验证码注册或登录">短信验证码注册或登录</a></li><li><a href="#电商的订单系统">电商的订单系统</a></li><li><a href="#广告计费系统">广告计费系统</a></li><li><a href="#lsm树-写内存-write-ahead日志">LSM树 (写内存 + write-ahead日志)</a></li><li><a href="#kafka-的-pipeline">kafka 的 pipeline</a></li></ul></li><li><a href="#策略4批量">策略4：批量</a><ul><li><a href="#kafka-百万qps写入">kafka 百万qps写入</a></li><li><a href="#广告计费系统的合并扣费">广告计费系统的合并扣费</a></li><li><a href="#mysql-的小事务合并机制">MySQL 的小事务合并机制</a></li></ul></li><li><a href="#策略5串行化-多进程单线程-异步io">策略5：串行化 + 多进程单线程 + 异步IO</a></li></ul></li><li><a href="#容量规划">容量规划</a><ul><li><a href="#吞吐量响应时间并发数">吞吐量，响应时间，并发数</a></li><li><a href="#压力测试-与容量评估">压力测试 与容量评估</a></li></ul></li></ul></li><li><a href="#ch9-高可用和-稳定性">ch9 高可用和 稳定性</a><ul><li><a href="#多副本">多副本</a><ul><li><a href="#本地缓存多副本">本地缓存多副本</a></li><li><a href="#redis-多副本">redis 多副本</a></li><li><a href="#mysql多副本">mysql多副本</a></li><li><a href="#消息中间件-多副本">消息中间件 多副本</a></li></ul></li><li><a href="#隔离限流熔断降级">隔离，限流，熔断，降级</a></li><li><a href="#灰度发布与回滚">灰度发布与回滚</a></li><li><a href="#监控体系-和-日志报警">监控体系 和 日志报警</a></li></ul></li><li><a href="#ch10-事务一致性">ch10 事务一致性</a><ul><li><a href="#102-分布式事务解决方案汇总">10.2 分布式事务解决方案汇总</a><ul><li><a href="#2pc">2PC</a></li><li><a href="#最终一致性消息中间件">最终一致性(消息中间件)</a></li><li><a href="#tcc">TCC</a></li><li><a href="#事务状态表-调用方重试-接收方幂等">事务状态表 + 调用方重试 + 接收方幂等</a></li><li><a href="#对账">对账</a></li><li><a href="#妥协方案弱一致性-基于状态的补偿">妥协方案：弱一致性 + 基于状态的补偿</a></li><li><a href="#妥协方案重试回滚报警人工修复">妥协方案：重试+回滚+报警+人工修复</a></li></ul></li></ul></li><li><a href="#ch11-多副本一致性">ch11 多副本一致性</a><ul><li><a href="#115-三种算法对比">11.5 三种算法对比</a></li></ul></li><li><a href="#ch12-cap理论">ch12 CAP理论</a><ul><li><a href="#123-典型案例分布式锁">12.3 典型案例：分布式锁</a><ul><li><a href="#基于zookeeper实现">基于zookeeper实现</a></li><li><a href="#基于redis实现">基于redis实现</a></li></ul></li></ul></li><li><a href="#第四部分-业务架构之道">第四部分 业务架构之道</a></li><li><a href="#ch13-业务意识">ch13 业务意识</a><ul><li><a href="#131-产品经理-vs-需求分析师">13.1 产品经理 vs 需求分析师</a></li></ul></li><li><a href="#ch14-业务架构思维">ch14 业务架构思维</a><ul><li><a href="#142-边界思维">14.2 边界思维</a></li><li><a href="#143-系统化思维">14.3 系统化思维</a></li><li><a href="#145-非功能性需求">14.5 非功能性需求</a></li><li><a href="#视角架构4151视图">视角(架构4+1/5+1视图)</a></li><li><a href="#157-业务分层结构模式">15.7 业务分层结构模式</a></li><li><a href="#158-管道-过滤器架构模式">15.8 管道-过滤器架构模式</a></li><li><a href="#159-状态机架构模式">15.9 状态机架构模式</a></li><li><a href="#1510-业务切面业务闭环-架构模式">15.10 业务切面/业务闭环 架构模式</a></li></ul></li><li><a href="#ch16-个人素质提升">ch16 个人素质提升</a></li></ul></nav><hr>
+<hr>
+<h1 id="ch1-五花八门的架构师职业">ch1 五花八门的架构师职业</h1>
+<h1 id="12-架构的分类">1.2 架构的分类</h1>
+<p>从技术角度看，把软件系统自底向上分层，可以分为</p>
+<p>第一层：基础架构<br>
+指 云平台，操作系统，网络，存储，数据库，编译器等。<br>
+随着云计算的普及，很多中小公司都选择云计算平台，而不是自己研发和维护基础架构</p>
+<p>第二层：中间件与大数据平台<br>
+中间件架构，如，分布式服务中间件，消息中间件，数据库中间件，缓存中间件，监控系统，工作流引擎，规则引擎等。<br>
+大数据架构，如 开源的 Hadoop生态体系，Hive,Spark,Storm,Flink等</p>
+<p>第三层：业务系统架构<br>
+通用软件系统，如，办公软件，浏览器，播放器等<br>
+离线业务系统，如，基于大数据的BI分析，数据挖掘，报表与可视化等<br>
+大型在线业务系统，如，搜索，推荐，即时通信，电商，游戏，广告，企业ERP/CRM</p>
+<h1 id="ch4-操作系统">ch4 操作系统</h1>
+<h2 id="41-缓冲io和直接io">4.1 缓冲IO和直接IO</h2>
+<p>缓冲IO是C提供的库函数，都是以f开头<br>
+直接IO是linux的系统api</p>
+<p>缓冲IO：fopen, fclose, fseek, fflush, fread, fwrite, fprintf, fscanf,...<br>
+直接IO：open,  close,  lseek, fsync,  read,  write,  pread,   pwrite</p>
+<h3 id="关键概念">关键概念</h3>
+<p>应用程序内存：是代码通过 malloc/free, new/delete 分配来的内存<br>
+用户缓冲区：C语言的 FILE 结构中的 buffer 属性。<br>
+内核缓冲区：linux的page cache。 linux把磁盘上的数据以 page为单位 缓存在OS的内存中，page是linux定义的一个逻辑概念，一个page一般为4k。</p>
+<p>对于缓冲IO，一个读操作会有3次数据拷贝，一个写操作，也有3次数据拷贝(方向和读相反)<br>
+读：磁盘 - 内核缓冲区 - 用户缓冲区 - 应用内存<br>
+写：应用内存 - 用户缓冲区 - 内核缓冲区 - 磁盘</p>
+<p>对于直接IO，一个读有2次数据拷贝，一个写有2次数据拷贝<br>
+读：磁盘 - 内核缓冲区 - 应用内存<br>
+写：应用内存 - 内核缓冲区 - 磁盘</p>
+<p><img src="../_resources/3247f5a301ff47f88e0709ad7b8fd009.png" alt="93562e2bbd6780278234635144fd1d0a.png"></p>
+<p>关于缓冲IO和直接IO，有几点需要特别说明：</p>
+<ul>
+<li>fflush和fsync的区别。 fflush是缓冲IO的api，把数据从 用户缓冲区 刷新到 内核缓冲区，fsync是把数据从 内核缓冲区 刷新到 磁盘中。<br>
+所以无论缓冲IO还是直接IO，不调用fsync，数据不会到磁盘，此时断电就会导致数据丢失</li>
+<li>对于直接IO，有 read/write, pread/pwrite， 2组api，pread/pwrite 在多线程读写一个文件的时候 很有用。</li>
+</ul>
+<h2 id="42-内存映射文件与零拷贝">4.2 内存映射文件与零拷贝</h2>
+<h3 id="内存映射文件">内存映射文件</h3>
+<p>用户空间不再有物理内存，直接<mark>将 应用内存的 逻辑地址 映射到 linux的内核缓冲区</mark>。<br>
+这样，应用实际读写的是 内核缓冲区。</p>
+<p>数据拷贝次数 变成 1次<br>
+读：磁盘 - 内核缓冲区<br>
+写：内核缓冲区 - 磁盘</p>
+<p><img src="../_resources/aae0a6330bd543e08ff829c1ce7f744a.png" alt="a19cce169f0e1edd878b4008bbb3ad35.png"></p>
+<p>linux中，内存映射文件 的系统API是<br>
+<code class="inline-code">void* mmap(void* start, size_t length, int prot, int flags, int fd, off_t offset);</code></p>
+<p>java中，MappedByteBuffer 也可以实现同样的目的。</p>
+<h3 id="零拷贝">零拷贝</h3>
+<p>kafka，在消费消息的时候 使用了 零拷贝。</p>
+<p>当用户需要把文件中的数据发送到 网络的时候，不使用 零拷贝，来看看怎么实现</p>
+<p>实现1，使用直接IO</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="text" data-joplin-source-open="```text&#10;" data-joplin-source-close="&#10;```">fd1 = 打开的文件描述符
+fd2 = 打开的socket描述符
+buffer = 应用内存
+read(fd1, buffer ...)     // 从文件读取
+write(fd2, buffer ...)    // 写入到网络</pre><pre class="hljs"><code>fd1 = 打开的文件描述符
+fd2 = 打开的socket描述符
+buffer = 应用内存
+read(fd1, buffer ...)     // 从文件读取
+write(fd2, buffer ...)    // 写入到网络</code></pre></div>
+<p>整个过程会有4 次数据拷贝，读2次，写2次。<br>
+硬盘 - 内核缓冲区 - app内存 - socket缓冲区 - 网络</p>
+<p><img src="../_resources/d9bc2f59b44648aab3631408bca48e52.png" alt="b25a71777277e67ffeddbae833f43d38.png"><br>
+。。socket缓冲区 是内核空间的。 用户空间只有 app内存</p>
+<p>实现2，使用内存映射文件</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="text" data-joplin-source-open="```text&#10;" data-joplin-source-close="&#10;```">fd1 = 文件
+fd2 = socket
+buffer = app内存
+mmap(fd1, buffer ...)   // 磁盘数据 映射到 buffer上
+write(fd2, buffer ...)  // 通过网络发送</pre><pre class="hljs"><code>fd1 = 文件
+fd2 = socket
+buffer = app内存
+mmap(fd1, buffer ...)   // 磁盘数据 映射到 buffer上
+write(fd2, buffer ...)  // 通过网络发送</code></pre></div>
+<p>整个过程，3次数据拷贝，不再经过 app内存，直接在 内核空间中， 从内核缓冲区 拷贝到 socket 缓冲区。<br>
+<img src="../_resources/b478ad3d4ed24fdf91abac0dbff69135.png" alt="d6020df42ce9cc9698173541d8f11d2d.png"></p>
+<p>使用零拷贝，可以省略 内核缓冲区 - socket缓冲区 的拷贝。<br>
+内核缓冲区 和 socket缓冲区 之间 进行了 地址的映射，底层的 网卡驱动程序 要读取数据 并发送到 网络的时候，看似读取的事 socket 缓冲区， 实际上 读取的事 内核缓冲区中的数据。<br>
+<img src="../_resources/1248cc8f94ab4b969101c1528691f1bb.png" alt="32ad26ae4cb42d9875150659bce69974.png"></p>
+<p>虽然叫 零拷贝，实际上是2次数据拷贝，1次是 磁盘到 内核缓冲区，1次是内核缓冲区到网络。<br>
+零拷贝是指 在内存中 没有发生过 数据拷贝， 数据 只在 内存和IO之间 传输。</p>
+<p>linux中，零拷贝的系统API<br>
+<code class="inline-code">sendfile(int out_fd, int in_fd, off_t *offset, size_t count)</code><br>
+out_fd是socket描述符，in_fd是文件描述符</p>
+<p>java中是<br>
+<code class="inline-code">FileChannel.transferTo(long position, long count, WritableByteChannel target)</code></p>
+<h2 id="43-网络io模型">4.3 网络IO模型</h2>
+<p>网络IO模型存在诸多概念，有OS层面的，有应用框架层面的。</p>
+<h3 id="实现层面的网络io模型">实现层面的网络IO模型</h3>
+<p>网络IO，大家往往会混淆 阻塞和非阻塞，同步和异步 这2对概念。 最常见的混淆有</p>
+<ul>
+<li>认为 非阻塞IO (non-blocking io) 和异步IO (asynchronous io) 是同一个概念</li>
+<li>认为 linux 的 select,poll,epoll 这类 IO多路复用是 异步IO</li>
+<li>存在一种IO，叫 异步阻塞IO (实际上没有这种模型)</li>
+</ul>
+<p>之所以混淆，是因为 讨论这些概念的时候，语境不同，有的说的是 linux 层面，有的说的是 jdk层面，有的是 框架层面(如netty, nginx, asio)</p>
+<p>下面的 网络IO模型，主要是 linux 语境。</p>
+<p>第一种模型： <mark>同步阻塞IO</mark><br>
+这很简单，就是linux的 read 和write，在调用的时候会阻塞，直到数据读完或写完。</p>
+<p>第二种模型： <mark>同步非阻塞IO</mark><br>
+和第一种模型的API是一样的， 只是打开 fd 的时候 带有 O_NONBLOCK 参数。<br>
+调用 read，write的时候，如果没有准备好数据，会立即返回，不会阻塞，然后让 应用程序 不断地去轮询。</p>
+<p>第三种模型： <mark>IO多路复用</mark><br>
+前两种，只能用于 简单 的客户端开发。<br>
+对于服务器程序，需要处理很多的 fd (连接数可达几十万)。</p>
+<ul>
+<li>如果使用 同步阻塞IO，处理这么多的fd，需要很多的线程，一个线程处理一个fd</li>
+<li>同步非阻塞IO，应用程序需要轮询的fd的数量很多。</li>
+</ul>
+<p>linux中 有3种 IO多路复用，select, poll, epoll。它们的原理有一定差异。后面会专门介绍。<br>
+这里以 select 为例<br>
+<code class="inline-code">int select(int maxfdp1, fd_set *readfds, fd_set *writefds, fd_set *execeptfds, ...)</code><br>
+该函数是阻塞调用，一次性传入所有的 fd，当有 fd 可读 或可写，函数返回， 返回结果包含在 函数形参中，告知应用程序 哪些fd 可读或可写。 然后 应用程序 调用 read，write 函数进行数据读写。</p>
+<p>IO多路复用是 linux上最成熟的 网络IO模型，起中 epoll 效率最高。 所以目前主流的 网络模型都是 epoll。</p>
+<p>第四种，<mark>异步IO</mark><br>
+windows系统的 ICOP，是真正意义上异步IO。<br>
+异步IO 是指 读写 都是由 OS 完成，然后 通过 回调函数 或某种 通信机制 通知 应用程序。</p>
+<p>下面是一个异步IO的例子：C++的 asio网络库。<br>
+asio是跨平台的C++网络库，也是 boost的一部分。<br>
+在 linux 上封装的是 epoll，在window上封装的是 IOCP<br>
+asio接口是完全异步的，如下所示</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="c++" data-joplin-source-open="```c++&#10;" data-joplin-source-close="&#10;```">asio::async_read(socket_, asio::buffer(read_msg_.data(), chat_message::header_length), boost::bing(&amp;chat_session::handle_read_header, shared_from_this(), asio::placeholders::error));
+
+asio::async_write(socket_, asio::buffer(write_msgs_.front().data(), write_msgs_.front().length()), boost::bind(&amp;chat_session::handle_write, shared_from_this(), asio::placeholders::error));</pre><pre class="hljs"><code>asio::<span class="hljs-built_in">async_read</span>(socket_, asio::<span class="hljs-built_in">buffer</span>(read_msg_.<span class="hljs-built_in">data</span>(), chat_message::header_length), boost::<span class="hljs-built_in">bing</span>(&amp;chat_session::handle_read_header, <span class="hljs-built_in">shared_from_this</span>(), asio::placeholders::error));
+
+asio::<span class="hljs-built_in">async_write</span>(socket_, asio::<span class="hljs-built_in">buffer</span>(write_msgs_.<span class="hljs-built_in">front</span>().<span class="hljs-built_in">data</span>(), write_msgs_.<span class="hljs-built_in">front</span>().<span class="hljs-built_in">length</span>()), boost::<span class="hljs-built_in">bind</span>(&amp;chat_session::handle_write, <span class="hljs-built_in">shared_from_this</span>(), asio::placeholders::error));</code></pre></div>
+<p>参数主要是3个</p>
+<ul>
+<li>socket</li>
+<li>应用程序的buffer</li>
+<li>回调函数，在上面的代码中，分别是 chat_session 这个类的 2个成员函数 handle_read_header / handle_write</li>
+</ul>
+<p>app调用这2个函数后 都会 立即返回，由 asio 库内部进行 io读写。 完成后，通过 回调函数通知 app。</p>
+<p>asio在linux上还是由 epoll完成。 这个例子是想说明 <mark>所谓的 &quot;异步&quot;，就是 读写 由底层完成 (OS 或 框架)，读写完成后，以某种方式 通知app</mark></p>
+<p><img src="../_resources/2276d9ee3fa84e4cbb807f80f5b64926.png" alt="835f82e006b1bd4969e8433674209473.png"></p>
+<p>阻塞，非阻塞 是从 函数调用 角度来说的，<br>
+同步，异步，是从 &quot;读写是谁完成的&quot; 角度来说的。<br>
+阻塞：如果读写没有完成，函数一直等待<br>
+非阻塞：函数立即返回，app轮询<br>
+同步：读写由app完成<br>
+异步：读写由OS完成，完成后，回调或事件 通知app</p>
+<p>所以 异步IO一定是 非阻塞IO， 不存在 异步阻塞IO<br>
+同步IO可能是阻塞 的，也可能非阻塞。<br>
+所以 存在3种IO： 同步阻塞IO，同步非阻塞IO，异步IO</p>
+<p>IO多路复用(select,poll,epoll) 都是同步IO，因为 read 和write 都是 app完成的，同时也是阻塞IO，因为 select，read，write的调用都是阻塞的。</p>
+<p>除了上面4种 iO模型，还经常会听到 &quot;事件驱动&quot;, 它在不同语境有不同含义，如nginx中的事件驱动 其实是 nginx封装的一个逻辑概念， 在OS层面是 基于 epoll 或 select 来实现的。</p>
+<h3 id="432-reactor-proactor-模式">4.3.2 reactor, proactor 模式</h3>
+<p>它们是网络框架的 2种设计模式<br>
+无论 OS的网络IO模型的 设计，还是 上层网络框架的网络IO模型 设计，用的都是这2种设计模式之一</p>
+<ul>
+<li>
+<p>reactor<br>
+主动模式，app不断轮询，询问os 或 网络框架， IO是否就绪。 linux的 select,poll,epoll就是 主动模式，需要 app 有一个循环 一直询问， java的nio也是这种模式。在这种模式下， 实际的io 还是app执行的。</p>
+</li>
+<li>
+<p>proactor<br>
+被动模式<br>
+app把 read，write 函数操作 全部交给 os或 网络框架，实际的IO操作 由 os 或 网络框架完成，之后再回调 app。 asio就是典型的 proactor 模型</p>
+</li>
+</ul>
+<h3 id="433-selectepoll-的-ltet">4.3.3 select,epoll 的 LT,ET</h3>
+<ol>
+<li>select<br>
+<code class="inline-code">int select(int maxfdp1, fd_set *readfds, fd_set *writefds, fs_set *exceptfds, struct timeval *timeout);</code></li>
+</ol>
+<p>fd是一个int值， fd_set 是一个bit数组，每一位表示 一个fd是否有 读事件 或写事件发生。</p>
+<p>maxdfp1 是 readfds 或 writefds 的下标的 最大值 + 1。 表示 个数。</p>
+<p>返回结果还在 readfds，writefds 中， OS会重置所有的 bit位，告知app 到底哪个fd上有事件，app需要自己从0到maxfds遍历所有fd，然后执行 read/write</p>
+<p>select返回后，在下次调用前，需要重新维护 readfds, writefds。</p>
+<ol start="2">
+<li>poll<br>
+<code class="inline-code">int poll(struct pollfd *fds, unsigned int nfds, int timeout);</code></li>
+</ol>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C" data-joplin-source-open="```C&#10;" data-joplin-source-close="&#10;```">struct pollfd {
+  int fd;
+  short events;   // 每个fd，2个bit数组，一个进去，一个出来
+  short revents;
+};</pre><pre class="hljs"><code><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">pollfd</span> {</span>
+  <span class="hljs-type">int</span> fd;
+  <span class="hljs-type">short</span> events;   <span class="hljs-comment">// 每个fd，2个bit数组，一个进去，一个出来</span>
+  <span class="hljs-type">short</span> revents;
+};</code></pre></div>
+<p>select,poll每次都要 app把 fd的数组传进去，这个fd的数组 每次都要在 用户态，内核态之间传递，影响效率。<br>
+epoll设计了 &quot;逻辑上的epfd&quot;， epfd是一个数字，把 fd数组 关联到 上面，然后 每次向 内核传递的事 epfd这个数字。</p>
+<ol start="3">
+<li>epoll</li>
+</ol>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="c" data-joplin-source-open="```c&#10;" data-joplin-source-close="&#10;```">// 创建一个epoll句柄，size用于告知 内核监听的数目一共有多少。size不要求精确，只是告知内核 计划监听多少个fd。
+int epoll_create(int size);
+
+// 将一个fd 增/删/改 到 epfd中，对应的事件也即 读/写
+int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event);
+
+// maxevents可以自定义，假如有100个fd，而maxevents只设置为64，则其他fd的事件 会在下次调用 epoll_wait 时返回
+int epoll_wait(int epfd, struct epoll_event *events, int maxevents, int timeout);</pre><pre class="hljs"><code><span class="hljs-comment">// 创建一个epoll句柄，size用于告知 内核监听的数目一共有多少。size不要求精确，只是告知内核 计划监听多少个fd。</span>
+<span class="hljs-type">int</span> <span class="hljs-title function_">epoll_create</span><span class="hljs-params">(<span class="hljs-type">int</span> size)</span>;
+
+<span class="hljs-comment">// 将一个fd 增/删/改 到 epfd中，对应的事件也即 读/写</span>
+<span class="hljs-type">int</span> <span class="hljs-title function_">epoll_ctl</span><span class="hljs-params">(<span class="hljs-type">int</span> epfd, <span class="hljs-type">int</span> op, <span class="hljs-type">int</span> fd, <span class="hljs-keyword">struct</span> epoll_event *event)</span>;
+
+<span class="hljs-comment">// maxevents可以自定义，假如有100个fd，而maxevents只设置为64，则其他fd的事件 会在下次调用 epoll_wait 时返回</span>
+<span class="hljs-type">int</span> <span class="hljs-title function_">epoll_wait</span><span class="hljs-params">(<span class="hljs-type">int</span> epfd, <span class="hljs-keyword">struct</span> epoll_event *events, <span class="hljs-type">int</span> maxevents, <span class="hljs-type">int</span> timeout)</span>;</code></pre></div>
+<p>整个epoll的过程 分为3个步骤</p>
+<ol>
+<li>事件注册，通过 epoll_ctl 实现。对于服务器而言，是 accept,read,write 3种事件，对于客户端而言，是 connect,read,write 3种事件。</li>
+<li>轮询这3个事件是否就绪，通过 epoll_wait实现，有事件发生，该函数返回。</li>
+<li>事件就绪后，执行实际的io操作， 通过函数 accept,read,write 实现。</li>
+</ol>
+<p>什么是 事件就绪</p>
+<ol>
+<li>read事件就绪：远程有新数据来，socket读缓存区里有数据，需要调用 read函数 处理</li>
+<li>write事件就绪：本地的socket写缓冲区 是否可写。如果写缓冲区没满，则一直是可写的，write事件一直是就绪的，可以调用 write函数。 只有遇到 发送大文件的场景，socket 写缓冲区 被占满时，write事件 才不是 就绪状态</li>
+<li>accept事件就绪：有新的连接进入，需要调用 accept函数处理。</li>
+</ol>
+<h4 id="epoll-的-ltet">epoll 的 LT,ET</h4>
+<p>LT，水平触发，条件触发。<br>
+读缓冲区只要不为空，就会一直触发读事件<br>
+写缓冲区只要不满，就一直触发写事件<br>
+ET，边缘触发，状态触发<br>
+读缓冲区的状态，从空转为非空的时候触发一次<br>
+写缓冲区的状态，从满转为非满的时候触发一次</p>
+<p>对于LT模式，要避免 &quot;写的死循环&quot; 问题：写缓冲区为满的概率很小，即 写的条件 会一直满足，所以当用户注册了写事件 但没有数据要写时，它会一直触发，因此在LT模式下 写完数据 一定要 取消写事件</p>
+<p>对于ET模式，要避免&quot;short read&quot; 问题：例如用户收到 100个字节，它触发一次，但用户只读取了50个字节，剩下的50个字节不读取，它也不会再次触发。因此在ET模式下，一定要把 &quot;读缓冲区&quot; 的数据一次性读完。</p>
+<p>实际开发中，一般 倾向于 LT，这也是 默认模式。<br>
+ET容易漏事件，一次触发如果没有处理好，就没有第二次机会了。<br>
+LT重复触发 可能有少许的 性能损耗，但是 更安全。</p>
+<h3 id="434-服务器编程的-1nm-模型">4.3.4 服务器编程的 1+N+M 模型</h3>
+<p>服务器编程中，epoll的3个步骤是由不同线程负责的，即服务器编程的1+N+M模型</p>
+<p>1个监听线程， N个IO线程， M个worker线程。 N通常等于CPU核数，M由上层决定，通常有几百个。</p>
+<p><img src="../_resources/e403ee7e9af84290aa8224d17ce80c6c.png" alt="371961e2b17a88bb1d952305e3804c77.png"></p>
+<ol>
+<li>监听线程<br>
+负责accept事件的注册和处理。和每个新来的客户端建立socket连接，然后把socket连接移交给IO线程，完成任务，继续监听新的客户端</li>
+<li>IO线程<br>
+负责每个socket连接上面的 read，write 事件的注册 和 实际的socket的读写。把 读到的 request 放入 request队列，交由worker处理。</li>
+<li>worker线程<br>
+纯粹的业务线程，没有socket读写操作。 对request队列进行处理，生成 response， 写入response队列，由IO线程 回复给 客户端</li>
+</ol>
+<p>不同系统的 实现方式有差异，下面是 Tomcat6的NIO网络模型</p>
+<p><img src="../_resources/29ae811e6c5742cda14e2d0e2d85da40.png" alt="ff4edc9973a86625ed4db5ecb4c483d6.png"></p>
+<p>IO线程只负责 read，write 事件的注册和监听，执行epoll的前2个 阶段， 第三个阶段在 worker线程中执行。IO线程 监听到 一个socket连接上有 读事件，于是把 socket移交给 worker线程，worker线程读出数据，<mark>处理完业务逻辑，直接返回给客户端</mark>。</p>
+<h2 id="44-进程线程协程">4.4 进程，线程，协程</h2>
+<p>java通常是 单进程多线程<br>
+C++ 可以 单进程多线程，多进程单线程，多进程多线程 (主要指 linux上的 服务器程序)<br>
+因为 java并不直接运行在 linux上，而是运行在 jvm上，而jvm 是一个 linux进程<br>
+c++直接运行在 linux系统上，可以直接利用 linux的 强大的 进程间通信机制(IPC)，很容易创建多个进程，并实现进程间通信</p>
+<p>。。IPC的3种方式： 信号量，共享内存，消息队列</p>
+<blockquote>
+<p>多线程可以并发，为什么还要 多进程呢？</p>
+</blockquote>
+<p>因为多线程有2个问题</p>
+<ol>
+<li>线程间内存共享，要加 线程锁； 加锁会导致并发下降，复杂的锁也增加了 编码难度</li>
+<li>过多的线程 导致 频繁的 上下文切换，效率低下。</li>
+</ol>
+<p>在并发领域，有一个 很重要的 设计原则：<mark>不要通过共享内存来实现通信，而应通过通信实现共享内存</mark>。 通俗一点就是：尽可能通过消息通信，而不是共享内存来实现进程或线程之间的同步</p>
+<p>进程是资源分配的基本单位，进程间不共享资源，通过 管道 或 socket方式 通信 (当然也可以共享内存)，这种通信方式天然符合上面的并发设计原则。</p>
+<p>除了锁之外，多进程还有2个好处</p>
+<ol>
+<li>减少了多线程在不同的CPU核间切换的开销</li>
+<li>多进程相互独立，一个崩溃后，其他进程可以继续运行，增加了程序的可靠性</li>
+</ol>
+<p>多进程的典型例子是 Nginx，Nginx有一个master进程，N个worker进程，每个worker进程 对应一个 CPU核，每个进程都是 单线程的。</p>
+<p>对于IO密集型应用，要提高IO效率，有以下的方法</p>
+<ol>
+<li>异步IO，如果客户端，服务器都是自己写的，比如RPC调用，则可以把所有的IO都异步化 (利用epoll 或 真正的异步IO)。</li>
+<li>多线程</li>
+<li>多协程</li>
+</ol>
+<p>多线程除了锁的问题外，还有一个问题是 线程太多，切换的开销很大。<br>
+虽然线程切换的 开销比 进程切换的开销 小很多，但是还不够。<br>
+tomcat，在通常配置的机器上，最多也就开 <mark>几百个线程</mark>。 如果再多，线程切换的开销太大，并发效率反而下降，这意味着tomcat最多只能并发地处理几百个请求。<br>
+但是如果是协程的话，可以开<mark>几万个</mark>。相比线程，协程的特别：</p>
+<ol>
+<li>更好地利用CPU，线程的调度由OS完成，app无法干预，协程可以由app自己调度</li>
+<li>更好地利用内存，协程的堆栈大小不固定，用多少申请多少，内存利用率更高。</li>
+</ol>
+<p>现代的编程语言，go，rust，原生就有协程的支持。</p>
+<p>。。2019年的书</p>
+<p><img src="../_resources/9fbef44b09fc4d5e8df41728730189eb.png" alt="ed5a47baccfed37604ee675681574e5f.png"></p>
+<h2 id="45-无锁内存屏障与cas">4.5 无锁(内存屏障与CAS)</h2>
+<h3 id="451-内存屏障">4.5.1 内存屏障</h3>
+<p>linux内核，kfifo.c的一部分，是一个 RingBuffer，允许一个线程写，一个线程读，整个代码没有任何锁，也没有CAS，但线程是安全的。如何做到？</p>
+<p>。。图1页多。没截</p>
+<p>要实现这种完全的无锁，有2个核心点</p>
+<ol>
+<li>读可以多线程，写必须单线程，称为 single-writer principle。 如果多线程写，则做不到无锁</li>
+<li>在上面的基础上，使用了内存屏障，也就是 smp_wmb()调用。来阻止重排序</li>
+</ol>
+<p>基于内存屏障，有了java的 volatile关键字，在加上单线程写的原则，就有 java的无锁并发框架 - Disruptor</p>
+<h3 id="cas">CAS</h3>
+<p>如果是 多线程写，那么 内存屏障 不够用，需要用 CAS<br>
+CAS是 CPU层面提供的一个 硬件原子指令， 实现对同一个值得 compare 和 set的 2个操作的原子化。</p>
+<p>基于CAS，可以实现 乐观锁，无锁队列，无锁栈，无锁链表。</p>
+<h1 id="ch5-网络">ch5 网络</h1>
+<p>用的最多的就是 HTTP协议，主要有 1.0， 1.1， 2 三个版本<br>
+在HTTP 之上有 HTTPS</p>
+<p>1996，HTTP1.0，RFC1945<br>
+1999，HTTP1.1，RFC2616<br>
+2015，HTTP/2，RFC7540/7541</p>
+<h2 id="http-10">http 1.0</h2>
+<h3 id="http-10-的问题">http 1.0 的问题</h3>
+<p>http协议的基本特点是 一来一回，客户端发起一个 tcp连接，在连接上面 发一个 http request 到 服务器，服务器返回一个 http response，然后连接关闭。<br>
+每来一个请求，就要开一个连接，请求结束，关闭连接</p>
+<p>这样有2个问题</p>
+<ol>
+<li>
+<p>性能问题<br>
+连接的建立，关闭都是 耗时的操作，对于一个网页来说，除了页面本身的html，页面里面的js，css，img资源，都是一个个的http请求，一个页面上有几十个资源文件是很常见的。</p>
+</li>
+<li>
+<p>服务器推送问题<br>
+不支持 一来多回，服务器无法在 客户端没有请求的情况下 主动向 客户端推送消息。但很多app恰恰需要在 服务器完成某些事情后，主动通知客户端</p>
+</li>
+</ol>
+<p>针对这2个问题，来看看HTTP在发展过程中是如何解决的。</p>
+<h3 id="keep-alive-content-length">Keep-Alive, Content-Length</h3>
+<p>为了解决第一个问题，http 1.0 设计了一个 Keep-Alive 机制来实现 TCP连接的复用。<br>
+具体来说，客户端在http请求的头部加上 字段 <mark>Connection: Keep-Alive</mark>。服务器收到带这样字段的请求，在处理完请求之后不会关闭连接， 同时在http的 response的也会加上这样的字段，然后等待客户端在该连接上面发送下一个请求。</p>
+<p>这会带来一个问题，服务器连接数有限。 因此，服务器有一个 Keep-Alive timeout参数，过一段时间后，如果该连接上没有新的请求进来，连接就会关闭。</p>
+<p>连接复用后又有一个问题，以前服务器处理完 就把连接关闭，这时 客户端就知道 连接的请求处理结束了，但现在，即使处理完，连接也不关闭，那客户端怎么知道请求处理结束了呢？ 答案是 <mark>Content-Length: xxx</mark>。这个字段告诉 客户端 http response 的body是 多少个字节。</p>
+<h2 id="52-http-11">5.2 HTTP 1.1</h2>
+<h3 id="连接复用与chunk机制">连接复用与Chunk机制</h3>
+<p>连接复用非常有必要，所以http 1.1之后，默认启用 连接复用。 除非显式增加 Connection: Close，不然 服务器处理完请求后，不会主动关闭连接</p>
+<p>1.0 中的 Content-Length，让客户端判断响应是否接收完毕。但有个问题，如果服务器返回的数据是动态语言生成的内容，则要计算 Content-Length，对于服务器来说 比较困难。即使能计算，也需要在服务器内存中渲染整个页面，然后计算长度，非常耗时。<br>
+1.1 引入了 Chunk机制 (http streaming)，在响应的头部增加 Transfer-Encoding: chunked 属性，告诉客户端，响应的Body是分成一块一块的，块与块之间有间隔符，所有块的结尾也有个特殊标记。这样即使没有 Content-Length，客户端也能判断出响应的末尾。</p>
+<p>。。。<br>
+分块编码相当简单，在头部加入 Transfer-Encoding: chunked 之后，就代表这个报文采用了分块编码。这时，报文中的实体需要改为用一系列分块来传输。每个分块包含十六进制的长度值和数据，长度值独占一行，长度不包括它结尾的 CRLF（\r\n），也不包括分块数据结尾的 CRLF。最后一个分块长度值必须为 0，对应的分块数据没有内容，表示实体结束。按照这个格式改造下之前的代码：</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="js" data-joplin-source-open="```js&#10;" data-joplin-source-close="&#10;```">require('net').createServer(function(sock) {
+    sock.on('data', function(data) {
+        sock.write('HTTP/1.1 200 OK\r\n');
+        sock.write('Transfer-Encoding: chunked\r\n');
+        sock.write('\r\n');
+
+        sock.write('b\r\n');      // 。。b是长度
+        sock.write('01234567890\r\n');
+
+        sock.write('5\r\n');
+        sock.write('12345\r\n');
+
+        sock.write('0\r\n');
+        sock.write('\r\n');
+    });
+}).listen(9090, '127.0.0.1');</pre><pre class="hljs"><code><span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;net&#x27;</span>).<span class="hljs-title function_">createServer</span>(<span class="hljs-keyword">function</span>(<span class="hljs-params">sock</span>) {
+    sock.<span class="hljs-title function_">on</span>(<span class="hljs-string">&#x27;data&#x27;</span>, <span class="hljs-keyword">function</span>(<span class="hljs-params">data</span>) {
+        sock.<span class="hljs-title function_">write</span>(<span class="hljs-string">&#x27;HTTP/1.1 200 OK\r\n&#x27;</span>);
+        sock.<span class="hljs-title function_">write</span>(<span class="hljs-string">&#x27;Transfer-Encoding: chunked\r\n&#x27;</span>);
+        sock.<span class="hljs-title function_">write</span>(<span class="hljs-string">&#x27;\r\n&#x27;</span>);
+
+        sock.<span class="hljs-title function_">write</span>(<span class="hljs-string">&#x27;b\r\n&#x27;</span>);      <span class="hljs-comment">// 。。b是长度</span>
+        sock.<span class="hljs-title function_">write</span>(<span class="hljs-string">&#x27;01234567890\r\n&#x27;</span>);
+
+        sock.<span class="hljs-title function_">write</span>(<span class="hljs-string">&#x27;5\r\n&#x27;</span>);
+        sock.<span class="hljs-title function_">write</span>(<span class="hljs-string">&#x27;12345\r\n&#x27;</span>);
+
+        sock.<span class="hljs-title function_">write</span>(<span class="hljs-string">&#x27;0\r\n&#x27;</span>);
+        sock.<span class="hljs-title function_">write</span>(<span class="hljs-string">&#x27;\r\n&#x27;</span>);
+    });
+}).<span class="hljs-title function_">listen</span>(<span class="hljs-number">9090</span>, <span class="hljs-string">&#x27;127.0.0.1&#x27;</span>);</code></pre></div>
+<p>。。。</p>
+<p>下面是一个简单的 chunk机制的 http响应<br>
+0x25表示第一个chunk的字节数。最后的0表示末尾</p>
+<p><img src="../_resources/cd8a5abcb538452d83cda3876fe6544c.png" alt="b51dd69e80f4c2d3392b226a1b88414b.png"></p>
+<h3 id="pipeline-和-head-of-line-blocking-问题">Pipeline 和 Head-of-line Blocking 问题</h3>
+<p>有连接复用后，减少了 建立连接，关闭连接的开销。<br>
+但还有一个问题，在同一个连接上，请求是串行的，并发度不够。</p>
+<p>为此，http 1.1 引入了 Pipeline机制。在同一个 TCP 连接上，可以在一个请求发出去之后，响应没有回来之前，就可以发送下一个，下下个请求， 这样就提高了 处理请求的效率</p>
+<p><img src="../_resources/b0fcb9c903184450b8ca695a7a07734c.png" alt="6fc513e435bea1217cd80bf5fede8a6a.png"></p>
+<p>但pipeline 有个致命问题，就是 Head-of-Line Blocking，队头阻塞：客户端发送请求的顺序是 1,2,3，那么 接受响应的顺序 也必须是 1,2,3，才能将 响应 和 请求 配对。<br>
+一旦 队头的 1发生延迟，客户端收不到 1的响应，则 2,3 的响应也会被阻塞。</p>
+<p>。。它怎么能阻塞 2,3 ？ 客户端又不知道 响应2 是谁的， 它只能把 第一个收到的 响应当做 请求1 的响应啊。 如果客户端 能识别出 这个响应不是 请求1 的，客户端 就可以识别 这个响应是不是 请求2的。那么 就不会阻塞。<br>
+。。知道了，TCP，窗口， 窗口的后半部分来了，但是前半部分没有来，TCP还是得等。<br>
+。。不，是服务器发送，必须前面的发送完，再发后面的，所以 不是客户端阻塞， 是服务器 不肯发。<br>
+。。应该是 服务器的，毕竟 发送是看服务器的，前面的响应数据没有发送完，后面的不会发的。<br>
+。。不过这个技术 是被淘汰了的。<br>
+。。看http2 的二进制分帧，可以乱序，有点奇怪，不知道为什么这里不能 发送。而且 怎么保证 请求1先发出，先到达。 不会出现 请求1先发，结果 请求2先到达。 应该TCP的保证，ack之类的，保证 请求1 经过服务器的 tcp 后，必然在 请求2前面。</p>
+<p>为了避免pipeline的副作用，很多浏览器默认关闭 pipeline。</p>
+<h3 id="http2-出现之前的-性能提升方法">http/2 出现之前的 性能提升方法</h3>
+<p>一方面，pipeline不能用，在同一个tcp 连接上，请求是串行的，<br>
+另一方面，对于 同一个域名，浏览器 限制 只能开 6-8个连接。</p>
+<p>如何提高并发度呢？</p>
+<ol>
+<li>
+<p>Spriting技术<br>
+这种技术 专门针对 小图片。<br>
+假设一个网页中，要从服务器加载很多小图片(比如各种小图标)，可以在服务器中把小图片拼成一张大图，到了浏览器，通过js 或 css，从大图中截取一小块显示。<br>
+这样，一个 大图片的请求 就可以代替之前的 n个小图片的请求</p>
+</li>
+<li>
+<p>内联 inlining<br>
+另一种针对小图片的技术，它将图片的原始数据嵌入到CSS文件中。<br>
+。。就是把图片的01码直接放到css中。</p>
+</li>
+<li>
+<p>JS拼接<br>
+将大量小的JS文件合并成一个文件并压缩， 浏览器可以一个请求里下载完。</p>
+</li>
+<li>
+<p>请求的分片技术<br>
+对于一个域名，浏览器限制 只能开6-8个连接。<br>
+那就多做几个域名。<br>
+现在的CDN非常广泛，网站的静态资源(img,js,css) 可能都在CDN上，可以做一批CDN的域名。</p>
+</li>
+</ol>
+<h3 id="一来多回-问题">一来多回 问题</h3>
+<p>http 1.0, 1.1 都无法做到 服务器主动推送， 但又存在这样的需求，应该怎么办？</p>
+<ol>
+<li>
+<p>客户端定期轮询<br>
+客户端每5s 向服务器发送http请求，如果服务器有新消息，就返回。<br>
+低效，增加了服务器的压力，很少使用</p>
+</li>
+<li>
+<p>FlashSocket / WebSocket<br>
+不再是http，而是直接基于TCP，有一定的局限性，此处不再展开。</p>
+</li>
+<li>
+<p>HTTP 长轮询<br>
+客户端发送http请求，服务器如果有新消息，就立即返回，如果没有，则服务器维持此连接。经过一个约定的时间后，如果服务器还是没有新消息，服务器就返回空消息 (客户端和服务器约定好的一个消息)。客户端收到 空消息后 关闭连接，再发起一个 新的连接，重复此过程。<br>
+变相地用http实现了tcp的长连接效果，是目前web最常用的服务器端推送方式。</p>
+</li>
+<li>
+<p>http streaming<br>
+服务器利用 Transfer-Encoding: chunked 机制，发送一个 &quot;没完没了&quot; 的chunk 流，就一个连接，但response 永远接收不完。<br>
+和长轮询相比，这里只有一个 http请求，不存在 http header 不断重复的问题， 但实现时 没有 长轮询 简单。</p>
+</li>
+</ol>
+<h3 id="断点续传">断点续传</h3>
+<p>http 1.1 增加了一个 很使用的特性：断点续传。<br>
+客户端从服务器下载文件时，连接中断，再新建连接后，客户端可以从上次断的地方继续下载。<br>
+实现也很简单，客户端一边下载，一边记录下载的数据量大小，一旦连接中断，重新建立连接后，在请求的头部加上 Range: first offset - last offset 字段，指定从 某个offset 下载到 某个 offset。<br>
+这个只适用于 断点下载， 不能用于 断点上传。</p>
+<h2 id="53-http2">5.3 http/2</h2>
+<p>http 1.1的 pipeline 不够完善，所以开发者想了很多方法来提高 http 1.1的效率。很多都是 应用层面去解决的，不够普适性。<br>
+google的 SPDY 从协议层面 解决这个问题。</p>
+<p>HTTP/2 吸取了 SPDY的经验和教训。<br>
+之所以叫 HTTP/2，而不是 HTTP 2.0， 是因为工作组认为已经很完善了，不会再有小版本。如果有，那么下一个版本就是 HTTP/3。</p>
+<p>下面来看下 HTTP/2 的关键特性</p>
+<h3 id="531-与http-11兼容">5.3.1 与http 1.1兼容</h3>
+<p>兼容意味着</p>
+<ol>
+<li>不能改变 http://  https:// 这样的URL范式</li>
+<li>不能改变 http request，http response 的报文结构。http协议是一来一回，一个request对应一个 response，并且 request 和response 的结构有明确的规定。</li>
+</ol>
+<p><mark>http/2 和 http 1.1 并不是 平级的，而是处于 http 1.1 和 TCP 之间。</mark><br>
+以前 http 1.1 直接构建在 TCP 之上， 现在 <mark>HTTP 1.1 和 TCP 之间多了一个 转换层，这个转换层就是 SPDY，也就是现在的 HTTP/2</mark></p>
+<h3 id="二进制分帧">二进制分帧</h3>
+<p>二进制分帧 是为了解决 http 1.1的 队头阻塞 问题所设计的核心特性，是下图中 转换层所做的核心工作</p>
+<p><img src="../_resources/64a78e893c234ed284ddbb254dd1fb90.png" alt="3797941c6d916587639a2cdbe0d8f182.png"></p>
+<p>http 1.1 本身是明文的字符格式，所谓的 二进制分帧， 就是把 这个字符格式的报文 给 TCP 之前转成 二进制，并且 分成 多个帧 (多个数据块) 来发送。</p>
+<p>对于每个域名，在浏览器和服务器之间，只维护一条 TCP 连接。 因为 TCP是全双工的，即来回2个通道。<br>
+这里的 请求 1,2,3 响应1,2,3 是 http 1.1 的明文字符报文。<br>
+每个请求在发送前会被转换为二进制，然后分成多个帧发送<br>
+每个响应在回复之前，也被转为二进制，然后分成多个帧发送<br>
+上图中，请求1被分为F1,F2,F3 三个帧，请求2被分成2个，请求3被分成2个， F1-F7 是乱序发送的，到了服务器端 被重新组装。<br>
+同理，响应1,2,3 也是同样的过程。</p>
+<p>请求和响应都是打散后分成多个帧乱序发送，需要重新组装，同时请求和响应还要一一配对。那么组装和配对如何实现呢？<br>
+原理也很简单，每个请求和响应 实际上组成一个逻辑上的 流，为每个流分配一个 流id，把这个id 作为标签，打到每个帧上。</p>
+<p>请求1,2,3 虽然是 按序发送，但是 响应1,2,3 可以乱序返回。</p>
+<p>二进制分帧没有解决 pipeline 的 队头阻塞， 只是把 队头阻塞问题 从 http request 粒度 细化到 帧 粒度。</p>
+<p>只要用 TCP 协议，就绕不开 队头阻塞，因为 TCP 是 先进先出的。</p>
+<p>HTTP/2 中，还可以<mark>指定 每个流的优先级</mark>， 资源有限时，服务器根据流优先级 来决定， 先发送哪些流。</p>
+<p>要彻底解决 队头阻塞，只能 不适用TCP， google 的 QUIC 协议 做的事情。</p>
+<h3 id="头部压缩">头部压缩</h3>
+<p>除了二进制分帧，http/2 的 另一个提升效率的方法是 头部压缩。<br>
+http 1.1 中对于报文的 body，已经有相应的压缩。 但对于报文的头部，没有压缩。<br>
+http/2 专门设计了一个 HPACK 协议和对应的算法 来对头部进行压缩。</p>
+<p>为了解决 http 1.1 的效率问题，除了引入这2个关键特性外，还有其他特性，如 服务器推送，流重置 等。不再一一赘述</p>
+<h2 id="54-ssltls">5.4 SSL/TLS</h2>
+<p>https 构建在 SSL/TLS 之上</p>
+<p>SSL：secure socket layer, 安全套接层<br>
+TSL: transport layer security, 传输层安全协议</p>
+<p>1994, 网景设计 SSL 1.0<br>
+1995, 网景发布 SSL 2.0, 但很快发现有 严重漏洞<br>
+1996, SSL3.0，得到大规模应用<br>
+1999, IETF 对SSL 进行标准化，发布 TLS 1.0<br>
+2006,2008, TLS进行2次升级，分为是 TLS 1.1, TLS 1.2。</p>
+<p>所以 TLS 1.0 相当于 SSL 3.1, TLS1.1, TLS1.2 相当于 SSL3.2， SSL3.3</p>
+<p>SSL/TLS 在TCP层的上面，它可以支持 http，也可以支撑 imap 等其他应用层协议</p>
+<h3 id="对称加密的问题">对称加密的问题</h3>
+<p>对称加密很简单，客户端和服务器 知道 同一个密钥，发送消息时 用密钥加密， 接受消息时 用密钥解密。<br>
+这种加密方式 在互联网上有2个问题</p>
+<ol>
+<li>密钥如何传输？ 密钥A的传输 需要密钥B，密钥B的传输需要密钥C。。循环下去，无解</li>
+<li>如何存储密钥？ 对于浏览器来说，都是明文，肯定存储不了密钥，对于 安卓/IOS，即使把密钥藏到 安装包中，也很容易被破解。</li>
+</ol>
+<h3 id="双向非对称加密">双向非对称加密</h3>
+<p>客户端准备 一对 公私钥<br>
+服务器准备 一对 公私钥</p>
+<p>公私钥有一个关键特性：公钥是通过私钥计算出来的，但是反之不能，不能根据公钥计算出私钥。</p>
+<p>客户端和服务器 都公开自己的 公钥，保密自己的私钥。</p>
+<p>客户端给服务器发送信息时，<mark>用自己的 私钥签名，再用 服务器的 公钥加密</mark>。<br>
+所谓 签名，相当于自己盖章，证明这个信息是 客户端发送的。<br>
+服务器收到信息后，<mark>先用自己的私钥 解密，然后再用 客户端的 公钥验签</mark>。<br>
+反向过程同理。</p>
+<p>在这个过程中，有 签名/验签，加密/解密 2个过程</p>
+<ol>
+<li>签名/验签，私钥签名，公钥验签，目的是防止篡改。第三方拦截信息后，篡改，那么 验签 过不了。</li>
+<li>解密和解密，第三方即使拦截了信息，没有私钥，无法解密。</li>
+</ol>
+<p>在双向非对称加密中，客户端，服务器 需要事先 知道 对方的 公钥。 同样面临着 公钥如何传输的问题。</p>
+<h3 id="单向非对称加密">单向非对称加密</h3>
+<p>网站对外是公开的，网站的提供者无法验证 每个客户端的合法性，只有客户端可以验证 网站的合法性。 比如，访问百度，需要验证 访问的是不是 真的百度，防止被钓鱼</p>
+<p>在这种情况下，客户端并不需要 公私钥对。 只有服务器有 一对 公私钥。<br>
+服务器把公钥给到 客户端，客户端发送消息时，用公钥加密，然后服务器用 私钥解密。 服务器给客户端发送消息时，采用 明文发送。</p>
+<p>对于安全性要求高的场合，如 Bank的个人网银， 客户端要验证服务器，服务器也要验证客户端的 合法性。 对于这种场景，往往会给 用户发一个 U盘，里面装的就是 客户端的 公私钥，这样可以使用 双向非对称加密</p>
+<p>如果 服务器能 安全地将 公钥 发给客户端， 客户端就可以 利用加密通道 给 服务器发送一个 <mark>对称加密的 密钥。</mark></p>
+<p>这个密钥在内存中，不会落地，所以不会被 盗。这就是 SSL/TLS 的原型</p>
+<p><img src="../_resources/2bf804a1a2a14587b69e8ab44348775a.png" alt="bbee6830e185410b17135feefa928f19.png"></p>
+<h3 id="中间人攻击">中间人攻击</h3>
+<p>通过上面的分析，可以发现，我们并不需要 双向的非对称加密， 单向的非对称加密就能达到传输的目的。</p>
+<p>但无论 双向，单向，都存在 公钥 如何安全传输的问题。<br>
+下面是 中间人攻击<br>
+客户端 和 服务器交换公钥时， 被中间人劫持，导致 中间人 获得了 客户端和服务器 的公钥。 并且 客户端，服务器 收到了 中间人的 公钥。</p>
+<p>导致， 客户端，服务器 都以为 直接和对方通信，实际上 它们是和 中间人在通信。</p>
+<p>。。就是客户端A，服务器B，中间人C， A用C的公钥加密，发给C， C用自己的私钥解密，用A的公钥验签，用自己的公钥加签，然后用B的公钥加密，发给B。 反之同理。</p>
+<p>出现的原因是，公钥的传输过程 不安全。 客户端和服务器 怎么知道 收到的公钥 就是对方发出的，而不是 中间人篡改的呢？</p>
+<h3 id="数字证书和证书认证中心">数字证书和证书认证中心</h3>
+<p>引入一个中间机构 CA， 服务器把 公钥发给 客户端时，不是直接发送公钥，而是发送 公钥对应的证书。<br>
+CA类似 公证处， 从技术上讲，就是一个 服务器，服务器先把 自己的公钥发给 CA，CA给服务器一个 数字证书。之后服务器把证书发给客户端，客户端可以验证 证书是否 为服务器下发的<br>
+反过来也同理。</p>
+<p>对于通常的 互联网应用，只需 客户端验证服务器，不需要 服务器验证客户端。</p>
+<p>CA有一对 公私钥，公钥在网上公开。服务器把个人信息+服务器公钥发给 CA，CA用自己的私钥 为 服务器生成一个 数字证书。</p>
+<h3 id="根证书与ca信任链">根证书与CA信任链</h3>
+<p>如果让客户端，服务器都信任CA，但CA是个假的怎么办？</p>
+<p>所以需要给CA颁发证书。CA的证书 由上一级CA颁发。</p>
+<h3 id="548-ssltls-协议四次握手">5.4.8 SSL/TLS 协议：四次握手</h3>
+<p><img src="../_resources/4a1c92c35f1345a78c3ac53fb3fa40b3.png" alt="d4c428620a9ea121ea4050517e38a0b5.png"></p>
+<p>。。TCP是3次握手，4次挥手。</p>
+<p>建立 TCP 连接后，数据发送前，SSL/TLS 需要4次握手，2个来回，协商出 客户端和 服务器端 之间的 对称加密密钥。</p>
+<h2 id="55-https">5.5 HTTPS</h2>
+<p>https = http + ssl/tls</p>
+<p>https的传输分为3个阶段</p>
+<p><img src="../_resources/d0d57fca5f2d494f8eff0b1530a01d7f.png" alt="8852ed6d43c76846754916e4bfb8fed2.png"></p>
+<ol>
+<li>建立tcp连接</li>
+<li>tls四次握手协商 对称加密的密钥</li>
+<li>基于密钥，在tcp 连接上 对所有的 http request,response 进行加解密</li>
+</ol>
+<p>阶段1 和2 只在 连接建立时做一次， 每个请求只需经过 阶段3，所以 相比http，性能没有太大的损失。</p>
+<p>从理论上讲，http/2 和 HTTPS 没有必然的关系。 两者可以互不依赖。<br>
+如下图所示，中间2层都是可选的</p>
+<ul>
+<li>都不选，变成http 1.1</li>
+<li>只选http/2, 变成 http/2</li>
+<li>只选tls，变成https</li>
+<li>都加上，变成 http/2 + https</li>
+</ul>
+<p>在<mark>实践中</mark>，主流的浏览器都要求，如果要支持 http/2，就<mark>必须先支持 https</mark>。</p>
+<p><img src="../_resources/d320d4186a734aa98cef5de16654d48e.png" alt="6604bba95a12a8fb4c52b7a09996a0a5.png"></p>
+<h2 id="56-tcpudp">5.6 TCP/UDP</h2>
+<h3 id="可靠与不可靠">可靠与不可靠</h3>
+<p>客户端发送数据包1,2,3。经过 <mark>UDP</mark> ，服务器收到 3 和 1，发生了2件事</p>
+<ol>
+<li>数据包 2 丢失了</li>
+<li>时序错乱</li>
+</ol>
+<p>TCP的可靠有3重含义</p>
+<ol>
+<li>数据报不丢</li>
+<li>数据报不重复</li>
+<li>时序不乱</li>
+</ol>
+<h4 id="解决不丢包问题-ack-重发">解决不丢包问题： ACK + 重发</h4>
+<h4 id="解决不重复问题-顺序ack">解决不重复问题： 顺序ACK</h4>
+<p>超时后，客户端可能重发，但此时 ACK已经在路上了。<br>
+与收到的数据包一一对比，核实是否有重复，显然不现实</p>
+<p>解决方案很简单，顺序ACK： 服务器给客户端返回 ACK=6，意味着&lt;=6 的都已收到，后续再收到 &lt;=6 的数据包，则判断为重复，服务器直接丢弃。</p>
+<h4 id="解决时序错乱问题-顺序ack">解决时序错乱问题： 顺序ACK</h4>
+<p>服务器收到 1,2,3，回复客户端ACK=3， 之后收到数据包5,6,7，没有收到 4。 这时应该怎么办？</p>
+<p>服务器会把 5,6,7 暂存，直到 4到来。<br>
+如果4一直不来，服务器不会ACK，则客户端超时，重发4,5,6,7。服务器收到4后，回复ACk=7，丢掉重发的 5,6,7。</p>
+<hr>
+<p>通过消息顺序编号+客户端重发+服务器顺序ACK，实现了 数据包的 不重，不漏，时序不乱。</p>
+<h3 id="tcp的假连接">TCP的&quot;假&quot;连接</h3>
+<p>TCP建立的管道 只是逻辑上的， 每个数据包 可能走不同的 物理链路。</p>
+<p>每条连接 用4元组 (客户端IP，客户端port，服务器IP，服务器port) 唯一确定，在代码中是一个个的socket。</p>
+<p>每条连接都是一个 状态机， 客户端和服务器 都要针对这个连接维护 不同的状态变迁，在不同的状态下 执行相应的操作</p>
+<p><img src="../_resources/c9a83cbbbb9242e28c1ee2b896ef4257.png" alt="cd3450884cfdd9c3478198f861fd74b4.png"></p>
+<p>。。太多了，不想抄。</p>
+<h3 id="563-三次握手">5.6.3 三次握手</h3>
+<p><img src="../_resources/b152dd64be6549f390f6ebc6e71b94b5.png" alt="54c145127c11be513bda71be2d5f5ae3.png"></p>
+<p>前文的 ACK=7，表示告知对方编号&lt;=7的都收到了。<br>
+这里的 ACK=x+1，表示 小于等于 x 的都收到了，接下来要收 x + 1。<br>
+seq=x 表示 发出去的包的 编号是x。 因为tcp是全双工的，一方面要发送自己的包，一方面要确认对方的包，为了优化传输，会把2个包合并在一起传输，所以一个包里，存在 seq=y, ACK=x+1。表示 当前包 是发出去的 第y个包，同时 也是对对方的前x个包的 确认。(接下来要接收 x+1)</p>
+<p>。。还有一堆信息，网络的2将军问题</p>
+<h3 id="四次挥手">四次挥手</h3>
+<p><img src="../_resources/5191e90e3b254b7f8e00204bf2bd7394.png" alt="b59be135876d084eb9fcd25d3d5d1363.png"></p>
+<p>还有一种场景，客户端，服务器同时主动发起关闭，双方都会处于 FIN_WAIT_1 状态，此时收到对方的ACK，双方都会切到 closing 状态，之后一起进入 time_wait状态，过段时间后进入 close状态。</p>
+<p>为什么是 closing状态，而不是直接 close？<br>
+因为网络上可能还有数据包在闲逛。并且 连接可能被重开，关闭后，再重开， 网络上的老数据到来时 会被当做 新数据包。</p>
+<p>在TCP/IP 网络上，定义了一个 MSL，任何一个IP数据包 在网络上的 逗留时间最长是 MSL，默认120s。 如果超过这个时间，中间的路由节点就可以丢弃这个数据包<br>
+有了这个限定后，一个连接保持在TIME_WAIT状态，在等待2*MSL时间后 进入CLOSE，可以完全避免 旧连接的数据 被串到 新连接上。</p>
+<h2 id="57-quic">5.7 QUIC</h2>
+<p>quick udp internet connection<br>
+是google 基于 UDP 的 多路并发传输协议</p>
+<p>QUIC 取代了 TCP的部分功能(数据报的不丢)，实现了SSL/TLS的所有功能，取代了http/2的部分功能(多路复用)</p>
+<p><img src="../_resources/5752a91aaf65410f81b00e487cd30935.png" alt="3aa8f8c262304180d46e97b3c600875a.png"></p>
+<h3 id="不丢包-raid5-raid6-算法">不丢包 (Raid5 Raid6 算法)</h3>
+<p>除了重传，还有什么方法 解决丢包？<br>
+用到了 磁盘存储 经典的 raid5, raid6 算法。<br>
+每发送5个包，就发送一个 冗余包。冗余包是对 5个包做 异或计算得到的。</p>
+<p>在raid5的基础上，把可靠性向上提一个级别，生成 2个冗余块，就是 raid6，这样就允许5个块中有2个块丢失。</p>
+<p>。。raid5，raid6，就是 生成多少个冗余块。 并不关心 多少个 生成 一次。</p>
+<p>对于QUIC，使用Raid5，并且 每发送10个，就构建一个冗余包。 如果10个丢失了2个，那就只能 重传。<br>
+通过过合理的设置冗余比，quic减少了 数据重传的 概率。</p>
+<h3 id="更少的-rtt">更少的 RTT</h3>
+<p>要建立一个 https 需要7次握手，tcp的3次，加上 ssl/tls 的4次握手， 是3个RTT。</p>
+<p>造成网络延迟的原因，一个是带宽，一个是RTT。因为RTT有个特点是 同步阻塞。在数据包发出去之后，必须等待对方的确认回来，接着再发下一个。</p>
+<p>基于QUIC，可以把 前面的7次握手 (3个RTT)，减为0次。</p>
+<h3 id="连接迁移">连接迁移</h3>
+<p>TCP 由4元组 组成，在PC上问题不大。 在移动端上，客户端是wifi或4g，客户端的IP 会发生变化，需要 关闭和建立 连接， 是否可以，在客户端的IP 和端口 变动的情况下，连接依然可以维持呢？</p>
+<p>QUIC 创造了一个 逻辑上的 连接。 不再以4元组来标识连接，而是让 客户端生成一个 64位的数字 标识 连接，虽然IP和port在变动，但 64位的数字没有变化，这条连接就会存在。</p>
+<h1 id="ch6-数据库">ch6 数据库</h1>
+<h2 id="范式与反范式">范式与反范式</h2>
+<p>一般工程中，都需要达到 第三范式</p>
+<p><img src="../_resources/c8331e96e49b409f863fd6acd0e0b09c.png" alt="8fd437e7f009baea27b0d9f949dc9990.png"></p>
+<p>。。</p>
+<ul>
+<li>
+<p>第一范式（1NF）。确保数据库表的每一列都是不可分割的基本数据项，即实体中的每个属性不能有多个值，也不能有重复的属性。</p>
+</li>
+<li>
+<p>第二范式（2NF）。在满足第一范式的基础上，要求非主键属性完全依赖于主键。如果存在非主键属性部分依赖于主键的情况，则必须将这些属性分离出来，形成新的实体。</p>
+</li>
+<li>
+<p>第三范式（3NF）。在满足第二范式的基础上，进一步要求数据表中的每一列都直接依赖于主键，而不是依赖于其他非主键属性。</p>
+</li>
+<li>
+<p>巴斯-科德范式（BCNF）。在满足第三范式的基础上，所有非主键属性之间不能存在传递依赖。</p>
+</li>
+<li>
+<p>第四范式（4NF）。要求满足第四范式的表必须满足第三范式，并且不存在部分依赖的情况。</p>
+</li>
+<li>
+<p>第五范式（5NF）。也称为完美范式，是最高级别的范式，要求表中的每个决定因素都是原子的，即表中的每个属性都是原子的，不能进一步分割。<br>
+。。</p>
+</li>
+</ul>
+<h2 id="分库分表">分库分表</h2>
+<p>分库分表是分布式系统设计中一个非常普遍的问题，什么时候分？怎么分？分完之后又会引发新的问题，例如不能join，分布式事务等</p>
+<h3 id="为什么要分">为什么要分</h3>
+<p>分库的目的是 &quot;<mark>业务拆分</mark>&quot;， 通过业务拆分，把一个 大的复杂系统 拆分成多个业务子系统，之间通过 RPC 或 消息中间件通信。 便于 团队的职责分工，系统的扩展</p>
+<p>第二个考虑是 <mark>应对高并发</mark>，但要分 读多写少，读少写多。<br>
+如果是 <mark>读多写少</mark>，可以 加从库，加缓存，不一定要分库分表<br>
+如果 <mark>读少写多</mark>，或者说 写入的QPS 已经达到 数据库瓶颈，就需要 分库分表了。</p>
+<p>另一个角度是 <mark>数据隔离</mark>。 如果 核心业务 和 非核心业务 数据放在一个库里， 一旦 非核心业务 导致 数据库宕机，核心业务也会收到影响。</p>
+<h3 id="分布式id生成服务">分布式ID生成服务</h3>
+<p>分库之前，数据库的自增主键 可以唯一确定一条记录，分库分表后，需要一个 全局的ID生成服务。<br>
+开源的方案有 雪花算法。</p>
+<h3 id="拆分维度的选择">拆分维度的选择</h3>
+<p>有了全局ID，接下来的问题是按哪个维度拆分。<br>
+比如 电商的 订单表，至少有3个查询维度：订单ID，用户ID，商户ID。<br>
+假设按照 用户ID 拆分，同一个 用户ID的 所有订单 会落到 同一个库的同一张表里。 按照用户ID查时，很容易定位到某个库的 某个表，但是如果按照 订单ID，或 商户ID，就很难查询。</p>
+<p>对于分库分表后的 其他维度的查询，一般有以下的方法</p>
+<ol>
+<li>建立一个映射表<br>
+建立 辅助维度 和 主维度 之间的 映射关系 (商户ID 和用户ID之间的 映射关系)。<br>
+查询的时候 根据 商户ID查询映射表，得到用户ID， 然后根据用户ID 查询 订单ID。</li>
+</ol>
+<p>但也有问题，映射表 本身也要 分库分表，并且 分库分表维度 和 订单表的 维度不同。(。。确实，这里按照 商户ID 分库分表)。 即使不分库分表，写入一条订单时 也可能需要 写2个库，属于分布式事务问题。<br>
+对于这种问题，通常只能做一个 后台任务定时比对，保证 订单表 和 映射表 的数据 最终一致。</p>
+<ol start="2">
+<li>
+<p>业务双写<br>
+同一份数据，2套分库分表， 一套按照用户ID切分，一套按照商户ID切分。<br>
+同样，存在 写入多个库的 分布式事务问题。</p>
+</li>
+<li>
+<p>异步双写<br>
+2套表，只是业务单写，然后通过监听Binlog，同步到另外一套表上。</p>
+</li>
+<li>
+<p>2个维度统一到一个维度<br>
+把订单ID和用户ID统一成一个维度，比如 把 用户ID作为 订单ID的 前缀，这样订单ID中就包含了 用户ID，然后 按照 用户ID分库，当按照订单ID查询的时候，截取出 用户ID，再按照用户ID查询。<br>
+或者 订单ID 和 用户ID中 某几位是相同的 (2个ID都是字符串类型)，用这几位作为 分库维度。</p>
+</li>
+</ol>
+<h3 id="join查询问题">join查询问题</h3>
+<p>分库分表后，join查询就不能用了。 有以下的解决方案：</p>
+<ol>
+<li>
+<p>把join拆成 多个单表查询，不让数据库做join，而是在 代码层对结果进行拼装<br>
+非常常见，因为数据库都是单表查询，所以降低了数据库 发生 慢查询的概率</p>
+</li>
+<li>
+<p>做宽表，重写轻读<br>
+有时候：需要把 join的结果分页，这需要使用mysql 本身的 分页功能。<br>
+对于这种不得不 join 的情况，可以另外做一个 join表，提前把结果 join好。这是 重写轻读，也是 空间换时间 的思路</p>
+</li>
+<li>
+<p>利用搜索引擎<br>
+对于第二种方法中提到的 场景，还可以利用类似 ES的搜索引擎，把数据库中的数据导入到 搜索引擎中进行查询。</p>
+</li>
+</ol>
+<h3 id="分布式事务">分布式事务</h3>
+<p>分库后，数据库的事务就做不了了。<br>
+一般的解决方案是 优化业务，避免跨库的事务。</p>
+<p>分布式事务是一个系统性的问题，后续会专门论述。</p>
+<h2 id="b树">B+树</h2>
+<p>关系型数据库有 KV数据库或缓存 所不具备的能力：</p>
+<ul>
+<li>范围查询</li>
+<li>前缀匹配模糊查询</li>
+<li>排序和分页</li>
+</ul>
+<p>这些特性 得益于 B+树。</p>
+<h3 id="b树逻辑结构">B+树逻辑结构</h3>
+<p><img src="../_resources/efb0e3841cb54a5f86cd68a7ce627a80.png" alt="a86246d860946b2048ece5a3e037b03c.png"></p>
+<ol>
+<li>在叶子节点层，所以记录 按照主键 从小到大 排序，并且形成一个双向链表，叶子节点的每个key指向一条记录</li>
+<li>非叶子节点取的是 叶子节点中的 最小key值。 非叶子节点也形成 双向链表</li>
+</ol>
+<p>根据B+树特性，就可以实现</p>
+<ul>
+<li>范围查询</li>
+<li>前缀匹配模糊查询</li>
+<li>排序与分页</li>
+</ul>
+<p>基于B+树的特性，select ** from ** limit 1000,10， 虽然只读取 10条数据，但是 依然要遍历 1000跳数据，才知道 1000在哪里，所以应该 使用 max_id， 而不是 limit。<br>
+select ** from ** where id&gt;max_id limit 10</p>
+<h3 id="b树物理结构">B+树物理结构</h3>
+<p>以mysql 的InnoDB为例<br>
+InnoDB默认定义的块大小是 16kb，通过 innodb_page_size 指定。这里的块是逻辑单位，不是物理扇区。<br>
+innodb每次磁盘IO，读取的都是 16kb的整数倍。<br>
+叶子节点，非叶子节点 都装在 page里。 innodb为每个page 赋予一个 32位的 全局编号。所以 innodb的存储容量的上限是 64TB (2^32 * 16kb)</p>
+<p>16kb, 用来装 非叶子节点，一个page 可以装1000个key (16K,假设key是64位，8字节，在加上其他字段)， 意味着 B+树可以有 1000个分叉。<br>
+如果用来装 叶子节点，大概可以装 200条记录 (记录 和索引放在一起存储，假设一条记录 大概100个字节)</p>
+<p>。。难道不能 将 一个树的node 的数据 跨多个 16kb块？  就是 树的node 必须在 一个 page中？</p>
+<h3 id="非主键索引">非主键索引</h3>
+<p>innodb中，非主键索引 的叶子节点 保存的 不是 记录的指针，而是主键的位置。<br>
+所以 非主键索引的查询，会查询2颗B+树。</p>
+<p>对于主键索引，一个key 只对应 一条记录<br>
+对于非主键索引，一个key可能对应多条记录。<br>
+所以存储结构会有不同：每个叶子节点存储了 主键的值，对于非叶子节点，不仅存储了 索引字段的值，同时也存储了对应的主键的 最小值。</p>
+<h2 id="64-事务与锁">6.4 事务与锁</h2>
+<h3 id="4个隔离级别">4个隔离级别</h3>
+<p>2个事务并发操作，可能导致下面的问题</p>
+<table>
+<thead>
+<tr>
+<th>问题</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>脏读</td>
+<td></td>
+</tr>
+<tr>
+<td>不可重复读</td>
+<td></td>
+</tr>
+<tr>
+<td>幻读</td>
+<td></td>
+</tr>
+<tr>
+<td>丢失更新</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>。。这里不如《凤凰架构》里的好。</p>
+<p>ru read uncommitted， 上面的4个问题都没有解决，实际中不会采用<br>
+rc read committed， 解决了上面的 脏读<br>
+rr repeatable read  默认隔离级别，解决了上面的 前3个<br>
+serialization</p>
+<p>在默认的隔离级别RR下，如何解决 丢失更新呢？ 这就涉及了 悲观锁，乐观锁</p>
+<h3 id="悲观锁乐观锁">悲观锁，乐观锁</h3>
+<p>场景，2个事务，一个事务 充钱，一个事务 扣钱。</p>
+<ol>
+<li>利用单条语句的原子性</li>
+</ol>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="sql" data-joplin-source-open="```sql&#10;" data-joplin-source-close="&#10;```">start transaction
+update T set balance = balance + 50 where userid = 1
+commit</pre><pre class="hljs"><code><span class="hljs-keyword">start</span> transaction
+<span class="hljs-keyword">update</span> T <span class="hljs-keyword">set</span> balance <span class="hljs-operator">=</span> balance <span class="hljs-operator">+</span> <span class="hljs-number">50</span> <span class="hljs-keyword">where</span> userid <span class="hljs-operator">=</span> <span class="hljs-number">1</span>
+<span class="hljs-keyword">commit</span></code></pre></div>
+<p>有局限性，实际的业务场景 基本都需要把 balance 读出来，处理，然后写回。</p>
+<ol start="2">
+<li>悲观锁</li>
+</ol>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="sql" data-joplin-source-open="```sql&#10;" data-joplin-source-close="&#10;```">start transaction
+int b = select balance from T where userid = 1 for update
+b = b + 50
+update T set balance = b where userid=1
+commit</pre><pre class="hljs"><code><span class="hljs-keyword">start</span> transaction
+<span class="hljs-type">int</span> b <span class="hljs-operator">=</span> <span class="hljs-keyword">select</span> balance <span class="hljs-keyword">from</span> T <span class="hljs-keyword">where</span> userid <span class="hljs-operator">=</span> <span class="hljs-number">1</span> <span class="hljs-keyword">for</span> <span class="hljs-keyword">update</span>
+b <span class="hljs-operator">=</span> b <span class="hljs-operator">+</span> <span class="hljs-number">50</span>
+<span class="hljs-keyword">update</span> T <span class="hljs-keyword">set</span> balance <span class="hljs-operator">=</span> b <span class="hljs-keyword">where</span> userid<span class="hljs-operator">=</span><span class="hljs-number">1</span>
+<span class="hljs-keyword">commit</span></code></pre></div>
+<p>潜在的问题，事务A拿到锁后，commit前除了问题，会导致 锁不能被释放。<br>
+悲观锁会阻塞 访问该记录的其他事务，高并发时，造成用户端的 大量请求阻塞。</p>
+<ol start="3">
+<li>乐观锁<br>
+CAS</li>
+</ol>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="sql" data-joplin-source-open="```sql&#10;" data-joplin-source-close="&#10;```">while (!result)
+{
+  start transaction
+  int b, v1 = select balance, version from T where userid=1;
+  b = b + 50;
+  result = update T set balance=b, version=version+1 where userid=1 and version=v1;
+  commit
+}</pre><pre class="hljs"><code>while (<span class="hljs-operator">!</span><span class="hljs-keyword">result</span>)
+{
+  <span class="hljs-keyword">start</span> transaction
+  <span class="hljs-type">int</span> b, v1 <span class="hljs-operator">=</span> <span class="hljs-keyword">select</span> balance, version <span class="hljs-keyword">from</span> T <span class="hljs-keyword">where</span> userid<span class="hljs-operator">=</span><span class="hljs-number">1</span>;
+  b <span class="hljs-operator">=</span> b <span class="hljs-operator">+</span> <span class="hljs-number">50</span>;
+  <span class="hljs-keyword">result</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">update</span> T <span class="hljs-keyword">set</span> balance<span class="hljs-operator">=</span>b, version<span class="hljs-operator">=</span>version<span class="hljs-operator">+</span><span class="hljs-number">1</span> <span class="hljs-keyword">where</span> userid<span class="hljs-operator">=</span><span class="hljs-number">1</span> <span class="hljs-keyword">and</span> version<span class="hljs-operator">=</span>v1;
+  <span class="hljs-keyword">commit</span>
+}</code></pre></div>
+<ol start="4">
+<li>分布式锁</li>
+</ol>
+<p>乐观锁可以很好地 应对 同时 充钱，扣钱的 场景。<br>
+但有一个限制是，select 和 update 的 必须是同一张表的 同一条记录。</p>
+<p>其他的更复杂的场景，需啊哟 分布式锁</p>
+<h3 id="死锁检测">死锁检测</h3>
+<h2 id="事务实现原理值1-redo-log">事务实现原理值1： redo log</h2>
+<p>事务有4个核心属性ACID<br>
+原子性<br>
+一致性<br>
+隔离性<br>
+持久性</p>
+<h3 id="write-ahead">write-ahead</h3>
+<p>先在内存中提交事务，然后写日志，然后 后台任务把 内存中的数据 异步刷到 磁盘。<br>
+日志是在尾部append，从而也避免了 一个事务发生多次 磁盘随机 IO的问题。<br>
+这里的ahead，是指 相对于 真正的 数据刷到磁盘，因为是 先写的日志，后把内存数据刷到磁盘，所以叫 write-ahead log</p>
+<p>内存操作数据 + write-ahead log 这种思想 非常普遍，后面讲LSM树的时候，还会再次提到。<br>
+在多备份一致性中，复制状态机的模型也是基于此。</p>
+<p>在innodb中，write-ahead log 是 redo log。<br>
+innodb中，不光事务修改的 数据库表数据 是异步刷盘，连 redo log 的写入本身也是 异步的。 事务提交后，redo log先写入到内存的 redo log buffer 中，然后 异步刷到磁盘的 redo log。<br>
+innodb有个参数 innodb_flush_log_at_trx_commit 控制 redo log 的刷盘策略，3个取值</p>
+<ul>
+<li>0，每秒刷一次磁盘，把redo log buffer 中的数据 刷到 redo log (默认为0)</li>
+<li>1，每提交一个事务，就刷一次磁盘(最安全)</li>
+<li>2，不刷盘，根据参数 innodb_flush_log_at_timeout 的值 决定刷盘频率</li>
+</ul>
+<h3 id="redo-log-的逻辑与物理结构">redo log 的逻辑与物理结构</h3>
+<p>从逻辑上讲，日志就是一个无限的字节流<br>
+从物理上讲，日志不可能无限。</p>
+<p>日志的物理结构 和逻辑结构，有2个非常明显的差异点</p>
+<ol>
+<li>磁盘的读写的单位是块，不是字节。 每个 redo log block 是512字节。因为早起磁盘，一个扇区就是 512字节</li>
+<li>日志不可能无限膨胀。redo log 是一个固定大小的文件，循环使用，写到尾部后，回到头部 覆写 ( 实际 redo log是一组文件)。</li>
+</ol>
+<p>LSN 是逻辑上 日志按照时间顺序的 从小大到的编码<br>
+innodb中，LSN是一个 64位整数，取的是 从数据库安装启动开始，到当前 所写入的 总的日志字节数。 实际上，LSN没有从0开始，而是从 8192，这是 innodb源码中的一个常量 LOG_START_LSN。</p>
+<h3 id="pyhsiological-logging">pyhsiological logging</h3>
+<p>进一步来看下 每个 log block 中 log 的存储格式。 这个很关键，是 数据库事务实现 的一个核心点</p>
+<ol>
+<li>记法1，类似 binlog 的statement 格式，记录原始的 sql语句，insert/delete/update</li>
+<li>记法2，类似 binlog 的RAW格式，记录每张表的每条记录的 修改前的值，修改后的值，类似(表，行，修改前值，修改后值)</li>
+<li>记法3，记录修改的每个page的字节数据。 一个page被修改多个地方，会有多条物理日志，比如 (page id, offset, len, 改之前，改制后)</li>
+</ol>
+<p>前2种都是 逻辑记法，第三种是 物理记法。</p>
+<p>redo log 采用了 逻辑 和 物理的结合。 以 page为单位 记录日志，每个page里 再按照 逻辑记法。 这种记法的 术语就是 physiological logging</p>
+<p>搞清楚为什么采用 physiological logging，就得 知道 逻辑日志和物理日志的 对应关系</p>
+<ol>
+<li>一条逻辑日志 可能产生多个 page的物理日志</li>
+<li>即使1条逻辑日志 值对应一个page，也可能要修改这个page 的 多个地方。</li>
+</ol>
+<p>。。还有一些详细的解释。</p>
+<h3 id="io写入的原子性-double-write">IO写入的原子性， double write</h3>
+<p>无法保证写入磁盘时的原子性。<br>
+一个log block 512字节， 在写入过程中，宕机，那么这512字节 有多少成功了呢？</p>
+<p>除了日志写入的原子性， 数据写入的原子性问题更大，一个page 16kb，如果刷新到磁盘 的过程中，宕机，这个page 会是什么状态？ 它是一个 已损坏的page。 而且无法使用 redo log 恢复，因为它只记录了 修改了哪些， 并不是 副本。</p>
+<p>有2个解决方案</p>
+<ol>
+<li>让硬件支持 16kb 写入的原子性，要么写入0字节，要么16kb全部成功</li>
+<li>double write，把16kb写入到一个临时的磁盘位置，写入成功后，拷贝到目标磁盘位置。</li>
+</ol>
+<h3 id="redo-log-block-结构">redo log block 结构</h3>
+<p>log block 需要check sum， 还有一些头部字段。<br>
+一个block 可能无法存下 一个事务，所以需要 偏移量。</p>
+<p>下面是一个 redo log block 的详细结构，头部12字节，尾部check sum 4字节。</p>
+<p><img src="../_resources/f120a82bc98e458fb6654bd677c233fc.png" alt="950a77af21449ad490e2ebe958482372.png"></p>
+<p>头部4个字段的含义：</p>
+<ul>
+<li>block no, 每个block的唯一编号，可以根据LSN换算得到</li>
+<li>data len, block中实际日志数据的大小</li>
+<li>first rec group, block中第一条日志的起始位置，可能由于上一条日志很大，上一个block没有存下，所以部分数据 到了 当前的block。</li>
+<li>checkpoint no, 当前 block 进行 check point 是对应的LSN</li>
+</ul>
+<h3 id="事务lsnlog-black-的关系">事务，LSN，Log black 的关系</h3>
+<p>假设一个事务</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="sql" data-joplin-source-open="```sql&#10;" data-joplin-source-close="&#10;```">start transaction
+  update table1
+  delete table1
+  insert table2
+commit</pre><pre class="hljs"><code><span class="hljs-keyword">start</span> transaction
+  <span class="hljs-keyword">update</span> table1
+  <span class="hljs-keyword">delete</span> table1
+  <span class="hljs-keyword">insert</span> table2
+<span class="hljs-keyword">commit</span></code></pre></div>
+<p>。。挺多的。</p>
+<h3 id="657-事务rollback-与-崩溃恢复-aries算法">6.5.7 事务rollback 与 崩溃恢复 (ARIES算法)</h3>
+<p>。。跳过了很多。</p>
+<p>客户端提交rollback，数据库并没有更改之前的数据，而是以 相反的方向生成 3个新的sql语句，然后 commit。</p>
+<p>宕机时，事务执行了一半，在 服务器重启时，也是 以相反的操作把这个事务补齐，然后 commit。</p>
+<p>这样，事务回滚就简单了，不需要修改之前的数据，也不需要修改 redo log。相当于没有了回滚，全部都是 commit。</p>
+<p>这种 逆向操作的sql 对应到 redo log 中，叫做 CLR，compensation log record。</p>
+<h4 id="aries算法">ARIES算法</h4>
+<p>。。。5页。。</p>
+<p>3个阶段</p>
+<ol>
+<li>分析阶段<br>
+要解决2个核心问题<br>
+i. 确定哪些数据是脏页。为阶段2的redo做准备<br>
+ii. 确定哪些事务未提交。为阶段3的undo做准备</li>
+</ol>
+<p>checkpoint 机制。</p>
+<p>内存中，维护了两张表： 活跃事务表(tx_id, lastLSN)，脏页表(page_no, recoveryLSN)</p>
+<ul>
+<li>活跃事务表 是当前所有 未提交事务的集合，每个事务维护一个 关键变量 lastLSN，是该事务产生的日志中最后一条日志的LSN</li>
+<li>脏页表是当前所有未刷到磁盘的 page的集合(包括了已提交的事务和未提交的事务), recoveryLSN是导致该page为脏页的最早的LSN。</li>
+</ul>
+<ol start="2">
+<li>redo<br>
+取所有脏页中的 最小 LSN，从这个LSN遍历到 redo log 末尾，把每条redo log 对应的 page 全部重刷一次磁盘。</li>
+</ol>
+<p>如何做幂等？ 每个page 都有一个字段 pageLSN，记录的事 这个page 刷盘时 最后一次修改它的日志对应的 LSN。 在日志重放时，如果日志的LSN &lt;= pageLSN，则跳过这条日志。</p>
+<p>和TCP异曲同工，都是对 数据包 编码，跳过 小的编号</p>
+<ol start="3">
+<li>undo<br>
+每遇到一条 未提交的 事务 的 log，就生成一条 逆向sql。</li>
+</ol>
+<p>至此，已经对事务的A，D (原子性，持久性) 有一个全面的了解，在此对redo log 做一个总结</p>
+<ul>
+<li>一个事务对应多条redo log，事务的redo log 不是连续存储的</li>
+<li>redo log 不保证 事务的原子性，而是保证持久性。无论提交的，还是未提交事务的日志，都会进入redo log。从而使得 redo log 回放完毕，数据库就恢复到 宕机之前的状态，称为repeating history。</li>
+<li>同时，把未提交的事务挑出来并回滚。回滚通过 checkpoint 记录的 &quot;活跃事务表&quot; + 每个事务日志中的 开始/结束 标记 + undo log 来实现。</li>
+<li>redo log 具有幂等性，通过每个page里面的 pageLSN 实现</li>
+<li>无论是提交的，还是未提交的事务，其对应的page数据都可能被刷到 磁盘中。未提交的事务对应的page数据，在宕机重启后会回滚。</li>
+<li>事务不存在 物理回滚，所有的回滚操作 都被转化为 commit。</li>
+</ul>
+<h2 id="66-事务实现原理之2-undo-log">6.6 事务实现原理之2： undo log</h2>
+<h3 id="undo-log-是否一定需要">undo log 是否一定需要</h3>
+<p><img src="../_resources/956aecae69a8479ba1d64026709a2661.png" alt="c80c2ba8fdfe864b5c15ddffdcdb1307.png"></p>
+<p>。。这张图的中文版，应该见过，但我不知道在哪里了。</p>
+<h3 id="662-undo-log-mvcc">6.6.2 undo log (MVCC)</h3>
+<p>多线程编程中，读写的并发问题有3种策略</p>
+<ul>
+<li>互斥锁</li>
+<li>读写锁</li>
+<li>CopyOnWrite，写的时候，把数据拷贝一份，写完之后，把数据对象的指针 一次性赋值回去，读的时候，读原始数据，这意味着，读读，读写，写写都可以并发。</li>
+</ul>
+<p>innodb使用了 copy on write， 是在 undo log中实现的。每个事务修改记录前，都会拷贝一份，<mark>拷贝出来的副本就存在 undo log 中</mark>。<br>
+因为事务有唯一的编号ID，ID从小到大递增，每一次修改，就是一个版本，因此undo log维护了数据的 从旧到新的每个版本，各个版本之间的记录 通过 链表连接。<br>
+正因为每条记录都有多版本，才很容易实现事务 ACID中的 I (隔离性)。事务要并发，多个事务要读写同一条记录，为了实现第二个，第三个隔离级别，就不能让事务 读取到正在修改的数据，而只能读取历史版本。</p>
+<p>也正因为有MVCC这种特性，通常的 select 是不加锁的，读取的全是数据的历时版本，从而支持 高并发的查询。 这种读，叫做 快照读， 与之相对的是 当前读。</p>
+<p><img src="../_resources/bfb5fab7199e4725a43889fad3bf2a9c.png" alt="d33ecbf36e97baeb35b8c6e86b3c50dd.png"></p>
+<h3 id="undo-log-不是-log">undo log 不是 log</h3>
+<p>undo log不是log，而是数据</p>
+<ol>
+<li>undo log 不像 redo log 那样 按照LSN的编号，从小到大 依次执行append 操作。undo log 没有顺序，多个事务 是并行地向 undo log 中随机写入的</li>
+<li>一个事务 commit之后，数据就 固化了，固化之后 不能回滚。这意味着 undo log 只有在事务 commit 过程中有用，一旦事务 commit，就可以删除undo log。</li>
+</ol>
+<p>page中的每条记录，除了自身的主键ID和数据外，还有2个隐藏字段：一个是修改该记录的事务ID，一个是rollback_ptr 用来串联所有的历时版本。 如果该记录被 tx_id 为68,80,90,100 的4个事务修改过，该数据就有4个版本，通过 rollback_ptr 从新到旧 串联起来。</p>
+<h3 id="undo-log-与-redo-log-的关联">undo log 与 redo log 的关联</h3>
+<p>undo log本身也要写入磁盘，但一个事务修改多条记录，产生多条undo log，不可能同步写入磁盘，所以遇到了之前讲的 write-ahead 时的问题。如何解决 undo log 需要多次写入磁盘的 效率问题呢？<br>
+redo log 记录的是对数据的修改，凡是对数据的修改，都必须记入 redo log，可以把undo log 也当做数据，在内存中 记录undo log，异步刷盘， 宕机重启，用redo log 恢复undo log。<br>
+以下面的事务为例</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="sql" data-joplin-source-open="```sql&#10;" data-joplin-source-close="&#10;```">start transaction
+  update table1
+  delete table1
+  insert table2
+commit</pre><pre class="hljs"><code><span class="hljs-keyword">start</span> transaction
+  <span class="hljs-keyword">update</span> table1
+  <span class="hljs-keyword">delete</span> table1
+  <span class="hljs-keyword">insert</span> table2
+<span class="hljs-keyword">commit</span></code></pre></div>
+<p>将undo log, redo log 加进去后，类似下面</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="sql" data-joplin-source-open="```sql&#10;" data-joplin-source-close="&#10;```">start transaction
+  写undo log1, 备份该行数据(update)
+  update table1
+  写redo log1
+  写undo log2, 备份该行数据(insert)
+  delete table1
+  写redo log2
+  写undo log3, 该行的主键id(delete)
+  insert table2
+  写redo log3
+commit</pre><pre class="hljs"><code><span class="hljs-keyword">start</span> transaction
+  写undo log1, 备份该行数据(<span class="hljs-keyword">update</span>)
+  <span class="hljs-keyword">update</span> table1
+  写redo log1
+  写undo log2, 备份该行数据(<span class="hljs-keyword">insert</span>)
+  <span class="hljs-keyword">delete</span> table1
+  写redo log2
+  写undo log3, 该行的主键id(<span class="hljs-keyword">delete</span>)
+  <span class="hljs-keyword">insert</span> table2
+  写redo log3
+<span class="hljs-keyword">commit</span></code></pre></div>
+<p>所有的 undo log, redo log 的写入都可以只在内存中进行，只要保证 commit 之后 redo log 落盘即可， undo log可以一直保留在内存中，之后 异步刷盘</p>
+<h3 id="各种锁"><mark>各种锁</mark></h3>
+<p>MVCC 解决了 快照读和写 之间的并发问题，但对于 写和写，当前读和写 之间的并发，MVCC无能为力。<br>
+这时需要用到锁</p>
+<p>innodb有7种锁</p>
+<ol>
+<li>共享锁和排他锁</li>
+<li>意向锁 intention lock</li>
+<li>记录锁 record lock</li>
+<li>间隙锁 gap lock</li>
+<li>临键锁 next-key lock</li>
+<li>插入意向锁 insert intention lock</li>
+<li>自增锁 auto-inc lock</li>
+</ol>
+<p>这7种锁并不是一个维度的，比如 记录锁可能是共享锁，也可能是 排他锁。</p>
+<p>按锁的粒度来分：可以分为，表锁，行锁，gap锁<br>
+按锁的模式来分：共享锁，排他锁，意向锁</p>
+<p><img src="../_resources/56afaae488b24063a5a89ef6ea63bf0c.png" alt="8ebb87c62ca2f9f7552dc2b40b82a3b6.png"></p>
+<ol>
+<li>
+<p>表(S,X锁)，行(S,X锁)<br>
+共享锁(S), 排他锁(X) 是 读写锁的 另一种叫法。<br>
+innodb通常加锁的 粒度是 <mark>行</mark>，所以有 行共享锁， 行排他锁， 有些场景会在 <mark>表 粒度</mark>加锁，比如DDL语句。</p>
+</li>
+<li>
+<p>意向锁(IS,IX锁)<br>
+假设事务A对某行加了排他锁，现在事务B要给整张表加排他锁，事务B应该怎么处理？<br>
+显然事务B加锁会失败，因为事务A对某行加锁了。但是事务B要做出这个判断(。有一个行被其他事务排他锁了)，就需要遍历所有的行，查看是否被加了锁。<br>
+这种效率太低，意向锁 就是为了解决这个 锁 的判断效率问题 产生的。<br>
+<mark>意向锁专门加在表上，行上没有。 一个事务给表加一个意向S锁，就意味着/暗示 接下来要给表中某行加S锁。 意向X锁 同理。</mark><br>
+反过来说，<mark>一个事务要给表中某行加S锁，就必须先获得表的IS锁。 X锁同理</mark><br>
+有了这种 暗示，事务B 要给表加 排他锁，就不需要遍历了，只需要看下 表有没有 IS，IX 锁。<br>
+所有的IS，IX锁不会互斥，它们只和 表S锁，表X锁 互斥。</p>
+</li>
+</ol>
+<p><img src="../_resources/23811c6a221747109243bed10488462c.png" alt="3bc9b5e0adef768da6a2fb53af1517c1.png"></p>
+<p>上图都是 表 级别的。<br>
+可以看出，意向锁 是 表(S,X锁) 和 行(S,X锁) 之间的桥梁。通过意向锁 使得 2个不同粒度 (表，行) 可以进行互斥判断</p>
+<ol start="3">
+<li>AI (auto-inc lock)<br>
+自增锁是表级别的锁，专门针对 auto_increment 的列</li>
+</ol>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="sql" data-joplin-source-open="```sql&#10;" data-joplin-source-close="&#10;```">start transaction
+  insert t1 values(xxxx)
+  insert t1 values(xxx)
+  select x from t1 where xx
+commit</pre><pre class="hljs"><code><span class="hljs-keyword">start</span> transaction
+  <span class="hljs-keyword">insert</span> t1 <span class="hljs-keyword">values</span>(xxxx)
+  <span class="hljs-keyword">insert</span> t1 <span class="hljs-keyword">values</span>(xxx)
+  <span class="hljs-keyword">select</span> x <span class="hljs-keyword">from</span> t1 <span class="hljs-keyword">where</span> xx
+<span class="hljs-keyword">commit</span></code></pre></div>
+<p>t1 中有某列是自增的，那么连续2个insert，自增列的取值应该是连续的。<br>
+如果没有AI锁，别的事务 可能在2条insert 之间插入一条记录。 使得 两个连续的insert 的自增列不连续。 受到其他事务的影响。</p>
+<ol start="4">
+<li>间隙锁，临键锁，插入意向锁，gap log, next-key lock, insert intension lock<br>
+除了 表锁，行锁，还有一种粒度，就是 范围锁。<br>
+范围锁 肯定是 建立在某一行的基础上的，所以常常把 范围锁 当做 行锁的不同算法来看待</li>
+</ol>
+<ul>
+<li>间隙锁，只是锁一个范围，不包括记录本身，是一个开区间，目的是防止 另一个事务在 这个区间上插入新记录</li>
+<li>临键锁，gap lock + record lock，锁 记录+记录之前的范围</li>
+<li>插入意向锁，专门针对insert操作，多个事务在同一索引，同一范围区间内 可以并发插入，即插入意向锁之间并不互相阻碍。</li>
+</ul>
+<p>。。没说 间隙锁，是锁前面，还是锁后面， 但是根据 临键锁的描述， 间隙锁应该是锁 前面的。</p>
+<p>范围锁的算法很复杂，要结合innodb源码分析，这里主要说明2点</p>
+<ol>
+<li>是否加gap lock 和 事务隔离级别 密切相关。 gap lock 主要目的是 防止幻读，所以如果 事务隔离级别是 rc，则允许幻读， 不需要 gap lock</li>
+<li>gap lock 往往针对 非唯一索引，如果是 主键索引，或 非主键索引(但是是唯一索引)，每次修改可以明确地 定位到 哪一条 或 哪几条记录，也不需要 gap lock</li>
+</ol>
+<p>不同类型的sql语句，不同的事务并发场景，不同的事务隔离级别，不同的索引类型， 加的锁都可能不一样。在实践中，还要借助 数据库的 分析工具 查看 写的sql 语句到底被加了什么锁。</p>
+<p>事务的几个特性的实现原理：</p>
+<ol>
+<li>undo log + redo log 实现了 事务的 A, D， 原子，持久</li>
+<li>MVCC + 锁，实现了 事务的 I 隔离 和 并发性</li>
+</ol>
+<h2 id="binlog-与-主从复制">Binlog 与 主从复制</h2>
+<h3 id="binlog-和-redo-log-的主要差异">Binlog 和 Redo Log 的主要差异</h3>
+<p>redo log 和 undo log 是 innodb的<br>
+binlog 是 mysql 的</p>
+<p>redo log 记录事务执行的日志<br>
+binlog主要作用是 主从复制，如果是单机版，可以不写binlog。</p>
+<p>在互联网应用中，binlog 有第二个用途： 一个app进程可以伪装成 slave，监听 master 的 binlog，然后把 数据库的变更 以 消息的形式发送， 业务系统可以消费消息，执行对应的 业务逻辑，比如更新缓存。<br>
+这方面的中间件有： 阿里的Canal，开源的Databus</p>
+<p>和redo log一样，binlog 也存在 刷盘策略问题，有 sync_binlog 控制，有3个取值</p>
+<ul>
+<li>0：事务提交后，不主动刷盘，依靠OS自身的刷盘机制，可能丢失数据</li>
+<li>1：没提交一个事务，刷一次盘</li>
+<li>n：没提交n个事务，刷一次盘</li>
+</ul>
+<p>0和n都不安全，为了不丢失数据，一般建议双1保证，即 sync_binlog 和innodb_flush_log_at_trx_commit 的值都是1</p>
+<p><img src="../_resources/34b8d236543b4f40b913175b787e97a9.png" alt="36d5ffde35dfc4eaa6897c2bb2d1a14f.png"></p>
+<p>可以看出 binlog 比 redo log 简单很多，不宕机的情况下，未提交的事务，回滚的事务，日志都不会进入 binlog。</p>
+<p>事务的日志在binlog中是连续排列的，在事务提交的时候，把事务的所有日志都写盘。<br>
+连续排列意味着，每个事务要串行写入，需要一个 全局锁，效率不高。 mysql 5.6 引入 group commit，思想就是 pipeline (http 1.1 的思路， kafka的主从复制也是，后续会专门讨论)。 虽然binlog只能串行写入，但不需要提交一个事务刷一次磁盘，而是把事务的提交和刷盘放到不同的线程里，刷盘时可以对多个提交的事务同时刷盘，虽然还是串行，但是批量化了。<br>
+。。。不是很理解。</p>
+<h3 id="内部xa-binlog和-redo-log-一致性问题">内部XA - binlog和 redo log 一致性问题</h3>
+<p>事务的提交既要写 binlog，也要写redo log，如何保证 两份日志数据的 原子性？一个成功一个宕机，重启时如何处理？</p>
+<p>binlog的原子性：刷盘到一半，宕机。这个问题和前面的 redo log 的原子性一样，通过类似于 checksum 的方法 或者 binlog 中有结束标记，来判断 是不是完整的binlog，不完整就截去。对于 客户机来说，此时宕机，事务肯定没有成功提交，所以截掉也没什么问题。</p>
+<p>binlog 和 redo log 的数据一致性，即内部XA，或者叫 内部的分布式事务问题。<br>
+外部分布式事务 是2个系统 或2个数据库之间的。</p>
+<p>binlog，redo log的内部分布式事务，使用的是 2阶段提交 (2PC, 2 phase commit)</p>
+<p><img src="../_resources/869f78f7f8ad4a3aa840b107925f603b.png" alt="24886abf0ef05f113535b00157d36eb9.png"></p>
+<p>阶段1，innodb的prepare，在事务提交之前，redo log, undo log 全部写入(。应该是写入到磁盘，是的，看下面的场景1)，binlog 也写入到内存，只等刷盘<br>
+阶段2，收到客户端的 commit，先刷盘binlog，然后 让innodb 执行commit。</p>
+<p>2PC的一个特点是，阶段1 就把 90% 的工作完成了，只能阶段2的收尾。 所以阶段2 收到 commit后，只要不宕机，事务就能成功提交。</p>
+<p>宕机，如何恢复？<br>
+整个过程以 binlog 的刷盘 来判定 事务是否被成功提交。让 redo log 向binlog 靠齐。<br>
+场景1：阶段1宕机，binlog在内存中，宕机消失；redolog记录了未提交的日志，重启时，自己回滚未提交的日志。<br>
+场景2：阶段2宕机，binlog写了一半，innodb commit 还没有执行，对binlog 截去尾巴，redolog回滚，处理方法和 场景1一样<br>
+场景3：binlog写入成功，innodb未提交。重启时，遍历binlog，对binlog存在，innodb中不存在的事务，发起commit。</p>
+<h3 id="3种主从复制方式">3种主从复制方式</h3>
+<p><img src="../_resources/b925ab1197cd49b0afb57b550e80dfad.png" alt="a873e1f3173c1c9c36ca72f8dbaacdd3.png"></p>
+<p>上面列举了 3种主从复制方式</p>
+<p>异步复制，可能丢失数据，master宕机，切换到slave，此时slave没有最新的数据，所以很多时候使用 半同步复制</p>
+<p>半同步复制 也可能丢失数据， 因为它 可能退化到 异步复制，因为 master 不能无限等待 slave，超时后，slave 没有回复ack， master 就会切换为 异步复制。</p>
+<p>参数 rpl_semi_sync_master_wait_slave_count 设置 半同步复制模式下，需要等待几个 slave 的ack， 才认为事务提交成功，默认1。</p>
+<p>如果主从复制的 延迟太大，切换到slave，丢失数据太多，这也难以接受。<br>
+为了降低 主从复制的延迟，有了 下面的 并行复制， 在跨机房的情况下， 尤其重要</p>
+<h3 id="并行复制">并行复制</h3>
+<p><img src="../_resources/eff8a65289fd4cea90602955c9fa5cfc.png" alt="3dd4ddb50f84f816fb259abdd7607415.png"></p>
+<p>原生的mysql 主从复制，分为2阶段</p>
+<ol>
+<li>把master 的binlog 复制到 slave上，形成 relay log。在这个搬运过程中，master 和slave 两边各有一个线程，master的叫 dump thread, slave的叫 IO thread。</li>
+<li>slave 把 relay log 回放到数据库，这是通过 一个叫 SQL thread 的线程执行的。</li>
+</ol>
+<p>整个复制过程，无论log的传输，还是回放，都是单线程的。</p>
+<hr>
+<p>而并行复制，是把 回放环节 并行化</p>
+<p><img src="../_resources/ca6554ceb27d4a4f8a6a1915bf63115c.png" alt="e461aeb241f94e04f02f4956be1bf0a9.png"></p>
+<p>并行复制，准确地说是 并行回放。</p>
+<p>传输不使用多线程，是因为没有必要，延迟主要是 回放环节，传输环节和带宽有关，多线程是无法优化的。 而且 binlog 本身是 全局有序的， 多线程传输的话，还需要 重排序和重组，得不偿失</p>
+<p>并行回放的 难点是 事务的并行提交。<br>
+并行回放 一次性从relay log 拿出 多个事务，并行执行。这就涉及了 什么样的事务可以并行，什么样的不行。<br>
+有2种并发策略</p>
+<ol>
+<li>按数据维度并行<br>
+3个粒度，不同库的事务可以并行，不同表的事务可以并行，不同行的事务可以并行。</li>
+<li>按事务的提交顺序并行<br>
+mysql 有 commit_id 的概念，表示哪些事务是同时提交的。 在一个事务没有结束之前，另外一个事务也开始进入提交阶段，这说明 2个事务 是并行的，它们操作的肯定是不同的数据记录。所以 回放时，具有相同 commit_id 的 事务可以并行。</li>
+</ol>
+<p>当然，commit_id 不同，不代表不能并行。 用第一类并发策略 就可以并行。</p>
+<p>基于commit_id 的并行提交策略，在mysql中也一直在优化，这涉及innodb底层，要深入研究，建议查看 innodb 源码</p>
+<h1 id="ch7-框架软件与中间件">ch7 框架，软件与中间件</h1>
+<h2 id="对生态体系的认知">对生态体系的认知</h2>
+<p>在自己造轮子之前，一定要对整个开源体系有一个清晰的认知，学会从开源的生态体系中 吸收系统设计和实现的精华，在结合自己业务造特定的轮子，避免 闭门造车。</p>
+<h2 id="框架">框架</h2>
+<p>熟悉一个框架后，更多的应该去关注它的缺点，而不是优点，关注它 不能做什么。</p>
+<h2 id="软件与中间件">软件与中间件</h2>
+<p>对于标准化的功能，会产生 对应的 开源软件和 中间件。<br>
+软件更加固化，不需要 开发代码，主要是 安装，配置，运维，比如 apache，nginx，mysql，redis等。<br>
+中间件需要 和业务代码结合，比如 RPC 中间件，数据库 分库分表 中间件，需要在代码中嵌入对应的 SDK</p>
+<p><img src="../_resources/46a79065b9ff49a4877d2b3c9518a88e.png" alt="4ba43773f98f273abe05ece06509feaf.png"></p>
+<p>不可能每个都精通，但是理解其基本原理是非常必要的，因为理解了原理，就可以灵活使用，也可以在出现问题后很好地定位并解决问题，同时也尽可能避免在使用中出现问题。</p>
+<p>基本原理，一方面是 OS，网络通信，数据库 等方面的内容，还有各种设计模式。<br>
+另一方面是 后面要讲到的 应对分布式问题的 各种策略，比如 高并发，数据一致性。<br>
+结合这2方面的内容，去理解 这些中间件是如何实现的。</p>
+<h1 id="第三部分-技术架构之道">第三部分 技术架构之道</h1>
+<h1 id="ch8-高并发问题">ch8 高并发问题</h1>
+<h2 id="问题分类">问题分类</h2>
+<p>软件必然需要读和写。所以本书从这2个方面展开分析</p>
+<h3 id="侧重于-高并发读-的系统">侧重于 高并发读 的系统</h3>
+<h4 id="搜索引擎">搜索引擎</h4>
+<p>对于搜索引擎来说，C段用户是 读，网页发布者 是 写</p>
+<p>侧重于读，因为</p>
+<ol>
+<li>数量级，读的一端，C段用户，上亿，写的一端，网页发布者，可能百万或千万。</li>
+<li>响应时间，读的一端通常要求 毫秒级，最差也是1-2s 内返回结果。 写的一端可能是几分钟 或几天。</li>
+<li>频率，读的频率远大于写得频率。</li>
+</ol>
+<h4 id="电商的商品搜索">电商的商品搜索</h4>
+<p>买家搜商品，卖家上架商品</p>
+<p>用户规模，响应时间，频率， 和 搜索引擎类似。</p>
+<h4 id="电商系统的商品描述图片价格">电商系统的商品描述，图片，价格</h4>
+<p>。。和商品搜索类似。</p>
+<h3 id="侧重于-高并发写-的系统">侧重于 高并发写 的系统</h3>
+<h4 id="广告扣费提供">广告扣费提供</h4>
+<ul>
+<li>C端用户每次浏览或点击，都会对广告主的账户余额进行一次扣减</li>
+<li>这种扣减要尽可能实时。</li>
+</ul>
+<h3 id="同时侧重-高并发读高并发写-的系统">同时侧重 高并发读，高并发写 的系统</h3>
+<h4 id="电商-库存系统-和-秒杀系统">电商 库存系统 和 秒杀系统</h4>
+<p>库存系统，秒杀系统 的一个 特征是： C段用户 要对 数据 同时进行 高并发读和 写。</p>
+<h4 id="支付系统-和-微信红包">支付系统 和 微信红包</h4>
+<h4 id="im即时通讯qq微信微博朋友圈">IM(即时通讯，qq，微信)，微博，朋友圈</h4>
+<h2 id="高并发读">高并发读</h2>
+<h3 id="策略1加缓存">策略1：加缓存</h3>
+<h4 id="本地缓存-或-memcachedredis-集中式缓存">本地缓存 或 memcached/redis 集中式缓存</h4>
+<p>数据库支持不住的时候，首先想到的就是 加一层 缓存。 缓存分为 本地缓存， 集中式缓存</p>
+<p>缓存的更新有2种，</p>
+<ul>
+<li>主动更新，当数据库中的数据发生变更时，主动删除或更新 cache中的数据</li>
+<li>被动更新，用户的查询请求到来时，如果cache 过期，则更新cache</li>
+</ul>
+<p>需要考虑几个问题</p>
+<ul>
+<li>缓存雪崩</li>
+<li>缓存穿透</li>
+<li>大量热key过期</li>
+</ul>
+<p>这些问题 和 缓存的 回源策略有关，</p>
+<ul>
+<li>一种不回源，<mark>只查询cache，cache没有，直接返回 空 给客户端，这种方式肯定是 主动更新cache，并且不设置 cache 的过期时间，不会有 cache穿透，大量热key过期 的问题</mark></li>
+<li>回源，cache中没有，会去查询数据库，更新cache， 这种需要考虑上面的问题。</li>
+</ul>
+<h4 id="mysql-的masterslave">mysql 的master/slave</h4>
+<p>缓存策略可以 缓存各种 结构相对简单的 k-v数据，但是有的场景，需要用到 多张表的关联查询，对于这种查询，往往会为 mysql 增加一个或 多个 slave，来分担主库的 读压力，是一个简单有效的方法。</p>
+<p>。。这个应该是指 后台的任务 (比如 BI分析)，只读一遍，但是要 读完所有数据，所以 cache没有( 因为只读一遍)。 所以让它读 从库，这样不影响 主库的 C端用户</p>
+<p>也可以把 多表 join后的结果 cache，但是 多张表中，任意一张表 发生变动，cacahe 都需要更新。</p>
+<h4 id="cdn-静态文件加速-动静分离">CDN 静态文件加速 (动静分离)</h4>
+<p>网站的开发中，有 静态内容 和 动态内容</p>
+<ol>
+<li>静态内容， 数据不变，对于不同的用户来说，数据基本是一样的，比如 图片，HTML，JS，CSS。再比如 各种直播系统，内容生成端 产生的 视频内容，对于 消费端来说，看到的都是一样的。</li>
+<li>动态内容，需要根据 用户的信息 或其他信息 (比如 当前时间) 实时生成 并返回给用户。</li>
+</ol>
+<p>对于静态内容，最常用的处理就是 CDN。</p>
+<h3 id="策略2并发读">策略2：并发读</h3>
+<p>无论 读 还是写， 串行改并行 都是一个 常用策略。<br>
+下面举几个例子，来说明如何把 串行改成并行</p>
+<h4 id="异步rpc">异步RPC</h4>
+<p>现在的RPC框架基本都支持 异步RPC。<br>
+但有个前提，并发的多个调用 之间没有 耦合关系。</p>
+<h4 id="google-的冗余请求">google 的冗余请求</h4>
+<p>假设一个用户的请求 需要100台服务器 同时联合处理，每台服务器有 1%的概率 发生延迟(假设 响应时间&gt;1s 为延迟)，那么对于 C端用户，响应时间大于 1s 的概率是 63%。<br>
+1 - 0.99^100 = 0.63</p>
+<p>解决方案是 冗余请求，客户端 同时向多台服务器发送请求，哪个快 就用哪个，其他的丢弃。<br>
+但这会让 整个系统的 调用量 翻倍。</p>
+<p>调整下，编程： 客户端 给服务器 发送一个请求，等待服务器响应， 如果 一段时间内 没有收到 服务器的响应，则 立刻 发送同样的请求 到 另外一台(多台) 服务器。 只使用第一个返回的响应，丢弃其他的。 一段时间 定义为 95%请求的 响应时间 (TP95)。</p>
+<p>google的测试数据 显示，使用这种方法，可以 用 2%的 额外请求 将系统 99.9%的 请求响应时间 从 1800ms 降低到 74ms</p>
+<h3 id="策略3重写轻读">策略3：重写轻读</h3>
+<h4 id="微博feeds-流">微博Feeds 流</h4>
+<p>微博首页，朋友圈，都有 类似的查询场景： 用户关注了 n个人(或有n个好友)，每个人都在不断地发微博，系统需要把 这n个人的 微博 按照 时间排序 成列表，也就是 Feeds 流 并展示给用户。 同时，用户也要查看 自己发布的微博列表。</p>
+<p>对于用户来说，2个最基本的需求： 查看关注的人的 微博列表(Feeds流) 和 查看自己发布的微博列表</p>
+<p>最原始的方案：如果这个数据存在数据库里面，类似下面<br>
+<code class="inline-code">Following表(关注关系表)：ID自增主键，user_id关注者，followings被关注的人</code><br>
+<code class="inline-code">Msg表(微博发布表)，ID自增主键，user_id发布者，msg_id发布的微博ID</code></p>
+<p>假设这里只保存 微博ID， 微博的内容，发布时间 等消息 保存在 另一个专门的 NoSQL 中。</p>
+<p>对于上面的数据模型，要查询 user_id = 1 发布的微博列表，并分页显示：<br>
+<code class="inline-code">select msg_ids from msg where user_id=1 limit offset, count</code></p>
+<p>假设要查询 user_id = 1 的Feeds流，并按照时间排序，分页显示：<br>
+<code class="inline-code">select follwoing from following where user_id=1</code><br>
+<code class="inline-code">select msg_ids from msg where user_id in (followings) limit offset, count</code></p>
+<p>这种无法满足高并发的查询。</p>
+<p>改成重写轻读，不是查询的时候去聚合，而是提前为每个user_id准备一个 Feeds流，或者叫 收件箱</p>
+<p>如下图所示，每个用户有一个 发件箱，一个收件箱。<br>
+假设1个用户有1000个粉丝，发布一条微博后，写入自己的发件箱就返回成功。然后后台异步把 这条微博 推送到 1000个粉丝的 收件箱，这就是 写扩散。<br>
+这样，每个用户读取 feeds 的时候，不再需要 实时聚合，直接读取各自的 收件箱即可。</p>
+<p>这就是 重写轻读，把计算逻辑 从 读的那端 移动到 写得那端。</p>
+<p><img src="../_resources/06f65470824d461a8922866baf78784d.png" alt="0404b1838cc6b06f0dce7dfa28e8cee8.png"></p>
+<p>。。我感觉，应该不太现实吧。。上亿粉丝的这么搞？？<br>
+。。下面说 twitter 的。。<br>
+。。下面也有说，拉</p>
+<p>这里的关键是 收件箱如何实现？ 从理论上讲，这是一个 无限长的列表。<br>
+显然，这个列表 必须在 内存中， 假设使用 redis 的 <code class="inline-code">&lt;key, list&gt;</code> 来实现， key 是user_id，list是 msg_id 的列表。 这个list不能无限增长，假设上限是 2000。</p>
+<p>因为手机一次显示4-6条，2000条意味着 可以翻 500屏，一般人不会翻这么多的。<br>
+这就是twitter的做法，根据公开的资料显式，twitter实际限制为 800条。</p>
+<p>对于用户发的微博，系统肯定不能删除历史数据。考虑使用 mysql 来保存 表数据。<br>
+但是显然，这个数据会一直增长，不可能放在一个数据库中。<br>
+这就涉及 按什么维度 进行数据库分片<br>
+一种是按照 user_id 进行分片， 另一种是按照 时间范围 进行分片 (比如 一个月存储一张表)。<br>
+只按user_id分片，显然不能满足需求，因为数据会随着时间一直增长，并且增长很快。<br>
+只按时间范围分片，会 冷热不均。</p>
+<p>所以需要 同时按照 user_id 和 时间范围 进行分片。</p>
+<p>如何快速查看 某个user_id 从某个 offset 开始的微博呢？比如一页有100个，现在要显示 第50页，也就是 offset=5000 ，如何快速定位 5000 所属的 库呢？</p>
+<p>这就需要一个 二级索引： 另外需要有张表，记录 <code class="inline-code">&lt;user_id, 月份, count&gt;</code> 基于这个表 就可以很快定位到 offset 5000 发生在哪个月份。 也就是 哪个数据库分片</p>
+<p>加入一个用户有 8000w粉丝，复制8000万 对于系统是很大的负担，也没有办法保证 及时地传播到 所有粉丝。</p>
+<p>这就回到了 最初的方案，也就是在 读的时候 聚合，或者叫做 <mark>&quot;拉&quot;</mark><br>
+具体如下：<br>
+在写的一端，对于粉丝数较少的用户 (假定小于5000个粉丝), 发布微博后 推送给 5000个粉丝<br>
+对于粉丝数较多的用户，只推送给 在线的粉丝。</p>
+<p>在读的一端，一个用户的关注的人当中，有的人是 推给他的(粉丝数&lt;5000)，有的是需要自己拉的 (粉丝数&gt;5000)， 需要把两者 聚合起来，再按照时间排序，然后分页显示，这就是 推拉结合。</p>
+<h4 id="多表的关联查询宽表与搜索引擎">多表的关联查询：宽表与搜索引擎</h4>
+<p>在策略1中 提到一个场景，后台需要对 业务数据 做多表关联查询， 通过增加 slave 来解决， 但这种方法只适合 没有分库的场景。</p>
+<p>如果数据库已经分库，那么需要从多个库查询数据来聚合，无法使用数据的原生join功能，只能在程序中 分别从2个库读取数据，再做聚合。</p>
+<p>存在一个问题：如果需要把聚合出来的数据 按照某个维度排序 并分页显示，这个维度是一个临时计算出来的维度，而不是数据库 本来就有的维度。<br>
+由于无法使用数据库的 排序和 分页，也无法在 内存中 通过 实时计算来实现排序 分页(数据量太大)，这时应该如何处理？</p>
+<p>还是采用 重写轻读的 思路： 提前把 关联数据计算好，保存起来。<br>
+具体实现：准备一张宽表，把关联的数据 计算好后 保存到 宽表中。根据实际情况，可以 定时算，也可以 在 任何一张原始表 发生变化后 触发一次 宽表数据的计算。</p>
+<p>也可以使用 ES 类的 搜索引擎来实现： 把 多张表 的join 结果 做成一个个文档，存到 搜索引擎中，可以 实现 排序 和分页查询功能。</p>
+<h3 id="总结读写分离-cqrs架构">总结：读写分离 (CQRS架构)</h3>
+<p>加cache，动静分离，重写轻读， 本质上都是 读写分离，这也就是 微服务架构中 经常提到的 CQRS (command query responsibility separation)</p>
+<p>下图 总结了 读写分离架构的 典型模型<br>
+<img src="../_resources/2ae8948eb02c4d8abccc79a6cae7c0b0.png" alt="3e772986d76bd8dfe418b3dece8c4474.png"></p>
+<p>该模型有几个典型特征：</p>
+<ol>
+<li>
+<p>分别为 读 和 写 设计不同的数据结构<br>
+在C端，当同时面临 读 和 写 的高并发压力时，把 系统分成 读，写 2个视角来设计，各自设计适合 高并发的 读，写 的数据结构 或数据模型<br>
+cache 其实是 读写分离的一个简化。</p>
+</li>
+<li>
+<p>写的这端，通常也就是在线的业务DB，通常分库分表抵抗写的压力<br>
+读这端，为了抵抗高并发压力，针对业务场景，可能是 k-v cache，也可能是 提前做好的 join 宽表，又或者是 ES 搜索引擎。 如果ES性能不足，则自己建立 倒排索引和 搜索引擎。</p>
+</li>
+<li>
+<p>读和写得串联<br>
+定时任务 定期把 业务数据库 中的数据 转换成 适合 高并发读的 数据结构，或者是 写的一段 把数据 的变更 发送到 消息中间件，然后 读的一端 消费消息，或者直接 监听业务数据库的 binlog。</p>
+</li>
+<li>
+<p>读比写有延迟<br>
+因为 左边写得数据 是 实时变化的， 右边读的数据 肯定有延迟，读和写之间 是最终一致性，而不是 强一致性，但不影响 业务的正常运行。<br>
+比如，库存系统，用户看到的是 9件， 但实际上可能是8件(刚卖掉一件) 或 10件(刚退货一件)，但 用户下单的时候，会 实时扣减 数据库里的 库存。<br>
+对于用户自己的数据，自己写 自己读，在用户体验上肯定要保证 修改的数据立马看到 ( 冲JD卡)</p>
+</li>
+</ol>
+<h2 id="高并发写">高并发写</h2>
+<h3 id="策略1数据分片">策略1：数据分片</h3>
+<h4 id="数据库的分库分表">数据库的分库分表</h4>
+<p>数据库 应对 高并发读，可以加cache，slave。<br>
+应对 高并发写，就需要 分库分表。</p>
+<p>分表后，还是在一个数据库，一台机器上，但可以更充分地利用 CPU，内存等资源。<br>
+分库后，可以利用多台机器的资源。</p>
+<h4 id="jdk的-concurrenthashmap">JDK的 ConcurrentHashMap</h4>
+<p>内部分为 若干个槽 (2^n, 默认16个)， 也就是 若干个 子 HashMap， 这些槽可以 并发读写，槽之间独立，不会发生数据互斥。</p>
+<h4 id="kafka-的-partition">kafka 的 partition</h4>
+<p>kafka中，一个topic 表示一个 逻辑上的 消息队列，具体到物理上，一个 tpoic 被分成了 多个 partition，每个 partition 对应磁盘的 一个日志文件。 partition之间相互独立，可以并发读写，提高了 一个topioc 的并发量</p>
+<h4 id="es的分布式索引">ES的分布式索引</h4>
+<p>搜索引擎中一个基本策略是 分布式索引。 比如有 10亿 个网站或商品，如果建在一个 倒排索引中，则索引很大，也不能并发查询。<br>
+可以把这10亿个网页或商品，分成n份，建成n个小的索引。一个查询请求来了以后，并行地在n个索引上查询，再把查询结果 合并。</p>
+<h3 id="策略2任务分片">策略2：任务分片</h3>
+<p>数据分片是对 要处理的数据(或请求) 进行分片<br>
+任务分片是对 处理程序本身 进行分片</p>
+<p>现实中，就是流水线，把一个过程 拆分成 多道工序。 工序之间是并行的。</p>
+<h4 id="cpu的指令流水线">CPU的指令流水线</h4>
+<p>把一条指令的执行过程分为 取指，译码，执行，回写 4个阶段，这4个阶段并行。</p>
+<h4 id="mapreduce">Map/Reduce</h4>
+<p>大数据相关技术，最基本的就是 google的 Map/Reduce，这是一种 数据分片，任务分片 相结合的 案例。<br>
+归并排序 也可以 并发</p>
+<h4 id="1nm-网络模型">1+N+M 网络模型</h4>
+<p>服务器端的网络编程中，无论 tomcat，netty，linux的epoll，都有一个 基本的网络模型，称为 1+N+M。</p>
+<p>一个请求的处理 分为3道工序： 监听，IO，业务逻辑处理。<br>
+一个监听线程负责 监听客户端的 socket连接<br>
+N个IO线程负责对socket 进行读写。N通常等于 CPU核数<br>
+M个worker线程负责对 请求进行逻辑处理。</p>
+<h3 id="策略3异步化">策略3：异步化</h3>
+<p><img src="../_resources/86316929073b4add9c10df1ebdb37d10.png" alt="e41bbacb28fbe8d2ad8ee6b638d03602.png"></p>
+<ul>
+<li>linxu层面，之前已经详细解释</li>
+<li>JDK层面，3套API，最早的BIO，现在常用的是 NIO，AIO是jdk7引入的，使用不多。</li>
+<li>接口层面，客户端调用的时候，可以传入一个 callback 或返回一个 future对象。<br>
+对于RPC，是否有 异步接口，取决于其实现方式<br>
+对于redis，mysql，常用同步接口，尤其在java中，JDBC没有异步接口。想要实现对mysql的异步调用，要自己实现 mysql的 c-s 协议。<br>
+接口的异步有2种实现方式
+<ul>
+<li>假异步，在接口内部做一个线程池，把异步接口调用 转化为 同步接口调用</li>
+<li>真异步，在接口内部通过NIO实现真异步，不需要开很多线程</li>
+</ul>
+</li>
+<li>业务层面，客户端通过HTTP，RCP或消息中间件 把请求 给 服务器，服务器收到请求后 不立即处理，而是落盘(存到数据库或消息中间件)，然后用 后台任务 定时处理， 让客户端用另一个http 或rpc 接口 轮询结果，或者 服务器通过接口 或消息 主动通知客户端。</li>
+</ul>
+<h4 id="短信验证码注册或登录">短信验证码注册或登录</h4>
+<p>短信的发送通常需要靠 第三方的短信发送平台。<br>
+客户端请求发送验证码，服务器收到请求后，调用第三方的短信平台。<br>
+公网的http可能要1-2s，如果是同步调用，则服务器会被阻塞。假设服务器是tomcat，一台机器最多几百个请求，多了会卡死。<br>
+改成异步就可以避免这个问题。 <mark>服务器收到 客户端请求后，放入消息队列，并立即返回，后台线程从消息队列中读取消息，调用第三方短信平台</mark><br>
+服务器和 消息队列 是 内网通信，不会阻塞。</p>
+<h4 id="电商的订单系统">电商的订单系统</h4>
+<p>在网上购买来自3个商家的3个商品，一次性支付，虽然只下了一个订单，付了一次款，但是在 我的订单中，可以看到 3个订单。<br>
+从1个变成3个的过程，是电商系统的一个典型处理环节，叫做 拆单。 这个环节就是 异步 实现的。<br>
+对于客户端来说，首先 创建一个订单，写入 订单系统的数据库，此时未支付<br>
+然后支付，支付完成后，服务器立即返回成功， 而不是 等1拆3后返回。</p>
+<p>当然，实际的业务场景比这个模型复杂得多，用户付完钱后，除了拆单，还要做很多事情：</p>
+<ul>
+<li>风控(刷单就拦截)</li>
+<li>发放优惠券</li>
+<li>修改用户属性(支付后变成老用户)</li>
+</ul>
+<h4 id="广告计费系统">广告计费系统</h4>
+<p>用户的点击或浏览 会以日志的形式 落盘/持久化 到 MQ，然后立即返回 广告内容， 后续的处理，包括 扣费 是 异步化的。</p>
+<h4 id="lsm树-写内存-write-ahead日志">LSM树 (写内存 + write-ahead日志)</h4>
+<p>log structured merged tree</p>
+<p>为了提高磁盘IO 的写性能，可以使用 write-ahead 日志，也就是 redo log。 其实除了 数据库的 B+树外，LSM树也采用同样的原理</p>
+<p>核心思想是 异步写。 LSM支撑的是 KV 存储，插入的时候，k是无序的，但是磁盘上又需要按照 k 的 大小存储。<br>
+首先，既然写磁盘慢，那就在内存中 维护一个 sorted hashmap，但是这样的话，宕机就小时了， 于是再写一条日志，也就是 write ahead 日志，它有一个关键的优点是 顺序写入，只会append。<br>
+有了日志的顺序写入，加上内存的 sorted hashmap, 后台线程 定时 把内存中的 sorted hashmap 合并到 磁盘文件中。 后台任务 执行 磁盘数据的合并排序。</p>
+<p>当客户端 put 一个 k-v 的时候，只是写了一条日志，在加上一个内存操作，就可以告诉客户端写入成功了，实际上 这时候 数据还没有落盘</p>
+<p>通过异步落盘，也就是延迟写入，大幅度提高了写入的性能</p>
+<p>因为是kv存储，所以用了LSM树， 关系型数据库之所以 使用 B+ 树，是因为 需要 范围查询， 前缀匹配，排序和分页</p>
+<p>写内存 + write-ahead 日志， 不仅在 数据库 和 kv存储 领域使用，在上层业务领域 也同样使用。 比如 高并发地 扣减 mysql 中的账户余额， 或电商中 扣库存，如果直接在 数据库中扣，数据库扛不住， 可以在 redis 中扣，同时落一条日志 (日志可以是 消息中间件 或 数据库中插入一条条的日志) 。 当redis 宕机，把所有日志 重放完毕，再用 数据库中 的数据初始化 redis 中的数据。  数据库中的数据不能落后 redis 太多，不然 积压大量日志，宕机恢复的时间会很长。</p>
+<h4 id="kafka-的-pipeline">kafka 的 pipeline</h4>
+<p>为了高可用，kafka 会为 每个 topic 的 每个 partition 准备多个副本。<br>
+假设1个partition 有3个副本，其中一个被选举为 leader， 另外2个是 follower</p>
+<p>对于同步发送，客户端每发送一条消息，leader 就要把 这条消息 同步到 2个 follower 之后，才会对 客户端返回 成功。</p>
+<p>要实现这一点，最简单的是： 假设 客户端发送 msg1, msg2, msg3.<br>
+leader 先接收 msg1，然后 同步给 2个follower，然后返回成功<br>
+再接收 msg2，同步，返回<br>
+再 msg3， 同步， 返回</p>
+<p>效率不够。<br>
+kafka用了一个典型的 策略来解决，就是 pipeline， 它也是异步化的一种。</p>
+<p>leader并不会主动给 2个follower 同步消息，而是等 follower 主动拉取，并且是 批量拉取。<br>
+leader收到客户端的 msg1 ，并把它存到 本地文件后，就去做其他事情了，比如 接受 msg2， 此时客户端还处于 阻塞状态，等待 msg1 返回。<br>
+只有 等 2个follower 把 msg1 拉取后， leader 才返回 客户端。</p>
+<h3 id="策略4批量">策略4：批量</h3>
+<h4 id="kafka-百万qps写入">kafka 百万qps写入</h4>
+<p>快的 一个策略是 partition分片，另一个策略是 磁盘的顺序写入(没有随机写入)。<br>
+这里介绍另一个 导致 快的 策略： 批量</p>
+<p>kafka的客户端在内存中 为每个 partition 准备了一个队列，称为 RecordAccumulator。 生产者线程 一条条地发送消息，这些消息都进入 内存队列。然后通过 sender 线程 从这些队列中<mark>批量地</mark>提取消息 发送给 kafka 集群。</p>
+<p><img src="../_resources/c85f1d8877cc4cd2b766bf40d34221d9.png" alt="e993e47c07c1f38d0e71cc3f1b942938.png"></p>
+<p>如果是同步发送，生产者 向队列中 放入一条消息后会阻塞，等待sender 线程 取走该条 消息并发送出去后，生产者 才会返回，这是没有批量操作。<br>
+如果是异步发送，生产者 把消息放入队列后 就返回了， sender 会把 队列中的消息 打包，一次发送多个，这是就会用到 批量操作。</p>
+<h4 id="广告计费系统的合并扣费">广告计费系统的合并扣费</h4>
+<p>有10个用户，点击了广告，这就意味着 要扣 10次，每次一元。 改成 合并扣费，那就 扣一次，扣10元。</p>
+<h4 id="mysql-的小事务合并机制">MySQL 的小事务合并机制</h4>
+<p>把上面的案例的策略 应用到 mysql的内核中，就是 mysql 的小事务合并机制。<br>
+比如 扣库存，对于同一个 sku，本来是扣10次，每次扣1个，也就是 10个事务，在mysql的内核中 合并成 1次 扣10个，只需要一个事务</p>
+<p>在多机房的数据库多活 (跨数据中心的 数据库复制) 场景中，事务合并 也是加速 数据库复制的 一个 重要策略。</p>
+<h3 id="策略5串行化-多进程单线程-异步io">策略5：串行化 + 多进程单线程 + 异步IO</h3>
+<p>多线程有2个问题： 锁竞争，线程切换开销大</p>
+<p>nginx，redis 都是 单线程模型，因为有了 异步IO 后，可以把 请求 串行化处理，这样就 没有了 锁竞争，没有了 IO阻塞， 这样 单线程 也非常高效。<br>
+要利用多核， 就多开实例。</p>
+<p>开多个进程，每个进程负责一个业务模块，进程间通过 IPC 机制 实现通信，这在<mark>C++中广泛使用</mark>。 这种做法 综合了 任务分片， 异步化， 串行化 3种思路。</p>
+<h2 id="容量规划">容量规划</h2>
+<p>高并发读，高并发写 是一种 定性分析， 那么接下来的 压力测试 和 容量规划 就是 定量分析</p>
+<p>绕不开的一个问题： 应用要部署多少台机器？ 数据库要分多少个库？</p>
+<h3 id="吞吐量响应时间并发数">吞吐量，响应时间，并发数</h3>
+<p>吞吐量，单位时间内处理的请求数，通常所说的 QPS，TPS，都是 衡量吞吐量的一个方式<br>
+响应时间，处理每个请求所需的时间<br>
+并发数，服务器同时并行处理的 请求个数</p>
+<p>吞吐量 * 响应时间 = 并发数</p>
+<p>对于串行系统，吞吐量 和 响应时间 成反比。 即 处理一个请求的时间越少，吞吐量越大。</p>
+<p>对于并发系统(多机多进程 或多线程)，不符合这个规律，我们往往看到 QPS越大，响应时间越长。</p>
+<p>请求被分为多个环节，每个环节又都是 多线程的， 请求与请求之间可以 并行处理，多个环节之间也可以并行。这种情况下，响应时间 和 吞吐量不是 简单的 数学公式，只能大致知道 曲线。</p>
+<p><img src="../_resources/fab6b27dbefd4d44be1d357813198050.png" alt="d0ff28ae8c245b85fdb6184b23274f04.png"></p>
+<p>图只是一个概念，具体要通过 实际的压力测试，才知道合理的吞吐量。</p>
+<p>现在的监控系统已经很成熟，基本都可以在面板上直接看到 每台机器的 每个接口的 QPS，平均响应时间，最大响应时间，TP95，TP99 等</p>
+<p>并发数，通常使一个 隐形指标，通过 吞吐量 和 响应时间， 大致可以算出 并发数是多少。</p>
+<h3 id="压力测试-与容量评估">压力测试 与容量评估</h3>
+<p>容量评估是一个系统性工程，但是基本思路很简单：<br>
+机器数 = 预估总流量 / 单机容量</p>
+<p>分母是一个预估的值，分子通过压力测试得到。</p>
+<p>预估一般通过历时数据来估算，在监控系统中可以很容易看到 一个服务 在过去 24小时 中的 调用量分布，取其中的峰值 再乘以 一个余量系数 (2或3倍)，就可以大约算出 服务的 流量。<br>
+要用峰值测算，不能用均值。 对于很多系统，峰值通常是 均值的 好几倍。</p>
+<p>压力测试的策略<br>
+线上压力测试 vs 测试环境压力测试<br>
+要搭建一个 和线上基本一样的 测试环境，代价很大，并且 搭建好后，后续频繁地发布版本，很难维护。<br>
+所以我们重点讨论 线上压力测试</p>
+<p>读接口压力测试 vs 写接口压力测试<br>
+如果全是读接口，可以对线上真实流量进行重放，这没有问题。<br>
+如果是写接口，会对 线上数据库造成大量测试数据，如何解决？<br>
+一种是通过摘流量的方式，也就是 不重放流量，只是把 线上的 真实流量 划一部分出来 集中 导入 集群中的 几台机器中。 这种方法 只能 压力测试应用服务器，对于 redis 或 数据库，只能大致估算。<br>
+另一种是 在线上部署一个 和 真实数据库 一样的 影子数据库， 对测试数据打标签，测试数据 不进线上数据库，而是进入 影子数据库， 通常由 数据库的中间件 来实现。</p>
+<p>单机压力测试 vs 全链路压力测试<br>
+单机压力测试 比较简单， 比如一个服务 没有调用其他 服务， 背后就直接是 redis 或数据库，通过压力测试 比较容易 客观地 得到服务的 容量。<br>
+但如果 服务存在层层调用，整个调用链路 就像 树状一个展开，即使测算出了 每一个 单个服务 的容量，也不代表 整个系统的容量，这时需要 全链路压力测试。</p>
+<h1 id="ch9-高可用和-稳定性">ch9 高可用和 稳定性</h1>
+<p>高并发 是为了让 系统 变得 高效<br>
+本章是为了让 系统变得 靠谱</p>
+<h2 id="多副本">多副本</h2>
+<p>避免 单点</p>
+<ul>
+<li>网关层的 nginx 宕机怎么办？ 做多个副本</li>
+<li>应用服务器宕机怎么办？ 做多个副本</li>
+<li>缓存宕机怎么办？ 做多个副本</li>
+<li>数据库宕机怎么办？ 做多个副本</li>
+<li>消息中间件宕机怎么办？ 做多个副本</li>
+</ul>
+<p>对于网关 或 应用服务器 这种 无状态的 服务， 做多个副本 比较 简单，加机器就可以了。<br>
+对于 缓存 或数据库 这种 有状态的机器， 如果做多个副本， 则会存在 数据间 如何同步的问题。</p>
+<h3 id="本地缓存多副本">本地缓存多副本</h3>
+<p>一种常用的方法是 利用 消息中间件 (如 kafka) 的 pub/sub 机制，每台机器 都订阅 消息。一条消息发出去后，每台机器都会收到这条消息，然后 更新自己的 本地cache</p>
+<h3 id="redis-多副本">redis 多副本</h3>
+<p>redis cluster 提供了 master-slave 直接的 复制机制， 当 master宕机后 切换到 slave。 当然 切换需要时间，一般 几十秒， 而且 因为是 异步复制， 切换后 可能丢失 少量数据。<br>
+如果用的是 单机 redis 或 memcached，自身没有提供 master-slave机制，则需要业务人员 自己部署 2套集群，自己做 双写 和切换。</p>
+<h3 id="mysql多副本">mysql多副本</h3>
+<p>对于mysql， master-slave 之间 用的最多的是 异步复制 或 半异步复制， 同步复制因为性能低，很少使用。<br>
+对于半异步复制，如果slave 超时 后未ack，会退化为 异步复制。<br>
+所以 半异步复制，异步复制，不能保证 master， slave 数据 一致性。</p>
+<p>当master 宕机后，立即切换到 slave 会丢失 未同步的数据。 但不切换，服务就不可用了。<br>
+一般都会选择 牺牲一定的 数据一致性 来保证 可用性。 少量的数据不一致，通过 后续的 人工修复解决。</p>
+<p>还有一些监控措施，如果发现 某个 slave 落后太多，则剔除，不让它 被选为 主库。</p>
+<h3 id="消息中间件-多副本">消息中间件 多副本</h3>
+<p>对于 kafka类的 消息中间件，一个 partition通常至少有 3个副本，为此，kafka专门设计了一种 ISR 算法，在多个副本间 进行消息同步</p>
+<h2 id="隔离限流熔断降级">隔离，限流，熔断，降级</h2>
+<ol>
+<li>
+<p>隔离<br>
+将系统或资源 分割开，在系统发生故障时，能限定 传播范围 和影响范围，即发生故障后 不会出现 雪球效应。<br>
+隔离的手段很多</p>
+<ul>
+<li>数据隔离，数据有重要，非重要之分，把这些数据 所在的 物理库 彻底分开</li>
+<li>机器隔离(调用者隔离)，把调用者按重要性排序，对于核心的调用者，专门准备一组机器。<br>
+成熟的 RPC 框架 有 隔离功能，根据 调用方标识，把来自某个 调用方的请求 都发到一组 固定的 机器上。</li>
+<li>线程池隔离，<br>
+经典场景：tomcat，开了500个线程，tomcat背后调用了很多RPC服务，如果某个服务的延迟突然变大，而这个服务的调用量很大，可能导致500个线程 都卡在这个RPC服务商，整个服务器卡死。 对于这种场景，首先要注意 <mark>客户端的超时时间</mark>，如果过长(如几十秒，或一两分钟)，那么很容易阻塞500个线程。 设置过短 (如200ms)，该问题会减弱很多，但是 瞬间的 高并发流量下 依然存在问题。 为此，可以使用 线程池，为每个 rpc单独准备一个线程池(一般2-10个线程)。<br>
+还有一个场景：一个RPC服务 提供了很多接口，大多数很快，部分接口业务逻辑复杂，处理很慢，RPC服务器内部可以单独为其准备一个线程池，这样，虽然这个接口很慢，但不会影响其他接口。</li>
+<li>信号量隔离， 比线程隔离轻量。机器能开的线程数是有限的， 线程池多了，会导致 线程也多，线程切换开销大。 使用 信号量 隔离，不会额外增加线程池。 信号量 本质上是一个数字，记录了 当前访问 某个资源 的 并发线程数。 线程访问 资源前 获取这个信号量，访问结束后 释放。一旦信号量达到最大值，线程无法获得 信号量，会丢弃请求，而不是阻塞 等待 信号量</li>
+</ul>
+</li>
+<li>
+<p>限流<br>
+分为 技术层面的限流， 业务层面的限流<br>
+技术层面的限流比较通用</p>
+</li>
+</ol>
+<p>技术层面的限流，<br>
+一种是限制并发数，就是根据系统的资源进行限制，比如 数据库连接池，线程池，nginx的limit_conn 模块。<br>
+另一种实现值 速率(QPS), 比如Guava 的 RateLimiter， nginx的limit_req模块</p>
+<p>限制速率 对于服务的接口调用 非常有用。 比如通过压力测试 得知 服务的 QPS是 200， 就可以限流为 200。 当调用方的并发量 超过这个数字，直接拒绝服务。 这样即使有大量请求过来，也不会压垮服务器<br>
+一般成熟的 RPC 都有响应的配置，对每个接口进行限流。</p>
+<p>业务层面的限流<br>
+比如秒杀系统，一个商品只有 100件，现在2万人抢， 每必要放2万人进来，只需要放 前500个人进来，后面的 直接返回 已售完。<br>
+针对这种场景，可以做一个限流系统，或者叫 售卖的资格系统(票据系统)，里面存放500张票据，每来一个人，领一张，领到的人 再进行后面的 业务系统的 抢购。<br>
+具体实现上，可以 redis ，也可以 nginx + lua</p>
+<p>限流算法<br>
+漏桶算法</p>
+<ul>
+<li>漏桶的容量是固定的，流出的速率是固定的</li>
+<li>流入的速率是任意的</li>
+<li>如果桶是空的，则不需流出</li>
+<li>如果流入数据 超过 桶的流量，则丢弃</li>
+</ul>
+<p><img src="../_resources/c8fb7383d3274b4e8569d1972f0ab8a0.png" alt="cc2d713b94b218f3b5d38de1cd84f0c1.png"></p>
+<p>令牌桶算法</p>
+<ul>
+<li>令牌桶容量固定，流入令牌的速率固定</li>
+<li>令牌桶满时，多的令牌丢弃</li>
+<li>请求达到后，从桶中取一个令牌，能取到令牌，这个请求就会被处理</li>
+<li>取不到令牌，请求 要么被丢弃，要么 排队</li>
+</ul>
+<p><img src="../_resources/e836aa361c844405a8a4fa8bb0e8a050.png" alt="1d5a06034e1d7e0d9677e6b219144392.png"></p>
+<p>2个算法的原理正好相反，一个是流出速率恒定， 一个是流入速度恒定。<br>
+两者用途有一定差别:<br>
+令牌桶限制 平均流入速度，而不是 瞬时速率；<br>
+漏桶有点类似 mq，有 削峰的作用，平滑了突发的流入速率</p>
+<ol start="3">
+<li>熔断<br>
+2种策略，一种是根据请求失败率，一种是根据请求响应时间</li>
+</ol>
+<p>根据请求失败率进行熔断<br>
+客户端调用某个服务，如果短时间内大量超时 或抛错，则客户端直接 开启熔断，即 不再调用 此服务。 过一段时间，再把 熔断打开。<br>
+hystric有几个参数配置熔断器的策略，可以达到：每20个请求，有50%失败时，打开熔断，5秒后，重新检查，判断是否要 关闭熔断</p>
+<p>根据请求响应时间进行熔断<br>
+Sentinel 提供了这种思路。<br>
+当资源的平均响应时间 超过阈值后，资源进入准降级状态，如果接下来的5个请求的 RT 都超过该阈值，那么接下来个 时间窗口内，对这个方法的调用 会自动返回。</p>
+<p>限流是 服务器 根据能力设置一个 保护过载。<br>
+熔断是 调用端 进行的保护措施。</p>
+<p>能熔断的服务 肯定不是 核心链路上的 必选服务， 如果是的话，一旦熔断，核心链路就失败了。并没有 起到 高可用的 效果。</p>
+<ol start="4">
+<li>降级<br>
+降级是一种 兜底方案，是 系统故障之后的 尽力而为的措施。<br>
+相比于 限流，熔断 2个偏技术的词汇， 降级则偏向业务。<br>
+一个业务肯定有很多功能，但并不要求 这些功能100% 可用。</li>
+</ol>
+<p>对于qq/微信，有文字通信，语音通信，视频通信，对带宽要求 是从小到大。 当网络故障时，视频通信不可用，但可以保证 语音通信，文字通信 可用。</p>
+<p>电商的商品展示页，有 图片，文字描述，价格，库存，优惠活动等信息，当优惠活动的服务宕机，其他信息可以正常展示，不影响 用户下单。</p>
+<p>电商首页的 商品列表，是个性化推荐， 如果推荐系统不可用， 那么不能502， 而是需要一个 非个性化的 商品列表 来展示。</p>
+<p>降级不是一个纯粹的技术手段，而是要根据业务场景分析，看哪些功能可以降级，降级到什么程度， 哪些宁愿不可用也不能降级。</p>
+<h2 id="灰度发布与回滚">灰度发布与回滚</h2>
+<p>将一部分流量导入到 新功能/系统，验证没有问题，再逐渐增加流量。<br>
+可以按照 user_id 的后几位 划分流量。 或者按照 用户的 标签</p>
+<p>功能有问题，如何回滚？</p>
+<ol>
+<li>安装包回滚，最简单，不需要额外代码。 有问题时，重新部署上个版本的 安装包</li>
+<li>功能回滚，开发新功能时，也开发了 相应的配置开关，一旦有问题，关闭开关，让所有流量 走老代码。</li>
+</ol>
+<h2 id="监控体系-和-日志报警">监控体系 和 日志报警</h2>
+<p>监控体系<br>
+要打造 高可用，高稳定的 系统，监控体系 是非常重要的。 以为它提供了一把 尺子，使得我们对 系统的认知 不再停留在 感性层面， 而是 理性的数据层面。 有了数据，就可以找到优化点 进行优化。</p>
+<p>监控自底向上可以分为</p>
+<ol>
+<li>资源监控，CPU，内存，磁盘，带宽，端口等。相对标准化， 开源的软件有 Zabbix等</li>
+<li>系统监控，不是那么标准化，但很多指标也通用，比如
+<ol>
+<li>最前端url访问的 失败率以及具体某次访问的 失败链路</li>
+<li>rpc接口的失败率，具体某次访问的失败链路</li>
+<li>rpc接口的 平均响应时间，最大响应时间，TP95，TP99</li>
+<li>DB 的 long sql</li>
+<li>jvm 的 young gc, full gc 频率与耗时</li>
+</ol>
+</li>
+<li>业务监控，监控指标要根据业务分析。</li>
+</ol>
+<p>日志报警<br>
+业务指标的监控 是基于统计数据的 一个监控</p>
+<p>日志报警是 对某次具体请求的 处理过程 进行监控</p>
+<p>日志作用之一 是出问题后，根据日志快速定位问题。<br>
+但更重要的是 主动报警，主动解决。</p>
+<p>针对异常，提前写好 错误日志，然后对日志进行监控，就可以主动报警。</p>
+<p>日志很容易出现的问题：<br>
+日志等级不分， error级别还是 info级别<br>
+关键日志漏打，异常分支没有打印日志，打印的日志缺少足够的详细信息，没有打印关键参数。</p>
+<h1 id="ch10-事务一致性">ch10 事务一致性</h1>
+<h2 id="102-分布式事务解决方案汇总">10.2 分布式事务解决方案汇总</h2>
+<h3 id="2pc">2PC</h3>
+<p>2pc 有2个角色： 事务协调者，事务参与者<br>
+数据库就是 事务参与者， 调用方就是 协调者</p>
+<p>阶段1：准备阶段，协调者向各个参与者 发起询问，执行事务，各参与者 返回 yes,no 或超时<br>
+阶段2：提交阶段，所有参与者都yes，协调者 向所有参与者 发起 事务提交，即commit。所有参与者commit后 返回 ack。 ；如果有参与者返回no，或超时，协调者就 向所有参与者 发去 事务回滚</p>
+<p>要实现2PC，所有参与者 都必须实现3个接口： prepare, commit, rollback 这也就是 XA协议。 java中对应的接口是 javax.transaction.xa.XAResource，通常数据库都实现了 这个新协议。</p>
+<p>2PC的问题</p>
+<ol>
+<li>性能问题，阶段1，锁定资源后，要等所有节点返回，才能一起进入阶段2。</li>
+<li>单点问题，阶段1完成后，如果阶段2中 事务协调者宕机， 那么参与者 收不到 commit或rollback</li>
+<li>阶段2，发送 commit后，有一个参与者 超时了或出错， 那么其他参与者 怎么办？</li>
+</ol>
+<p>为了解决2PC的问题，又引入了3PC，但3PC也有类似 宕机如何解决的问题。 不再详述</p>
+<p>2PC除了本身 算法局限外，还有一个 使用上的限制， 它用在 2个数据库之间 (数据库实现了XA协议)。 支付宝的转账，是2个系统间的，没有办法使用 2PC<br>
+而且 微服务架构，不会直接在 底层的 2个数据库间 做一致性，而是在 2个服务上 做一致性。<br>
+所以 实践中 2PC很少用。</p>
+<h3 id="最终一致性消息中间件">最终一致性(消息中间件)</h3>
+<p>一般是 通过 消息中间件 来实现 最终一致性</p>
+<p>系统A收到用户转账的请求，系统A先扣钱，更新DB1，然后通过消息中间件给系统B发送加钱信息，系统B收到后，进行加钱，更新DB2</p>
+<p>这里有一个关键的技术问题<br>
+系统A是 先更新数据库 还是 先发消息？</p>
+<ol>
+<li>最终一致性：错误的方案0</li>
+</ol>
+<p><img src="../_resources/b82a8df91c254db889f0ac6d6c5b0a08.png" alt="a5757b4f63d10f3c40519cf481ace98b.png"></p>
+<p>把 发送消息 和 更新DB 放在同一个事务中，如果发消息失败，DB回滚，这样就可以保证原子性了。<br>
+这个方案看似正确，其实是错误的，有2点</p>
+<ul>
+<li>网络的2将军问题：发送消息失败，是 发送失败，还是 ack失败？</li>
+<li>网络调用放在数据库事务中，可能会因为网络的延迟 导致 数据库 长事务。严重的会阻塞整个数据库，风险很大。</li>
+</ul>
+<hr>
+<ol start="2">
+<li>最终一致性：第一种实现方案(业务方自己实现)</li>
+</ol>
+<p><img src="../_resources/993e6493826641628a2dfdb2c9e2bf11.png" alt="96a32014054ea7fe0d5de716a9611ba6.png"></p>
+<p>假设消息中间件没有提供 事务消息 功能，比如用的是 kafka，如何解决这个问题呢？</p>
+<ul>
+<li>系统A增加一张消息表，系统A不再直接给 MQ发消息，而是把消息写入到 消息表中。 扣钱和消息表 是一个事务，保证原子性</li>
+<li>系统A增加一个后台程序，不断地将 消息表 中的消息 传递给MQ。如果失败，不断重试。<br>
+通过上面2个操作，系统A 允许消息重复，但消息不会丢失。</li>
+</ul>
+<p>系统B对消息的消费要解决下面的2个问题</p>
+<ul>
+<li>丢失消费。系统B取出消息，处理到一半，宕机，怎么办？<br>
+答案是 开启MQ的 ack机制。</li>
+<li>重复消费，系统B消息处理成功，但是要发送ACK时宕机，重启后会重复消费。 系统A会发送重复的消息，也会导致 重复加钱。<br>
+为了解决重复消息的问题，系统B增加判重表，记录了 处理成功的消息ID 和 MQ的offset (kafka为例)，系统B宕机重启，可以定位到 offset位置，从这之后继续消费。<br>
+每次收到新消息时，通过 判重表 进行判重，实现业务幂等。<br>
+系统B的 加钱 和 写入判重表 需要在一个 事务中。</li>
+</ul>
+<p>这个方案有一个缺点：系统A需要增加 消息表，还要增加后台线程。导致 消息的处理和业务逻辑耦合，额外增加业务方的开发负担。</p>
+<p>。。系统B 没有额外负担，因为 幂等性，原子性 就就是 它需要保证的。</p>
+<hr>
+<ol start="3">
+<li>最终一致性：第二种实现方式(基于RocketMQ事务消息)</li>
+</ol>
+<p><img src="../_resources/6e2871f6f5884878a3b230a9391eb27e.png" alt="c15f99fe3e6ec91ec5a6c83e25e3a04f.png"></p>
+<p>为了能通过消息中间件解决该问题，同时又不和业务耦合。 RocketMQ提出了 事务消息 的概念</p>
+<p>RocketMQ不是提供一个单一的 发送接口，而是把 消息的 发送拆成 2个阶段，prepare 和 confirm。<br>
+步骤1：系统A调用 Prepare 接口，预发送消息。此时消息保存在 消息中间件里，但消息 中间件不会把 消息发给 消费方，消息只是暂存在那<br>
+步骤2：系统A更新数据库，进行扣钱<br>
+步骤3：系统A调用 Confirm，确认 发送消息， 消息中间件才会把 消息给 消费方 进行消费。</p>
+<p>这里有两种异常场景：<br>
+场景1：步骤1成功，步骤2成功，步骤3失败或超时，怎么办？<br>
+场景2：步骤1成功，步骤2失败或超时，步骤3不会执行，怎么处理？</p>
+<p>这里就涉及 RocketMQ 的关键点： RocketMQ 会定期(默认1min) 扫描所有的 预发送 但还没有 确认的消息，回调发送方，询问是否要发送这条消息，还是取消。 发送方根据自己的 业务数据，DB更新成功就发送，DB更新失败就取消。</p>
+<p>RocketMQ的最大改变就是 把 扫描消息表 这件事 不让业务方做，而是让消息中间件完成。<br>
+消息表，没有省掉，因为 消息中间件 要询问 发送方 是否发送，所以需要一个 本地消息表，记录 事务执行状态 和 消息发送状态。</p>
+<ol start="4">
+<li>人工介入<br>
+消费端 消费一直失败，这时需要人工介入。 不能整个流程回滚，因为代价很大，实现复杂，还有引入新的问题，比如 自动回滚失败，怎么处理？</li>
+</ol>
+<h3 id="tcc">TCC</h3>
+<p>2PC 用于解决 2个数据库 之间的 分布式事务问题，比较局限。现在企业采用的是 各种各样的 SOA服务，需要解决 2个服务间 的分布式事务问题。</p>
+<p>TCC是 try, confirm, cancel， 是一个 应用层面的 2PC协议，confirm对应 2PC 的 事务提交操作， cancel对应 2PC的 事务回滚操作。</p>
+<ol>
+<li>准备阶段，调用方 调用 所有服务方 提供的 try接口，该阶段各调用方做 资源检查 和 资源锁定，为 阶段2 做准备</li>
+<li>提交阶段，如果所有服务方都返回 yes，则进入 提交阶段，调用方 调用各服务方的 confirm接口，各服务方进行事务提交。如果有服务方在 阶段1 返回 NO 或超时，则调用方调用 各服务方的cancel 接口。</li>
+</ol>
+<p>TCC如何解决 2PC的问题？ 即 在阶段2，调用方发生宕机 或 某个服务超时，如何处理？<br>
+答案是 不断重试。 这要求 confirm 和 cancel 是幂等的， 这里的重试 是 TCC 的框架执行，不是 业务方执行。</p>
+<h3 id="事务状态表-调用方重试-接收方幂等">事务状态表 + 调用方重试 + 接收方幂等</h3>
+<p>以转账为例，介绍一种 类似TCC的方法， TCC的方式 通过 TCC框架内部来做，下面介绍的方法 由业务方自己实现</p>
+<p>调用方维护一张事务状态表 (或者说 事务日志，日志流水)，在每次调用前，落盘一条事务流水，生成一个 全局事务ID。</p>
+<p><img src="../_resources/f6ab097a9aa8486a8627a8828f741d8f.png" alt="d0546349a41439e43059002b2e8510d5.png"></p>
+<p>初始是 状态1，每调用成功 一个服务 就更新一次状态，最后所有系统调用成功，状态更新到4，状态2,3 是中间状态。<br>
+也可以不保存中间状态，只设置2个状态：begin 和 end， 事务开始之前 状态是begin，全部结束后 是 end。 如果 某个事务一直停留在 begin，则说明 事务没有执行完毕。</p>
+<p>然后有一个后台任务，扫描状态表，在过了某段时间后 (假设 一次事务执行成功 通常 最多花费 30s)，状态米有变为 最终的状态4，说明这条事务没有执行成功。 于是 重新调用 系统A,B,C。保证这条流水的 最终状态是 4。 系统A,B,C 需要根据全局的 事务ID 做幂等。</p>
+<p>如果后台多次重试，还是不能成功，则要为 状态表增加一个 error 状态，人工介入。<br>
+对于调用方的同步调用，如果部分成功，应该给客户端返回什么？ 只能告诉用户 该笔钱 转账超时，请稍候再来确认。<br>
+对于同步调用，调用方调用A或B失败时，可以重试3次。 重试3次 还不能成功，则放弃操作，交由 后台任务处理。</p>
+<h3 id="对账">对账</h3>
+<p>前面，我们关注的是过程， 对账关注的是 结果</p>
+<p>案例1， 电商网站的 订单履约系统， 一张订单 从 已支付 到 下发给仓库 到 出仓完成。 假定 从已支付 到 下发给仓库 最多用 1小时， 从 下发给仓库 到 出仓完成 最多 8小时。<br>
+这意味着 如果有个 订单 超过1小时候 还处于 已支付状态，就认为 订单下发 没有成功，需要重新下发。</p>
+<p>案例2，微博的关注关系，需要2张表，一张是 关注表，一张是 粉丝表，这2张表各自分库分表。假设A关注了B，需要 先以A为主键进行分库，存入关注表，然后以B为主键进行分库，存入粉丝表。即，一次业务操作，要向 2个数据库 写入2条数据，如何保证原子性？</p>
+<p>案例3：电商的订单系统也是分库分表的。订单通常有2个查询维度，一个是买家，一个是卖家。如果按 买家分库，按卖家查询就不好做，如果按 卖家分库，卖家查询就不好做，反之亦然。这种通常会把 订单冗余一份， 按买家进行分库分表存一份，按卖家进行分库分表存一份。 和案例2一样，如何保证原子性？</p>
+<p>案例2，案例3，的问题看做一个分布式事务的话，可以用 最终一致性，TCC，事务状态表 去实现，但 这些方法都太重了，一个简单的方法是 对账</p>
+<p>因为 这2个库 是互相备份的， 可以先保证 一个库的 数据是准确的，然后 以该库为基准 校对另外一个库。</p>
+<p>对账又分为 全量对账，增量对账</p>
+<ul>
+<li>全量对账，每天晚上，定时任务，比对2个数据库</li>
+<li>增量对账，定时任务，基于数据库的 更新时间，也可以基于 消息中间件，每次业务 都 发送消息到MQ，然后 消费这条消息，对2个数据库中数据进行对比。 (当然，消息可能丢失，无法保证100%，还需要全量对账兜底)</li>
+</ul>
+<h3 id="妥协方案弱一致性-基于状态的补偿">妥协方案：弱一致性 + 基于状态的补偿</h3>
+<ul>
+<li>最终一致性 是一种异步的方法，数据有一定延迟</li>
+<li>TCC是一种同步方法，但TCC需要2个阶段，性能损耗大</li>
+<li>事务状态表也是一种同步方法，但每次要记事务流水，更新事务状态，较繁琐，性能也有损耗</li>
+<li>对账 是一个 事后过程</li>
+</ul>
+<p>如果需要一个同步的方案，让 系统间 保持一致性，又要有 高性能，支持高并发，该怎么处理？</p>
+<p>电商下单至少要2个操作：创建订单 和 扣库存。<br>
+订单系统 有自己的 数据库和服务，库存系统有自己的 数据库和服务。<br>
+先创建订单，然后扣库存，可能会创建订单成功，扣库存失败，反过来也会不一致。<br>
+如何保证创建订单 + 扣库存 2个操作的 原子性，同时还要能抵抗线上的 高并发流量？</p>
+<p>。。这种应该 先扣库存 再订单吧。 先订单 再库存，会超卖啊。</p>
+<p>如果是 最终一致性方案，因为是异步操作， 如果库存扣减 不及时 会导致超卖。<br>
+如果TCC，则意味着 一个用户请求 要调用 2次 (try 和 confirm) 订单服务，2次库存服务，性能较差。<br>
+如果是 事务状态表，要写事务状态，也有性能问题</p>
+<p>高并发，一致性，不能兼得。<br>
+可以利用业务的特性，采用一种弱一致的方案</p>
+<p>对于这个场景，有一个关键特性：允许少卖，但不能超卖。利用这个特性，具体做法：</p>
+<p>方案1：先扣库存，然后创建订单<br>
+有3种情况</p>
+<ul>
+<li>库存成功，订单成功，返回 成功</li>
+<li>库存成功，订单失败，返回 失败，由调用方重试 ( 会多扣库存)</li>
+<li>库存失败，不提交订单，返回失败，由调用方重试 (可能会多扣库存)</li>
+</ul>
+<p>方案2：先创建订单，然后扣库存<br>
+也有3种情况</p>
+<ul>
+<li>提交订单成功，扣库存成功，返回成功</li>
+<li>提交订单成功，扣库存失败，返回失败，调用方重试 (可能会 多扣库存)</li>
+<li>提交订单失败，不再扣库存，返回失败，调用方重试</li>
+</ul>
+<p>。。订单成功，库存失败，返回失败，重试， 有点。。 主要是 下次来的请求 中的 订单 和 已保存的 订单 会冲突啊。 特别是 如果 修改了 商品，再提交呢。<br>
+。。除非 下次 是新的订单， 这样也有好处， 记录了 用户的行为。</p>
+<p>库存多扣，怎么补偿？<br>
+库存每扣一次，都生成一条流水记录。这条记录的 初始状态是 占用，等订单支付成功后，把状态 改成 已售出。<br>
+对于那些过了很久 一直 是 占用 状态的 库存， 要么是 多扣导致的， 要么是 用户下了单 没有支付导致的。 可以回收库存。</p>
+<h3 id="妥协方案重试回滚报警人工修复">妥协方案：重试+回滚+报警+人工修复</h3>
+<p>上面介绍了 基于订单状态 + 库存流水 的 状态 做补偿 (或者说 对账)。<br>
+如果业务很复杂，状态的维护 也很复杂，可以采用下面的 这种 更加妥协 而 简单的方法。</p>
+<p>按方案1， 先扣库存，然后创建订单，不做状态补偿， 为库存系统提供一个 回滚接口。 创建订单 如果失败了，先重试。 如果重试 还是失败，则 回滚库存的 扣减。 如果回滚也失败，则发警告，进行人工干预</p>
+<p>总之，根据业务逻辑，通过3次重试 或回滚的方法，最大限度保证一致。<br>
+实在不一致 就人工。只要日志流水记录完成，人工肯定可以修复。</p>
+<h1 id="ch11-多副本一致性">ch11 多副本一致性</h1>
+<p>mysql的master/slave，redis的master/slave，kafka的多副本复制，都是通过 牺牲一致性 来换取高可用的。</p>
+<p>如果需要 高可用 强一致性 的系统，就需要 一致性算法/一致性协议： Paxos， Raft， Zab</p>
+<p>一致性算法很复杂，要实现工业级的更难。</p>
+<p><img src="../_resources/9648f68c7147411c94ad460088eebcfd.png" alt="0c831b429d039d437e8a20d913945813.png"></p>
+<h2 id="115-三种算法对比">11.5 三种算法对比</h2>
+<p><img src="../_resources/12a42d481fab4cd9a7b1d0a4f7bdda35.png" alt="a8382186f314b83d31a3e1cd16428079.png"></p>
+<h1 id="ch12-cap理论">ch12 CAP理论</h1>
+<p>CP 追求强一致性，比如zookeeper，但牺牲了一定的性能<br>
+AP 追求高可用，比如数据库/kafka 的 主从复制</p>
+<p>即使保证了P，网络不会分区， 但是信息的传输也需要时间，所以会有延迟。</p>
+<p>PACELC 理论</p>
+<h2 id="123-典型案例分布式锁">12.3 典型案例：分布式锁</h2>
+<h3 id="基于zookeeper实现">基于zookeeper实现</h3>
+<p>最常用的分布式锁是基于 zk的，利用zk的 瞬时节点 的特性。每次加锁都是创建一个 瞬时节点，释放锁 则删除 瞬时节点。<br>
+因为 zk 和 客户端 之间通过 心跳探测 客户端是否 宕机，如果宕机， zk检测到后 自动删除 瞬时节点，从而释放锁。<br>
+zk自身使用 zab 协议保证 高可用 和 强一致性，但该方案还有2个问题</p>
+<ul>
+<li>性能问题， 高并发下，zk的qps 不够</li>
+<li>因为用心跳探测 客户端是否宕机，当网络超时 或 客户端 full gc 的时候 会产生 误判。</li>
+</ul>
+<h3 id="基于redis实现">基于redis实现</h3>
+<p>redis 性能比 zk 好，所以 经常用来实现 分布式锁，但问题也很明显</p>
+<ul>
+<li>redis没有强一致性，主从之间异步复制，主宕机，切换到从，可以导致 部分锁的 数据丢失。导致 多个线程 拿到一把锁。</li>
+<li>客户端和redis 之间没有心跳。如果客户端拿到锁后，释放锁前 宕机，锁将永远不能释放。需要给锁加上一个超时时间，这带来了另一个问题</li>
+<li>如果客户端不是宕机，而是 full gc导致阻塞，或业务处理慢， 导致超过了 锁的超时时间，则锁被释放，也会导致 2个线程 拿到一把锁。</li>
+</ul>
+<p>对于这些问题，redis 设计了一个 RedLock，但是也有诸多争议。</p>
+<p>说了这么多，是想说明，要实现一个 通用的，高可用的，强一致，高并发的 分布式锁 很难。<br>
+在实际业务中，应尽量避免分布式锁， 使用 串行化，弱一致性等策略。</p>
+<h1 id="第四部分-业务架构之道">第四部分 业务架构之道</h1>
+<h1 id="ch13-业务意识">ch13 业务意识</h1>
+<h2 id="131-产品经理-vs-需求分析师">13.1 产品经理 vs 需求分析师</h2>
+<h1 id="ch14-业务架构思维">ch14 业务架构思维</h1>
+<p><img src="../_resources/d2a4b203fa8d4428a9136b0bad196002.png" alt="01101c5fe50ca8b54a85da4d5ad6d7f9.png"></p>
+<p>这只是图纸上的 分层架构， 实际中，很可能是一个 网状结构。</p>
+<p>一些问题：</p>
+<ul>
+<li>
+<p>底层调用上层，基础服务 调用了上层的 业务服务，怎么解决？<br>
+方法1：考虑 业务逻辑 是否放错了地方，或者 业务逻辑是否要 一分为二，来避免底层调用上层<br>
+方法2：OOD中的典型方法， DI (依赖反转)。 底层定义接口，上层实现，而不是 底层直接调用上层。</p>
+</li>
+<li>
+<p>同层之间，服务之间各种双向调用<br>
+比如 业务服务1,2,3 之间都有双向调用， 这时要思考：1,2,3之间的职责是否有问题，出现了 服务之间的 耦合？<br>
+是否应该有一个 公共的服务，让公共服务 和 业务服务1,2,3 交互，而不是 3个服务相互调用。</p>
+</li>
+<li>
+<p>层之间没有隔离，参数层层透传，一直到最底层， 导致最底层系统经常变动<br>
+APP一直在发布版本，为了兼容，服务器有如下的代码</p>
+</li>
+</ul>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">if (version = 1.0)
+  xx
+else if (version = 1.1)
+  xxx
+else if (version = 2.0)
+  xxx</pre><pre class="hljs"><code><span class="hljs-attribute">if</span> (version = <span class="hljs-number">1</span>.<span class="hljs-number">0</span>)
+  <span class="hljs-attribute">xx</span>
+<span class="hljs-attribute">else</span> if (version = <span class="hljs-number">1</span>.<span class="hljs-number">1</span>)
+  <span class="hljs-attribute">xxx</span>
+<span class="hljs-attribute">else</span> if (version = <span class="hljs-number">2</span>.<span class="hljs-number">0</span>)
+  <span class="hljs-attribute">xxx</span></code></pre></div>
+<p>这个例子比较明显，一看就是 客户端的东西，所以通常在 服务的 业务入口层 做了拦截，不应该 透传到 最底层服务。<br>
+但很多业务层 也会遇到类似的问题，但不容易看出来，需要很好的抽象能力。</p>
+<ul>
+<li>聚合层特别多，为了满足客户端需求，各种拼装<br>
+这种情况，往往意味着 业务服务层 太薄，纯粹从技术角度 拆分了 业务。而不是 从业务角度 让 服务称为 一个完整的 闭环，或者说 一个领域</li>
+</ul>
+<p>上面列举了分层架构的 种种不良特征，优秀的分层架构应该具有的典型特征如下：</p>
+<ul>
+<li>越底层的系统越单一，越简单，越固化； 越上层，花样越多，越容易变化。要做到这点，就需要层与层之间有良好的隔离和抽象。</li>
+<li>做到了上面一点，也就很容易做到 层与层之间 严格遵守 上层 调用下层。</li>
+</ul>
+<h2 id="142-边界思维">14.2 边界思维</h2>
+<p>封装，面向接口编程 也都是边界思维的体现。只要一个系统 对外的接口 是整洁的，即使内部混乱，也不会影响外部系统。 相当于把 混乱的 逻辑约束在一个小范围内，不会扩散出去。</p>
+<ol>
+<li>
+<p>对象层面(SOLID原则)<br>
+面向对象五大原则中，第一个就是 单一职责。 不要把 不同职责杂糅在一起，这就是边界思维的第一种体现。</p>
+</li>
+<li>
+<p>接口层面<br>
+看系统对外提供了什么样的接口。 接口定义了 系统可以支持什么，不支持什么。<br>
+对于使用者来说，不在意 接口如何实现， 在意 接口的定义是否清晰，使用是否方便。具体来说，就是 接口的输入，输出 分别是什么？ 哪些参数可选，哪些必选？ 如果输入参数很多，为什么不是分成多个接口？设计策略是什么？ 是否幂等？ 异常场景下会返回什么结果？</p>
+</li>
+<li>
+<p>产品层面<br>
+内部实现很复杂，用户界面很简单。</p>
+</li>
+<li>
+<p>组织结构层面<br>
+每个系统有清晰的边界，各自分工明确。</p>
+</li>
+</ol>
+<h2 id="143-系统化思维">14.3 系统化思维</h2>
+<p>一个体现，就是遇事要刨根问底。问题1 - 原因1 - 原因1的原因 - ...， 直到事物的本质。</p>
+<h2 id="145-非功能性需求">14.5 <mark>非功能性需求</mark></h2>
+<ol>
+<li>并发性<br>
+TPS，QPS，平均响应时间/最大响应时间，并发数</li>
+<li>可用性<br>
+机器宕机，超时</li>
+<li>一致性<br>
+数据库的完整性，事务，缓存 与数据库数据同步，多备份数据一致性</li>
+<li>稳定性和可靠性
+<ul>
+<li>if-else包含了所有分支</li>
+<li>api调用，每种异常返回值都有处理</li>
+<li>内存，磁盘的上限</li>
+<li>日志监控，快速修复</li>
+<li>QPS不会抖动</li>
+<li>发布新版本，有回滚方案</li>
+<li>新系统上限，灰度平滑切换</li>
+<li>Monkey Test？ 压力测试；</li>
+</ul>
+</li>
+<li>可维护性
+<ul>
+<li>系统架构简单，接口简洁，表数据关系清晰</li>
+<li>新人很快上手</li>
+<li>功能不耦合，不会牵一发而动全身</li>
+</ul>
+</li>
+<li>可扩展性
+<ul>
+<li>来新需求，新功能，可以在现有系统上灵活扩展</li>
+<li>没有地方写死，可以灵活配置</li>
+<li>容易变化的逻辑 集中在一起，不需要多个地方一起改</li>
+</ul>
+</li>
+<li>可重用性</li>
+</ol>
+<h2 id="视角架构4151视图">视角(架构4+1/5+1视图)</h2>
+<p>1是指 功能视图，其他4个视图都是围绕该视图展开的。</p>
+<ul>
+<li>功能视图<br>
+对于B端的复杂业务系统，往往会画用例图，但对于C端产品，往往直接看交互设计稿 或最终的UI原型图</li>
+<li>逻辑视图<br>
+系统的逻辑模块划分，数据结构，面向对象的 设计方法论 中的 类图，状态图 等</li>
+<li>物理视图<br>
+系统所在的机房，各类机器数目，机器配置，网络带宽</li>
+<li>开发视图<br>
+代码的工程结构，目录结构，jar包，动态链接库，静态链接库等</li>
+<li>运行视图<br>
+系统的 多进程，多线程之间的 同步。</li>
+</ul>
+<p>除了4+1视图，还有一个视图： 数据视图。</p>
+<h2 id="157-业务分层结构模式">15.7 业务分层结构模式</h2>
+<p>一个系统被划分为 前端，网关层，服务层，数据存储层。</p>
+<h2 id="158-管道-过滤器架构模式">15.8 管道-过滤器架构模式</h2>
+<p>linux中通过管道命令 可以把 各个命令串联起来。<br>
+管道-过滤器 有一个特征： 计算模块 本身是 无状态的， 数据经过一个处理环节，处理的结果 或数据的 状态 是携带在 数据省上的， 被数据带入下一个环节。 计算模块的 无状态，使得它可以很容易 水平扩展，来高可用。</p>
+<p>在业务领域也常见，一个复杂的业务流程 可以被拆分为 几个环节，且这些环节是 线性的，就可以采用 流式计算的思路。</p>
+<h2 id="159-状态机架构模式">15.9 状态机架构模式</h2>
+<p>管道-过滤器模式，随着业务发展， 系统开始 互相调用，互相耦合 ，变成网状。</p>
+<p>在状态机架构中， 数据首先进入 状态机模块， 由该模块决定把 数据交给哪个系统处理。 这样的话， 系统只和 状态机 耦合，不和其他 系统耦合/交互。</p>
+<h2 id="1510-业务切面业务闭环-架构模式">15.10 业务切面/业务闭环 架构模式</h2>
+<p>AOP 面向切面编程</p>
+<ol>
+<li>
+<p>SSO单点登录<br>
+登录不同的系统，都需要输入账号密码，把 登录功能抽取出来，所以一个 SSO单点登录</p>
+</li>
+<li>
+<p>同一权限管理<br>
+权限管理也是B端系统的一个公共问题。 一个系统，由 一线人员，经理，管理员 等不同角色使用。<br>
+可以把 权限管理 抽取出来，做一个 统一的权限系统。 每个业务系统在这个权限系统里 分配一个 业务key，然后业务下面 定义自己业务系统的 权限，角色。</p>
+</li>
+<li>
+<p>规则引擎</p>
+</li>
+</ol>
+<p>业务逻辑往往非常复杂，很多的 if-else，层层嵌套，可读性和可维护性很差。<br>
+如果可以把这些代码 逻辑 归纳成一条条的业务规则，就可以利用规则引擎。</p>
+<p>规则引擎的好处是 人性化的操作界面。<br>
+有新需求来，就在 界面上 增加一个 规则即可。</p>
+<h1 id="ch16-个人素质提升">ch16 个人素质提升</h1>
+<ol>
+<li>格局<br>
+全局观</li>
+</ol>
+<ul>
+<li>系统的定位是什么？创造了哪些价值？</li>
+<li>开发这个系统的背景是什么？为什么以前不做，现在要做？</li>
+<li>系统在整个组织架构中处于什么位置？ 与这个系统关联的 其他系统 目前处于什么状态？</li>
+<li>产品经理/技术复杂人 如何看待这个系统？</li>
+<li>这个系统的需求 已经明确？还是有很大的灰度空间？ 核心点是否已经明确？</li>
+<li>系统所用的技术体系是比较老，还是新的？</li>
+<li>对于业界类似的系统，别的公司是如何做的？</li>
+</ul>
+<ol start="2">
+<li>
+<p>历史观<br>
+任何一项技术，都不是凭空想象的，它一定是要解决某个问题而产生的。<br>
+这个问题一定有历史背景。</p>
+</li>
+<li>
+<p>抽象能力<br>
+一个新系统，从抽象到细节，应该考虑</p>
+</li>
+</ol>
+<ul>
+<li>每个需求的合理性</li>
+<li>系统的领域模型是什么样的</li>
+<li>系统应该是对旧系统的改造，还是全新</li>
+<li>系统可以分成几期 来分期实施</li>
+<li>可以拆分成几个子系统</li>
+<li>子系统可以拆分出多少模块</li>
+<li>系统的表设计？api接口设计，job的设计，系统间的消息传输如何实现</li>
+</ul>
+<ol start="4">
+<li>
+<p>深入思考的能力</p>
+</li>
+<li>
+<p>落地能力/执行力</p>
+</li>
+</ol>
+</div></div>
+					</body>
+				</html>
+			

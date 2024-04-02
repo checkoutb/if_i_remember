@@ -1,0 +1,1286 @@
+
+				<!DOCTYPE html>
+				<html>
+					<head>
+						<meta charset="UTF-8">
+						<meta name="viewport" content="width=device-width, initial-scale=1" />
+						<link rel="stylesheet" href="pluginAssets/katex/katex.css"><link rel="stylesheet" href="pluginAssets/highlight.js/atom-one-light.css">
+						<title>Beautiful Soup</title>
+					</head>
+					<body>
+						<div class="exported-note"><div class="exported-note-title">Beautiful Soup</div>
+
+<style>
+		/* https://necolas.github.io/normalize.css/ */
+		html{line-height:1.15;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%}body{margin:0}
+		article,aside,footer,header,nav,section{display:block}h1{font-size:2em;margin:.67em 0}hr{box-sizing:content-box;height:0;overflow:visible}
+		pre{font-family:monospace,monospace;font-size:1em}a{background-color:transparent;-webkit-text-decoration-skip:objects}
+		b,strong{font-weight:bolder}small{font-size:80%}img{border-style:none}
+
+		body {
+			font-size: 15px;
+			color: #32373F;
+			word-wrap: break-word;
+			line-height: 1.6em;
+			background-color: #ffffff;
+			font-family: 'Avenir', 'Arial', sans-serif;
+			padding-bottom: 0px;
+			padding-top: 0px;
+		}
+		kbd {
+			border: 1px solid rgb(220, 220, 220);
+			box-shadow: inset 0 -1px 0 rgb(220, 220, 220);
+			padding: 2px 4px;
+			border-radius: 3px;
+			background-color: rgb(243, 243, 243);
+		}
+		::-webkit-scrollbar {
+			width: 7px;
+			height: 7px;
+		}
+		::-webkit-scrollbar-corner {
+			background: none;
+		}
+		::-webkit-scrollbar-track {
+			border: none;
+		}
+		::-webkit-scrollbar-thumb {
+			background: rgba(100, 100, 100, 0.3); 
+			border-radius: 5px;
+		}
+		::-webkit-scrollbar-track:hover {
+			background: rgba(0, 0, 0, 0.1); 
+		}
+		::-webkit-scrollbar-thumb:hover {
+			background: rgba(100, 100, 100, 0.7); 
+		}
+
+		
+
+		/* Remove top padding and margin from first child so that top of rendered text is aligned to top of text editor text */
+
+		#rendered-md > h1:first-child,
+		#rendered-md > h2:first-child,
+		#rendered-md > h3:first-child,
+		#rendered-md > h4:first-child,
+		#rendered-md > ul:first-child,
+		#rendered-md > ol:first-child,
+		#rendered-md > table:first-child,
+		#rendered-md > blockquote:first-child,
+		#rendered-md > img:first-child,
+		#rendered-md > p:first-child {
+			margin-top: 0;
+			padding-top: 0;
+		}
+		
+		p, h1, h2, h3, h4, h5, h6, ul, table {
+			margin-top: .6em;
+			margin-bottom: 1.35em;
+
+			/*
+				Adds support for RTL text in the note body. It automatically detects the direction using the content.
+				Issue: https://github.com/laurent22/joplin/issues/3991
+			*/
+			unicode-bidi: plaintext;
+		}
+
+		h1, h2, h3, h4, h5, h6, ul, table {
+			margin-bottom: 0.65em;
+		}
+
+		h1, h2, h3, h4, h5, h6 {
+			line-height: 1.5em;
+		}
+		h1 {
+			font-size: 1.5em;
+			font-weight: bold;
+			border-bottom: 1px solid #dddddd;
+			padding-bottom: .3em;
+		}
+		h2 {
+			font-size: 1.3em;
+			font-weight: bold;
+			padding-bottom: .1em; */
+		}
+		h3 {
+			font-size: 1.1em;
+			font-weight: bold;
+		}
+		h4, h5, h6 {
+			font-size: 1em;
+			font-weight: bold;
+		}
+
+		.exported-note-title {
+			font-size: 2em;
+			font-weight: bold;
+			margin-bottom: 0.8em;
+			line-height: 1.5em;
+			padding-bottom: .35em;
+			border-bottom: 1px solid #dddddd;
+		}
+
+		a {
+			color: #155BDA;
+		}
+		ul, ol {
+			padding-left: 0;
+			margin-left: 1.7em;
+		}
+		li {
+			margin-bottom: .4em;
+		}
+		li p {
+			margin-top: 0.2em;
+			margin-bottom: 0;
+		}
+
+		.resource-icon {
+			display: inline-block;
+			position: relative;
+			top: 0.3em;
+			text-decoration: none;
+			width: 1.2em;
+			height: 1.4em;
+			margin-right: 0.4em;
+			background-color:  #155BDA;
+		}
+    /* These icons are obtained from the wonderful ForkAwesome project by copying the src svgs 
+     * into the css classes below.
+     * svgs are obtained from https://github.com/ForkAwesome/Fork-Awesome/tree/master/src/icons/svg
+     * instead of the svg width, height property you must use a viewbox here, 0 0 1536 1792 is typically the actual size of the icon
+     * each line begins with the pre-amble -webkit-mask: url("data:image/svg+xml;utf8,
+     * and of course finishes with ");
+     * to precvent artifacts it is also necessary to include -webkit-mask-repeat: no-repeat;
+     * on the following line
+     * */
+		.fa-joplin {
+			/* Awesome Font file */
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M373.834 128C168.227 128 0 296.223 0 501.834v788.336C0 1495.778 168.227 1664 373.834 1664h788.336c205.608 0 373.83-168.222 373.83-373.83V501.834C1536 296.224 1367.778 128 1162.17 128zm397.222 205.431h417.424a7.132 7.132 0 0 1 7.132 7.133v132.552c0 4.461-3.619 8.073-8.077 8.073h-57.23c-24.168 0-43.768 19.338-44.284 43.374v2.377h-.017v136.191h-.053l-.466 509.375c-5.02 77.667-39.222 149.056-96.324 201.046-60.28 54.834-141.948 85.017-229.962 85.017-12.45 0-25.208-.61-37.907-1.785-92.157-8.682-181.494-48.601-251.662-112.438-71.99-65.517-117.147-150.03-127.164-238-11.226-98.763 23.42-192.783 95.045-257.937 81.99-74.637 198.185-101.768 316.613-75.704 5.574 1.227 9.55 6.282 9.55 11.997v199.52c-.199 2.625-1.481 6.599-8.183 2.896-.663-.365-1.194-.511-1.653-.531-21.987-10.587-45.159-17.57-68.559-19.916-.38-.04-.757-.124-1.138-.163-.537-.048-1.034-.033-1.556-.075-4.13-.354-8.183-.517-12.203-.58-.87-.011-1.771-.127-2.641-.127-.486 0-.951.05-1.437.057-1.464.011-2.886.115-4.33.163-2.76.102-5.497.211-8.182.448-.273.024-.547.07-.835.097-25.509 2.4-47.864 11.104-65.012 25.47-.954.802-1.974 1.53-2.9 2.36a1.34 1.34 0 0 1-.168.146c-23.96 21.8-34.881 53.872-30.726 90.316 4.62 40.737 26.94 81.156 62.841 113.823 35.908 32.67 80.335 52.977 125.113 57.186 35.118 3.36 66.547-3.919 89.899-20.461a97.255 97.255 0 0 0 9.365-7.501c2.925-2.661 5.569-5.5 8.086-8.416.3-.348.672-.673.975-1.024 8.253-9.864 14.222-21.067 17.996-33.148.639-2.034 1.051-4.148 1.564-6.227.381-1.563.81-3.106 1.112-4.693.555-2.784.923-5.632 1.253-8.49.086-.709.183-1.414.237-2.128.492-4.893.693-9.858.55-14.91h.013V521.623c-2.01-22.626-20.78-40.434-43.928-40.434h-57.23a8.071 8.071 0 0 1-8.077-8.073V340.564a7.132 7.132 0 0 1 7.136-7.133z'/></svg>");
+		}
+		.fa-file-image {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zm-128-448v320H256v-192l192-192 128 128 384-384zm-832-192c-106 0-192-86-192-192s86-192 192-192 192 86 192 192-86 192-192 192z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-pdf {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zm-514-593c25 20 53 38 84 56 42-5 81-7 117-7 67 0 152 8 177 49 7 10 13 28 2 52-1 1-2 3-3 4v1c-3 18-18 38-71 38-64 0-161-29-245-73-139 15-285 46-392 83-103 176-182 262-242 262-10 0-19-2-28-7l-24-12c-3-1-4-3-6-5-5-5-9-16-6-36 10-46 64-123 188-188 8-5 18-2 23 6 1 1 2 3 2 4 31-51 67-116 107-197 45-90 80-178 104-262-32-109-42-221-24-287 7-25 22-40 42-40h22c15 0 27 5 35 15 12 14 15 36 9 68-1 3-2 6-4 8 1 3 1 5 1 8v30c-1 63-2 123-14 192 35 105 87 190 146 238zm-576 411c30-14 73-57 137-158-75 58-122 124-137 158zm398-920c-10 28-10 76-2 132 3-16 5-31 7-44 2-17 5-31 7-43 1-3 2-5 4-8-1-1-1-3-2-5-1-18-7-29-13-36 0 2-1 3-1 4zm-124 661c88-35 186-63 284-81-10-8-20-15-29-23-49-43-93-103-127-176-19 61-47 126-83 197-15 28-30 56-45 83zm646-16c-5-5-31-24-140-24 49 18 94 28 124 28 9 0 14 0 18-1 0-1-1-2-2-3z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-word {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zM233 768v107h70l164 661h159l128-485c5-15 8-30 10-46 1-8 2-16 2-24h4l3 24c3 14 4 30 9 46l128 485h159l164-661h70V768h-300v107h90l-99 438c-4 16-6 33-7 46l-2 21h-4c0-6-2-14-3-21-3-13-5-30-9-46L825 768H711l-144 545c-4 16-5 33-8 46l-4 21h-4l-2-21c-1-13-3-30-7-46l-99-438h90V768H233z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-powerpoint {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zm-992-234v106h327v-106h-93v-167h137c43 0 82-2 118-15 90-31 146-124 146-233s-54-193-137-228c-38-15-84-19-130-19H416v107h92v555h-92zm353-280H650V882h120c35 0 62 6 83 18 36 21 56 62 56 115 0 56-20 99-62 120-21 10-47 15-78 15z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-excel {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zm-979-234v106h281v-106h-75l103-161c12-19 18-34 21-34h2c1 4 3 7 5 10 4 8 10 14 17 24l107 161h-76v106h291v-106h-68l-192-273 195-282h67V768H828v107h74l-103 159c-12 19-21 34-21 33h-2c-1-4-3-7-5-10-4-7-9-14-17-23L648 875h76V768H434v107h68l189 272-194 283h-68z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-audio {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zM620 850c12 5 20 17 20 30v544c0 13-8 25-20 30-4 1-8 2-12 2-8 0-16-3-23-9l-166-167H288c-18 0-32-14-32-32v-192c0-18 14-32 32-32h131l166-167c10-9 23-12 35-7zm417 689c19 0 37-8 50-24 83-102 129-231 129-363s-46-261-129-363c-22-28-63-32-90-10-28 23-32 63-9 91 65 80 100 178 100 282s-35 202-100 282c-23 28-19 68 9 90 12 10 26 15 40 15zm-211-148c17 0 34-7 47-20 56-60 87-137 87-219s-31-159-87-219c-24-26-65-27-91-3-25 24-27 65-2 91 33 36 52 82 52 131s-19 95-52 131c-25 26-23 67 2 91 13 11 29 17 44 17z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-video {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zM768 768c70 0 128 58 128 128v384c0 70-58 128-128 128H384c-70 0-128-58-128-128V896c0-70 58-128 128-128h384zm492 2c12 5 20 17 20 30v576c0 13-8 25-20 30-4 1-8 2-12 2-8 0-17-3-23-9l-265-266v-90l265-266c6-6 15-9 23-9 4 0 8 1 12 2z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-archive {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M640 384V256H512v128h128zm128 128V384H640v128h128zM640 640V512H512v128h128zm128 128V640H640v128h128zm700-388c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H768v128H640V128H128v1536h1280zM781 943c85 287 107 349 107 349 5 17 8 34 8 52 0 111-108 192-256 192s-256-81-256-192c0-18 3-35 8-52 0 0 21-62 120-396V768h128v128h79c29 0 54 19 62 47zm-141 465c71 0 128-29 128-64s-57-64-128-64-128 29-128 64 57 64 128 64z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-code {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zM480 768c11-14 31-17 45-6l51 38c14 11 17 31 6 45l-182 243 182 243c11 14 8 34-6 45l-51 38c-14 11-34 8-45-6l-226-301c-8-11-8-27 0-38zm802 301c8 11 8 27 0 38l-226 301c-11 14-31 17-45 6l-51-38c-14-11-17-31-6-45l182-243-182-243c-11-14-8-34 6-45l51-38c14-11 34-8 45 6zm-620 461c-18-3-29-20-26-37l138-831c3-18 20-29 37-26l63 10c18 3 29 20 26 37l-138 831c-3 18-20 29-37 26z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-alt, .fa-file-csv {
+      /* fork-awesome doesn't have csv so we use the text icon */
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zM384 800c0-18 14-32 32-32h704c18 0 32 14 32 32v64c0 18-14 32-32 32H416c-18 0-32-14-32-32v-64zm736 224c18 0 32 14 32 32v64c0 18-14 32-32 32H416c-18 0-32-14-32-32v-64c0-18 14-32 32-32h704zm0 256c18 0 32 14 32 32v64c0 18-14 32-32 32H416c-18 0-32-14-32-32v-64c0-18 14-32 32-32h704z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		blockquote {
+			border-left: 4px solid rgb(220, 220, 220);
+			padding-left: 1.2em;
+			margin-left: 0;
+			opacity: 0.7;
+		}
+
+		.jop-tinymce table,
+		table {
+			text-align: left;
+			border-collapse: collapse;
+			border: 1px solid rgb(220, 220, 220);
+			background-color: #ffffff;
+		}
+
+		.jop-tinymce table td, .jop-tinymce table th,
+		table td, th {
+			text-align: left;
+			padding: .5em 1em .5em 1em;
+			font-size: 15;
+			color: #32373F;
+			font-family: 'Avenir', 'Arial', sans-serif;
+		}
+
+		.jop-tinymce table td,
+		table td {
+			border: 1px solid rgb(220, 220, 220);
+		}
+
+		.jop-tinymce table th,
+		table th {
+			border: 1px solid rgb(220, 220, 220);
+			border-bottom: 2px solid rgb(220, 220, 220);
+			background-color: rgb(247, 247, 247);
+		}
+
+		.jop-tinymce table tr:nth-child(even),
+		table tr:nth-child(even) {
+			background-color: rgb(247, 247, 247);
+		}
+
+		.jop-tinymce table tr:hover,
+		table tr:hover {
+			background-color: #e5e5e5;
+		}
+
+		hr {
+			border: none;
+			border-bottom: 2px solid #dddddd;
+		}
+		img {
+			max-width: 100%;
+			height: auto;
+		}
+		
+		.inline-code,
+		.mce-content-body code {
+			border: 1px solid rgb(220, 220, 220);
+			background-color: rgb(243, 243, 243);
+			padding-right: .2em;
+			padding-left: .2em;
+			border-radius: .25em;
+			color: rgb(0,0,0);
+			font-size: .9em;
+		}
+
+		.highlighted-keyword {
+			background-color: #F3B717;
+			color: black;
+		}
+
+		.not-loaded-resource img {
+			width: 1.15em;
+			height: 1.15em;
+			background: white;
+			padding: 2px !important;
+			border-radius: 2px;
+			box-shadow: 0 1px 3px #000000aa;
+		}
+
+		a.not-loaded-resource img {
+			margin-right: .2em;
+		}
+
+		a.not-loaded-resource {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+		}
+
+		.md-checkbox input[type=checkbox]:checked {
+			opacity: 0.7;
+		}
+
+		.jop-tinymce ul.joplin-checklist .checked,
+		.md-checkbox .checkbox-label-checked {
+			opacity: 0.5;
+		}
+
+		.exported-note {
+			padding: 1em;
+		}
+
+		.joplin-editable .joplin-source {
+			display: none;
+		}
+
+		mark {
+			background: #F7D26E;
+			color: black;
+		}
+
+		/* =============================================== */
+		/* For TinyMCE */
+		/* =============================================== */
+
+		.mce-content-body {
+			/* Note: we give a bit more padding at the bottom, to allow scrolling past the end of the document */
+			padding: 5px 10px 10em 0;
+		}
+
+		/*
+		.mce-content-body code {
+			background-color: transparent;
+		}
+		*/
+
+		.mce-content-body [data-mce-selected=inline-boundary] {
+			background-color: transparent;
+		}
+
+		.mce-content-body .joplin-editable {
+			cursor: pointer !important;
+		}
+
+		.mce-content-body.mce-content-readonly {
+			opacity: 0.5;
+		}
+
+		/* We need that to make sure click events have the A has a target */
+		.katex a span {
+			pointer-events: none;
+		}
+
+		.media-player {
+			width: 100%;
+			margin-top: 10px;
+		}
+
+		.media-player.media-pdf {
+			min-height: 35rem;
+			width: 100%;
+			max-width: 1000px;
+			margin: 0;
+			border: 0;
+			display: block;
+		}
+
+		/* Clear the CODE style if the element is within a joplin-editable block */
+		.mce-content-body .joplin-editable code {
+			border: none;
+			background: none;
+			padding: 0;
+			color: inherit;
+			font-size: inherit;
+		}
+
+		/* To make code blocks horizontally scrollable */
+		/* https://github.com/laurent22/joplin/issues/5740 */
+		pre.hljs {
+			overflow-x: auto;
+		}
+
+		/* =============================================== */
+		/* For TinyMCE */
+		/* =============================================== */
+
+		@media print {
+			body {
+				height: auto !important;
+			}
+
+			pre {
+				white-space: pre-wrap;
+			}
+
+			.code, .inline-code {
+				border: 1px solid #CBCBCB;
+			}
+
+			#joplin-container-content {
+				/* The height of the content is set dynamically by JavaScript (in updateBodyHeight) to go
+				   around various issues related to scrolling. However when printing we don't want this
+				   fixed size as that would crop the content. So we set it to auto here. "important" is
+				   needed to override the style set by JavaScript at the element-level. */
+				height: auto !important;
+			}
+		}
+	
+
+				/*
+					FOR THE MARKDOWN EDITOR
+				*/
+
+				/* Remove the indentation from the checkboxes at the root of the document
+				   (otherwise they are too far right), but keep it for their children to allow
+				   nested lists. Make sure this value matches the UL margin. */
+
+				li.md-checkbox {
+					list-style-type: none;
+				}
+
+				li.md-checkbox input[type=checkbox] {
+					margin-left: -1.71em;
+					margin-right: 0.7em;
+				}
+				
+				ul.joplin-checklist {
+					list-style:none;
+				}
+
+				/*
+					FOR THE RICH TEXT EDITOR
+				*/
+
+				ul.joplin-checklist li::before {
+					content:"\f14a";
+					font-family:"Font Awesome 5 Free";
+					background-size: 16px 16px;
+					pointer-events: all;
+					cursor: pointer;
+					width: 1em;
+					height: 1em;
+					margin-left: -1.3em;
+					position: absolute;
+					color: #32373F;
+				}
+
+				.joplin-checklist li:not(.checked)::before {
+					content:"\f0c8";
+				}</style><div id="rendered-md"><p>Beautiful Soup</p>
+<nav class="table-of-contents"><ul><li><a href="#对象的种类">对象的种类</a><ul><li><a href="#tag">tag</a></li><li><a href="#可以遍历的字符串-navigablestring">可以遍历的字符串 NavigableString</a></li><li><a href="#beautifulsoup">BeautifulSoup</a></li><li><a href="#注释及特殊字符串">注释及特殊字符串</a></li></ul></li><li><a href="#遍历文档树">遍历文档树</a><ul><li><a href="#tags-name">tag&#39;s name</a><ul><li><a href="#contents-和-children">.contents 和 .children</a></li><li><a href="#descendants">.descendants</a></li><li><a href="#string">.string</a></li><li><a href="#strings-和-stripped_strings">.strings 和 stripped_strings</a></li><li><a href="#parent">.parent</a></li><li><a href="#parents">.parents</a></li><li><a href="#next_sibling-和-previous_sibling-兄弟结点">.next_sibling 和 .previous_sibling 兄弟结点</a></li><li><a href="#next_siblings-和-previous_siblings">.next_siblings 和 .previous_siblings</a></li><li><a href="#next_element-和-previous_element">.next_element 和 .previous_element</a></li><li><a href="#next_elements-和-previous_elements">.next_elements 和 .previous_elements</a></li></ul></li></ul></li><li><a href="#搜索文档树">搜索文档树</a><ul><li><a href="#过滤器">过滤器</a><ul><li><a href="#字符串">字符串</a></li><li><a href="#re">RE</a></li><li><a href="#列表">列表</a></li><li><a href="#true">True</a></li><li><a href="#方法">方法</a></li></ul></li><li><a href="#find_all">find_all()</a><ul><li><a href="#name-参数">name 参数</a></li><li><a href="#keyword-参数">keyword 参数</a></li><li><a href="#按css搜索">按CSS搜索</a></li><li><a href="#string-参数">string 参数</a></li><li><a href="#limit-参数">limit 参数</a></li><li><a href="#recursive-参数">recursive 参数</a></li></ul></li><li><a href="#像调用-find_all-一样调用tag">像调用 find_all() 一样调用tag</a></li><li><a href="#find">find()</a></li><li><a href="#find_parents-和-find_parent">find_parents() 和 find_parent()</a></li><li><a href="#find_next_siblings-和-find_next_sibling">find_next_siblings() 和 find_next_sibling()</a></li><li><a href="#find_previous_siblings-和-find_previous_sibling">find_previous_siblings() 和 find_previous_sibling()</a></li><li><a href="#find_all_next-和-find_next">find_all_next() 和 find_next()</a></li><li><a href="#find_all_previous-和-find_previous">find_all_previous() 和 find_previous()</a></li><li><a href="#css选择器">CSS选择器</a><ul><li><a href="#通过tag标签逐层查找">通过tag标签逐层查找</a></li><li><a href="#找到某个tag标签下的直接子标签">找到某个tag标签下的直接子标签</a></li><li><a href="#找到兄弟节点标签">找到兄弟节点标签</a></li><li><a href="#通过css的类名查找">通过CSS的类名查找</a></li><li><a href="#通过tag的id查找">通过tag的id查找</a></li><li><a href="#同时用多种css选择器查询元素">同时用多种CSS选择器查询元素</a></li><li><a href="#通过是否存在某个属性来查找">通过是否存在某个属性来查找</a></li><li><a href="#通过属性的值来查找">通过属性的值来查找</a></li><li><a href="#通过语言设置来查找">通过语言设置来查找:</a></li><li><a href="#返回查找到的元素的第一个select_one">返回查找到的元素的第一个(select_one)</a></li></ul></li></ul></li><li><a href="#修改文档树">修改文档树</a><ul><li><a href="#修改tag的名称和属性">修改tag的名称和属性</a></li><li><a href="#修改-string">修改 .string</a></li><li><a href="#append">append()</a></li><li><a href="#navigablestring-和-new_tag">NavigableString() 和 .new_tag()</a></li><li><a href="#insert">insert()</a></li><li><a href="#insert_before-和-insert_after">insert_before() 和 insert_after()</a></li><li><a href="#clear">clear()</a></li><li><a href="#extract">extract()</a></li><li><a href="#decompose">decompose()</a></li><li><a href="#replace_with">replace_with()</a></li><li><a href="#wrap">wrap()</a></li><li><a href="#unwrap">unwrap()</a></li></ul></li><li><a href="#输出">输出</a><ul><li><a href="#格式化输出">格式化输出</a></li><li><a href="#压缩输出">压缩输出</a></li><li><a href="#输出格式">输出格式</a></li><li><a href="#get_text">get_text()</a></li></ul></li><li><a href="#指定文档解析器">指定文档解析器</a><ul><li><a href="#解析器之间的区别">解析器之间的区别</a></li></ul></li><li><a href="#编码">编码</a><ul><li><a href="#输出编码">输出编码</a></li><li><a href="#智能引号">智能引号</a></li></ul></li><li><a href="#比较对象是否相同">比较对象是否相同</a></li><li><a href="#复制beautiful-soup对象">复制Beautiful Soup对象</a></li><li><a href="#解析部分文档">解析部分文档</a><ul><li><a href="#soupstrainer">SoupStrainer</a></li></ul></li><li><a href="#使用">使用</a></li></ul></nav><hr>
+<hr>
+<p><a data-from-md title='https://www.crummy.com/software/BeautifulSoup/bs4/doc.zh/#' href='https://www.crummy.com/software/BeautifulSoup/bs4/doc.zh/#'>https://www.crummy.com/software/BeautifulSoup/bs4/doc.zh/#</a></p>
+<p>上面的网址，左边菜单栏不会跟着下去，所以不太好。<br>
+<a data-from-md title='https://beautifulsoup.readthedocs.io/zh_CN/v4.4.0/#' href='https://beautifulsoup.readthedocs.io/zh_CN/v4.4.0/#'>https://beautifulsoup.readthedocs.io/zh_CN/v4.4.0/#</a></p>
+<p>现在已经4.12了，中文只有4.4的，凑合用。</p>
+<hr>
+<h1 id="对象的种类">对象的种类</h1>
+<p>Beautiful Soup将复杂HTML文档转换成一个复杂的树形结构,每个节点都是Python对象,所有对象可以归纳为4种: Tag , NavigableString , BeautifulSoup , Comment.</p>
+<h2 id="tag">tag</h2>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">soup = BeautifulSoup('&lt;b class=&quot;boldest&quot;&gt;Extremely bold&lt;/b&gt;')
+tag = soup.b
+type(tag)
+# &lt;class 'bs4.element.Tag'&gt;</pre><pre class="hljs"><code>soup = <span class="hljs-constructor">BeautifulSoup(&#x27;&lt;<span class="hljs-params">b</span> <span class="hljs-params">class</span>=<span class="hljs-string">&quot;boldest&quot;</span>&gt;Extremely <span class="hljs-params">bold</span>&lt;<span class="hljs-operator">/</span><span class="hljs-params">b</span>&gt;&#x27;)</span>
+tag = soup.b
+<span class="hljs-keyword">type</span>(tag)
+# &lt;<span class="hljs-keyword">class</span> &#x27;bs4.element.Tag&#x27;&gt;</code></pre></div>
+<p>tag中最重要的属性: name和attributes</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">tag.name
+# u'b'</pre><pre class="hljs"><code>tag.name
+<span class="hljs-meta"># u<span class="hljs-string">&#x27;b&#x27;</span></span></code></pre></div>
+<p>tag的name可以修改</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">tag.name = &quot;blockquote&quot;
+tag
+# &lt;blockquote class=&quot;boldest&quot;&gt;Extremely bold&lt;/blockquote&gt;</pre><pre class="hljs"><code><span class="hljs-keyword">tag</span>.name = <span class="hljs-string">&quot;blockquote&quot;</span>
+<span class="hljs-keyword">tag</span>
+<span class="hljs-title"># &lt;blockquote</span> <span class="hljs-attr">class=</span><span class="hljs-string">&quot;boldest&quot;</span>&gt;Extremely bold<span class="hljs-tag">&lt;/blockquote&gt;</span></code></pre></div>
+<p>一个tag可能有很多个属性. <code class="inline-code">&lt;b class=&quot;boldest&quot;&gt;</code> 有一个 “class” 的属性,值为 “boldest” .<br>
+tag的属性的操作方法与字典相同:</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">tag['class']
+# u'boldest'</pre><pre class="hljs"><code>tag[<span class="hljs-string">&#x27;class&#x27;</span>]
+<span class="hljs-meta"># u<span class="hljs-string">&#x27;boldest&#x27;</span></span></code></pre></div>
+<p>也可以直接”点”取属性, 比如: .attrs :</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">tag.attrs
+# {u'class': u'boldest'}</pre><pre class="hljs"><code>tag.attrs
+<span class="hljs-meta"># {u<span class="hljs-string">&#x27;class&#x27;</span>: u<span class="hljs-string">&#x27;boldest&#x27;</span>}</span></code></pre></div>
+<p>tag的属性可以被添加,删除或修改. 再说一次, tag的属性操作方法与字典一样</p>
+<p>多值属性<br>
+最常见的多值的属性是 class (一个tag可以有多个CSS的class). 还有一些属性 rel , rev , accept-charset , headers , accesskey . 在Beautiful Soup中多值属性的返回类型是list:</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="Python" data-joplin-source-open="```Python&#10;" data-joplin-source-close="&#10;```">css_soup = BeautifulSoup('&lt;p class=&quot;body strikeout&quot;&gt;&lt;/p&gt;')
+css_soup.p['class']
+# [&quot;body&quot;, &quot;strikeout&quot;]
+
+css_soup = BeautifulSoup('&lt;p class=&quot;body&quot;&gt;&lt;/p&gt;')
+css_soup.p['class']
+# [&quot;body&quot;]</pre><pre class="hljs"><code>css_soup = BeautifulSoup(<span class="hljs-string">&#x27;&lt;p class=&quot;body strikeout&quot;&gt;&lt;/p&gt;&#x27;</span>)
+css_soup.p[<span class="hljs-string">&#x27;class&#x27;</span>]
+<span class="hljs-comment"># [&quot;body&quot;, &quot;strikeout&quot;]</span>
+
+css_soup = BeautifulSoup(<span class="hljs-string">&#x27;&lt;p class=&quot;body&quot;&gt;&lt;/p&gt;&#x27;</span>)
+css_soup.p[<span class="hljs-string">&#x27;class&#x27;</span>]
+<span class="hljs-comment"># [&quot;body&quot;]</span></code></pre></div>
+<p>如果某个属性看起来好像有多个值,但在任何版本的HTML定义中都没有被定义为多值属性,那么Beautiful Soup会将这个属性作为字符串返回</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">id_soup = BeautifulSoup('&lt;p id=&quot;my id&quot;&gt;&lt;/p&gt;')
+id_soup.p['id']
+# 'my id'</pre><pre class="hljs"><code>id_soup = <span class="hljs-constructor">BeautifulSoup(&#x27;&lt;<span class="hljs-params">p</span> <span class="hljs-params">id</span>=<span class="hljs-string">&quot;my id&quot;</span>&gt;&lt;<span class="hljs-operator">/</span><span class="hljs-params">p</span>&gt;&#x27;)</span>
+id_soup.p<span class="hljs-literal">[&#x27;<span class="hljs-identifier">id</span>&#x27;]</span>
+# &#x27;my id&#x27;</code></pre></div>
+<p>将tag转换成字符串时,多值属性会合并为一个值</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">rel_soup = BeautifulSoup('&lt;p&gt;Back to the &lt;a rel=&quot;index&quot;&gt;homepage&lt;/a&gt;&lt;/p&gt;')
+rel_soup.a['rel']
+# ['index']
+rel_soup.a['rel'] = ['index', 'contents']
+print(rel_soup.p)
+# &lt;p&gt;Back to the &lt;a rel=&quot;index contents&quot;&gt;homepage&lt;/a&gt;&lt;/p&gt;</pre><pre class="hljs"><code>rel_soup = <span class="hljs-constructor">BeautifulSoup(&#x27;&lt;<span class="hljs-params">p</span>&gt;Back <span class="hljs-params">to</span> <span class="hljs-params">the</span> &lt;<span class="hljs-params">a</span> <span class="hljs-params">rel</span>=<span class="hljs-string">&quot;index&quot;</span>&gt;<span class="hljs-params">homepage</span>&lt;<span class="hljs-operator">/</span><span class="hljs-params">a</span>&gt;&lt;<span class="hljs-operator">/</span><span class="hljs-params">p</span>&gt;&#x27;)</span>
+rel_soup.a<span class="hljs-literal">[&#x27;<span class="hljs-identifier">rel</span>&#x27;]</span>
+# <span class="hljs-literal">[&#x27;<span class="hljs-identifier">index</span>&#x27;]</span>
+rel_soup.a<span class="hljs-literal">[&#x27;<span class="hljs-identifier">rel</span>&#x27;]</span> = <span class="hljs-literal">[&#x27;<span class="hljs-identifier">index</span>&#x27;, &#x27;<span class="hljs-identifier">contents</span>&#x27;]</span>
+print(rel_soup.p)
+# &lt;p&gt;Back <span class="hljs-keyword">to</span> the &lt;a rel=<span class="hljs-string">&quot;index contents&quot;</span>&gt;homepage&lt;/a&gt;&lt;/p&gt;</code></pre></div>
+<p>如果转换的文档是XML格式,那么tag中不包含多值属性</p>
+<h2 id="可以遍历的字符串-navigablestring">可以遍历的字符串 NavigableString</h2>
+<p>字符串常被包含在tag内.Beautiful Soup用 NavigableString 类来包装tag中的字符串:</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">tag.string
+# u'Extremely bold'
+type(tag.string)
+# &lt;class 'bs4.element.NavigableString'&gt;</pre><pre class="hljs"><code><span class="hljs-keyword">tag</span>.<span class="hljs-keyword">string</span>
+<span class="hljs-comment"># u&#x27;Extremely bold&#x27;</span>
+<span class="hljs-keyword">type</span>(<span class="hljs-keyword">tag</span>.<span class="hljs-keyword">string</span>)
+<span class="hljs-comment"># &lt;class &#x27;bs4.element.NavigableString&#x27;&gt;</span></code></pre></div>
+<p>通过 unicode() 方法可以直接将 NavigableString 对象转换成Unicode字符串</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">unicode_string = unicode(tag.string)
+unicode_string
+# u'Extremely bold'
+type(unicode_string)
+# &lt;type 'unicode'&gt;</pre><pre class="hljs"><code>unicode_string = unicode(tag.<span class="hljs-built_in">string</span>)
+unicode_string
+# u&#x27;Extremely bold&#x27;
+<span class="hljs-keyword">type</span>(unicode_string)
+# &lt;<span class="hljs-keyword">type</span> <span class="hljs-symbol">&#x27;unicode&#x27;</span>&gt;</code></pre></div>
+<p>tag中包含的字符串不能编辑,但是可以被替换成其它的字符串,用 replace_with() 方法:</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">tag.string.replace_with(&quot;No longer bold&quot;)
+tag
+# &lt;blockquote&gt;No longer bold&lt;/blockquote&gt;</pre><pre class="hljs"><code><span class="hljs-keyword">tag</span>.<span class="hljs-keyword">string</span>.replace_with(<span class="hljs-string">&quot;No longer bold&quot;</span>)
+<span class="hljs-keyword">tag</span>
+<span class="hljs-title"># &lt;blockquote</span>&gt;No longer bold<span class="hljs-tag">&lt;/blockquote&gt;</span></code></pre></div>
+<p>如果想在Beautiful Soup之外使用 NavigableString 对象,需要调用 unicode() 方法,将该对象转换成普通的Unicode字符串,否则就算Beautiful Soup已方法已经执行结束,该对象的输出也会带有对象的引用地址.这样会浪费内存.</p>
+<h2 id="beautifulsoup">BeautifulSoup</h2>
+<p>BeautifulSoup 对象表示的是一个文档的全部内容.大部分时候,可以把它当作 Tag 对象,它支持 遍历文档树 和 搜索文档树 中描述的大部分的方法.</p>
+<p>由于不是HTML 或 XML 的tag，所以没有name和attribute属性，但是 name 非常方便，所以 BeautifulSoup 对象包含了一个值为 <code class="inline-code">[document]</code> 的特殊属性 .name</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">soup.name
+# u'[document]'</pre><pre class="hljs"><code>soup.name
+<span class="hljs-meta"># u<span class="hljs-string">&#x27;[document]&#x27;</span></span></code></pre></div>
+<h2 id="注释及特殊字符串">注释及特殊字符串</h2>
+<p>Comment 对象是一个特殊类型的 NavigableString 对象:</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">markup = &quot;&lt;b&gt;&lt;!--Hey, buddy. Want to buy a used parser?--&gt;&lt;/b&gt;&quot;
+soup = BeautifulSoup(markup)
+comment = soup.b.string
+type(comment)
+# &lt;class 'bs4.element.Comment'&gt;</pre><pre class="hljs"><code>markup = &quot;<span class="hljs-tag">&lt;<span class="hljs-name">b</span>&gt;</span><span class="hljs-comment">&lt;!--Hey, buddy. Want to buy a used parser?--&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">b</span>&gt;</span>&quot;
+soup = BeautifulSoup(markup)
+comment = soup.b.string
+type(comment)
+# <span class="hljs-tag">&lt;<span class="hljs-name">class</span> &#x27;<span class="hljs-attr">bs4.element.Comment</span>&#x27;&gt;</span></code></pre></div>
+<h1 id="遍历文档树">遍历文档树</h1>
+<h2 id="tags-name">tag's name</h2>
+<p>操作文档树最简单的方法就是告诉它你想获取的tag的name.如果想获取 <code class="inline-code">&lt;head&gt;</code> 标签,只要用 soup.head :</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">soup.head
+# &lt;head&gt;&lt;title&gt;The Dormouse's story&lt;/title&gt;&lt;/head&gt;
+
+soup.title
+# &lt;title&gt;The Dormouse's story&lt;/title&gt;</pre><pre class="hljs"><code>soup.head
+# <span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">title</span>&gt;</span>The Dormouse&#x27;s story<span class="hljs-tag">&lt;/<span class="hljs-name">title</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
+
+soup.title
+# <span class="hljs-tag">&lt;<span class="hljs-name">title</span>&gt;</span>The Dormouse&#x27;s story<span class="hljs-tag">&lt;/<span class="hljs-name">title</span>&gt;</span></code></pre></div>
+<p>下面的代码可以获取<code class="inline-code">&lt;body&gt;</code>标签中的第一个<code class="inline-code">&lt;b&gt;</code>标签:</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">soup.body.b
+# &lt;b&gt;The Dormouse's story&lt;/b&gt;</pre><pre class="hljs"><code>soup.<span class="hljs-keyword">body</span>.b
+# &lt;b&gt;The Dormouse<span class="hljs-symbol">&#x27;s</span> story&lt;/b&gt;</code></pre></div>
+<p>如果想要得到所有的<code class="inline-code">&lt;a&gt;</code>标签,或是通过名字得到比一个tag更多的内容的时候,就需要用到 Searching the tree 中描述的方法,比如: find_all()</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">soup.find_all('a')
+# [&lt;a class=&quot;sister&quot; href=&quot;http://example.com/elsie&quot; id=&quot;link1&quot;&gt;Elsie&lt;/a&gt;,
+#  &lt;a class=&quot;sister&quot; href=&quot;http://example.com/lacie&quot; id=&quot;link2&quot;&gt;Lacie&lt;/a&gt;,
+#  &lt;a class=&quot;sister&quot; href=&quot;http://example.com/tillie&quot; id=&quot;link3&quot;&gt;Tillie&lt;/a&gt;]</pre><pre class="hljs"><code>soup.find_all(&#x27;a&#x27;)
+<span class="hljs-meta prompt_"># </span><span class="language-bash">[&lt;a class=<span class="hljs-string">&quot;sister&quot;</span> href=<span class="hljs-string">&quot;http://example.com/elsie&quot;</span> <span class="hljs-built_in">id</span>=<span class="hljs-string">&quot;link1&quot;</span>&gt;Elsie&lt;/a&gt;,</span>
+<span class="hljs-meta prompt_"># </span><span class="language-bash"> &lt;a class=<span class="hljs-string">&quot;sister&quot;</span> href=<span class="hljs-string">&quot;http://example.com/lacie&quot;</span> <span class="hljs-built_in">id</span>=<span class="hljs-string">&quot;link2&quot;</span>&gt;Lacie&lt;/a&gt;,</span>
+<span class="hljs-meta prompt_"># </span><span class="language-bash"> &lt;a class=<span class="hljs-string">&quot;sister&quot;</span> href=<span class="hljs-string">&quot;http://example.com/tillie&quot;</span> <span class="hljs-built_in">id</span>=<span class="hljs-string">&quot;link3&quot;</span>&gt;Tillie&lt;/a&gt;]</span></code></pre></div>
+<h3 id="contents-和-children">.contents 和 .children</h3>
+<p>tag的 .contents 属性可以将tag的子节点以列表的方式输出:</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="Python" data-joplin-source-open="```Python&#10;" data-joplin-source-close="&#10;```">head_tag = soup.head
+head_tag
+# &lt;head&gt;&lt;title&gt;The Dormouse's story&lt;/title&gt;&lt;/head&gt;
+
+head_tag.contents
+[&lt;title&gt;The Dormouse's story&lt;/title&gt;]
+
+title_tag = head_tag.contents[0]
+title_tag
+# &lt;title&gt;The Dormouse's story&lt;/title&gt;
+title_tag.contents
+# [u'The Dormouse's story']</pre><pre class="hljs"><code>head_tag = soup.head
+head_tag
+<span class="hljs-comment"># &lt;head&gt;&lt;title&gt;The Dormouse&#x27;s story&lt;/title&gt;&lt;/head&gt;</span>
+
+head_tag.contents
+[&lt;title&gt;The Dormouse<span class="hljs-string">&#x27;s story&lt;/title&gt;]
+
+title_tag = head_tag.contents[0]
+title_tag
+# &lt;title&gt;The Dormouse&#x27;</span>s story&lt;/title&gt;
+title_tag.contents
+<span class="hljs-comment"># [u&#x27;The Dormouse&#x27;s story&#x27;]</span></code></pre></div>
+<p>BeautifulSoup 对象本身一定会包含子节点,也就是说<code class="inline-code">&lt;html&gt;</code>标签也是 BeautifulSoup 对象的子节点:</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">len(soup.contents)
+# 1
+soup.contents[0].name
+# u'html'</pre><pre class="hljs"><code>len(soup.<span class="hljs-built_in">contents</span>)
+<span class="hljs-comment"># 1</span>
+soup.<span class="hljs-built_in">contents</span>[<span class="hljs-number">0</span>].<span class="hljs-built_in">name</span>
+<span class="hljs-comment"># u&#x27;html&#x27;</span></code></pre></div>
+<p>字符串没有 .contents 属性,因为字符串没有子节点:</p>
+<p>通过tag的 .children 生成器,可以对tag的子节点进行循环:</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">for child in title_tag.children:
+    print(child)
+    # The Dormouse's story</pre><pre class="hljs"><code><span class="hljs-keyword">for</span> child <span class="hljs-keyword">in</span> title_tag.children:
+    <span class="hljs-keyword">print</span>(child)
+    <span class="hljs-meta"># The Dormouse&#x27;s story</span></code></pre></div>
+<h3 id="descendants">.descendants</h3>
+<p>.contents 和 .children 属性仅包含tag的直接子节点</p>
+<p>.descendants 属性可以对所有tag的<mark>子孙</mark>节点进行递归循环</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">for child in head_tag.descendants:
+    print(child)
+    # &lt;title&gt;The Dormouse's story&lt;/title&gt;
+    # The Dormouse's story</pre><pre class="hljs"><code><span class="hljs-keyword">for</span> child <span class="hljs-keyword">in</span> head_tag.descendants:
+    <span class="hljs-keyword">print</span>(child)
+    <span class="hljs-meta"># &lt;title&gt;The Dormouse&#x27;s story&lt;/title&gt;</span>
+    <span class="hljs-meta"># The Dormouse&#x27;s story</span></code></pre></div>
+<h3 id="string">.string</h3>
+<p>如果tag只有一个 NavigableString 类型子节点,那么这个tag可以使用 .string 得到子节点:</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">title_tag.string
+# u'The Dormouse's story'</pre><pre class="hljs"><code>title_tag.<span class="hljs-built_in">string</span>
+# u&#x27;The <span class="hljs-type">Dormouse&#x27;s</span> story&#x27;</code></pre></div>
+<p>如果一个tag仅有一个子节点,那么这个tag也可以使用 .string 方法,输出结果与当前唯一子节点的 .string 结果相同:</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">head_tag.contents
+# [&lt;title&gt;The Dormouse's story&lt;/title&gt;]
+
+head_tag.string
+# u'The Dormouse's story'</pre><pre class="hljs"><code>head_tag.<span class="hljs-built_in">contents</span>
+<span class="hljs-comment"># [&lt;title&gt;The Dormouse&#x27;s story&lt;/title&gt;]</span>
+
+head_tag.<span class="hljs-built_in">string</span>
+<span class="hljs-comment"># u&#x27;The Dormouse&#x27;s story&#x27;</span></code></pre></div>
+<p>如果tag包含了<mark>多个</mark>子节点,tag就无法确定 .string 方法应该调用哪个子节点的内容, .string 的输出结果是 None</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">print(soup.html.string)
+# None</pre><pre class="hljs"><code><span class="hljs-keyword">print</span>(soup.html.<span class="hljs-keyword">string</span>)
+<span class="hljs-comment"># None</span></code></pre></div>
+<h3 id="strings-和-stripped_strings">.strings 和 stripped_strings</h3>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">for string in soup.strings:
+    print(repr(string))
+
+# u&quot;The Dormouse's story&quot;
+# u'\n\n'</pre><pre class="hljs"><code><span class="hljs-keyword">for</span> <span class="hljs-built_in">string</span> <span class="hljs-keyword">in</span> soup.strings:
+    print(repr(<span class="hljs-built_in">string</span>))
+
+<span class="hljs-meta"># u<span class="hljs-string">&quot;The Dormouse&#x27;s story&quot;</span></span>
+<span class="hljs-meta"># u<span class="hljs-string">&#x27;\n\n&#x27;</span></span></code></pre></div>
+<p>输出的字符串中可能包含了很多空格或空行,使用 .stripped_strings 可以去除多余空白内容:</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">for string in soup.stripped_strings:
+    print(repr(string))
+    # u&quot;The Dormouse's story&quot;
+    # u&quot;The Dormouse's story&quot;</pre><pre class="hljs"><code><span class="hljs-keyword">for</span> <span class="hljs-built_in">string</span> <span class="hljs-keyword">in</span> soup.stripped_strings:
+    print(repr(<span class="hljs-built_in">string</span>))
+    <span class="hljs-meta"># u<span class="hljs-string">&quot;The Dormouse&#x27;s story&quot;</span></span>
+    <span class="hljs-meta"># u<span class="hljs-string">&quot;The Dormouse&#x27;s story&quot;</span></span></code></pre></div>
+<h3 id="parent">.parent</h3>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">title_tag = soup.title
+title_tag
+# &lt;title&gt;The Dormouse's story&lt;/title&gt;
+title_tag.parent
+# &lt;head&gt;&lt;title&gt;The Dormouse's story&lt;/title&gt;&lt;/head&gt;</pre><pre class="hljs"><code>title_tag = soup.title
+title_tag
+# <span class="hljs-tag">&lt;<span class="hljs-name">title</span>&gt;</span>The Dormouse&#x27;s story<span class="hljs-tag">&lt;/<span class="hljs-name">title</span>&gt;</span>
+title_tag.parent
+# <span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">title</span>&gt;</span>The Dormouse&#x27;s story<span class="hljs-tag">&lt;/<span class="hljs-name">title</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span></code></pre></div>
+<p>文档的顶层节点比如<code class="inline-code">&lt;html&gt;</code>的父节点是 BeautifulSoup 对象:</p>
+<p>BeautifulSoup 对象的 .parent 是None:</p>
+<h3 id="parents">.parents</h3>
+<p>通过元素的 .parents 属性可以递归得到元素的所有父辈节点,下面的例子使用了 .parents 方法遍历了<code class="inline-code">&lt;a&gt;</code>标签到根节点的所有节点.</p>
+<h3 id="next_sibling-和-previous_sibling-兄弟结点">.next_sibling 和 .previous_sibling 兄弟结点</h3>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">sibling_soup.b.next_sibling
+# &lt;c&gt;text2&lt;/c&gt;
+
+sibling_soup.c.previous_sibling
+# &lt;b&gt;text1&lt;/b&gt;</pre><pre class="hljs"><code>sibling_soup.b.next_sibling
+# <span class="hljs-tag">&lt;<span class="hljs-name">c</span>&gt;</span>text2<span class="hljs-tag">&lt;/<span class="hljs-name">c</span>&gt;</span>
+
+sibling_soup.c.previous_sibling
+# <span class="hljs-tag">&lt;<span class="hljs-name">b</span>&gt;</span>text1<span class="hljs-tag">&lt;/<span class="hljs-name">b</span>&gt;</span></code></pre></div>
+<p><code class="inline-code">&lt;b&gt;</code>标签有 .next_sibling 属性,但是没有 .previous_sibling 属性,因为<code class="inline-code">&lt;b&gt;</code>标签在同级节点中是第一个.同理,<code class="inline-code">&lt;c&gt;</code>标签有 .previous_sibling 属性,却没有 .next_sibling 属性:</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">print(sibling_soup.b.previous_sibling)
+# None
+print(sibling_soup.c.next_sibling)
+# None</pre><pre class="hljs"><code><span class="hljs-built_in">print</span>(sibling_soup.b.previous_sibling)
+<span class="hljs-comment"># None</span>
+<span class="hljs-built_in">print</span>(sibling_soup.c.next_sibling)
+<span class="hljs-comment"># None</span></code></pre></div>
+<p>例子中的字符串“text1”和“text2”不是兄弟节点,因为它们的<mark>父节点不同</mark>:</p>
+<p>实际文档中的tag的 .next_sibling 和 .previous_sibling 属性<mark>通常是字符串或空白</mark>. 看看“爱丽丝”文档:</p>
+<h3 id="next_siblings-和-previous_siblings">.next_siblings 和 .previous_siblings</h3>
+<h3 id="next_element-和-previous_element">.next_element 和 .previous_element</h3>
+<p>.next_element 属性指向解析过程中下一个被解析的对象(字符串或tag),结果可能与 .next_sibling 相同,但通常是不一样的.</p>
+<h3 id="next_elements-和-previous_elements">.next_elements 和 .previous_elements</h3>
+<h1 id="搜索文档树">搜索文档树</h1>
+<p>Beautiful Soup定义了很多搜索方法,这里着重介绍2个: find() 和 find_all() .其它方法的参数和用法类似,请读者举一反三.</p>
+<p>使用 find_all() 类似的方法可以查找到想要查找的文档内容</p>
+<h2 id="过滤器">过滤器</h2>
+<p>介绍 find_all() 方法前,先介绍一下过滤器的类型,这些过滤器贯穿整个搜索的API.过滤器可以被用在tag的name中,节点的属性中,字符串中或他们的混合中.</p>
+<h3 id="字符串">字符串</h3>
+<p>最简单的过滤器是字符串.在搜索方法中传入一个字符串参数,Beautiful Soup会查找与字符串完整匹配的内容,下面的例子用于<mark>查找文档中所有的<code class="inline-code">&lt;b&gt;</code>标签</mark>:</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">soup.find_all('b')
+# [&lt;b&gt;The Dormouse's story&lt;/b&gt;]</pre><pre class="hljs"><code>soup.find_all(<span class="hljs-string">&#x27;b&#x27;</span>)
+# <span class="hljs-meta">[&lt;b&gt;The Dormouse&#x27;s story&lt;/b&gt;]</span></code></pre></div>
+<p>如果传入字节码参数,Beautiful Soup会当作UTF-8编码,可以传入一段Unicode 编码来避免Beautiful Soup解析编码出错</p>
+<h3 id="re"><mark>RE</mark></h3>
+<p>Beautiful Soup会通过正则表达式的 match() 来匹配内容</p>
+<p>下面例子中找出<mark>所有以b开头的标签</mark>,这表示<code class="inline-code">&lt;body&gt;</code>和<code class="inline-code">&lt;b&gt;</code>标签都应该被找到:</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">import re
+for tag in soup.find_all(re.compile(&quot;^b&quot;)):
+    print(tag.name)
+# body
+# b</pre><pre class="hljs"><code>import re
+for <span class="hljs-keyword">tag</span> <span class="hljs-title">in</span> soup.find_all(re.compile(<span class="hljs-string">&quot;^b&quot;</span>)):
+    print(<span class="hljs-keyword">tag</span>.name)
+<span class="hljs-comment"># body</span>
+<span class="hljs-comment"># b</span></code></pre></div>
+<p>下面代码找出所有名字中包含”t”的标签:</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">for tag in soup.find_all(re.compile(&quot;t&quot;)):
+    print(tag.name)
+# html
+# title</pre><pre class="hljs"><code>for <span class="hljs-keyword">tag</span> <span class="hljs-title">in</span> soup.find_all(re.compile(<span class="hljs-string">&quot;t&quot;</span>)):
+    print(<span class="hljs-keyword">tag</span>.name)
+<span class="hljs-comment"># html</span>
+<span class="hljs-comment"># title</span></code></pre></div>
+<h3 id="列表">列表</h3>
+<p>如果传入列表参数,Beautiful Soup会将与列表中任一元素匹配的内容返回.下面代码找到文档中所有<code class="inline-code">&lt;a&gt;</code>标签和<code class="inline-code">&lt;b&gt;</code>标签:</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">soup.find_all([&quot;a&quot;, &quot;b&quot;])
+# [&lt;b&gt;The Dormouse's story&lt;/b&gt;,
+#  &lt;a class=&quot;sister&quot; href=&quot;http://example.com/elsie&quot; id=&quot;link1&quot;&gt;Elsie&lt;/a&gt;,
+#  &lt;a class=&quot;sister&quot; href=&quot;http://example.com/lacie&quot; id=&quot;link2&quot;&gt;Lacie&lt;/a&gt;,
+#  &lt;a class=&quot;sister&quot; href=&quot;http://example.com/tillie&quot; id=&quot;link3&quot;&gt;Tillie&lt;/a&gt;]</pre><pre class="hljs"><code>soup.find_all([&quot;a&quot;, &quot;b&quot;])
+# [<span class="hljs-tag">&lt;<span class="hljs-name">b</span>&gt;</span>The Dormouse&#x27;s story<span class="hljs-tag">&lt;/<span class="hljs-name">b</span>&gt;</span>,
+#  <span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;sister&quot;</span> <span class="hljs-attr">href</span>=<span class="hljs-string">&quot;http://example.com/elsie&quot;</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;link1&quot;</span>&gt;</span>Elsie<span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span>,
+#  <span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;sister&quot;</span> <span class="hljs-attr">href</span>=<span class="hljs-string">&quot;http://example.com/lacie&quot;</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;link2&quot;</span>&gt;</span>Lacie<span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span>,
+#  <span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;sister&quot;</span> <span class="hljs-attr">href</span>=<span class="hljs-string">&quot;http://example.com/tillie&quot;</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;link3&quot;</span>&gt;</span>Tillie<span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span>]</code></pre></div>
+<h3 id="true">True</h3>
+<p>True 可以匹配任何值,下面代码查找到所有的tag,但是不会返回字符串节点</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">for tag in soup.find_all(True):
+    print(tag.name)</pre><pre class="hljs"><code>for <span class="hljs-keyword">tag</span> <span class="hljs-title">in</span> soup.find_all(<span class="hljs-literal">True</span>):
+    print(<span class="hljs-keyword">tag</span>.name)</code></pre></div>
+<h3 id="方法">方法</h3>
+<p>如果没有合适过滤器,那么还可以定义一个方法,方法只接受一个元素参数,如果这个方法返回 True 表示当前元素匹配并且被找到,如果不是则反回 False</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="Python" data-joplin-source-open="```Python&#10;" data-joplin-source-close="&#10;```">def has_class_but_no_id(tag):
+    return tag.has_attr('class') and not tag.has_attr('id')
+
+soup.find_all(has_class_but_no_id)
+# [&lt;p class=&quot;title&quot;&gt;&lt;b&gt;The Dormouse's story&lt;/b&gt;&lt;/p&gt;,
+#  &lt;p class=&quot;story&quot;&gt;Once upon a time there were...&lt;/p&gt;,
+#  &lt;p class=&quot;story&quot;&gt;...&lt;/p&gt;]</pre><pre class="hljs"><code><span class="hljs-keyword">def</span> <span class="hljs-title function_">has_class_but_no_id</span>(<span class="hljs-params">tag</span>):
+    <span class="hljs-keyword">return</span> tag.has_attr(<span class="hljs-string">&#x27;class&#x27;</span>) <span class="hljs-keyword">and</span> <span class="hljs-keyword">not</span> tag.has_attr(<span class="hljs-string">&#x27;id&#x27;</span>)
+
+soup.find_all(has_class_but_no_id)
+<span class="hljs-comment"># [&lt;p class=&quot;title&quot;&gt;&lt;b&gt;The Dormouse&#x27;s story&lt;/b&gt;&lt;/p&gt;,</span>
+<span class="hljs-comment">#  &lt;p class=&quot;story&quot;&gt;Once upon a time there were...&lt;/p&gt;,</span>
+<span class="hljs-comment">#  &lt;p class=&quot;story&quot;&gt;...&lt;/p&gt;]</span></code></pre></div>
+<p>通过一个方法来过滤一类标签属性的时候, 这个方法的参数是要被过滤的属性的值, 而不是这个标签. 下面的例子是找出 href 属性不符合指定正则的 a 标签.</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">def not_lacie(href):
+        return href and not re.compile(&quot;lacie&quot;).search(href)
+soup.find_all(href=not_lacie)
+# [&lt;a class=&quot;sister&quot; href=&quot;http://example.com/elsie&quot; id=&quot;link1&quot;&gt;Elsie&lt;/a&gt;,
+#  &lt;a class=&quot;sister&quot; href=&quot;http://example.com/tillie&quot; id=&quot;link3&quot;&gt;Tillie&lt;/a&gt;]</pre><pre class="hljs"><code><span class="hljs-keyword">def</span> not_lacie(href):
+        <span class="hljs-keyword">return</span> href and not re.<span class="hljs-keyword">compile</span>(<span class="hljs-string">&quot;lacie&quot;</span>).search(href)
+soup.find_all(href=not_lacie)
+# [&lt;a <span class="hljs-keyword">class</span>=<span class="hljs-string">&quot;sister&quot;</span> href=<span class="hljs-string">&quot;http://example.com/elsie&quot;</span> id=<span class="hljs-string">&quot;link1&quot;</span>&gt;Elsie&lt;/a&gt;,
+#  &lt;a <span class="hljs-keyword">class</span>=<span class="hljs-string">&quot;sister&quot;</span> href=<span class="hljs-string">&quot;http://example.com/tillie&quot;</span> id=<span class="hljs-string">&quot;link3&quot;</span>&gt;Tillie&lt;/a&gt;]</code></pre></div>
+<h2 id="find_all">find_all()</h2>
+<p><mark>find_all( name , attrs , recursive , string , **kwargs )</mark></p>
+<p>find_all() 方法搜索当前tag的所有tag子节点,并判断是否符合过滤器的条件.这里有几个例子:</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">soup.find_all(&quot;title&quot;)
+# [&lt;title&gt;The Dormouse's story&lt;/title&gt;]
+
+soup.find_all(&quot;p&quot;, &quot;title&quot;)
+# [&lt;p class=&quot;title&quot;&gt;&lt;b&gt;The Dormouse's story&lt;/b&gt;&lt;/p&gt;]
+
+soup.find_all(&quot;a&quot;)
+# [&lt;a class=&quot;sister&quot; href=&quot;http://example.com/elsie&quot; id=&quot;link1&quot;&gt;Elsie&lt;/a&gt;,
+#  &lt;a class=&quot;sister&quot; href=&quot;http://example.com/lacie&quot; id=&quot;link2&quot;&gt;Lacie&lt;/a&gt;,
+#  &lt;a class=&quot;sister&quot; href=&quot;http://example.com/tillie&quot; id=&quot;link3&quot;&gt;Tillie&lt;/a&gt;]
+
+soup.find_all(id=&quot;link2&quot;)
+# [&lt;a class=&quot;sister&quot; href=&quot;http://example.com/lacie&quot; id=&quot;link2&quot;&gt;Lacie&lt;/a&gt;]
+
+import re
+soup.find(string=re.compile(&quot;sisters&quot;))
+# u'Once upon a time there were three little sisters; and their names were\n'</pre><pre class="hljs"><code>soup.find_all(&quot;title&quot;)
+<span class="hljs-meta prompt_"># </span><span class="language-bash">[&lt;title&gt;The Dormouse<span class="hljs-string">&#x27;s story&lt;/title&gt;]</span></span>
+
+soup.find_all(&quot;p&quot;, &quot;title&quot;)
+<span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-string">[&lt;p class=&quot;title&quot;&gt;&lt;b&gt;The Dormouse&#x27;</span>s story&lt;/b&gt;&lt;/p&gt;]</span>
+
+soup.find_all(&quot;a&quot;)
+<span class="hljs-meta prompt_"># </span><span class="language-bash">[&lt;a class=<span class="hljs-string">&quot;sister&quot;</span> href=<span class="hljs-string">&quot;http://example.com/elsie&quot;</span> <span class="hljs-built_in">id</span>=<span class="hljs-string">&quot;link1&quot;</span>&gt;Elsie&lt;/a&gt;,</span>
+<span class="hljs-meta prompt_"># </span><span class="language-bash"> &lt;a class=<span class="hljs-string">&quot;sister&quot;</span> href=<span class="hljs-string">&quot;http://example.com/lacie&quot;</span> <span class="hljs-built_in">id</span>=<span class="hljs-string">&quot;link2&quot;</span>&gt;Lacie&lt;/a&gt;,</span>
+<span class="hljs-meta prompt_"># </span><span class="language-bash"> &lt;a class=<span class="hljs-string">&quot;sister&quot;</span> href=<span class="hljs-string">&quot;http://example.com/tillie&quot;</span> <span class="hljs-built_in">id</span>=<span class="hljs-string">&quot;link3&quot;</span>&gt;Tillie&lt;/a&gt;]</span>
+
+soup.find_all(id=&quot;link2&quot;)
+<span class="hljs-meta prompt_"># </span><span class="language-bash">[&lt;a class=<span class="hljs-string">&quot;sister&quot;</span> href=<span class="hljs-string">&quot;http://example.com/lacie&quot;</span> <span class="hljs-built_in">id</span>=<span class="hljs-string">&quot;link2&quot;</span>&gt;Lacie&lt;/a&gt;]</span>
+
+import re
+soup.find(string=re.compile(&quot;sisters&quot;))
+<span class="hljs-meta prompt_"># </span><span class="language-bash">u<span class="hljs-string">&#x27;Once upon a time there were three little sisters; and their names were\n&#x27;</span></span></code></pre></div>
+<h3 id="name-参数">name 参数</h3>
+<p>name 参数可以查找所有名字为 name 的<mark>tag</mark>,字符串对象会被自动忽略掉<br>
+搜索 name 参数的值可以使任一类型的 过滤器 ,字符窜,正则表达式,列表,方法或是 True</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">soup.find_all(&quot;title&quot;)
+# [&lt;title&gt;The Dormouse's story&lt;/title&gt;]</pre><pre class="hljs"><code>soup.find_all(&quot;<span class="hljs-built_in">title</span>&quot;)
+# [&lt;<span class="hljs-built_in">title</span>&gt;The Dormouse&#x27;s story&lt;/<span class="hljs-built_in">title</span>&gt;]</code></pre></div>
+<h3 id="keyword-参数">keyword 参数</h3>
+<p>如果一个指定名字的参数不是搜索内置的参数名,搜索时会把该参数当作指定名字tag的属性来搜索,如果包含一个名字为 id 的参数,Beautiful Soup会搜索每个tag的”id”属性.</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">soup.find_all(id='link2')
+# [&lt;a class=&quot;sister&quot; href=&quot;http://example.com/lacie&quot; id=&quot;link2&quot;&gt;Lacie&lt;/a&gt;]</pre><pre class="hljs"><code>soup.find_all(id=<span class="hljs-string">&#x27;link2&#x27;</span>)
+# [&lt;a <span class="hljs-keyword">class</span>=<span class="hljs-string">&quot;sister&quot;</span> href=<span class="hljs-string">&quot;http://example.com/lacie&quot;</span> id=<span class="hljs-string">&quot;link2&quot;</span>&gt;Lacie&lt;/a&gt;]</code></pre></div>
+<p>如果传入 href 参数,Beautiful Soup会搜索每个tag的”href”属性:</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">soup.find_all(href=re.compile(&quot;elsie&quot;))
+# [&lt;a class=&quot;sister&quot; href=&quot;http://example.com/elsie&quot; id=&quot;link1&quot;&gt;Elsie&lt;/a&gt;]</pre><pre class="hljs"><code>soup.find_all(href=re.compile(<span class="hljs-string">&quot;elsie&quot;</span>))
+# [&lt;a <span class="hljs-keyword">class</span>=<span class="hljs-string">&quot;sister&quot;</span> href=<span class="hljs-string">&quot;http://example.com/elsie&quot;</span> id=<span class="hljs-string">&quot;link1&quot;</span>&gt;Elsie&lt;/a&gt;]</code></pre></div>
+<p>搜索指定名字的属性时可以使用的参数值包括 字符串 , 正则表达式 , 列表, True .</p>
+<p>下面的例子在文档树中查找所有包含 id 属性的tag,无论 id 的值是什么:</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">soup.find_all(id=True)</pre><pre class="hljs"><code>soup.find_all(<span class="hljs-attribute">id</span>=<span class="hljs-literal">True</span>)</code></pre></div>
+<p>使用多个指定名字的参数可以同时过滤tag的多个属性:</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">soup.find_all(href=re.compile(&quot;elsie&quot;), id='link1')
+# [&lt;a class=&quot;sister&quot; href=&quot;http://example.com/elsie&quot; id=&quot;link1&quot;&gt;three&lt;/a&gt;]</pre><pre class="hljs"><code>soup.find_all(href=re.compile(<span class="hljs-string">&quot;elsie&quot;</span>), id=<span class="hljs-string">&#x27;link1&#x27;</span>)
+# [&lt;a <span class="hljs-keyword">class</span>=<span class="hljs-string">&quot;sister&quot;</span> href=<span class="hljs-string">&quot;http://example.com/elsie&quot;</span> id=<span class="hljs-string">&quot;link1&quot;</span>&gt;three&lt;/a&gt;]</code></pre></div>
+<p>有些tag属性在搜索不能使用,比如HTML5中的 data-* 属性:</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">data_soup = BeautifulSoup('&lt;div data-foo=&quot;value&quot;&gt;foo!&lt;/div&gt;')
+data_soup.find_all(data-foo=&quot;value&quot;)
+# SyntaxError: keyword can't be an expression</pre><pre class="hljs"><code>data_soup = <span class="hljs-constructor">BeautifulSoup(&#x27;&lt;<span class="hljs-params">div</span> <span class="hljs-params">data</span>-<span class="hljs-params">foo</span>=<span class="hljs-string">&quot;value&quot;</span>&gt;<span class="hljs-params">foo</span>!&lt;<span class="hljs-operator">/</span><span class="hljs-params">div</span>&gt;&#x27;)</span>
+data_soup.find<span class="hljs-constructor">_all(<span class="hljs-params">data</span>-<span class="hljs-params">foo</span>=<span class="hljs-string">&quot;value&quot;</span>)</span>
+# SyntaxError: keyword can&#x27;t be an expression</code></pre></div>
+<p>但是可以通过 find_all() 方法的 attrs 参数定义一个字典参数来搜索包含特殊属性的tag:</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">data_soup.find_all(attrs={&quot;data-foo&quot;: &quot;value&quot;})
+# [&lt;div data-foo=&quot;value&quot;&gt;foo!&lt;/div&gt;]</pre><pre class="hljs"><code>data_soup.find_all(<span class="hljs-attribute">attrs</span>={<span class="hljs-string">&quot;data-foo&quot;</span>: <span class="hljs-string">&quot;value&quot;</span>})
+# [&lt;<span class="hljs-keyword">div</span> data-<span class="hljs-attribute">foo</span>=<span class="hljs-string">&quot;value&quot;</span>&gt;foo!&lt;/<span class="hljs-keyword">div</span>&gt;]</code></pre></div>
+<h3 id="按css搜索">按CSS搜索</h3>
+<p>CSS类名的关键字 class 在Python中是保留字<br>
+4.1.1版本开始,可以通过 class_ 参数搜索有指定CSS类名的tag:</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">soup.find_all(&quot;a&quot;, class_=&quot;sister&quot;)
+# [&lt;a class=&quot;sister&quot; href=&quot;http://example.com/elsie&quot; id=&quot;link1&quot;&gt;Elsie&lt;/a&gt;,
+#  &lt;a class=&quot;sister&quot; href=&quot;http://example.com/lacie&quot; id=&quot;link2&quot;&gt;Lacie&lt;/a&gt;,
+#  &lt;a class=&quot;sister&quot; href=&quot;http://example.com/tillie&quot; id=&quot;link3&quot;&gt;Tillie&lt;/a&gt;]</pre><pre class="hljs"><code>soup.find_all(&quot;a&quot;, class_=&quot;sister&quot;)
+<span class="hljs-meta prompt_"># </span><span class="language-bash">[&lt;a class=<span class="hljs-string">&quot;sister&quot;</span> href=<span class="hljs-string">&quot;http://example.com/elsie&quot;</span> <span class="hljs-built_in">id</span>=<span class="hljs-string">&quot;link1&quot;</span>&gt;Elsie&lt;/a&gt;,</span>
+<span class="hljs-meta prompt_"># </span><span class="language-bash"> &lt;a class=<span class="hljs-string">&quot;sister&quot;</span> href=<span class="hljs-string">&quot;http://example.com/lacie&quot;</span> <span class="hljs-built_in">id</span>=<span class="hljs-string">&quot;link2&quot;</span>&gt;Lacie&lt;/a&gt;,</span>
+<span class="hljs-meta prompt_"># </span><span class="language-bash"> &lt;a class=<span class="hljs-string">&quot;sister&quot;</span> href=<span class="hljs-string">&quot;http://example.com/tillie&quot;</span> <span class="hljs-built_in">id</span>=<span class="hljs-string">&quot;link3&quot;</span>&gt;Tillie&lt;/a&gt;]</span></code></pre></div>
+<p>class_ 参数同样接受不同类型的 过滤器 ,字符串,正则表达式,方法或 True :</p>
+<p>ag的 class 属性是 多值属性 .按照CSS类名搜索tag时,可以分别搜索tag中的每个CSS类名:</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">css_soup = BeautifulSoup('&lt;p class=&quot;body strikeout&quot;&gt;&lt;/p&gt;')
+css_soup.find_all(&quot;p&quot;, class_=&quot;strikeout&quot;)
+# [&lt;p class=&quot;body strikeout&quot;&gt;&lt;/p&gt;]
+
+css_soup.find_all(&quot;p&quot;, class_=&quot;body&quot;)
+# [&lt;p class=&quot;body strikeout&quot;&gt;&lt;/p&gt;]</pre><pre class="hljs"><code>css_soup = <span class="hljs-constructor">BeautifulSoup(&#x27;&lt;<span class="hljs-params">p</span> <span class="hljs-params">class</span>=<span class="hljs-string">&quot;body strikeout&quot;</span>&gt;&lt;<span class="hljs-operator">/</span><span class="hljs-params">p</span>&gt;&#x27;)</span>
+css_soup.find<span class="hljs-constructor">_all(<span class="hljs-string">&quot;p&quot;</span>, <span class="hljs-params">class_</span>=<span class="hljs-string">&quot;strikeout&quot;</span>)</span>
+# <span class="hljs-literal">[&lt;<span class="hljs-identifier">p</span> <span class="hljs-identifier">class</span>=&quot;<span class="hljs-identifier">body</span> <span class="hljs-identifier">strikeout</span>&quot;&gt;&lt;<span class="hljs-operator">/</span><span class="hljs-identifier">p</span>&gt;]</span>
+
+css_soup.find<span class="hljs-constructor">_all(<span class="hljs-string">&quot;p&quot;</span>, <span class="hljs-params">class_</span>=<span class="hljs-string">&quot;body&quot;</span>)</span>
+# <span class="hljs-literal">[&lt;<span class="hljs-identifier">p</span> <span class="hljs-identifier">class</span>=&quot;<span class="hljs-identifier">body</span> <span class="hljs-identifier">strikeout</span>&quot;&gt;&lt;<span class="hljs-operator">/</span><span class="hljs-identifier">p</span>&gt;]</span></code></pre></div>
+<p>搜索 class 属性时也可以通过CSS值完全匹配:</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">css_soup.find_all(&quot;p&quot;, class_=&quot;body strikeout&quot;)
+# [&lt;p class=&quot;body strikeout&quot;&gt;&lt;/p&gt;]</pre><pre class="hljs"><code>css_soup.find_all(<span class="hljs-string">&quot;p&quot;</span>, class_=<span class="hljs-string">&quot;body strikeout&quot;</span>)
+# [&lt;p <span class="hljs-keyword">class</span>=<span class="hljs-string">&quot;body strikeout&quot;</span>&gt;&lt;/p&gt;]</code></pre></div>
+<p>完全匹配 class 的值时,如果CSS类名的顺序与实际不符,将搜索不到结果</p>
+<h3 id="string-参数">string 参数</h3>
+<p>通过 string 参数可以搜搜文档中的字符串内容.与 name 参数的可选值一样, string 参数接受 字符串 , 正则表达式 , 列表, True</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">soup.find_all(string=&quot;Elsie&quot;)
+# [u'Elsie']
+
+soup.find_all(string=[&quot;Tillie&quot;, &quot;Elsie&quot;, &quot;Lacie&quot;])
+# [u'Elsie', u'Lacie', u'Tillie']
+
+soup.find_all(string=re.compile(&quot;Dormouse&quot;))
+[u&quot;The Dormouse's story&quot;, u&quot;The Dormouse's story&quot;]
+
+def is_the_only_string_within_a_tag(s):
+    &quot;&quot;Return True if this string is the only child of its parent tag.&quot;&quot;
+    return (s == s.parent.string)
+
+soup.find_all(string=is_the_only_string_within_a_tag)
+# [u&quot;The Dormouse's story&quot;, u&quot;The Dormouse's story&quot;, u'Elsie', u'Lacie', u'Tillie', u'...']</pre><pre class="hljs"><code>soup.find_all(string=<span class="hljs-string">&quot;Elsie&quot;</span>)
+<span class="hljs-comment"># [u&#x27;Elsie&#x27;]</span>
+
+soup.find_all(string=[<span class="hljs-string">&quot;Tillie&quot;</span>, <span class="hljs-string">&quot;Elsie&quot;</span>, <span class="hljs-string">&quot;Lacie&quot;</span>])
+<span class="hljs-comment"># [u&#x27;Elsie&#x27;, u&#x27;Lacie&#x27;, u&#x27;Tillie&#x27;]</span>
+
+soup.find_all(string=re.<span class="hljs-built_in">compile</span>(<span class="hljs-string">&quot;Dormouse&quot;</span>))
+[<span class="hljs-string">u&quot;The Dormouse&#x27;s story&quot;</span>, <span class="hljs-string">u&quot;The Dormouse&#x27;s story&quot;</span>]
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">is_the_only_string_within_a_tag</span>(<span class="hljs-params">s</span>):
+    <span class="hljs-string">&quot;&quot;</span>Return <span class="hljs-literal">True</span> <span class="hljs-keyword">if</span> this string <span class="hljs-keyword">is</span> the only child of its parent tag.<span class="hljs-string">&quot;&quot;</span>
+    <span class="hljs-keyword">return</span> (s == s.parent.string)
+
+soup.find_all(string=is_the_only_string_within_a_tag)
+<span class="hljs-comment"># [u&quot;The Dormouse&#x27;s story&quot;, u&quot;The Dormouse&#x27;s story&quot;, u&#x27;Elsie&#x27;, u&#x27;Lacie&#x27;, u&#x27;Tillie&#x27;, u&#x27;...&#x27;]</span></code></pre></div>
+<p>虽然 string 参数用于搜索字符串,还可以与其它参数混合使用来过滤tag.Beautiful Soup会找到 .string 方法与 string 参数值相符的tag.下面代码用来搜索内容里面包含“Elsie”的<code class="inline-code">&lt;a&gt;</code>标签:</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">soup.find_all(&quot;a&quot;, string=&quot;Elsie&quot;)
+# [&lt;a href=&quot;http://example.com/elsie&quot; class=&quot;sister&quot; id=&quot;link1&quot;&gt;Elsie&lt;/a&gt;]</pre><pre class="hljs"><code>soup.find_all(<span class="hljs-string">&quot;a&quot;</span>, <span class="hljs-built_in">string</span>=<span class="hljs-string">&quot;Elsie&quot;</span>)
+# [&lt;a href=<span class="hljs-string">&quot;http://example.com/elsie&quot;</span> <span class="hljs-keyword">class</span>=&quot;<span class="hljs-symbol">sister</span>&quot; <span class="hljs-symbol">id</span>=&quot;<span class="hljs-symbol">link1</span>&quot;&gt;<span class="hljs-symbol">Elsie</span>&lt;/<span class="hljs-symbol">a</span>&gt;]</code></pre></div>
+<h3 id="limit-参数">limit 参数</h3>
+<p>文档树很大那么搜索会很慢.如果我们不需要全部结果,使用 limit 参数限制返回结果的数量<br>
+效果与SQL中的limit关键字类似,当搜索到的结果数量达到 limit 的限制时,就停止搜索返回结果.</p>
+<h3 id="recursive-参数">recursive 参数</h3>
+<p>调用tag的 find_all() 方法时,Beautiful Soup会检索当前tag的所有<mark>子孙节点</mark>,如果只想搜索tag的直接子节点,可以使用参数 <code class="inline-code">recursive=False</code></p>
+<p>Beautiful Soup 提供了多种DOM树搜索方法. 这些方法都使用了类似的参数定义. 比如这些方法: find_all(): name, attrs, text, limit. 但是只有 find_all() 和 find() 支持 recursive 参数.</p>
+<h2 id="像调用-find_all-一样调用tag">像调用 find_all() 一样调用tag</h2>
+<p>find_all() 几乎是Beautiful Soup中最常用的搜索方法,所以我们定义了它的简写方法. <strong>BeautifulSoup 对象和 tag 对象可以被当作一个方法来使用</strong>,这个方法的执行结果与调用这个对象的 find_all() 方法相同,下面两行代码是<mark>等价的</mark>:</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">soup.find_all(&quot;a&quot;)
+soup(&quot;a&quot;)</pre><pre class="hljs"><code>soup<span class="hljs-selector-class">.find_all</span>(<span class="hljs-string">&quot;a&quot;</span>)
+<span class="hljs-function"><span class="hljs-title">soup</span><span class="hljs-params">(<span class="hljs-string">&quot;a&quot;</span>)</span></span></code></pre></div>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">soup.title.find_all(string=True)
+soup.title(string=True)</pre><pre class="hljs"><code>soup.title.find_all(<span class="hljs-attribute">string</span>=<span class="hljs-literal">True</span>)
+soup.title(<span class="hljs-attribute">string</span>=<span class="hljs-literal">True</span>)</code></pre></div>
+<h2 id="find">find()</h2>
+<p>find( name , attrs , recursive , string , **kwargs )</p>
+<p>使用 find_all 方法并设置 limit=1 参数不如直接使用 find() 方法.下面两行代码是<strong>等价</strong>的:</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">soup.find_all('title', limit=1)
+# [&lt;title&gt;The Dormouse's story&lt;/title&gt;]
+
+soup.find('title')
+# &lt;title&gt;The Dormouse's story&lt;/title&gt;</pre><pre class="hljs"><code>soup.find_all(<span class="hljs-string">&#x27;title&#x27;</span>, <span class="hljs-attribute">limit</span>=1)
+<span class="hljs-comment"># [&lt;title&gt;The Dormouse&#x27;s story&lt;/title&gt;]</span>
+
+soup.<span class="hljs-built_in">find</span>(<span class="hljs-string">&#x27;title&#x27;</span>)
+<span class="hljs-comment"># &lt;title&gt;The Dormouse&#x27;s story&lt;/title&gt;</span></code></pre></div>
+<p>唯一的区别是 find_all() 方法的返回结果是值包含一个元素的列表,而 find() 方法直接返回结果.</p>
+<p>find_all() 方法没有找到目标是返回空列表, find() 方法找不到目标时,<strong>返回 None</strong> .</p>
+<p>soup.head.title 是 tag的名字 方法的简写.这个简写的原理就是多次调用当前tag的 find() 方法:</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">soup.head.title
+# &lt;title&gt;The Dormouse's story&lt;/title&gt;
+
+soup.find(&quot;head&quot;).find(&quot;title&quot;)
+# &lt;title&gt;The Dormouse's story&lt;/title&gt;</pre><pre class="hljs"><code>soup.head.<span class="hljs-built_in">title</span>
+# &lt;<span class="hljs-built_in">title</span>&gt;The Dormouse&#x27;s story&lt;/<span class="hljs-built_in">title</span>&gt;
+
+soup.<span class="hljs-built_in">find</span>(&quot;head&quot;).<span class="hljs-built_in">find</span>(&quot;<span class="hljs-built_in">title</span>&quot;)
+# &lt;<span class="hljs-built_in">title</span>&gt;The Dormouse&#x27;s story&lt;/<span class="hljs-built_in">title</span>&gt;</code></pre></div>
+<h2 id="find_parents-和-find_parent">find_parents() 和 find_parent()</h2>
+<p>find_parents( name , attrs , recursive , string , **kwargs )</p>
+<p>find_parent( name , attrs , recursive , string , **kwargs )</p>
+<h2 id="find_next_siblings-和-find_next_sibling">find_next_siblings() 和 find_next_sibling()</h2>
+<p>find_next_siblings( name , attrs , recursive , string , **kwargs )</p>
+<p>find_next_sibling( name , attrs , recursive , string , **kwargs )</p>
+<h2 id="find_previous_siblings-和-find_previous_sibling">find_previous_siblings() 和 find_previous_sibling()</h2>
+<p>find_previous_siblings( name , attrs , recursive , string , **kwargs )</p>
+<p>find_previous_sibling( name , attrs , recursive , string , **kwargs )</p>
+<h2 id="find_all_next-和-find_next">find_all_next() 和 find_next()</h2>
+<p>find_all_next( name , attrs , recursive , string , **kwargs )</p>
+<p>find_next( name , attrs , recursive , string , **kwargs )</p>
+<h2 id="find_all_previous-和-find_previous">find_all_previous() 和 find_previous()</h2>
+<p>find_all_previous( name , attrs , recursive , string , **kwargs )</p>
+<p>find_previous( name , attrs , recursive , string , **kwargs )</p>
+<h2 id="css选择器">CSS选择器</h2>
+<p>在 Tag 或 BeautifulSoup 对象的 <mark>.select()</mark> 方法中传入字符串参数, 即可使用CSS选择器的语法找到tag:</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">soup.select(&quot;title&quot;)
+# [&lt;title&gt;The Dormouse's story&lt;/title&gt;]
+
+soup.select(&quot;p nth-of-type(3)&quot;)
+# [&lt;p class=&quot;story&quot;&gt;...&lt;/p&gt;]</pre><pre class="hljs"><code>soup.select(<span class="hljs-string">&quot;title&quot;</span>)
+# <span class="hljs-meta">[&lt;title&gt;The Dormouse&#x27;s story&lt;/title&gt;]</span>
+
+soup.select(<span class="hljs-string">&quot;p nth-of-type(3)&quot;</span>)
+# <span class="hljs-meta">[&lt;p class=<span class="hljs-string">&quot;story&quot;</span>&gt;...&lt;/p&gt;]</span></code></pre></div>
+<h3 id="通过tag标签逐层查找">通过tag标签逐层查找</h3>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">soup.select(&quot;body a&quot;)
+# [&lt;a class=&quot;sister&quot; href=&quot;http://example.com/elsie&quot; id=&quot;link1&quot;&gt;Elsie&lt;/a&gt;,
+#  &lt;a class=&quot;sister&quot; href=&quot;http://example.com/lacie&quot;  id=&quot;link2&quot;&gt;Lacie&lt;/a&gt;,
+#  &lt;a class=&quot;sister&quot; href=&quot;http://example.com/tillie&quot; id=&quot;link3&quot;&gt;Tillie&lt;/a&gt;]
+
+soup.select(&quot;html head title&quot;)
+# [&lt;title&gt;The Dormouse's story&lt;/title&gt;]</pre><pre class="hljs"><code>soup.select(&quot;body a&quot;)
+<span class="hljs-meta prompt_"># </span><span class="language-bash">[&lt;a class=<span class="hljs-string">&quot;sister&quot;</span> href=<span class="hljs-string">&quot;http://example.com/elsie&quot;</span> <span class="hljs-built_in">id</span>=<span class="hljs-string">&quot;link1&quot;</span>&gt;Elsie&lt;/a&gt;,</span>
+<span class="hljs-meta prompt_"># </span><span class="language-bash"> &lt;a class=<span class="hljs-string">&quot;sister&quot;</span> href=<span class="hljs-string">&quot;http://example.com/lacie&quot;</span>  <span class="hljs-built_in">id</span>=<span class="hljs-string">&quot;link2&quot;</span>&gt;Lacie&lt;/a&gt;,</span>
+<span class="hljs-meta prompt_"># </span><span class="language-bash"> &lt;a class=<span class="hljs-string">&quot;sister&quot;</span> href=<span class="hljs-string">&quot;http://example.com/tillie&quot;</span> <span class="hljs-built_in">id</span>=<span class="hljs-string">&quot;link3&quot;</span>&gt;Tillie&lt;/a&gt;]</span>
+
+soup.select(&quot;html head title&quot;)
+<span class="hljs-meta prompt_"># </span><span class="language-bash">[&lt;title&gt;The Dormouse<span class="hljs-string">&#x27;s story&lt;/title&gt;]</span></span></code></pre></div>
+<h3 id="找到某个tag标签下的直接子标签">找到某个tag标签下的直接子标签</h3>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">soup.select(&quot;head &gt; title&quot;)
+# [&lt;title&gt;The Dormouse's story&lt;/title&gt;]
+
+soup.select(&quot;p &gt; a&quot;)
+# [&lt;a class=&quot;sister&quot; href=&quot;http://example.com/elsie&quot; id=&quot;link1&quot;&gt;Elsie&lt;/a&gt;,
+#  &lt;a class=&quot;sister&quot; href=&quot;http://example.com/lacie&quot;  id=&quot;link2&quot;&gt;Lacie&lt;/a&gt;,
+#  &lt;a class=&quot;sister&quot; href=&quot;http://example.com/tillie&quot; id=&quot;link3&quot;&gt;Tillie&lt;/a&gt;]
+
+soup.select(&quot;p &gt; a:nth-of-type(2)&quot;)
+# [&lt;a class=&quot;sister&quot; href=&quot;http://example.com/lacie&quot; id=&quot;link2&quot;&gt;Lacie&lt;/a&gt;]
+
+soup.select(&quot;p &gt; #link1&quot;)
+# [&lt;a class=&quot;sister&quot; href=&quot;http://example.com/elsie&quot; id=&quot;link1&quot;&gt;Elsie&lt;/a&gt;]
+
+soup.select(&quot;body &gt; a&quot;)
+# []</pre><pre class="hljs"><code>soup.<span class="hljs-keyword">select</span>(<span class="hljs-string">&quot;head &gt; title&quot;</span>)
+# [&lt;title&gt;The Dormouse<span class="hljs-comment">&#x27;s story&lt;/title&gt;]</span>
+
+soup.<span class="hljs-keyword">select</span>(<span class="hljs-string">&quot;p &gt; a&quot;</span>)
+# [&lt;a <span class="hljs-keyword">class</span>=<span class="hljs-string">&quot;sister&quot;</span> href=<span class="hljs-string">&quot;http://example.com/elsie&quot;</span> id=<span class="hljs-string">&quot;link1&quot;</span>&gt;Elsie&lt;/a&gt;,
+#  &lt;a <span class="hljs-keyword">class</span>=<span class="hljs-string">&quot;sister&quot;</span> href=<span class="hljs-string">&quot;http://example.com/lacie&quot;</span>  id=<span class="hljs-string">&quot;link2&quot;</span>&gt;Lacie&lt;/a&gt;,
+#  &lt;a <span class="hljs-keyword">class</span>=<span class="hljs-string">&quot;sister&quot;</span> href=<span class="hljs-string">&quot;http://example.com/tillie&quot;</span> id=<span class="hljs-string">&quot;link3&quot;</span>&gt;Tillie&lt;/a&gt;]
+
+soup.<span class="hljs-keyword">select</span>(<span class="hljs-string">&quot;p &gt; a:nth-of-type(2)&quot;</span>)
+# [&lt;a <span class="hljs-keyword">class</span>=<span class="hljs-string">&quot;sister&quot;</span> href=<span class="hljs-string">&quot;http://example.com/lacie&quot;</span> id=<span class="hljs-string">&quot;link2&quot;</span>&gt;Lacie&lt;/a&gt;]
+
+soup.<span class="hljs-keyword">select</span>(<span class="hljs-string">&quot;p &gt; #link1&quot;</span>)
+# [&lt;a <span class="hljs-keyword">class</span>=<span class="hljs-string">&quot;sister&quot;</span> href=<span class="hljs-string">&quot;http://example.com/elsie&quot;</span> id=<span class="hljs-string">&quot;link1&quot;</span>&gt;Elsie&lt;/a&gt;]
+
+soup.<span class="hljs-keyword">select</span>(<span class="hljs-string">&quot;body &gt; a&quot;</span>)
+# []</code></pre></div>
+<h3 id="找到兄弟节点标签">找到兄弟节点标签</h3>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">soup.select(&quot;#link1 ~ .sister&quot;)
+# [&lt;a class=&quot;sister&quot; href=&quot;http://example.com/lacie&quot; id=&quot;link2&quot;&gt;Lacie&lt;/a&gt;,
+#  &lt;a class=&quot;sister&quot; href=&quot;http://example.com/tillie&quot;  id=&quot;link3&quot;&gt;Tillie&lt;/a&gt;]
+
+soup.select(&quot;#link1 + .sister&quot;)
+# [&lt;a class=&quot;sister&quot; href=&quot;http://example.com/lacie&quot; id=&quot;link2&quot;&gt;Lacie&lt;/a&gt;]</pre><pre class="hljs"><code>soup.select(&quot;#link1 ~ .sister&quot;)
+<span class="hljs-meta prompt_"># </span><span class="language-bash">[&lt;a class=<span class="hljs-string">&quot;sister&quot;</span> href=<span class="hljs-string">&quot;http://example.com/lacie&quot;</span> <span class="hljs-built_in">id</span>=<span class="hljs-string">&quot;link2&quot;</span>&gt;Lacie&lt;/a&gt;,</span>
+<span class="hljs-meta prompt_"># </span><span class="language-bash"> &lt;a class=<span class="hljs-string">&quot;sister&quot;</span> href=<span class="hljs-string">&quot;http://example.com/tillie&quot;</span>  <span class="hljs-built_in">id</span>=<span class="hljs-string">&quot;link3&quot;</span>&gt;Tillie&lt;/a&gt;]</span>
+
+soup.select(&quot;#link1 + .sister&quot;)
+<span class="hljs-meta prompt_"># </span><span class="language-bash">[&lt;a class=<span class="hljs-string">&quot;sister&quot;</span> href=<span class="hljs-string">&quot;http://example.com/lacie&quot;</span> <span class="hljs-built_in">id</span>=<span class="hljs-string">&quot;link2&quot;</span>&gt;Lacie&lt;/a&gt;]</span></code></pre></div>
+<h3 id="通过css的类名查找">通过CSS的类名查找</h3>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">soup.select(&quot;.sister&quot;)
+# [&lt;a class=&quot;sister&quot; href=&quot;http://example.com/elsie&quot; id=&quot;link1&quot;&gt;Elsie&lt;/a&gt;,
+#  &lt;a class=&quot;sister&quot; href=&quot;http://example.com/lacie&quot; id=&quot;link2&quot;&gt;Lacie&lt;/a&gt;,
+#  &lt;a class=&quot;sister&quot; href=&quot;http://example.com/tillie&quot; id=&quot;link3&quot;&gt;Tillie&lt;/a&gt;]
+
+soup.select(&quot;[class~=sister]&quot;)
+# [&lt;a class=&quot;sister&quot; href=&quot;http://example.com/elsie&quot; id=&quot;link1&quot;&gt;Elsie&lt;/a&gt;,
+#  &lt;a class=&quot;sister&quot; href=&quot;http://example.com/lacie&quot; id=&quot;link2&quot;&gt;Lacie&lt;/a&gt;,
+#  &lt;a class=&quot;sister&quot; href=&quot;http://example.com/tillie&quot; id=&quot;link3&quot;&gt;Tillie&lt;/a&gt;]</pre><pre class="hljs"><code>soup.select(&quot;.sister&quot;)
+<span class="hljs-meta prompt_"># </span><span class="language-bash">[&lt;a class=<span class="hljs-string">&quot;sister&quot;</span> href=<span class="hljs-string">&quot;http://example.com/elsie&quot;</span> <span class="hljs-built_in">id</span>=<span class="hljs-string">&quot;link1&quot;</span>&gt;Elsie&lt;/a&gt;,</span>
+<span class="hljs-meta prompt_"># </span><span class="language-bash"> &lt;a class=<span class="hljs-string">&quot;sister&quot;</span> href=<span class="hljs-string">&quot;http://example.com/lacie&quot;</span> <span class="hljs-built_in">id</span>=<span class="hljs-string">&quot;link2&quot;</span>&gt;Lacie&lt;/a&gt;,</span>
+<span class="hljs-meta prompt_"># </span><span class="language-bash"> &lt;a class=<span class="hljs-string">&quot;sister&quot;</span> href=<span class="hljs-string">&quot;http://example.com/tillie&quot;</span> <span class="hljs-built_in">id</span>=<span class="hljs-string">&quot;link3&quot;</span>&gt;Tillie&lt;/a&gt;]</span>
+
+soup.select(&quot;[class~=sister]&quot;)
+<span class="hljs-meta prompt_"># </span><span class="language-bash">[&lt;a class=<span class="hljs-string">&quot;sister&quot;</span> href=<span class="hljs-string">&quot;http://example.com/elsie&quot;</span> <span class="hljs-built_in">id</span>=<span class="hljs-string">&quot;link1&quot;</span>&gt;Elsie&lt;/a&gt;,</span>
+<span class="hljs-meta prompt_"># </span><span class="language-bash"> &lt;a class=<span class="hljs-string">&quot;sister&quot;</span> href=<span class="hljs-string">&quot;http://example.com/lacie&quot;</span> <span class="hljs-built_in">id</span>=<span class="hljs-string">&quot;link2&quot;</span>&gt;Lacie&lt;/a&gt;,</span>
+<span class="hljs-meta prompt_"># </span><span class="language-bash"> &lt;a class=<span class="hljs-string">&quot;sister&quot;</span> href=<span class="hljs-string">&quot;http://example.com/tillie&quot;</span> <span class="hljs-built_in">id</span>=<span class="hljs-string">&quot;link3&quot;</span>&gt;Tillie&lt;/a&gt;]</span></code></pre></div>
+<h3 id="通过tag的id查找">通过tag的id查找</h3>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">soup.select(&quot;#link1&quot;)
+# [&lt;a class=&quot;sister&quot; href=&quot;http://example.com/elsie&quot; id=&quot;link1&quot;&gt;Elsie&lt;/a&gt;]
+
+soup.select(&quot;a#link2&quot;)
+# [&lt;a class=&quot;sister&quot; href=&quot;http://example.com/lacie&quot; id=&quot;link2&quot;&gt;Lacie&lt;/a&gt;]</pre><pre class="hljs"><code>soup.<span class="hljs-keyword">select</span>(<span class="hljs-string">&quot;#link1&quot;</span>)
+<span class="hljs-meta"># [&lt;a class=<span class="hljs-string">&quot;sister&quot;</span> href=<span class="hljs-string">&quot;http://example.com/elsie&quot;</span> id=<span class="hljs-string">&quot;link1&quot;</span>&gt;Elsie&lt;/a&gt;]</span>
+
+soup.<span class="hljs-keyword">select</span>(<span class="hljs-string">&quot;a#link2&quot;</span>)
+<span class="hljs-meta"># [&lt;a class=<span class="hljs-string">&quot;sister&quot;</span> href=<span class="hljs-string">&quot;http://example.com/lacie&quot;</span> id=<span class="hljs-string">&quot;link2&quot;</span>&gt;Lacie&lt;/a&gt;]</span></code></pre></div>
+<h3 id="同时用多种css选择器查询元素">同时用多种CSS选择器查询元素</h3>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">soup.select(&quot;#link1,#link2&quot;)
+# [&lt;a class=&quot;sister&quot; href=&quot;http://example.com/elsie&quot; id=&quot;link1&quot;&gt;Elsie&lt;/a&gt;,
+#  &lt;a class=&quot;sister&quot; href=&quot;http://example.com/lacie&quot; id=&quot;link2&quot;&gt;Lacie&lt;/a&gt;]</pre><pre class="hljs"><code>soup.select(&quot;#link1,#link2&quot;)
+<span class="hljs-meta prompt_"># </span><span class="language-bash">[&lt;a class=<span class="hljs-string">&quot;sister&quot;</span> href=<span class="hljs-string">&quot;http://example.com/elsie&quot;</span> <span class="hljs-built_in">id</span>=<span class="hljs-string">&quot;link1&quot;</span>&gt;Elsie&lt;/a&gt;,</span>
+<span class="hljs-meta prompt_"># </span><span class="language-bash"> &lt;a class=<span class="hljs-string">&quot;sister&quot;</span> href=<span class="hljs-string">&quot;http://example.com/lacie&quot;</span> <span class="hljs-built_in">id</span>=<span class="hljs-string">&quot;link2&quot;</span>&gt;Lacie&lt;/a&gt;]</span></code></pre></div>
+<h3 id="通过是否存在某个属性来查找">通过是否存在某个属性来查找</h3>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">soup.select('a[href]')
+# [&lt;a class=&quot;sister&quot; href=&quot;http://example.com/elsie&quot; id=&quot;link1&quot;&gt;Elsie&lt;/a&gt;,
+#  &lt;a class=&quot;sister&quot; href=&quot;http://example.com/lacie&quot; id=&quot;link2&quot;&gt;Lacie&lt;/a&gt;,
+#  &lt;a class=&quot;sister&quot; href=&quot;http://example.com/tillie&quot; id=&quot;link3&quot;&gt;Tillie&lt;/a&gt;]</pre><pre class="hljs"><code>soup.select(&#x27;a[href]&#x27;)
+<span class="hljs-meta prompt_"># </span><span class="language-bash">[&lt;a class=<span class="hljs-string">&quot;sister&quot;</span> href=<span class="hljs-string">&quot;http://example.com/elsie&quot;</span> <span class="hljs-built_in">id</span>=<span class="hljs-string">&quot;link1&quot;</span>&gt;Elsie&lt;/a&gt;,</span>
+<span class="hljs-meta prompt_"># </span><span class="language-bash"> &lt;a class=<span class="hljs-string">&quot;sister&quot;</span> href=<span class="hljs-string">&quot;http://example.com/lacie&quot;</span> <span class="hljs-built_in">id</span>=<span class="hljs-string">&quot;link2&quot;</span>&gt;Lacie&lt;/a&gt;,</span>
+<span class="hljs-meta prompt_"># </span><span class="language-bash"> &lt;a class=<span class="hljs-string">&quot;sister&quot;</span> href=<span class="hljs-string">&quot;http://example.com/tillie&quot;</span> <span class="hljs-built_in">id</span>=<span class="hljs-string">&quot;link3&quot;</span>&gt;Tillie&lt;/a&gt;]</span></code></pre></div>
+<h3 id="通过属性的值来查找">通过属性的值来查找</h3>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">soup.select('a[href=&quot;http://example.com/elsie&quot;]')
+# [&lt;a class=&quot;sister&quot; href=&quot;http://example.com/elsie&quot; id=&quot;link1&quot;&gt;Elsie&lt;/a&gt;]
+
+soup.select('a[href^=&quot;http://example.com/&quot;]')
+# [&lt;a class=&quot;sister&quot; href=&quot;http://example.com/elsie&quot; id=&quot;link1&quot;&gt;Elsie&lt;/a&gt;,
+#  &lt;a class=&quot;sister&quot; href=&quot;http://example.com/lacie&quot; id=&quot;link2&quot;&gt;Lacie&lt;/a&gt;,
+#  &lt;a class=&quot;sister&quot; href=&quot;http://example.com/tillie&quot; id=&quot;link3&quot;&gt;Tillie&lt;/a&gt;]
+
+soup.select('a[href$=&quot;tillie&quot;]')
+# [&lt;a class=&quot;sister&quot; href=&quot;http://example.com/tillie&quot; id=&quot;link3&quot;&gt;Tillie&lt;/a&gt;]
+
+soup.select('a[href*=&quot;.com/el&quot;]')
+# [&lt;a class=&quot;sister&quot; href=&quot;http://example.com/elsie&quot; id=&quot;link1&quot;&gt;Elsie&lt;/a&gt;]</pre><pre class="hljs"><code>soup.select(&#x27;a[href=&quot;http://example.com/elsie&quot;]&#x27;)
+<span class="hljs-meta prompt_"># </span><span class="language-bash">[&lt;a class=<span class="hljs-string">&quot;sister&quot;</span> href=<span class="hljs-string">&quot;http://example.com/elsie&quot;</span> <span class="hljs-built_in">id</span>=<span class="hljs-string">&quot;link1&quot;</span>&gt;Elsie&lt;/a&gt;]</span>
+
+soup.select(&#x27;a[href^=&quot;http://example.com/&quot;]&#x27;)
+<span class="hljs-meta prompt_"># </span><span class="language-bash">[&lt;a class=<span class="hljs-string">&quot;sister&quot;</span> href=<span class="hljs-string">&quot;http://example.com/elsie&quot;</span> <span class="hljs-built_in">id</span>=<span class="hljs-string">&quot;link1&quot;</span>&gt;Elsie&lt;/a&gt;,</span>
+<span class="hljs-meta prompt_"># </span><span class="language-bash"> &lt;a class=<span class="hljs-string">&quot;sister&quot;</span> href=<span class="hljs-string">&quot;http://example.com/lacie&quot;</span> <span class="hljs-built_in">id</span>=<span class="hljs-string">&quot;link2&quot;</span>&gt;Lacie&lt;/a&gt;,</span>
+<span class="hljs-meta prompt_"># </span><span class="language-bash"> &lt;a class=<span class="hljs-string">&quot;sister&quot;</span> href=<span class="hljs-string">&quot;http://example.com/tillie&quot;</span> <span class="hljs-built_in">id</span>=<span class="hljs-string">&quot;link3&quot;</span>&gt;Tillie&lt;/a&gt;]</span>
+
+soup.select(&#x27;a[href$=&quot;tillie&quot;]&#x27;)
+<span class="hljs-meta prompt_"># </span><span class="language-bash">[&lt;a class=<span class="hljs-string">&quot;sister&quot;</span> href=<span class="hljs-string">&quot;http://example.com/tillie&quot;</span> <span class="hljs-built_in">id</span>=<span class="hljs-string">&quot;link3&quot;</span>&gt;Tillie&lt;/a&gt;]</span>
+
+soup.select(&#x27;a[href*=&quot;.com/el&quot;]&#x27;)
+<span class="hljs-meta prompt_"># </span><span class="language-bash">[&lt;a class=<span class="hljs-string">&quot;sister&quot;</span> href=<span class="hljs-string">&quot;http://example.com/elsie&quot;</span> <span class="hljs-built_in">id</span>=<span class="hljs-string">&quot;link1&quot;</span>&gt;Elsie&lt;/a&gt;]</span></code></pre></div>
+<h3 id="通过语言设置来查找">通过语言设置来查找:</h3>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">multilingual_markup = &quot;&quot;&quot;
+ &lt;p lang=&quot;en&quot;&gt;Hello&lt;/p&gt;
+ &lt;p lang=&quot;en-us&quot;&gt;Howdy, y'all&lt;/p&gt;
+ &lt;p lang=&quot;en-gb&quot;&gt;Pip-pip, old fruit&lt;/p&gt;
+ &lt;p lang=&quot;fr&quot;&gt;Bonjour mes amis&lt;/p&gt;
+&quot;&quot;&quot;
+multilingual_soup = BeautifulSoup(multilingual_markup)
+multilingual_soup.select('p[lang|=en]')
+# [&lt;p lang=&quot;en&quot;&gt;Hello&lt;/p&gt;,
+#  &lt;p lang=&quot;en-us&quot;&gt;Howdy, y'all&lt;/p&gt;,
+#  &lt;p lang=&quot;en-gb&quot;&gt;Pip-pip, old fruit&lt;/p&gt;]</pre><pre class="hljs"><code>multilingual_markup = &quot;&quot;&quot;
+ <span class="hljs-tag">&lt;<span class="hljs-name">p</span> <span class="hljs-attr">lang</span>=<span class="hljs-string">&quot;en&quot;</span>&gt;</span>Hello<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
+ <span class="hljs-tag">&lt;<span class="hljs-name">p</span> <span class="hljs-attr">lang</span>=<span class="hljs-string">&quot;en-us&quot;</span>&gt;</span>Howdy, y&#x27;all<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
+ <span class="hljs-tag">&lt;<span class="hljs-name">p</span> <span class="hljs-attr">lang</span>=<span class="hljs-string">&quot;en-gb&quot;</span>&gt;</span>Pip-pip, old fruit<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
+ <span class="hljs-tag">&lt;<span class="hljs-name">p</span> <span class="hljs-attr">lang</span>=<span class="hljs-string">&quot;fr&quot;</span>&gt;</span>Bonjour mes amis<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
+&quot;&quot;&quot;
+multilingual_soup = BeautifulSoup(multilingual_markup)
+multilingual_soup.select(&#x27;p[lang|=en]&#x27;)
+# [<span class="hljs-tag">&lt;<span class="hljs-name">p</span> <span class="hljs-attr">lang</span>=<span class="hljs-string">&quot;en&quot;</span>&gt;</span>Hello<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>,
+#  <span class="hljs-tag">&lt;<span class="hljs-name">p</span> <span class="hljs-attr">lang</span>=<span class="hljs-string">&quot;en-us&quot;</span>&gt;</span>Howdy, y&#x27;all<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>,
+#  <span class="hljs-tag">&lt;<span class="hljs-name">p</span> <span class="hljs-attr">lang</span>=<span class="hljs-string">&quot;en-gb&quot;</span>&gt;</span>Pip-pip, old fruit<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>]</code></pre></div>
+<h3 id="返回查找到的元素的第一个select_one">返回查找到的元素的第一个(select_one)</h3>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">soup.select_one(&quot;.sister&quot;)
+# &lt;a class=&quot;sister&quot; href=&quot;http://example.com/elsie&quot; id=&quot;link1&quot;&gt;Elsie&lt;/a&gt;</pre><pre class="hljs"><code>soup.select_one(<span class="hljs-string">&quot;.sister&quot;</span>)
+# &lt;a <span class="hljs-keyword">class</span>=<span class="hljs-string">&quot;sister&quot;</span> href=<span class="hljs-string">&quot;http://example.com/elsie&quot;</span> id=<span class="hljs-string">&quot;link1&quot;</span>&gt;Elsie&lt;/a&gt;</code></pre></div>
+<p>对于熟悉CSS选择器语法的人来说这是个非常方便的方法.Beautiful Soup也支持CSS选择器API, 如果你仅仅需要CSS选择器的功能,那么直接使用 lxml 也可以, 而且速度更快,支持更多的CSS选择器语法,但Beautiful Soup整合了CSS选择器的语法和自身方便使用API.</p>
+<h1 id="修改文档树">修改文档树</h1>
+<h2 id="修改tag的名称和属性">修改tag的名称和属性</h2>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">tag.name = &quot;blockquote&quot;
+tag['class'] = 'verybold'
+tag['id'] = 1</pre><pre class="hljs"><code>tag<span class="hljs-selector-class">.name</span> = <span class="hljs-string">&quot;blockquote&quot;</span>
+tag<span class="hljs-selector-attr">[<span class="hljs-string">&#x27;class&#x27;</span>]</span> = <span class="hljs-string">&#x27;verybold&#x27;</span>
+tag<span class="hljs-selector-attr">[<span class="hljs-string">&#x27;id&#x27;</span>]</span> = <span class="hljs-number">1</span></code></pre></div>
+<h2 id="修改-string">修改 .string</h2>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">tag = soup.a
+tag.string = &quot;New link text.&quot;</pre><pre class="hljs"><code><span class="hljs-keyword">tag</span> <span class="hljs-title">= soup</span>.a
+<span class="hljs-keyword">tag</span>.<span class="hljs-keyword">string</span> = <span class="hljs-string">&quot;New link text.&quot;</span></code></pre></div>
+<h2 id="append">append()</h2>
+<p>Tag.append() 方法想tag中添加内容,就好像Python的列表的 .append() 方法</p>
+<h2 id="navigablestring-和-new_tag">NavigableString() 和 .new_tag()</h2>
+<p>如果想添加一段文本内容到文档中也没问题,可以调用Python的 append() 方法 或调用 NavigableString 的构造方法:<br>
+创建一个tag最好的方法是调用工厂方法 BeautifulSoup.new_tag()</p>
+<h2 id="insert">insert()</h2>
+<p>Tag.insert() 方法与 Tag.append() 方法类似,区别是不会把新元素添加到父节点 .contents 属性的最后,而是把元素插入到指定的位置.</p>
+<h2 id="insert_before-和-insert_after">insert_before() 和 insert_after()</h2>
+<p>insert_before() 方法在当前tag或文本节点前插入内容:<br>
+insert_after() 方法在当前tag或文本节点后插入内容:</p>
+<h2 id="clear">clear()</h2>
+<p>Tag.clear() 方法移除当前tag的内容</p>
+<h2 id="extract">extract()</h2>
+<p>PageElement.extract() 方法将当前tag移除文档树,并作为方法结果返回:<br>
+这个方法实际上产生了2个文档树: 一个是用来解析原始文档的 BeautifulSoup 对象,另一个是被移除并且返回的tag.被移除并返回的tag可以继续调用 extract 方法:</p>
+<h2 id="decompose">decompose()</h2>
+<p>Tag.decompose() 方法将当前节点移除文档树并完全销毁:</p>
+<h2 id="replace_with">replace_with()</h2>
+<p>PageElement.replace_with() 方法移除文档树中的某段内容,并用新tag或文本节点替代它:</p>
+<h2 id="wrap">wrap()</h2>
+<p>PageElement.wrap() 方法可以对指定的tag元素进行包装,并返回包装后的结果</p>
+<h2 id="unwrap">unwrap()</h2>
+<p>Tag.unwrap() 方法与 wrap() 方法相反.将移除tag内的所有tag标签,该方法常被用来进行标记的解包:</p>
+<h1 id="输出">输出</h1>
+<h2 id="格式化输出">格式化输出</h2>
+<p><mark>prettify()</mark> 方法将Beautiful Soup的文档树格式化后以Unicode编码输出,每个XML/HTML标签都独占一行</p>
+<p>BeautifulSoup 对象和它的tag节点都可以调用 prettify() 方法:</p>
+<h2 id="压缩输出">压缩输出</h2>
+<p>只想得到结果字符串,不重视格式</p>
+<p>对一个 BeautifulSoup 对象或 Tag 对象使用Python的 <mark>unicode() 或 str()</mark> 方法:</p>
+<p>str() 方法返回UTF-8编码的字符串,可以指定 编码 的设置.<br>
+还可以调用 encode() 方法获得字节码或调用 decode() 方法获得Unicode.</p>
+<h2 id="输出格式">输出格式</h2>
+<p>Beautiful Soup输出是会将HTML中的特殊字符转换成Unicode,比如“&amp;lquot;”:</p>
+<h2 id="get_text">get_text()</h2>
+<p>如果只想得到tag中包含的文本内容,那么可以调用 get_text() 方法,这个方法获取到tag中包含的所有文版内容包括子孙tag中的内容,并将结果作为Unicode字符串返回:</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">markup = '&lt;a href=&quot;http://example.com/&quot;&gt;\nI linked to &lt;i&gt;example.com&lt;/i&gt;\n&lt;/a&gt;'
+soup = BeautifulSoup(markup)
+
+soup.get_text()
+u'\nI linked to example.com\n'
+soup.i.get_text()
+u'example.com'</pre><pre class="hljs"><code>markup = <span class="hljs-string">&#x27;&lt;a href=&quot;http://example.com/&quot;&gt;\nI linked to &lt;i&gt;example.com&lt;/i&gt;\n&lt;/a&gt;&#x27;</span>
+soup = BeautifulSoup(markup)
+
+soup.get_text()
+<span class="hljs-string">u&#x27;\nI linked to example.com\n&#x27;</span>
+soup.i.get_text()
+<span class="hljs-string">u&#x27;example.com&#x27;</span></code></pre></div>
+<p>可以通过参数指定tag的文本内容的分隔符:</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```"># soup.get_text(&quot;|&quot;)
+u'\nI linked to |example.com|\n'</pre><pre class="hljs"><code><span class="hljs-comment"># soup.get_text(&quot;|&quot;)</span>
+<span class="hljs-string">u&#x27;\nI linked to |example.com|\n&#x27;</span></code></pre></div>
+<p>还可以去除获得文本内容的前后空白:</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```"># soup.get_text(&quot;|&quot;, strip=True)
+u'I linked to|example.com'</pre><pre class="hljs"><code><span class="hljs-comment"># soup.get_text(&quot;|&quot;, strip=True)</span>
+<span class="hljs-string">u&#x27;I linked to|example.com&#x27;</span></code></pre></div>
+<p>或者使用 .stripped_strings 生成器,获得文本列表后手动处理列表:</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">[text for text in soup.stripped_strings]
+# [u'I linked to', u'example.com']</pre><pre class="hljs"><code>[<span class="hljs-literal">text</span> <span class="hljs-keyword">for</span> <span class="hljs-literal">text</span> <span class="hljs-keyword">in</span> soup.stripped_strings]
+# [u<span class="hljs-symbol">&#x27;I</span> linked <span class="hljs-keyword">to</span>&#x27;, u<span class="hljs-symbol">&#x27;example</span>.com&#x27;]</code></pre></div>
+<h1 id="指定文档解析器">指定文档解析器</h1>
+<p>要解析的文档是什么类型: 目前支持, “html”, “xml”, 和 “html5”<br>
+指定使用哪种解析器: 目前支持, “lxml”, “html5lib”, 和 “html.parser”</p>
+<h2 id="解析器之间的区别">解析器之间的区别</h2>
+<p>。。</p>
+<h1 id="编码">编码</h1>
+<p>任何HTML或XML文档都有自己的编码方式,比如ASCII 或 UTF-8,但是使用Beautiful Soup解析后,文档都被转换成了Unicode:</p>
+<p>通过传入 from_encoding 参数来指定编码方式:</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">soup = BeautifulSoup(markup, from_encoding=&quot;iso-8859-8&quot;)
+soup.h1
+&lt;h1&gt;םולש&lt;/h1&gt;
+soup.original_encoding
+'iso8859-8'</pre><pre class="hljs"><code>soup = <span class="hljs-built_in">BeautifulSoup</span>(markup, from_encoding=<span class="hljs-string">&quot;iso-8859-8&quot;</span>)
+soup<span class="hljs-selector-class">.h1</span>
+&lt;h1&gt;םולש&lt;/h1&gt;
+soup<span class="hljs-selector-class">.original_encoding</span>
+<span class="hljs-string">&#x27;iso8859-8&#x27;</span></code></pre></div>
+<p>如果仅知道文档采用了Unicode编码, 但不知道具体编码. 可以先自己猜测, 猜测错误(依旧是乱码)时, 可以把错误编码作为 exclude_encodings 参数<br>
+在没有指定编码的情况下, BS会自己猜测编码, 把不正确的编码排除掉, BS就更容易猜到正确编码.</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">soup = BeautifulSoup(markup, exclude_encodings=[&quot;ISO-8859-7&quot;])
+soup.h1
+&lt;h1&gt;םולש&lt;/h1&gt;
+soup.original_encoding
+'WINDOWS-1255'</pre><pre class="hljs"><code>soup = <span class="hljs-built_in">BeautifulSoup</span>(markup, exclude_encodings=<span class="hljs-selector-attr">[<span class="hljs-string">&quot;ISO-8859-7&quot;</span>]</span>)
+soup<span class="hljs-selector-class">.h1</span>
+&lt;h1&gt;םולש&lt;/h1&gt;
+soup<span class="hljs-selector-class">.original_encoding</span>
+<span class="hljs-string">&#x27;WINDOWS-1255&#x27;</span></code></pre></div>
+<h2 id="输出编码">输出编码</h2>
+<p>输出编码均为UTF-8编码</p>
+<h2 id="智能引号">智能引号</h2>
+<p>使用Unicode时,Beautiful Soup还会智能的把引号 转换成HTML或XML中的特殊字符</p>
+<p>也可以把引号转换为ASCII码:</p>
+<p>默认情况下,Beautiful Soup把引号转换成Unicode:</p>
+<h1 id="比较对象是否相同">比较对象是否相同</h1>
+<p>两个 NavigableString 或 Tag 对象具有相同的HTML或XML结构时, Beautiful Soup就判断这两个对象相同.</p>
+<p>如果想判断两个对象是否严格的指向同一个对象可以通过 <mark>is</mark> 来判断</p>
+<h1 id="复制beautiful-soup对象">复制Beautiful Soup对象</h1>
+<p>copy.copy() 方法可以复制任意 Tag 或 NavigableString 对象</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">import copy
+p_copy = copy.copy(soup.p)
+print p_copy
+# &lt;p&gt;I want &lt;b&gt;pizza&lt;/b&gt; and more &lt;b&gt;pizza&lt;/b&gt;!&lt;/p&gt;</pre><pre class="hljs"><code><span class="hljs-keyword">import</span> <span class="hljs-keyword">copy</span>
+p_copy = <span class="hljs-keyword">copy</span>.<span class="hljs-keyword">copy</span>(soup.p)
+<span class="hljs-keyword">print</span> p_copy
+# &lt;p&gt;I want &lt;b&gt;pizza&lt;<span class="hljs-regexp">/b&gt; and more &lt;b&gt;pizza&lt;/</span>b&gt;!&lt;/p&gt;</code></pre></div>
+<p>复制后的对象跟与对象是相等的, 但指向不同的内存地址</p>
+<h1 id="解析部分文档">解析部分文档</h1>
+<p>如果仅仅因为想要查找文档中的<code class="inline-code">&lt;a&gt;</code>标签而将整片文档进行解析,实在是浪费内存和时间.最快的方法是从一开始就把<code class="inline-code">&lt;a&gt;</code>标签以外的东西都忽略掉.<br>
+SoupStrainer 类可以定义文档的某段内容,这样搜索文档时就不必先解析整篇文档,只会解析在 SoupStrainer 中定义过的文档. 创建一个 SoupStrainer 对象并作为 parse_only 参数给 BeautifulSoup 的构造方法即可.</p>
+<h2 id="soupstrainer">SoupStrainer</h2>
+<p>SoupStrainer 类接受与典型搜索方法相同的参数：name , attrs , recursive , string , <code class="inline-code">**kwargs</code> 。下面举例说明三种 SoupStrainer 对象：</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">from bs4 import SoupStrainer
+
+only_a_tags = SoupStrainer(&quot;a&quot;)
+
+only_tags_with_id_link2 = SoupStrainer(id=&quot;link2&quot;)
+
+def is_short_string(string):
+    return len(string) &lt; 10
+
+only_short_strings = SoupStrainer(string=is_short_string)</pre><pre class="hljs"><code>from bs4 import SoupStrainer
+
+only_a_tags = <span class="hljs-constructor">SoupStrainer(<span class="hljs-string">&quot;a&quot;</span>)</span>
+
+only_tags_with_id_link2 = <span class="hljs-constructor">SoupStrainer(<span class="hljs-params">id</span>=<span class="hljs-string">&quot;link2&quot;</span>)</span>
+
+def is<span class="hljs-constructor">_short_string(<span class="hljs-params">string</span>)</span>:
+    return len(<span class="hljs-built_in">string</span>) &lt; <span class="hljs-number">10</span>
+
+only_short_strings = <span class="hljs-constructor">SoupStrainer(<span class="hljs-params">string</span>=<span class="hljs-params">is_short_string</span>)</span></code></pre></div>
+<p>还可以将 SoupStrainer 作为参数传入 搜索文档树 中提到的方法.这可能不是个常用用法,所以还是提一下:</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">soup = BeautifulSoup(html_doc)
+soup.find_all(only_short_strings)
+# [u'\n\n', u'\n\n', u'Elsie', u',\n', u'Lacie', u' and\n', u'Tillie',
+#  u'\n\n', u'...', u'\n']</pre><pre class="hljs"><code>soup = <span class="hljs-type">BeautifulSoup</span>(html_doc)
+soup.find_all(only_short_strings)
+# [u&#x27;\n\n&#x27;, u&#x27;\n\n&#x27;, u&#x27;Elsie&#x27;, u&#x27;,\n&#x27;, u&#x27;Lacie&#x27;, u&#x27; <span class="hljs-keyword">and</span>\n&#x27;, u&#x27;Tillie&#x27;,
+#  u&#x27;\n\n&#x27;, u&#x27;...<span class="hljs-string">&#x27;, u&#x27;</span>\n&#x27;]</code></pre></div>
+<h1 id="使用">使用</h1>
+<p>tag.text 约等于 tag.string，并且可以无视内部的 span</p>
+</div></div>
+					</body>
+				</html>
+			

@@ -1,0 +1,3298 @@
+
+				<!DOCTYPE html>
+				<html>
+					<head>
+						<meta charset="UTF-8">
+						<meta name="viewport" content="width=device-width, initial-scale=1" />
+						<link rel="stylesheet" href="pluginAssets/katex/katex.css"><link rel="stylesheet" href="pluginAssets/highlight.js/atom-one-light.css">
+						<title>C++ template</title>
+					</head>
+					<body>
+						<div class="exported-note"><div class="exported-note-title">C++ template</div>
+
+<style>
+		/* https://necolas.github.io/normalize.css/ */
+		html{line-height:1.15;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%}body{margin:0}
+		article,aside,footer,header,nav,section{display:block}h1{font-size:2em;margin:.67em 0}hr{box-sizing:content-box;height:0;overflow:visible}
+		pre{font-family:monospace,monospace;font-size:1em}a{background-color:transparent;-webkit-text-decoration-skip:objects}
+		b,strong{font-weight:bolder}small{font-size:80%}img{border-style:none}
+
+		body {
+			font-size: 15px;
+			color: #32373F;
+			word-wrap: break-word;
+			line-height: 1.6em;
+			background-color: #ffffff;
+			font-family: 'Avenir', 'Arial', sans-serif;
+			padding-bottom: 0px;
+			padding-top: 0px;
+		}
+		kbd {
+			border: 1px solid rgb(220, 220, 220);
+			box-shadow: inset 0 -1px 0 rgb(220, 220, 220);
+			padding: 2px 4px;
+			border-radius: 3px;
+			background-color: rgb(243, 243, 243);
+		}
+		::-webkit-scrollbar {
+			width: 7px;
+			height: 7px;
+		}
+		::-webkit-scrollbar-corner {
+			background: none;
+		}
+		::-webkit-scrollbar-track {
+			border: none;
+		}
+		::-webkit-scrollbar-thumb {
+			background: rgba(100, 100, 100, 0.3); 
+			border-radius: 5px;
+		}
+		::-webkit-scrollbar-track:hover {
+			background: rgba(0, 0, 0, 0.1); 
+		}
+		::-webkit-scrollbar-thumb:hover {
+			background: rgba(100, 100, 100, 0.7); 
+		}
+
+		
+
+		/* Remove top padding and margin from first child so that top of rendered text is aligned to top of text editor text */
+
+		#rendered-md > h1:first-child,
+		#rendered-md > h2:first-child,
+		#rendered-md > h3:first-child,
+		#rendered-md > h4:first-child,
+		#rendered-md > ul:first-child,
+		#rendered-md > ol:first-child,
+		#rendered-md > table:first-child,
+		#rendered-md > blockquote:first-child,
+		#rendered-md > img:first-child,
+		#rendered-md > p:first-child {
+			margin-top: 0;
+			padding-top: 0;
+		}
+		
+		p, h1, h2, h3, h4, h5, h6, ul, table {
+			margin-top: .6em;
+			margin-bottom: 1.35em;
+
+			/*
+				Adds support for RTL text in the note body. It automatically detects the direction using the content.
+				Issue: https://github.com/laurent22/joplin/issues/3991
+			*/
+			unicode-bidi: plaintext;
+		}
+
+		h1, h2, h3, h4, h5, h6, ul, table {
+			margin-bottom: 0.65em;
+		}
+
+		h1, h2, h3, h4, h5, h6 {
+			line-height: 1.5em;
+		}
+		h1 {
+			font-size: 1.5em;
+			font-weight: bold;
+			border-bottom: 1px solid #dddddd;
+			padding-bottom: .3em;
+		}
+		h2 {
+			font-size: 1.3em;
+			font-weight: bold;
+			padding-bottom: .1em; */
+		}
+		h3 {
+			font-size: 1.1em;
+			font-weight: bold;
+		}
+		h4, h5, h6 {
+			font-size: 1em;
+			font-weight: bold;
+		}
+
+		.exported-note-title {
+			font-size: 2em;
+			font-weight: bold;
+			margin-bottom: 0.8em;
+			line-height: 1.5em;
+			padding-bottom: .35em;
+			border-bottom: 1px solid #dddddd;
+		}
+
+		a {
+			color: #155BDA;
+		}
+		ul, ol {
+			padding-left: 0;
+			margin-left: 1.7em;
+		}
+		li {
+			margin-bottom: .4em;
+		}
+		li p {
+			margin-top: 0.2em;
+			margin-bottom: 0;
+		}
+
+		.resource-icon {
+			display: inline-block;
+			position: relative;
+			top: 0.3em;
+			text-decoration: none;
+			width: 1.2em;
+			height: 1.4em;
+			margin-right: 0.4em;
+			background-color:  #155BDA;
+		}
+    /* These icons are obtained from the wonderful ForkAwesome project by copying the src svgs 
+     * into the css classes below.
+     * svgs are obtained from https://github.com/ForkAwesome/Fork-Awesome/tree/master/src/icons/svg
+     * instead of the svg width, height property you must use a viewbox here, 0 0 1536 1792 is typically the actual size of the icon
+     * each line begins with the pre-amble -webkit-mask: url("data:image/svg+xml;utf8,
+     * and of course finishes with ");
+     * to precvent artifacts it is also necessary to include -webkit-mask-repeat: no-repeat;
+     * on the following line
+     * */
+		.fa-joplin {
+			/* Awesome Font file */
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M373.834 128C168.227 128 0 296.223 0 501.834v788.336C0 1495.778 168.227 1664 373.834 1664h788.336c205.608 0 373.83-168.222 373.83-373.83V501.834C1536 296.224 1367.778 128 1162.17 128zm397.222 205.431h417.424a7.132 7.132 0 0 1 7.132 7.133v132.552c0 4.461-3.619 8.073-8.077 8.073h-57.23c-24.168 0-43.768 19.338-44.284 43.374v2.377h-.017v136.191h-.053l-.466 509.375c-5.02 77.667-39.222 149.056-96.324 201.046-60.28 54.834-141.948 85.017-229.962 85.017-12.45 0-25.208-.61-37.907-1.785-92.157-8.682-181.494-48.601-251.662-112.438-71.99-65.517-117.147-150.03-127.164-238-11.226-98.763 23.42-192.783 95.045-257.937 81.99-74.637 198.185-101.768 316.613-75.704 5.574 1.227 9.55 6.282 9.55 11.997v199.52c-.199 2.625-1.481 6.599-8.183 2.896-.663-.365-1.194-.511-1.653-.531-21.987-10.587-45.159-17.57-68.559-19.916-.38-.04-.757-.124-1.138-.163-.537-.048-1.034-.033-1.556-.075-4.13-.354-8.183-.517-12.203-.58-.87-.011-1.771-.127-2.641-.127-.486 0-.951.05-1.437.057-1.464.011-2.886.115-4.33.163-2.76.102-5.497.211-8.182.448-.273.024-.547.07-.835.097-25.509 2.4-47.864 11.104-65.012 25.47-.954.802-1.974 1.53-2.9 2.36a1.34 1.34 0 0 1-.168.146c-23.96 21.8-34.881 53.872-30.726 90.316 4.62 40.737 26.94 81.156 62.841 113.823 35.908 32.67 80.335 52.977 125.113 57.186 35.118 3.36 66.547-3.919 89.899-20.461a97.255 97.255 0 0 0 9.365-7.501c2.925-2.661 5.569-5.5 8.086-8.416.3-.348.672-.673.975-1.024 8.253-9.864 14.222-21.067 17.996-33.148.639-2.034 1.051-4.148 1.564-6.227.381-1.563.81-3.106 1.112-4.693.555-2.784.923-5.632 1.253-8.49.086-.709.183-1.414.237-2.128.492-4.893.693-9.858.55-14.91h.013V521.623c-2.01-22.626-20.78-40.434-43.928-40.434h-57.23a8.071 8.071 0 0 1-8.077-8.073V340.564a7.132 7.132 0 0 1 7.136-7.133z'/></svg>");
+		}
+		.fa-file-image {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zm-128-448v320H256v-192l192-192 128 128 384-384zm-832-192c-106 0-192-86-192-192s86-192 192-192 192 86 192 192-86 192-192 192z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-pdf {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zm-514-593c25 20 53 38 84 56 42-5 81-7 117-7 67 0 152 8 177 49 7 10 13 28 2 52-1 1-2 3-3 4v1c-3 18-18 38-71 38-64 0-161-29-245-73-139 15-285 46-392 83-103 176-182 262-242 262-10 0-19-2-28-7l-24-12c-3-1-4-3-6-5-5-5-9-16-6-36 10-46 64-123 188-188 8-5 18-2 23 6 1 1 2 3 2 4 31-51 67-116 107-197 45-90 80-178 104-262-32-109-42-221-24-287 7-25 22-40 42-40h22c15 0 27 5 35 15 12 14 15 36 9 68-1 3-2 6-4 8 1 3 1 5 1 8v30c-1 63-2 123-14 192 35 105 87 190 146 238zm-576 411c30-14 73-57 137-158-75 58-122 124-137 158zm398-920c-10 28-10 76-2 132 3-16 5-31 7-44 2-17 5-31 7-43 1-3 2-5 4-8-1-1-1-3-2-5-1-18-7-29-13-36 0 2-1 3-1 4zm-124 661c88-35 186-63 284-81-10-8-20-15-29-23-49-43-93-103-127-176-19 61-47 126-83 197-15 28-30 56-45 83zm646-16c-5-5-31-24-140-24 49 18 94 28 124 28 9 0 14 0 18-1 0-1-1-2-2-3z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-word {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zM233 768v107h70l164 661h159l128-485c5-15 8-30 10-46 1-8 2-16 2-24h4l3 24c3 14 4 30 9 46l128 485h159l164-661h70V768h-300v107h90l-99 438c-4 16-6 33-7 46l-2 21h-4c0-6-2-14-3-21-3-13-5-30-9-46L825 768H711l-144 545c-4 16-5 33-8 46l-4 21h-4l-2-21c-1-13-3-30-7-46l-99-438h90V768H233z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-powerpoint {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zm-992-234v106h327v-106h-93v-167h137c43 0 82-2 118-15 90-31 146-124 146-233s-54-193-137-228c-38-15-84-19-130-19H416v107h92v555h-92zm353-280H650V882h120c35 0 62 6 83 18 36 21 56 62 56 115 0 56-20 99-62 120-21 10-47 15-78 15z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-excel {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zm-979-234v106h281v-106h-75l103-161c12-19 18-34 21-34h2c1 4 3 7 5 10 4 8 10 14 17 24l107 161h-76v106h291v-106h-68l-192-273 195-282h67V768H828v107h74l-103 159c-12 19-21 34-21 33h-2c-1-4-3-7-5-10-4-7-9-14-17-23L648 875h76V768H434v107h68l189 272-194 283h-68z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-audio {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zM620 850c12 5 20 17 20 30v544c0 13-8 25-20 30-4 1-8 2-12 2-8 0-16-3-23-9l-166-167H288c-18 0-32-14-32-32v-192c0-18 14-32 32-32h131l166-167c10-9 23-12 35-7zm417 689c19 0 37-8 50-24 83-102 129-231 129-363s-46-261-129-363c-22-28-63-32-90-10-28 23-32 63-9 91 65 80 100 178 100 282s-35 202-100 282c-23 28-19 68 9 90 12 10 26 15 40 15zm-211-148c17 0 34-7 47-20 56-60 87-137 87-219s-31-159-87-219c-24-26-65-27-91-3-25 24-27 65-2 91 33 36 52 82 52 131s-19 95-52 131c-25 26-23 67 2 91 13 11 29 17 44 17z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-video {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zM768 768c70 0 128 58 128 128v384c0 70-58 128-128 128H384c-70 0-128-58-128-128V896c0-70 58-128 128-128h384zm492 2c12 5 20 17 20 30v576c0 13-8 25-20 30-4 1-8 2-12 2-8 0-17-3-23-9l-265-266v-90l265-266c6-6 15-9 23-9 4 0 8 1 12 2z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-archive {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M640 384V256H512v128h128zm128 128V384H640v128h128zM640 640V512H512v128h128zm128 128V640H640v128h128zm700-388c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H768v128H640V128H128v1536h1280zM781 943c85 287 107 349 107 349 5 17 8 34 8 52 0 111-108 192-256 192s-256-81-256-192c0-18 3-35 8-52 0 0 21-62 120-396V768h128v128h79c29 0 54 19 62 47zm-141 465c71 0 128-29 128-64s-57-64-128-64-128 29-128 64 57 64 128 64z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-code {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zM480 768c11-14 31-17 45-6l51 38c14 11 17 31 6 45l-182 243 182 243c11 14 8 34-6 45l-51 38c-14 11-34 8-45-6l-226-301c-8-11-8-27 0-38zm802 301c8 11 8 27 0 38l-226 301c-11 14-31 17-45 6l-51-38c-14-11-17-31-6-45l182-243-182-243c-11-14-8-34 6-45l51-38c14-11 34-8 45 6zm-620 461c-18-3-29-20-26-37l138-831c3-18 20-29 37-26l63 10c18 3 29 20 26 37l-138 831c-3 18-20 29-37 26z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-alt, .fa-file-csv {
+      /* fork-awesome doesn't have csv so we use the text icon */
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zM384 800c0-18 14-32 32-32h704c18 0 32 14 32 32v64c0 18-14 32-32 32H416c-18 0-32-14-32-32v-64zm736 224c18 0 32 14 32 32v64c0 18-14 32-32 32H416c-18 0-32-14-32-32v-64c0-18 14-32 32-32h704zm0 256c18 0 32 14 32 32v64c0 18-14 32-32 32H416c-18 0-32-14-32-32v-64c0-18 14-32 32-32h704z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		blockquote {
+			border-left: 4px solid rgb(220, 220, 220);
+			padding-left: 1.2em;
+			margin-left: 0;
+			opacity: 0.7;
+		}
+
+		.jop-tinymce table,
+		table {
+			text-align: left;
+			border-collapse: collapse;
+			border: 1px solid rgb(220, 220, 220);
+			background-color: #ffffff;
+		}
+
+		.jop-tinymce table td, .jop-tinymce table th,
+		table td, th {
+			text-align: left;
+			padding: .5em 1em .5em 1em;
+			font-size: 15;
+			color: #32373F;
+			font-family: 'Avenir', 'Arial', sans-serif;
+		}
+
+		.jop-tinymce table td,
+		table td {
+			border: 1px solid rgb(220, 220, 220);
+		}
+
+		.jop-tinymce table th,
+		table th {
+			border: 1px solid rgb(220, 220, 220);
+			border-bottom: 2px solid rgb(220, 220, 220);
+			background-color: rgb(247, 247, 247);
+		}
+
+		.jop-tinymce table tr:nth-child(even),
+		table tr:nth-child(even) {
+			background-color: rgb(247, 247, 247);
+		}
+
+		.jop-tinymce table tr:hover,
+		table tr:hover {
+			background-color: #e5e5e5;
+		}
+
+		hr {
+			border: none;
+			border-bottom: 2px solid #dddddd;
+		}
+		img {
+			max-width: 100%;
+			height: auto;
+		}
+		
+		.inline-code,
+		.mce-content-body code {
+			border: 1px solid rgb(220, 220, 220);
+			background-color: rgb(243, 243, 243);
+			padding-right: .2em;
+			padding-left: .2em;
+			border-radius: .25em;
+			color: rgb(0,0,0);
+			font-size: .9em;
+		}
+
+		.highlighted-keyword {
+			background-color: #F3B717;
+			color: black;
+		}
+
+		.not-loaded-resource img {
+			width: 1.15em;
+			height: 1.15em;
+			background: white;
+			padding: 2px !important;
+			border-radius: 2px;
+			box-shadow: 0 1px 3px #000000aa;
+		}
+
+		a.not-loaded-resource img {
+			margin-right: .2em;
+		}
+
+		a.not-loaded-resource {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+		}
+
+		.md-checkbox input[type=checkbox]:checked {
+			opacity: 0.7;
+		}
+
+		.jop-tinymce ul.joplin-checklist .checked,
+		.md-checkbox .checkbox-label-checked {
+			opacity: 0.5;
+		}
+
+		.exported-note {
+			padding: 1em;
+		}
+
+		.joplin-editable .joplin-source {
+			display: none;
+		}
+
+		mark {
+			background: #F7D26E;
+			color: black;
+		}
+
+		/* =============================================== */
+		/* For TinyMCE */
+		/* =============================================== */
+
+		.mce-content-body {
+			/* Note: we give a bit more padding at the bottom, to allow scrolling past the end of the document */
+			padding: 5px 10px 10em 0;
+		}
+
+		/*
+		.mce-content-body code {
+			background-color: transparent;
+		}
+		*/
+
+		.mce-content-body [data-mce-selected=inline-boundary] {
+			background-color: transparent;
+		}
+
+		.mce-content-body .joplin-editable {
+			cursor: pointer !important;
+		}
+
+		.mce-content-body.mce-content-readonly {
+			opacity: 0.5;
+		}
+
+		/* We need that to make sure click events have the A has a target */
+		.katex a span {
+			pointer-events: none;
+		}
+
+		.media-player {
+			width: 100%;
+			margin-top: 10px;
+		}
+
+		.media-player.media-pdf {
+			min-height: 35rem;
+			width: 100%;
+			max-width: 1000px;
+			margin: 0;
+			border: 0;
+			display: block;
+		}
+
+		/* Clear the CODE style if the element is within a joplin-editable block */
+		.mce-content-body .joplin-editable code {
+			border: none;
+			background: none;
+			padding: 0;
+			color: inherit;
+			font-size: inherit;
+		}
+
+		/* To make code blocks horizontally scrollable */
+		/* https://github.com/laurent22/joplin/issues/5740 */
+		pre.hljs {
+			overflow-x: auto;
+		}
+
+		/* =============================================== */
+		/* For TinyMCE */
+		/* =============================================== */
+
+		@media print {
+			body {
+				height: auto !important;
+			}
+
+			pre {
+				white-space: pre-wrap;
+			}
+
+			.code, .inline-code {
+				border: 1px solid #CBCBCB;
+			}
+
+			#joplin-container-content {
+				/* The height of the content is set dynamically by JavaScript (in updateBodyHeight) to go
+				   around various issues related to scrolling. However when printing we don't want this
+				   fixed size as that would crop the content. So we set it to auto here. "important" is
+				   needed to override the style set by JavaScript at the element-level. */
+				height: auto !important;
+			}
+		}
+	
+
+				/*
+					FOR THE MARKDOWN EDITOR
+				*/
+
+				/* Remove the indentation from the checkboxes at the root of the document
+				   (otherwise they are too far right), but keep it for their children to allow
+				   nested lists. Make sure this value matches the UL margin. */
+
+				li.md-checkbox {
+					list-style-type: none;
+				}
+
+				li.md-checkbox input[type=checkbox] {
+					margin-left: -1.71em;
+					margin-right: 0.7em;
+				}
+				
+				ul.joplin-checklist {
+					list-style:none;
+				}
+
+				/*
+					FOR THE RICH TEXT EDITOR
+				*/
+
+				ul.joplin-checklist li::before {
+					content:"\f14a";
+					font-family:"Font Awesome 5 Free";
+					background-size: 16px 16px;
+					pointer-events: all;
+					cursor: pointer;
+					width: 1em;
+					height: 1em;
+					margin-left: -1.3em;
+					position: absolute;
+					color: #32373F;
+				}
+
+				.joplin-checklist li:not(.checked)::before {
+					content:"\f0c8";
+				}</style><div id="rendered-md"><p>C++ template</p>
+<nav class="table-of-contents"><ul><li><a href="#模板">模板</a><ul><li><a href="#语法">语法</a></li><li><a href="#模板标识">模板标识</a><ul><li><a href="#模板名">模板名</a></li></ul></li><li><a href="#模板化实体">模板化实体</a></li></ul></li><li><a href="#模板形参">模板形参</a><ul><li><a href="#模板非类型形参">模板非类型形参</a></li><li><a href="#模板类型形参">模板类型形参</a></li><li><a href="#模板模板形参">模板模板形参</a></li><li><a href="#模板形参的名字决议">模板形参的名字决议</a></li><li><a href="#模板实参">模板实参</a><ul><li><a href="#模板非类型实参">模板非类型实参</a></li><li><a href="#模板类型实参">模板类型实参</a></li><li><a href="#模板模板实参">模板模板实参</a></li><li><a href="#默认模板实参">默认模板实参</a></li><li><a href="#模板实参等价性">模板实参等价性</a></li><li><a href="#示例">示例</a></li></ul></li></ul></li><li><a href="#类模板">类模板</a><ul><li><a href="#语法-1">语法</a></li><li><a href="#类模板实例化">类模板实例化</a><ul><li><a href="#显式实例化">显式实例化</a></li><li><a href="#隐式实例化">隐式实例化</a></li></ul></li></ul></li><li><a href="#函数模板">函数模板</a><ul><li><a href="#函数模板实例化">函数模板实例化</a><ul><li><a href="#显式实例化-1">显式实例化</a></li><li><a href="#隐式实例化-1">隐式实例化</a></li><li><a href="#模板实参推导">模板实参推导</a></li><li><a href="#显式模板实参">显式模板实参</a></li><li><a href="#模板实参替换">模板实参替换</a></li><li><a href="#函数模板重载">函数模板重载</a></li><li><a href="#函数重载-vs-函数特化">函数重载 vs 函数特化</a></li><li><a href="#函数模板特化">函数模板特化</a></li></ul></li></ul></li><li><a href="#类型别名别名模板-c11-起">类型别名，别名模板 (C++11 起)</a></li><li><a href="#变量模板c14-起">变量模板(C++14 起)</a></li><li><a href="#形参包-c11-起">形参包 (C++11 起)</a><ul><li><a href="#包展开">包展开</a></li><li><a href="#展开场所">展开场所</a></li></ul></li><li><a href="#sfinae">SFINAE</a><ul><li><a href="#类型-sfinae">类型 SFINAE</a></li><li><a href="#表达式-sfinae">表达式 SFINAE</a></li><li><a href="#部分特化中的-sfinae">部分特化中的 SFINAE</a></li><li><a href="#库支持">库支持</a></li><li><a href="#替代方案">替代方案</a></li></ul></li><li><a href="#约束与概念-c20-起">约束与概念 (C++20 起)</a><ul><li><a href="#概念">概念</a></li><li><a href="#约束">约束</a><ul><li><a href="#合取">合取</a></li><li><a href="#析取">析取</a></li><li><a href="#不可分割约束">不可分割约束</a><ul><li><a href="#约束规范化">约束规范化</a></li></ul></li></ul></li><li><a href="#requires-子句">requires 子句</a></li><li><a href="#约束的偏序">约束的偏序</a></li></ul></li><li><a href="#requires-表达式-c20-起">Requires 表达式 (C++20 起)</a><ul><li><a href="#简单要求">简单要求</a></li><li><a href="#类型要求">类型要求</a></li><li><a href="#复合要求">复合要求</a></li><li><a href="#嵌套要求">嵌套要求</a></li></ul></li></ul></nav><p>================<br>
+<a data-from-md title='https://zh.cppreference.com/w/cpp/language/templates' href='https://zh.cppreference.com/w/cpp/language/templates'>https://zh.cppreference.com/w/cpp/language/templates</a></p>
+<h1 id="模板">模板</h1>
+<p>模板是一个 C++ 实体，可以分为：</p>
+<ul>
+<li>一族类 ( 类模板)，可以是 嵌套类</li>
+<li>一族函数 ( 函数模板)，可以是 成员函数</li>
+<li>一族类型的别名 ( 别名模板) C++11起</li>
+<li>一族变量 ( 变量模板) C++14起</li>
+<li>concept C++20起</li>
+</ul>
+<p>模板以一个或多个模板形参参数化，形参有三种：类型模板形参、非类型模板形参和模板模板形参。</p>
+<p>当提供了模板实参，或当函数模板或类 (C++17 起)模板的模板实参被推导出时，它们替换各模板形参，以获得模板的一个特化（specialization），即一个特定类型或一个特定函数左值。<br>
+特化也可以显式提供：对类、变量 (C++14 起)和函数模板都允许全特化，只允许对类模板和变量模板 (C++14 起)部分特化。</p>
+<p>在要求完整对象类型的语境中引用某个类模板特化时，或在要求函数定义存在的语境中引用某个函数模板特化时，除非模板已经被显式特化或显式实例化，否则模板即被实例化（instantiate）（它的代码被实际编译）。类模板的实例化不会实例化其任何成员函数，除非它们也被使用。在连接时，不同翻译单元生成的相同实例被合并。</p>
+<p>模板的定义必须在隐式实例化点可见，这就是模板库通常都在头文件中提供所有模板定义的原因（例如大多数 boost 库只有头文件）</p>
+<h2 id="语法">语法</h2>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template &lt;形参列表 &gt; requires子句 (可选) 声明      (1) 	
+export template &lt;形参列表 &gt; 声明                (2)(C++11 前)
+template &lt;形参列表 &gt; concept 概念名 = 约束表达式 ;    (3)(C++20 起)</pre><pre class="hljs"><code><span class="hljs-keyword">template</span> &lt;形参列表 &gt; <span class="hljs-keyword">requires</span>子句 (可选) 声明      (<span class="hljs-number">1</span>) 	
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">template</span> &lt;形参列表 &gt; 声明                (<span class="hljs-number">2</span>)(C++<span class="hljs-number">11</span> 前)
+<span class="hljs-keyword">template</span> &lt;形参列表 &gt; <span class="hljs-keyword">concept</span> 概念名 = 约束表达式 ;    (<span class="hljs-number">3</span>)(C++<span class="hljs-number">20</span> 起)</code></pre></div>
+<p>形参列表：非空的模板形参的逗号分隔列表，其中每项是非类型形参、类型形参、模板形参或任何这些的形参包之一。</p>
+<p>requires子句：(C++20 起) 指定了各模板实参上的约束的 requires子句。</p>
+<p>声明：类（包括 struct 和 union），成员类或成员枚举类型，函数或成员函数，命名空间作用域的静态数据成员，变量或类作用域的静态数据成员， (C++14 起)或别名模板 (C++11 起)的声明。它也可以定义模板特化。</p>
+<p>概念名，约束表达式：见约束与概念</p>
+<h2 id="模板标识">模板标识</h2>
+<p><code class="inline-code">模板名 &lt; 形参列表 &gt;</code></p>
+<h3 id="模板名">模板名</h3>
+<ul>
+<li>指名模板的标识符（这种情况下称之为 &quot;简单模板标识&quot;），或重载运算符模板或用户定义字面量模板的名字。</li>
+<li>指名类模板特化的 简单模板标识 指名一个类。</li>
+<li>指名别名模版特化的 模板标识 指名一个类型。</li>
+<li>指名函数模板特化的 模板标识 指名一个函数。</li>
+</ul>
+<p>模板标识 只有在符合下列条件时才合法：</p>
+<ul>
+<li>实参数量不多于形参，或有一个形参是模板形参包，</li>
+<li>每个没有默认模板实参的不可推导的非包形参都有一个实参，</li>
+<li>每个模板实参都与对应的模板形参相匹配，</li>
+<li>替换每个模板实参到其后续模板形参（如果存在）中均成功，而且</li>
+<li>如果 模板标识 非待决，那么它关联得约束需要按下述要求得以满足。 (C++20 起)</li>
+</ul>
+<p>无效的 简单模板标识 是编译时错误，除非它指名的是函数模板特化（此时适用 <mark>SFINAE</mark>）。</p>
+<p>。。6， S::type 是类型，所以是声明了一个变量 n ，然后赋值0。</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C++" data-joplin-source-open="```C++&#10;" data-joplin-source-close="&#10;```">template&lt;class T, T::type n = 0&gt;
+class X;
+ 
+struct S
+{
+  using type = int;
+};
+ 
+using T1 = X&lt;S, int, int&gt;; // 错误：实参过多
+using T2 = X&lt;&gt;;            // 错误：第一个模板形参没有默认实参
+using T3 = X&lt;1&gt;;           // 错误：值 1 不匹配类型形参
+using T4 = X&lt;int&gt;;         // 错误：第二个模板形参替换失败
+using T5 = X&lt;S&gt;;           // OK</pre><pre class="hljs"><code><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">T</span>, T::type n = <span class="hljs-number">0</span>&gt;
+<span class="hljs-keyword">class</span> X;
+ 
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">S</span>
+{
+  <span class="hljs-keyword">using</span> type = <span class="hljs-type">int</span>;
+};
+ 
+<span class="hljs-keyword">using</span> T1 = X&lt;S, <span class="hljs-type">int</span>, <span class="hljs-type">int</span>&gt;; <span class="hljs-comment">// 错误：实参过多</span>
+<span class="hljs-keyword">using</span> T2 = X&lt;&gt;;            <span class="hljs-comment">// 错误：第一个模板形参没有默认实参</span>
+<span class="hljs-keyword">using</span> T3 = X&lt;<span class="hljs-number">1</span>&gt;;           <span class="hljs-comment">// 错误：值 1 不匹配类型形参</span>
+<span class="hljs-keyword">using</span> T4 = X&lt;<span class="hljs-type">int</span>&gt;;         <span class="hljs-comment">// 错误：第二个模板形参替换失败</span>
+<span class="hljs-keyword">using</span> T5 = X&lt;S&gt;;           <span class="hljs-comment">// OK</span></code></pre></div>
+<p>C++ 20 起：<br>
+如果在 简单模板标识 的模板名指名受约束的非函数模板或受约束的模板模板形参，但不是作为未知特化的成员的成员模板，而且 简单模板标识 中的所有模板实参均非待决，那么必须满足受约束模板的各项关联约束：</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C++" data-joplin-source-open="```C++&#10;" data-joplin-source-close="&#10;```">template&lt;typename T&gt;
+concept C1 = sizeof(T) != sizeof(int);
+ 
+template&lt;C1 T&gt; struct S1 {};
+template&lt;C1 T&gt; using Ptr = T*;
+ 
+S1&lt;int&gt;* p;                      // 错误：不满足约束
+Ptr&lt;int&gt; p;                      // 错误：不满足约束
+ 
+template&lt;typename T&gt;
+struct S2 { Ptr&lt;int&gt; x; };       // 错误，不要求诊断
+ 
+template&lt;typename T&gt;
+struct S3 { Ptr&lt;T&gt; x; };         // OK：不要求满足
+ 
+S3&lt;int&gt; x;                       // 错误：不满足约束
+ 
+template&lt;template&lt;C1 T&gt; class X&gt;
+struct S4
+{
+    X&lt;int&gt; x;                    // 错误，不要求诊断
+};
+ 
+template&lt;typename T&gt;
+concept C2 = sizeof(T) == 1;
+ 
+template&lt;C2 T&gt;
+struct S {};
+ 
+template struct S&lt;char[2]&gt;;      // 错误：不满足约束
+template&lt;&gt; struct S&lt;char[2]&gt; {}; // 错误：不满足约束</pre><pre class="hljs"><code><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;
+<span class="hljs-keyword">concept</span> C1 = <span class="hljs-built_in">sizeof</span>(T) != <span class="hljs-built_in">sizeof</span>(<span class="hljs-type">int</span>);
+ 
+<span class="hljs-keyword">template</span>&lt;C1 T&gt; <span class="hljs-keyword">struct</span> <span class="hljs-title class_">S1</span> {};
+<span class="hljs-keyword">template</span>&lt;C1 T&gt; <span class="hljs-keyword">using</span> Ptr = T*;
+ 
+S1&lt;<span class="hljs-type">int</span>&gt;* p;                      <span class="hljs-comment">// 错误：不满足约束</span>
+Ptr&lt;<span class="hljs-type">int</span>&gt; p;                      <span class="hljs-comment">// 错误：不满足约束</span>
+ 
+<span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">S2</span> { Ptr&lt;<span class="hljs-type">int</span>&gt; x; };       <span class="hljs-comment">// 错误，不要求诊断</span>
+ 
+<span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">S3</span> { Ptr&lt;T&gt; x; };         <span class="hljs-comment">// OK：不要求满足</span>
+ 
+S3&lt;<span class="hljs-type">int</span>&gt; x;                       <span class="hljs-comment">// 错误：不满足约束</span>
+ 
+<span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">template</span>&lt;C1 T&gt; <span class="hljs-keyword">class</span> <span class="hljs-title class_">X</span>&gt;
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">S4</span>
+{
+    X&lt;<span class="hljs-type">int</span>&gt; x;                    <span class="hljs-comment">// 错误，不要求诊断</span>
+};
+ 
+<span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;
+<span class="hljs-keyword">concept</span> C2 = <span class="hljs-built_in">sizeof</span>(T) == <span class="hljs-number">1</span>;
+ 
+<span class="hljs-keyword">template</span>&lt;C2 T&gt;
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">S</span> {};
+ 
+<span class="hljs-keyword">template</span> <span class="hljs-keyword">struct</span> <span class="hljs-title class_">S</span>&lt;<span class="hljs-type">char</span>[<span class="hljs-number">2</span>]&gt;;      <span class="hljs-comment">// 错误：不满足约束</span>
+<span class="hljs-keyword">template</span>&lt;&gt; <span class="hljs-keyword">struct</span> <span class="hljs-title class_">S</span>&lt;<span class="hljs-type">char</span>[<span class="hljs-number">2</span>]&gt; {}; <span class="hljs-comment">// 错误：不满足约束</span></code></pre></div>
+<p>两个 <code class="inline-code">模板标识</code> 在满足下列条件时相同：</p>
+<ul>
+<li>它们的 模板名 指代同一模板，且</li>
+<li>它们对应的类型模板实参是同一类型，且</li>
+<li>它们对应的非类型模板实参在转换到模板形参的类型后模板实参等价，且</li>
+<li>它们对应的模板模板实参指代同一模板。<br>
+相同的两个 模板标识 指代同一个变量、 (C++14 起)类或函数。</li>
+</ul>
+<h2 id="模板化实体">模板化实体</h2>
+<p>模板化实体（某些资料称之为 &quot;temploid&quot;）是在模板定义内定义（或对于 lambda 表达式 为创建） (C++11 起)的实体。下列所有实体都是模板化实体：</p>
+<ul>
+<li>类/函数/变量 (C++14 起)模板</li>
+<li>concept (C++20 起)</li>
+<li>模板化实体的成员（例如类模板的非模板成员函数）</li>
+<li>作为模板化实体的枚举的枚举项</li>
+<li>任何模板化实体中定义或创建的实体：局部类，局部变量，友元函数，等等</li>
+<li>模板化实体的声明中出现的 lambda 表达式的闭包类型</li>
+</ul>
+<p>在以下模板中：</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template&lt;typename T&gt;
+struct A
+{
+    void f() {}
+};</pre><pre class="hljs"><code><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">A</span>
+{
+    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">f</span><span class="hljs-params">()</span> </span>{}
+};</code></pre></div>
+<p>函数 A::f 不是函数模板，但它仍然会被当做是模板化的。</p>
+<p>模板化函数 是函数模板或模板化的函数。<br>
+模板化类 是类模板或模板化的类。<br>
+模板化变量 是变量模板或模板化的变量。	(C++14 起)</p>
+<p>================<br>
+<a data-from-md title='https://zh.cppreference.com/w/cpp/language/template_parameters' href='https://zh.cppreference.com/w/cpp/language/template_parameters'>https://zh.cppreference.com/w/cpp/language/template_parameters</a></p>
+<h1 id="模板形参">模板形参</h1>
+<p>每个模板都会由一个或多个模板形参参数化，它们在模板声明语法中的 形参列表 中指定：<br>
+template &lt; 形参列表 &gt; 声明</p>
+<p>形参列表 中的每个形参可以是：</p>
+<ul>
+<li>模板非类型形参；</li>
+<li>模板类型形参；</li>
+<li>模板模板形参。</li>
+</ul>
+<h2 id="模板非类型形参">模板非类型形参</h2>
+<ol>
+<li><code class="inline-code">类型 名字(可选)</code> 	(1)</li>
+<li><code class="inline-code">类型 名字(可选) = 默认值</code> 	(2)</li>
+<li><code class="inline-code">类型 ... 名字(可选)</code> 	(3) 	(C++11 起)</li>
+<li><code class="inline-code">占位符 名字</code> 	(4) 	(C++17 起)</li>
+</ol>
+<ol>
+<li>可以有名字的模板<code class="inline-code">非类型形参</code>。</li>
+<li>可以有名字和默认值的模板非类型形参。</li>
+<li>可以有名字的模板非类型形参包。</li>
+<li>带占位符类型的模板非类型形参。占位符 可以是包含占位符 auto 的任何类型（例如单纯的 auto、auto ** 或 auto &amp;），被推导类类型的占位符 (C++20 起)，或者 decltype(auto)。</li>
+</ol>
+<p>模板非类型形参必须拥有结构化类型，它是下列类型之一（可以有 cv 限定，忽略限定符）：</p>
+<ul>
+<li>
+<pre><code>（到对象或函数的）左值引用类型；
+</code></pre>
+</li>
+<li>整数类型；</li>
+<li>（指向对象或函数的）指针类型；</li>
+<li>（指向成员对象或成员函数的）成员指针类型；</li>
+<li>枚举类型；</li>
+</ul>
+<p>C++11起：</p>
+<ul>
+<li>std::nullptr_t</li>
+</ul>
+<p>C++20起：</p>
+<ul>
+<li>浮点类型；</li>
+<li>拥有下列属性的字面类类型：<br>
+- 所有基类与非静态数据成员是公开且非 mutable 的，且<br>
+- 所有基类与非静态数据成员的类型都是结构化类型或它的（可能多维的）数组。</li>
+</ul>
+<p>数组与函数类型可以写在模板声明中，但它们会被自动替换为适合的<strong>对象指针和函数指针</strong>。<br>
+在类模板体内使用的模板非类型形参的名字是不可修改的纯右值，除非它的类型是左值引用类型<code class="inline-code">或类类型 (C++20 起)</code>。</p>
+<p>C++17起<br>
+如果模板<code class="inline-code">非类型形参</code>的<code class="inline-code">类型</code>包含占位符类型 auto，被推导类型的占位符 (C++20 起)，或 decltype(auto)，那么它可以被推导。推导会如同在虚设的声明 T x = 模板实参; 中推导变量 x 的类型一样进行，其中 T 是模板形参的声明类型。如果被推导的类型不能用于模板非类型形参，那么程序非良构。</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C++" data-joplin-source-open="```C++&#10;" data-joplin-source-close="&#10;```">template&lt;auto n&gt;
+struct B { /* ... */ };
+ 
+B&lt;5&gt; b1;   // OK：模板非类型形参的类型是 int
+B&lt;'a'&gt; b2; // OK：模板非类型形参的类型是 char
+B&lt;2.5&gt; b3; // 错误（C++20 前）：模板非类型形参的类型不能是 double</pre><pre class="hljs"><code><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">auto</span> n&gt;
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">B</span> { <span class="hljs-comment">/* ... */</span> };
+ 
+B&lt;<span class="hljs-number">5</span>&gt; b1;   <span class="hljs-comment">// OK：模板非类型形参的类型是 int</span>
+B&lt;<span class="hljs-string">&#x27;a&#x27;</span>&gt; b2; <span class="hljs-comment">// OK：模板非类型形参的类型是 char</span>
+B&lt;<span class="hljs-number">2.5</span>&gt; b3; <span class="hljs-comment">// 错误（C++20 前）：模板非类型形参的类型不能是 double</span></code></pre></div>
+<p>对于类型中使用了占位符类型的模板非类型形参包，每个模板实参的类型会独立进行推导，而且不需要互相匹配：</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template&lt;auto...&gt;
+struct C {};
+ 
+C&lt;'C', 0, 2L, nullptr&gt; x; // OK</pre><pre class="hljs"><code><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">auto</span>...&gt;
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">C</span> {};
+ 
+C&lt;<span class="hljs-string">&#x27;C&#x27;</span>, <span class="hljs-number">0</span>, <span class="hljs-number">2L</span>, <span class="hljs-literal">nullptr</span>&gt; x; <span class="hljs-comment">// OK</span></code></pre></div>
+<p>C++20起<br>
+指名类类型 T 的某个模板非类型形参的标识符代表一个 const T 类型的静态存储期对象，该对象被称为 <code class="inline-code">模板形参对象</code> ，它的值是对应模板实参转换到模板形参的类型之后的值。程序中所有具有相同类型和值的这种模板形参都代表同一模板形参对象。模板形参对象应当拥有常量析构。</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">struct A
+{
+    friend bool operator==(const A&amp;, const A&amp;) = default;
+};
+ 
+template&lt;A a&gt;
+void f()
+{
+    &amp;a;                       // OK
+    const A&amp; ra = a, &amp;rb = a; // 都绑定到同一个模板形参对象
+    assert(&amp;ra == &amp;rb);       // 通过
+}</pre><pre class="hljs"><code><span class="hljs-keyword">struct</span> <span class="hljs-title class_">A</span>
+{
+    <span class="hljs-keyword">friend</span> <span class="hljs-type">bool</span> <span class="hljs-keyword">operator</span>==(<span class="hljs-type">const</span> A&amp;, <span class="hljs-type">const</span> A&amp;) = <span class="hljs-keyword">default</span>;
+};
+ 
+<span class="hljs-function"><span class="hljs-keyword">template</span>&lt;A a&gt;
+<span class="hljs-type">void</span> <span class="hljs-title">f</span><span class="hljs-params">()</span>
+</span>{
+    &amp;a;                       <span class="hljs-comment">// OK</span>
+    <span class="hljs-type">const</span> A&amp; ra = a, &amp;rb = a; <span class="hljs-comment">// 都绑定到同一个模板形参对象</span>
+    <span class="hljs-built_in">assert</span>(&amp;ra == &amp;rb);       <span class="hljs-comment">// 通过</span>
+}</code></pre></div>
+<h2 id="模板类型形参">模板类型形参</h2>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">类型形参关键词 名字(可选) 	(1) 	
+类型形参关键词 名字(可选) = 默认值 	(2) 	
+类型形参关键词 ... 名字(可选) 	(3) 	(C++11 起)
+类型约束 名字(可选) 	(4) 	(C++20 起)
+类型约束 名字(可选) = 默认值 	(5) 	(C++20 起)
+类型约束 ... 名字(可选) 	 (6) 	(C++20 起)</pre><pre class="hljs"><code>类型形参关键词 名字<span class="hljs-comment">(可选)</span> 	<span class="hljs-comment">(1)</span> 	
+类型形参关键词 名字<span class="hljs-comment">(可选)</span> = 默认值 	<span class="hljs-comment">(2)</span> 	
+类型形参关键词 ... 名字<span class="hljs-comment">(可选)</span> 	<span class="hljs-comment">(3)</span> 	<span class="hljs-comment">(C++11 起)</span>
+类型约束 名字<span class="hljs-comment">(可选)</span> 	<span class="hljs-comment">(4)</span> 	<span class="hljs-comment">(C++20 起)</span>
+类型约束 名字<span class="hljs-comment">(可选)</span> = 默认值 	<span class="hljs-comment">(5)</span> 	<span class="hljs-comment">(C++20 起)</span>
+类型约束 ... 名字<span class="hljs-comment">(可选)</span> 	 <span class="hljs-comment">(6)</span> 	<span class="hljs-comment">(C++20 起)</span></code></pre></div>
+<p>类型形参关键词 	- 	typename 或 class 之一。这两个关键词在模板类型形参声明中没有区别<br>
+类型约束 	- 	概念的名字或概念名后随模板实参列表（在角括号中）。概念名均对于两者都可以有限定</p>
+<ol>
+<li>没有默认类型的模板类型形参。</li>
+</ol>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template&lt;class T&gt;
+class My_vector { /* ... */ };</pre><pre class="hljs"><code>template&lt;<span class="hljs-keyword">class</span> <span class="hljs-symbol">T</span>&gt;
+<span class="hljs-symbol">class</span> <span class="hljs-symbol">My_vector</span> { <span class="hljs-comment">/* ... */</span> };</code></pre></div>
+<ol start="2">
+<li>有默认类型的模板类型形参。</li>
+</ol>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template&lt;class T = void&gt;
+struct My_op_functor { /* ... */ };</pre><pre class="hljs"><code>template&lt;<span class="hljs-keyword">class</span> <span class="hljs-symbol">T</span> = <span class="hljs-symbol">void</span>&gt;
+<span class="hljs-symbol">struct</span> <span class="hljs-symbol">My_op_functor</span> { <span class="hljs-comment">/* ... */</span> };</code></pre></div>
+<ol start="3">
+<li>模板类型形参包。</li>
+</ol>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template&lt;typename... Ts&gt;
+class My_tuple { /* ... */ };</pre><pre class="hljs"><code><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span>... Ts&gt;
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">My_tuple</span> { <span class="hljs-comment">/* ... */</span> };</code></pre></div>
+<ol start="4">
+<li>没有默认实参的受约束模板类型形参。</li>
+</ol>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template &lt;My_concept T&gt;
+class My_constrained_vector { /* ... */ };</pre><pre class="hljs"><code>template &lt;My_concept T&gt;
+<span class="hljs-keyword">class</span> <span class="hljs-symbol">My_constrained_vector</span> { <span class="hljs-comment">/* ... */</span> };</code></pre></div>
+<ol start="5">
+<li>有默认实参的受约束模板类型形参。</li>
+</ol>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template &lt;My_concept T = void&gt;
+class My_constrained_op_functor { /* ... */ };</pre><pre class="hljs"><code>template &lt;My_concept T = <span class="hljs-built_in">void</span>&gt;
+<span class="hljs-keyword">class</span> <span class="hljs-symbol">My_constrained_op_functor</span> { <span class="hljs-comment">/* ... */</span> };</code></pre></div>
+<ol start="6">
+<li>受约束的模板类型形参包。</li>
+</ol>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template &lt;My_concept... Ts&gt;
+class My_constrained_tuple { /* ... */ };</pre><pre class="hljs"><code>template &lt;My_concept... Ts&gt;
+<span class="hljs-keyword">class</span> <span class="hljs-symbol">My_constrained_tuple</span> { <span class="hljs-comment">/* ... */</span> };</code></pre></div>
+<p>形参的名字是可选的：</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">// 对上面所示模板的声明：
+template&lt;class&gt;
+class My_vector;
+template&lt;class = void&gt;
+struct My_op_functor;
+template&lt;typename...&gt;
+class My_tuple;</pre><pre class="hljs"><code><span class="hljs-comment">// 对上面所示模板的声明：</span>
+<span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span>&gt;
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">My_vector</span>;
+<span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span> = <span class="hljs-type">void</span>&gt;
+<span class="hljs-keyword">struct</span> My_op_functor;
+<span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span>...&gt;
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">My_tuple</span>;</code></pre></div>
+<p>在模板声明体内，类型形参的名字是 typedef 名字，它是当模板被实例化时所提供的类型的别名。</p>
+<p>C++20起<br>
+对于每个受约束形参 P，它的 类型约束 Q 指定了概念 C，那么根据以下规则引入一个约束表达式 E：</p>
+<ul>
+<li>如果 Q 是 C（没有实参列表），
+<ul>
+<li>如果 P 不是形参包，那么 E 是 C<p class="jop-noMdConv"></li>
+<li>否则，P 是形参包，那么 E 是折叠表达式 (C<p class="jop-noMdConv"> &amp;&amp; ...)</li>
+</ul>
+</li>
+<li>如果 Q 是 C&lt;A1,A2...,AN&gt;，那么 E 分别是 C&lt;P,A1,A2,...AN&gt; 或 (C&lt;P,A1,A2,...AN&gt; &amp;&amp; ...)。</li>
+</ul>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C++" data-joplin-source-open="```C++&#10;" data-joplin-source-close="&#10;```">template&lt;typename T&gt;
+concept C1 = true;
+template&lt;typename... Ts&gt;
+concept C2 = true; // 变参概念
+template&lt;typename T, typename U&gt;
+concept C3 = true;
+ 
+template&lt;C1 T&gt;         struct s1; // 约束表达式是 C1&lt;T&gt;
+template&lt;C1... T&gt;      struct s2; // 约束表达式是 (C1&lt;T&gt; &amp;&amp; ...)
+template&lt;C2... T&gt;      struct s3; // 约束表达式是 (C2&lt;T&gt; &amp;&amp; ...)
+template&lt;C3&lt;int&gt; T&gt;    struct s4; // 约束表达式是 C3&lt;T, int&gt;
+template&lt;C3&lt;int&gt;... T&gt; struct s5; // 约束表达式是 (C3&lt;T, int&gt; &amp;&amp; ...)</pre><pre class="hljs"><code><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;
+<span class="hljs-keyword">concept</span> C1 = <span class="hljs-literal">true</span>;
+<span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span>... Ts&gt;
+<span class="hljs-keyword">concept</span> C2 = <span class="hljs-literal">true</span>; <span class="hljs-comment">// 变参概念</span>
+<span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T, <span class="hljs-keyword">typename</span> U&gt;
+<span class="hljs-keyword">concept</span> C3 = <span class="hljs-literal">true</span>;
+ 
+<span class="hljs-keyword">template</span>&lt;C1 T&gt;         <span class="hljs-keyword">struct</span> <span class="hljs-title class_">s1</span>; <span class="hljs-comment">// 约束表达式是 C1&lt;T&gt;</span>
+<span class="hljs-keyword">template</span>&lt;C1... T&gt;      <span class="hljs-keyword">struct</span> <span class="hljs-title class_">s2</span>; <span class="hljs-comment">// 约束表达式是 (C1&lt;T&gt; &amp;&amp; ...)</span>
+<span class="hljs-keyword">template</span>&lt;C2... T&gt;      <span class="hljs-keyword">struct</span> <span class="hljs-title class_">s3</span>; <span class="hljs-comment">// 约束表达式是 (C2&lt;T&gt; &amp;&amp; ...)</span>
+<span class="hljs-keyword">template</span>&lt;C3&lt;<span class="hljs-type">int</span>&gt; T&gt;    <span class="hljs-keyword">struct</span> <span class="hljs-title class_">s4</span>; <span class="hljs-comment">// 约束表达式是 C3&lt;T, int&gt;</span>
+<span class="hljs-keyword">template</span>&lt;C3&lt;<span class="hljs-type">int</span>&gt;... T&gt; <span class="hljs-keyword">struct</span> <span class="hljs-title class_">s5</span>; <span class="hljs-comment">// 约束表达式是 (C3&lt;T, int&gt; &amp;&amp; ...)</span></code></pre></div>
+<h2 id="模板模板形参">模板模板形参</h2>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C++" data-joplin-source-open="```C++&#10;" data-joplin-source-close="&#10;```">template &lt; 形参列表 &gt; typename(C++17)|class 名字(可选) 	(1) 	
+template &lt; 形参列表 &gt; typename(C++17)|class 名字(可选) = default 	(2) 	
+template &lt; 形参列表 &gt; typename(C++17)|class ... 名字(可选) 	(3) 	(C++11 起)</pre><pre class="hljs"><code><span class="hljs-keyword">template</span> &lt; 形参列表 &gt; <span class="hljs-built_in">typename</span>(C++<span class="hljs-number">17</span>)|<span class="hljs-keyword">class</span> 名字(可选) 	(<span class="hljs-number">1</span>) 	
+<span class="hljs-keyword">template</span> &lt; 形参列表 &gt; <span class="hljs-built_in">typename</span>(C++<span class="hljs-number">17</span>)|<span class="hljs-keyword">class</span> 名字(可选) = <span class="hljs-built_in">default</span> 	(<span class="hljs-number">2</span>) 	
+<span class="hljs-keyword">template</span> &lt; 形参列表 &gt; <span class="hljs-built_in">typename</span>(C++<span class="hljs-number">17</span>)|<span class="hljs-keyword">class</span> ... 名字(可选) 	(<span class="hljs-number">3</span>) 	(C++<span class="hljs-number">11</span> 起)</code></pre></div>
+<p>类型形参关键词 	- 	class 或 typename 之一 (C++17 起)<br>
+1) 可以有名字的模板模板形参。<br>
+2) 有默认模板且可以有名字的模板模板形参。<br>
+3) 可以有名字的模板模板形参包。</p>
+<p>在模板声明体内，此形参的名字是一个模板名（且需要实参以实例化）。</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template&lt;typename T&gt;
+class my_array {};
+ 
+// 两个模板类型形参和一个模板模板形参：
+template&lt;typename K, typename V, template&lt;typename&gt; typename C = my_array&gt;
+class Map
+{
+    C&lt;K&gt; key;
+    C&lt;V&gt; value;
+};</pre><pre class="hljs"><code><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">my_array</span> {};
+ 
+<span class="hljs-comment">// 两个模板类型形参和一个模板模板形参：</span>
+<span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> K, <span class="hljs-keyword">typename</span> V, <span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span>&gt; <span class="hljs-keyword">typename</span> C = my_array&gt;
+<span class="hljs-keyword">class</span> Map
+{
+    C&lt;K&gt; key;
+    C&lt;V&gt; value;
+};</code></pre></div>
+<h2 id="模板形参的名字决议">模板形参的名字决议</h2>
+<p>模板形参的名字不能在它的作用域（包括内嵌作用域）内重声明。模板形参的名字不能与模板的名字相同。</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template&lt;class T, int N&gt;
+class Y
+{
+    int T;      // 错误：重声明模板形参
+    void f()
+    {
+        char T; // 错误：重声明模板形参
+    }
+};
+ 
+template&lt;class X&gt;
+class X; // 错误：重声明模板形参</pre><pre class="hljs"><code>template&lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">T</span>, <span class="hljs-built_in">int</span> N&gt;
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Y</span>
+{
+    <span class="hljs-built_in">int</span> T;      <span class="hljs-comment">// 错误：重声明模板形参</span>
+    <span class="hljs-keyword">void</span> f()
+    {
+        <span class="hljs-built_in">char</span> T; <span class="hljs-comment">// 错误：重声明模板形参</span>
+    }
+};
+ 
+template&lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">X</span>&gt;
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">X</span>; <span class="hljs-comment">// 错误：重声明模板形参</span></code></pre></div>
+<p>在某个类模板定义外的出现的类模板成员定义中，类模板成员名会隐藏任何外围类模板的模板形参名，但如果该成员是类或函数模板就不会隐藏该成员的模板形参。<br>
+。。。？</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template&lt;class T&gt;
+struct A
+{
+    struct B {};
+    typedef void C;
+    void f();
+ 
+    template&lt;class U&gt;
+    void g(U);
+};
+ 
+template&lt;class B&gt;
+void A&lt;B&gt;::f()
+{
+    B b; // A 的 B ，不是模板形参
+}
+ 
+template&lt;class B&gt;
+template&lt;class C&gt;
+void A&lt;B&gt;::g(C)
+{
+    B b; // A 的 B ，不是模板形参
+    C c; // 模板形参 C ，不是 A 的 C
+}</pre><pre class="hljs"><code><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">T</span>&gt;
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">A</span>
+{
+    <span class="hljs-keyword">struct</span> <span class="hljs-title class_">B</span> {};
+    <span class="hljs-keyword">typedef</span> <span class="hljs-type">void</span> C;
+    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">f</span><span class="hljs-params">()</span></span>;
+ 
+    <span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span> U&gt;
+    <span class="hljs-type">void</span> <span class="hljs-title">g</span><span class="hljs-params">(U)</span></span>;
+};
+ 
+<span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">B</span>&gt;
+<span class="hljs-type">void</span> A&lt;B&gt;::<span class="hljs-built_in">f</span>()
+{
+    B b; <span class="hljs-comment">// A 的 B ，不是模板形参</span>
+}
+ 
+<span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">B</span>&gt;
+<span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">C</span>&gt;
+<span class="hljs-type">void</span> A&lt;B&gt;::<span class="hljs-built_in">g</span>(C)
+{
+    B b; <span class="hljs-comment">// A 的 B ，不是模板形参</span>
+    C c; <span class="hljs-comment">// 模板形参 C ，不是 A 的 C</span>
+}</code></pre></div>
+<p>在包含某个类模板的定义的命名空间外出现的该类模板的成员定义中，模板形参名隐藏此命名空间的成员名。</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">namespace N
+{
+    class C {};
+ 
+    template&lt;class T&gt;
+    class B
+    {
+        void f(T);
+    };
+}
+ 
+template&lt;class C&gt;
+void N::B&lt;C&gt;::f(C)
+{
+    C b; // C 是模板形参，不是 N::C
+}</pre><pre class="hljs"><code><span class="hljs-keyword">namespace</span> <span class="hljs-symbol">N</span>
+{
+    <span class="hljs-keyword">class</span> <span class="hljs-symbol">C</span> {};
+ 
+    template&lt;<span class="hljs-keyword">class</span> <span class="hljs-symbol">T</span>&gt;
+    <span class="hljs-symbol">class</span> <span class="hljs-symbol">B</span>
+    {
+        <span class="hljs-built_in">void</span> f(T);
+    };
+}
+ 
+template&lt;<span class="hljs-keyword">class</span> <span class="hljs-symbol">C</span>&gt;
+<span class="hljs-symbol">void</span> <span class="hljs-symbol">N::<span class="hljs-symbol">B</span></span>&lt;<span class="hljs-symbol">C</span>&gt;::<span class="hljs-symbol">f</span>(<span class="hljs-symbol">C</span>)
+{
+    C b; <span class="hljs-comment">// C 是模板形参，不是 N::C</span>
+}</code></pre></div>
+<p>在类模板定义中，或在模板定义外的这种成员的定义中出现，对于每个非待决基类，如果基类名或基类成员名与模板形参名相同，那么该基类名或成员名隐藏模板形参名。</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">struct A
+{
+    struct B {};
+    int C;
+    int Y;
+};
+ 
+template&lt;class B, class C&gt;
+struct X : A
+{
+    B b; // A 的 B
+    C b; // 错误： A 的 C 不是类型名
+};</pre><pre class="hljs"><code>struct A
+{
+    struct B {};
+    <span class="hljs-built_in">int</span> C;
+    <span class="hljs-built_in">int</span> Y;
+};
+ 
+template&lt;<span class="hljs-keyword">class</span> <span class="hljs-symbol">B, <span class="hljs-symbol">class</span></span> <span class="hljs-symbol">C</span>&gt;
+<span class="hljs-symbol">struct</span> <span class="hljs-symbol">X</span> : <span class="hljs-symbol">A</span>
+{
+    B b; <span class="hljs-comment">// A 的 B</span>
+    C b; <span class="hljs-comment">// 错误： A 的 C 不是类型名</span>
+};</code></pre></div>
+<h2 id="模板实参">模板实参</h2>
+<p>为使模板被实例化，它的每个模板形参（类型、非类型或模板）都必须被一个对应的模板实参替换。对于类模板，实参可以被显式提供，或从初始化器推导， (C++17 起)或为默认。对于函数模板，实参可以被显式提供，或从语境推导，或为默认。</p>
+<p>如果实参可以同时被解释为类型标识和表达式，那么它始终会被解释为类型标识，即使它对应的是模板非类型形参：</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template&lt;class T&gt;
+void f(); // #1
+ 
+template&lt;int I&gt;
+void f(); // #2
+ 
+void g()
+{
+    f&lt;int()&gt;(); // &quot;int()&quot; 既是类型又是表达式，
+                // 因为它被解释成类型，所以调用 #1
+}</pre><pre class="hljs"><code><span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span> T&gt;
+<span class="hljs-type">void</span> <span class="hljs-title">f</span><span class="hljs-params">()</span></span>; <span class="hljs-comment">// #1</span>
+ 
+<span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-type">int</span> I&gt;
+<span class="hljs-type">void</span> <span class="hljs-title">f</span><span class="hljs-params">()</span></span>; <span class="hljs-comment">// #2</span>
+ 
+<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">g</span><span class="hljs-params">()</span>
+</span>{
+    <span class="hljs-built_in">f</span>&lt;<span class="hljs-built_in">int</span>()&gt;(); <span class="hljs-comment">// &quot;int()&quot; 既是类型又是表达式，</span>
+                <span class="hljs-comment">// 因为它被解释成类型，所以调用 #1</span>
+}</code></pre></div>
+<h3 id="模板非类型实参">模板非类型实参</h3>
+<p>在实例化拥有模板非类型形参的模板时应用下列限制：<br>
+C++17前：</p>
+<ul>
+<li>
+<pre><code>对于整型和算术类型，实例化时所提供的模板实参必须是模板形参类型的经转换常量表达式（因此适用某些隐式转换）。
+</code></pre>
+</li>
+<li>对于对象指针，模板实参必须指定某个具有静态存储期和（内部或外部）连接的完整对象的地址，或者是求值为适当的空指针或 std::nullptr_t (C++11 起)值的常量表达式。</li>
+<li>对于函数指针，合法的实参是指向具有连接的函数的指针（或求值为空指针值的常量表达式）。</li>
+<li>对于左值引用形参，实例化时所提供的实参不能是临时量、无名左值或无连接的具名左值（换言之，实参必须具有连接）。</li>
+<li>对于成员指针，实参必须是表示成 &amp;Class::Member 的成员指针，或求值为空指针值或 std::nullptr_t (C++11 起)值的常量表达式。</li>
+</ul>
+<p>特别是，这意味着字符串字面量、数组元素的地址和非静态成员的地址，不能被用作模板实参，来实例化它对应的模板非类型形参是对象指针的模板形参的模板。</p>
+<p>C++17起：<br>
+模板非类型形参可以使用的模板实参，可以是该模板形参类型的任何经转换常量表达式。</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template&lt;const int* pci&gt;
+struct X {};
+ 
+int ai[10];
+X&lt;ai&gt; xi; // OK：数组到指针转换和 cv 限定转换
+ 
+struct Y {};
+ 
+template&lt;const Y&amp; b&gt;
+struct Z {};
+ 
+Y y;
+Z&lt;y&gt; z;   // OK：没有转换
+ 
+template&lt;int (&amp;pa)[5]&gt;
+struct W {};
+ 
+int b[5];
+W&lt;b&gt; w;   // OK：没有转换
+ 
+void f(char);
+void f(int);
+ 
+template&lt;void (*pf)(int)&gt;
+struct A {};
+ 
+A&lt;&amp;f&gt; a;  // OK：重载决议选择 f(int)</pre><pre class="hljs"><code><span class="hljs-keyword">template</span>&lt;<span class="hljs-type">const</span> <span class="hljs-type">int</span>* pci&gt;
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">X</span> {};
+ 
+<span class="hljs-type">int</span> ai[<span class="hljs-number">10</span>];
+X&lt;ai&gt; xi; <span class="hljs-comment">// OK：数组到指针转换和 cv 限定转换</span>
+ 
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">Y</span> {};
+ 
+<span class="hljs-keyword">template</span>&lt;<span class="hljs-type">const</span> Y&amp; b&gt;
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">Z</span> {};
+ 
+Y y;
+Z&lt;y&gt; z;   <span class="hljs-comment">// OK：没有转换</span>
+ 
+<span class="hljs-keyword">template</span>&lt;<span class="hljs-built_in">int</span> (&amp;pa)[<span class="hljs-number">5</span>]&gt;
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">W</span> {};
+ 
+<span class="hljs-type">int</span> b[<span class="hljs-number">5</span>];
+W&lt;b&gt; w;   <span class="hljs-comment">// OK：没有转换</span>
+ 
+<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">f</span><span class="hljs-params">(<span class="hljs-type">char</span>)</span></span>;
+<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">f</span><span class="hljs-params">(<span class="hljs-type">int</span>)</span></span>;
+ 
+<span class="hljs-keyword">template</span>&lt;<span class="hljs-built_in">void</span> (*pf)(<span class="hljs-type">int</span>)&gt;
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">A</span> {};
+ 
+A&lt;&amp;f&gt; a;  <span class="hljs-comment">// OK：重载决议选择 f(int)</span></code></pre></div>
+<p>仅有的例外是引用或指针类型的模板非类型形参以及类类型的模板非类型形参和它的子对象之中的引用或指针类型的非静态数据成员 (C++20 起)，它们不能指代下列对象或者是下列对象的地址：</p>
+<ul>
+<li>临时对象（包括在引用初始化期间创建的对象）；</li>
+<li>字符串字面量；</li>
+<li>typeid 的结果；</li>
+<li>预定义变量 <strong>func</strong>；</li>
+<li>或以上之一的 (C++20 起)子对象（包括非静态类成员、基类子对象或数组元素）。</li>
+</ul>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template&lt;class T, const char* p&gt;
+class X {};
+ 
+X&lt;int, &quot;Studebaker&quot;&gt; x1; // 错误：将字符串字面量用作模板实参
+ 
+template&lt;int* p&gt;
+class X {};
+ 
+int a[10];
+ 
+struct S
+{
+    int m;
+    static int s;
+} s;
+ 
+X&lt;&amp;a[2]&gt; x3; // 错误（C++20 前）：数组元素的地址
+X&lt;&amp;s.m&gt; x4;  // 错误（C++20 前）：非静态成员的地址
+X&lt;&amp;s.s&gt; x5;  // OK：静态成员的地址
+X&lt;&amp;S::s&gt; x6; // OK：静态成员的地址
+ 
+template&lt;const int&amp; CRI&gt;
+struct B {};
+ 
+B&lt;1&gt; b2;     // 错误：模板实参要求临时量
+int c = 1;
+B&lt;c&gt; b1;     // OK</pre><pre class="hljs"><code><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">T</span>, <span class="hljs-type">const</span> <span class="hljs-type">char</span>* p&gt;
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">X</span> {};
+ 
+X&lt;<span class="hljs-type">int</span>, <span class="hljs-string">&quot;Studebaker&quot;</span>&gt; x1; <span class="hljs-comment">// 错误：将字符串字面量用作模板实参</span>
+ 
+<span class="hljs-keyword">template</span>&lt;<span class="hljs-type">int</span>* p&gt;
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">X</span> {};
+ 
+<span class="hljs-type">int</span> a[<span class="hljs-number">10</span>];
+ 
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">S</span>
+{
+    <span class="hljs-type">int</span> m;
+    <span class="hljs-type">static</span> <span class="hljs-type">int</span> s;
+} s;
+ 
+X&lt;&amp;a[<span class="hljs-number">2</span>]&gt; x3; <span class="hljs-comment">// 错误（C++20 前）：数组元素的地址</span>
+X&lt;&amp;s.m&gt; x4;  <span class="hljs-comment">// 错误（C++20 前）：非静态成员的地址</span>
+X&lt;&amp;s.s&gt; x5;  <span class="hljs-comment">// OK：静态成员的地址</span>
+X&lt;&amp;S::s&gt; x6; <span class="hljs-comment">// OK：静态成员的地址</span>
+ 
+<span class="hljs-keyword">template</span>&lt;<span class="hljs-type">const</span> <span class="hljs-type">int</span>&amp; CRI&gt;
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">B</span> {};
+ 
+B&lt;<span class="hljs-number">1</span>&gt; b2;     <span class="hljs-comment">// 错误：模板实参要求临时量</span>
+<span class="hljs-type">int</span> c = <span class="hljs-number">1</span>;
+B&lt;c&gt; b1;     <span class="hljs-comment">// OK</span></code></pre></div>
+<h3 id="模板类型实参">模板类型实参</h3>
+<p>模板类型形参的模板实参必须是类型标识，它可以指名不完整类型：</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template&lt;typename T&gt;
+class X {}; // 类模板
+ 
+struct A;            // 不完整类型
+typedef struct {} B; // 无名类型的类型别名
+ 
+int main()
+{
+    X&lt;A&gt; x1;  // OK：'A' 指名类型
+    X&lt;A*&gt; x2; // OK：'A*' 指名类型
+    X&lt;B&gt; x3;  // OK：'B' 指名类型
+}</pre><pre class="hljs"><code>template&lt;typename T&gt;
+class X {}; <span class="hljs-regexp">//</span> 类模板
+ 
+struct A;            <span class="hljs-regexp">//</span> 不完整类型
+typedef struct {} B; <span class="hljs-regexp">//</span> 无名类型的类型别名
+ 
+int main()
+{
+    X&lt;A&gt; x1;  <span class="hljs-regexp">//</span> OK：<span class="hljs-string">&#x27;A&#x27;</span> 指名类型
+    X&lt;A*&gt; x2; <span class="hljs-regexp">//</span> OK：<span class="hljs-string">&#x27;A*&#x27;</span> 指名类型
+    X&lt;B&gt; x3;  <span class="hljs-regexp">//</span> OK：<span class="hljs-string">&#x27;B&#x27;</span> 指名类型
+}</code></pre></div>
+<h3 id="模板模板实参">模板模板实参</h3>
+<p>模板模板形参的模板实参是必须是一个 标识表达式，它指名一个类模板或模板别名。</p>
+<p>当实参是类模板时，进行形参匹配时只考虑它的主模板。即使存在部分特化，它们也只会在基于此模板模板形参的特化恰好要被实例化时才会被考虑。</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template&lt;typename T&gt; // 主模板
+class A { int x; };
+ 
+template&lt;typename T&gt; // 部分特化
+class A&lt;T*&gt; { long x; };
+ 
+// 带有模板模板形参 V 的类模板
+template&lt;template&lt;typename&gt; class V&gt;
+class C
+{
+    V&lt;int&gt; y;  // 使用主模板
+    V&lt;int*&gt; z; // 使用部分特化
+};
+ 
+C&lt;A&gt; c; // c.y.x 的类型是 int，c.z.x 的类型是 long</pre><pre class="hljs"><code><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt; <span class="hljs-comment">// 主模板</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">A</span> { <span class="hljs-type">int</span> x; };
+ 
+<span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt; <span class="hljs-comment">// 部分特化</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">A</span>&lt;T*&gt; { <span class="hljs-type">long</span> x; };
+ 
+<span class="hljs-comment">// 带有模板模板形参 V 的类模板</span>
+<span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span>&gt; <span class="hljs-keyword">class</span> <span class="hljs-title class_">V</span>&gt;
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">C</span>
+{
+    V&lt;<span class="hljs-type">int</span>&gt; y;  <span class="hljs-comment">// 使用主模板</span>
+    V&lt;<span class="hljs-type">int</span>*&gt; z; <span class="hljs-comment">// 使用部分特化</span>
+};
+ 
+C&lt;A&gt; c; <span class="hljs-comment">// c.y.x 的类型是 int，c.z.x 的类型是 long</span></code></pre></div>
+<p>。。跳</p>
+<h3 id="默认模板实参">默认模板实参</h3>
+<p>默认模板实参在形参列表中在 = 号之后指定。可以为任何种类的模板形参（类型、非类型或模板）指定默认实参，但不能对形参包指定 (C++11 起)。</p>
+<p>如果为主类模板、主变量模板 (C++14 起)或别名模版的模板形参指定默认实参，那么它后面的所有模板形参都必须有默认实参，但最后一个可以是模板形参包 (C++11 起)。在函数模板中，对跟在默认实参之后的形参没有限制，而只有在类型形参具有默认实参，或可以从函数实参推导时，才能跟在形参包之后 (C++11 起)。</p>
+<p>以下情况不允许默认形参：</p>
+<ul>
+<li>在类模板的成员的类外定义中（必须在类体内的声明中提供它们）。注意非模板类的成员模板可以在它的类外定义中使用默认形参（见 GCC 漏洞 53856）</li>
+<li>在友元类模板声明中</li>
+<li>在任何函数模板声明或定义中 (C++11 前)</li>
+<li>在友元函数模板的声明上，仅当声明是定义，且此翻译单元不出现此函数的其他声明时，才允许默认模板实参。(C++11 起)</li>
+</ul>
+<p>各个声明中所出现的默认模板实参，以类似默认函数实参的方式合并：</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template&lt;typename T1, typename T2 = int&gt; class A;
+template&lt;typename T1 = int, typename T2&gt; class A;
+// 如上与如下相同：
+template&lt;typename T1 = int, typename T2 = int&gt; class A;</pre><pre class="hljs"><code><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T1, <span class="hljs-keyword">typename</span> T2 = <span class="hljs-type">int</span>&gt; <span class="hljs-keyword">class</span> A;
+<span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T1 = <span class="hljs-type">int</span>, <span class="hljs-keyword">typename</span> T2&gt; <span class="hljs-keyword">class</span> A;
+<span class="hljs-comment">// 如上与如下相同：</span>
+<span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T1 = <span class="hljs-type">int</span>, <span class="hljs-keyword">typename</span> T2 = <span class="hljs-type">int</span>&gt; <span class="hljs-keyword">class</span> A;</code></pre></div>
+<p>但在同一作用域中不能两次为同一形参指定默认实参：</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template&lt;typename T = int&gt; class X;
+template&lt;typename T = int&gt; class X {}; // 错误</pre><pre class="hljs"><code><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T = <span class="hljs-type">int</span>&gt; <span class="hljs-keyword">class</span> X;
+<span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T = <span class="hljs-type">int</span>&gt; <span class="hljs-keyword">class</span> X {}; <span class="hljs-comment">// 错误</span></code></pre></div>
+<p>模板模板形参的模板形参列表可拥有它自己的默认实参，它只会在模板模板实参自身处于作用域中时有效：</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">// 类模板，带有默认实参的模板类型形参
+template&lt;typename T = float&gt;
+struct B {};
+ 
+// 模板模板形参 T 有形参列表，
+// 它由一个带默认实参的模板类型形参组成
+template&lt;template&lt;typename = float&gt; typename T&gt;
+struct A
+{
+    void f();
+    void g();
+};
+ 
+// 类体外的成员函数模板定义
+ 
+template&lt;template&lt;typename TT&gt; class T&gt;
+void A&lt;T&gt;::f()
+{
+    T&lt;&gt; t; // 错误：TT 在作用域中没有默认实参
+}
+ 
+template&lt;template&lt;typename TT = char&gt; class T&gt;
+void A&lt;T&gt;::g()
+{
+    T&lt;&gt; t; // OK：t 是 T&lt;char&gt;
+}</pre><pre class="hljs"><code><span class="hljs-comment">// 类模板，带有默认实参的模板类型形参</span>
+<span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T = <span class="hljs-type">float</span>&gt;
+<span class="hljs-keyword">struct</span> B {};
+ 
+<span class="hljs-comment">// 模板模板形参 T 有形参列表，</span>
+<span class="hljs-comment">// 它由一个带默认实参的模板类型形参组成</span>
+<span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> = <span class="hljs-type">float</span>&gt; <span class="hljs-keyword">typename</span> T&gt;
+<span class="hljs-keyword">struct</span> A
+{
+    <span class="hljs-type">void</span> <span class="hljs-built_in">f</span>();
+    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">g</span><span class="hljs-params">()</span></span>;
+};
+ 
+<span class="hljs-comment">// 类体外的成员函数模板定义</span>
+ 
+<span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> TT&gt; <span class="hljs-keyword">class</span> <span class="hljs-title class_">T</span>&gt;
+<span class="hljs-type">void</span> A&lt;T&gt;::<span class="hljs-built_in">f</span>()
+{
+    T&lt;&gt; t; <span class="hljs-comment">// 错误：TT 在作用域中没有默认实参</span>
+}
+ 
+<span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> TT = <span class="hljs-type">char</span>&gt; <span class="hljs-keyword">class</span> T&gt;
+<span class="hljs-type">void</span> A&lt;T&gt;::<span class="hljs-built_in">g</span>()
+{
+    T&lt;&gt; t; <span class="hljs-comment">// OK：t 是 T&lt;char&gt;</span>
+}</code></pre></div>
+<p>默认模板形参中所用的名字的成员访问，在声明中，而非在使用点检查：</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">class B {};
+ 
+template&lt;typename T&gt;
+class C
+{
+protected:
+    typedef T TT;
+};
+ 
+template&lt;typename U, typename V = typename U::TT&gt;
+class D: public U {};
+ 
+D&lt;C&lt;B&gt;&gt;* d; // 错误：C::TT 是受保护的</pre><pre class="hljs"><code><span class="hljs-keyword">class</span> <span class="hljs-title class_">B</span> {};
+ 
+<span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">C</span>
+{
+<span class="hljs-keyword">protected</span>:
+    <span class="hljs-keyword">typedef</span> T TT;
+};
+ 
+<span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> U, <span class="hljs-keyword">typename</span> V = <span class="hljs-keyword">typename</span> U::TT&gt;
+<span class="hljs-keyword">class</span> D: <span class="hljs-keyword">public</span> U {};
+ 
+D&lt;C&lt;B&gt;&gt;* d; <span class="hljs-comment">// 错误：C::TT 是受保护的</span></code></pre></div>
+<p>C++14起<br>
+默认模板实参在需要该默认实参的值时被隐式实例化，除非模板用于指名函数：</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template&lt;typename T, typename U = int&gt;
+struct S {};
+ 
+S&lt;bool&gt;* p; // 默认模板实参 U 在此点实例化
+            // p 的类型是 S&lt;bool, int&gt;*</pre><pre class="hljs"><code><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T, <span class="hljs-keyword">typename</span> U = <span class="hljs-type">int</span>&gt;
+<span class="hljs-keyword">struct</span> S {};
+ 
+S&lt;<span class="hljs-type">bool</span>&gt;* p; <span class="hljs-comment">// 默认模板实参 U 在此点实例化</span>
+            <span class="hljs-comment">// p 的类型是 S&lt;bool, int&gt;*</span></code></pre></div>
+<h3 id="模板实参等价性">模板实参等价性</h3>
+<p>模板实参等价性用来确定二个模板标识是否相同。<br>
+如果两个值拥有相同的类型，且满足以下条件之一，那么它们模板实参等价：</p>
+<ul>
+<li>它们拥有整数或枚举类型且它们的值相同</li>
+<li>或它们拥有指针类型且它们拥有同一指针值</li>
+<li>或它们拥有成员指针类型且它们指代同一类成员或都是空成员指针值</li>
+<li>或它们拥有左值引用类型且它们指代同一对象或函数<br>
+C++11 起</li>
+<li>或它们拥有 std::nullptr_t 类型<br>
+C++20 起</li>
+<li>或它们拥有浮点类型且它们的值相同</li>
+<li>或它们拥有数组类型（此情况下数组必须是某类/联合体的成员对象）且它们对应的元素模板实参等价</li>
+<li>或它们拥有联合体类型且它们均无活跃成员，或它们拥有相同的活跃成员且它们的活跃成员模板实参等价</li>
+<li>或如果它们拥有非联合类类型且它们对应的直接子对象和引用成员模板实参等价</li>
+</ul>
+<h3 id="示例">示例</h3>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">#include &lt;iostream&gt;
+ 
+// 简单的模板非类型形参
+template&lt;int N&gt;
+struct S { int a[N]; };
+ 
+template&lt;const char*&gt;
+struct S2 {};
+ 
+// 复杂的非类型形参的例子
+template
+&lt;
+    char c,             // 整型类型
+    int (&amp;ra)[5],       // 到（数组类型）对象的左值引用
+    int (*pf)(int),     // 函数指针
+    int (S&lt;10&gt;::*a)[10] // 指向（int[10] 类型的）成员对象的指针
+&gt;
+struct Complicated
+{
+    // 调用编译时所选择的函数
+    // 并在编译时将它的结果存储在数组中
+    void foo(char base)
+    {
+        ra[4] = pf(c - base);
+    }
+};
+ 
+//  S2&lt;&quot;fail&quot;&gt; s2;        // 错误：不能用字符串字面量
+    char okay[] = &quot;okay&quot;; // 有连接的静态对象
+//  S2&lt; &amp;okay[0] &gt; s3;    // 错误：数组元素无连接
+    S2&lt;okay&gt; s4;          // 能用
+ 
+int a[5];
+int f(int n) { return n; }
+ 
+// C++20：模板非类型形参可以具有字面量类类型
+template&lt;std::array arr&gt;
+constexpr
+auto sum() { return std::accumulate(arr.cbegin(), arr.cend(), 0); }
+ 
+// C++20：可以在调用处推导出类模板实参
+static_assert(sum&lt;std::array&lt;double, 8&gt;{3, 1, 4, 1, 5, 9, 2, 6}&gt;() == 31.0);
+// C++20：模板非类型形参的实参推导和类模板实参推导
+static_assert(sum&lt;std::array{2, 7, 1, 8, 2, 8}&gt;() == 28);
+ 
+int main()
+{
+    S&lt;10&gt; s; // s.a 是含有 10 个 int 的数组
+    s.a[9] = 4;
+ 
+    Complicated&lt;'2', a, f, &amp;S&lt;10&gt;::a&gt; c;
+    c.foo('0');
+ 
+    std::cout &lt;&lt; s.a[9] &lt;&lt; a[4] &lt;&lt; '\n';
+}</pre><pre class="hljs"><code>#include &lt;iostream&gt;
+ 
+// 简单的模板非类型形参
+template&lt;int N&gt;
+struct S { int a[N]; };
+ 
+template&lt;const char*&gt;
+struct S2 {};
+ 
+// 复杂的非类型形参的例子
+template
+&lt;
+    char c,             // 整型类型
+    int (&amp;ra)[5],       // 到（数组类型）对象的左值引用
+    int (*pf)(int),     // 函数指针
+    int (S&lt;10&gt;::*a)[10] // 指向（int[10] 类型的）成员对象的指针
+&gt;
+struct Complicated
+{
+    // 调用编译时所选择的函数
+    // 并在编译时将它的结果存储在数组中
+    void foo(char base)
+    {
+        ra[4] = pf(c - base);
+    }
+};
+ 
+//  S2&lt;&quot;fail&quot;&gt; s2;        // 错误：不能用字符串字面量
+    char okay[] = &quot;okay&quot;; // 有连接的静态对象
+//  S2&lt; &amp;okay[0] &gt; s3;    // 错误：数组元素无连接
+    S2&lt;okay&gt; s4;          // 能用
+ 
+int a[5];
+int f(int n) { return n; }
+ 
+// C++20：模板非类型形参可以具有字面量类类型
+template&lt;std::array arr&gt;
+constexpr
+auto sum() { return std::accumulate(arr.cbegin(), arr.cend(), 0); }
+ 
+// C++20：可以在调用处推导出类模板实参
+static_assert(sum&lt;std::array&lt;double, 8&gt;{3, 1, 4, 1, 5, 9, 2, 6}&gt;() == 31.0);
+// C++20：模板非类型形参的实参推导和类模板实参推导
+static_assert(sum&lt;std::array{2, 7, 1, 8, 2, 8}&gt;() == 28);
+ 
+int main()
+{
+    S&lt;10&gt; s; // s.a 是含有 10 个 int 的数组
+    s.a[9] = 4;
+ 
+    Complicated&lt;'2', a, f, &amp;S&lt;10&gt;::a&gt; c;
+    c.foo('0');
+ 
+    std::cout &lt;&lt; s.a[9] &lt;&lt; a[4] &lt;&lt; '\n';
+}</code></pre></div>
+<p>================<br>
+<a data-from-md title='https://zh.cppreference.com/w/cpp/language/class_template' href='https://zh.cppreference.com/w/cpp/language/class_template'>https://zh.cppreference.com/w/cpp/language/class_template</a></p>
+<h1 id="类模板">类模板</h1>
+<p>类模板定义一族类。</p>
+<h2 id="语法-2">语法</h2>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template &lt; 形参列表 &gt; 类声明 	(1) 	
+export template &lt; 形参列表 &gt; 类声明 	(2) 	(C++11 前)</pre><pre class="hljs"><code><span class="hljs-attribute">template</span> &lt; 形参列表 &gt; 类声明 	(<span class="hljs-number">1</span>) 	
+<span class="hljs-attribute">export</span> template &lt; 形参列表 &gt; 类声明 	(<span class="hljs-number">2</span>) 	(C++<span class="hljs-number">11</span> 前)</code></pre></div>
+<p>类声明 	- 	类声明。所声明的类名成为模板名。<br>
+形参列表 	- 	非空的模板形参的逗号分隔列表，每项是非类型形参、类型形参、模板形参或任何这些形参的形参包之一。</p>
+<p>C++11前<br>
+export 是一个可选的修饰符，它用来表示模板被导出（用于声明类模板时，它也声明其所有成员被导出）。对被导出模板进行实例化的文件不需要包含其定义：有声明即已充分。export 的实现稀少，且在细节上相互不一致。</p>
+<h2 id="类模板实例化">类模板实例化</h2>
+<p>类模板自身并不是类型、对象或任何其他实体。不会从只包含模板定义的源文件生成任何代码。模板只有实例化才会有代码出现：必须提供模板实参，使得编译器能生成实际的类（或从函数模板生成函数）。</p>
+<h3 id="显式实例化">显式实例化</h3>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template 类关键词 模板名 &lt; 实参列表 &gt; ; 	(1) 	
+extern template 类关键词 模板名 &lt; 实参列表 &gt; ; 	(2) 	(C++11 起)</pre><pre class="hljs"><code><span class="hljs-attribute">template</span> 类关键词 模板名 &lt; 实参列表 &gt; ; 	(<span class="hljs-number">1</span>) 	
+<span class="hljs-attribute">extern</span> template 类关键词 模板名 &lt; 实参列表 &gt; ; 	(<span class="hljs-number">2</span>) 	(C++<span class="hljs-number">11</span> 起)</code></pre></div>
+<p>类关键词 	- 	class，struct 或 union</p>
+<ol>
+<li>显式实例化定义</li>
+<li>显式实例化声明</li>
+</ol>
+<p>显式实例化定义强制实例化其所指代的 class、struct 或 union。它可以出现在程序中模板定义后的任何位置。而对于给定的实参列表，它在整个程序中只能出现一次，不要求诊断。</p>
+<p>C++11起： 显式实例化声明（extern 模板）跳过隐式的实例化步骤：本来会导致隐式实例化的代码会以别处提供的显式实例化定义（如果这种实例化不存在，则导致连接错误）取代。这个机制可被用于减少编译时间：通过在除了一个文件以外的所有源文件中明确声明模板实例化，而在剩下的那个文件中明确定义它。</p>
+<p>类、函数、变量 (C++14 起)和成员模板的特化可以从其模板显式实例化。成员函数、成员类和类模板的静态数据成员可以从其成员定义显式实例化。</p>
+<p>显式实例化只能在该模板的外围命名空间出现，除非使用有限定标识：</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">namespace N
+{
+    template&lt;class T&gt;
+    class Y // 模板定义
+    {
+        void mf() {}
+    };
+}
+ 
+// template class Y&lt;int&gt;; // 错误：类模板 Y 在全局命名空间不可见
+using N::Y;
+// template class Y&lt;int&gt;; // 错误：在模板的命名空间外进行显式实例化
+template class N::Y&lt;char*&gt;;       // OK：显式实例化
+template void N::Y&lt;double&gt;::mf(); // OK：显式实例化</pre><pre class="hljs"><code><span class="hljs-keyword">namespace</span> N
+{
+    <span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">T</span>&gt;
+    <span class="hljs-keyword">class</span> <span class="hljs-title class_">Y</span> <span class="hljs-comment">// 模板定义</span>
+    {
+        <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">mf</span><span class="hljs-params">()</span> </span>{}
+    };
+}
+ 
+<span class="hljs-comment">// template class Y&lt;int&gt;; // 错误：类模板 Y 在全局命名空间不可见</span>
+<span class="hljs-keyword">using</span> N::Y;
+<span class="hljs-comment">// template class Y&lt;int&gt;; // 错误：在模板的命名空间外进行显式实例化</span>
+<span class="hljs-keyword">template</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">N</span>::Y&lt;<span class="hljs-type">char</span>*&gt;;       <span class="hljs-comment">// OK：显式实例化</span>
+<span class="hljs-keyword">template</span> <span class="hljs-type">void</span> N::Y&lt;<span class="hljs-type">double</span>&gt;::<span class="hljs-built_in">mf</span>(); <span class="hljs-comment">// OK：显式实例化</span></code></pre></div>
+<p>如果同一组模板实参的<strong>显式特化</strong>在显式实例化之前出现，那么显式实例化没有效果。</p>
+<p>当显式实例化函数模板、<code class="inline-code">变量模板 (C++14 起)</code>、类模板的成员函数或静态数据成员，或成员函数模板时，只需要它的声明可见。类模板、类模板的成员类或成员类模板在显式实例化之前必须出现完整定义，除非之前已经出现了拥有相同模板实参的显式特化。</p>
+<p>如果以显式实例化定义来对函数模板、<code class="inline-code">变量模板 (C++14 起)</code>、成员函数模板或类模板的成员函数或静态数据成员进行显式实例化，那么同一翻译单元中必须存在它的模板定义。</p>
+<p>当显式实例化指名某个类模板特化时，对于它的每个在当前翻译单元中尚未显式特化的非继承且非模板成员，它同时作为其同种显式实例化（声明或定义）。如果此显式实例化是定义，那么仅对于在此点已被定义的成员，它也是显式实例化定义。</p>
+<p>显式实例化定义忽略成员访问说明符：形参类型和返回类型可以是 private。</p>
+<h3 id="隐式实例化">隐式实例化</h3>
+<p>当代码在要求完整定义的类型的语境中涉指某个模板时，或当类型的完整性对代码有影响，而这个特定类型尚未被显式实例化时，发生隐式实例化。例如当构造此类型的对象之时，但不包括构造指向此类型的指针之时。</p>
+<p>这也适用于类模板的成员：除非成员在程序中被使用，否则并不会实例化它，并且不要求其有定义。</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template&lt;class T&gt;
+struct Z // 模板定义
+{
+    void f() {}
+    void g(); // 永远不会定义
+};
+ 
+template struct Z&lt;double&gt;; // 显式实例化 Z&lt;double&gt;
+Z&lt;int&gt; a;                  // 隐式实例化 Z&lt;int&gt;
+Z&lt;char&gt;* p;                // 此处不实例化任何内容
+ 
+p-&gt;f(); // 隐式实例化 Z&lt;char&gt; 且 Z&lt;char&gt;::f() 在此出现。
+        // 始终不需要且不实例化 Z&lt;char&gt;::g()：不必对其进行定义</pre><pre class="hljs"><code><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">T</span>&gt;
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">Z</span> <span class="hljs-comment">// 模板定义</span>
+{
+    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">f</span><span class="hljs-params">()</span> </span>{}
+    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">g</span><span class="hljs-params">()</span></span>; <span class="hljs-comment">// 永远不会定义</span>
+};
+ 
+<span class="hljs-keyword">template</span> <span class="hljs-keyword">struct</span> <span class="hljs-title class_">Z</span>&lt;<span class="hljs-type">double</span>&gt;; <span class="hljs-comment">// 显式实例化 Z&lt;double&gt;</span>
+Z&lt;<span class="hljs-type">int</span>&gt; a;                  <span class="hljs-comment">// 隐式实例化 Z&lt;int&gt;</span>
+Z&lt;<span class="hljs-type">char</span>&gt;* p;                <span class="hljs-comment">// 此处不实例化任何内容</span>
+ 
+p-&gt;<span class="hljs-built_in">f</span>(); <span class="hljs-comment">// 隐式实例化 Z&lt;char&gt; 且 Z&lt;char&gt;::f() 在此出现。</span>
+        <span class="hljs-comment">// 始终不需要且不实例化 Z&lt;char&gt;::g()：不必对其进行定义</span></code></pre></div>
+<p>。。template struct/class/union 显式实例化， 不写就是 隐式实例化</p>
+<p>如果类模板已经声明但尚未定义，那么它的实例化会在实例化点产生不完整的类类型：</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template&lt;class T&gt;
+class X;    // 声明，非定义
+ 
+X&lt;char&gt; ch; // 错误：不完整类型 X&lt;char&gt;</pre><pre class="hljs"><code>template&lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">T</span>&gt;
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">X</span>;    <span class="hljs-comment">// 声明，非定义</span>
+ 
+X&lt;<span class="hljs-built_in">char</span>&gt; ch; <span class="hljs-comment">// 错误：不完整类型 X&lt;char&gt;</span></code></pre></div>
+<p>C++17 起：局部类和它的成员中所使用的任何模板都会作为该局部类或枚举所处于的实体的实例化的一部分进行实例化。</p>
+<p>================<br>
+<a data-from-md title='https://zh.cppreference.com/w/cpp/language/function_template' href='https://zh.cppreference.com/w/cpp/language/function_template'>https://zh.cppreference.com/w/cpp/language/function_template</a></p>
+<h1 id="函数模板">函数模板</h1>
+<p>函数模板定义一族函数。</p>
+<p>语法</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template &lt; 形参列表 &gt; 函数声明 	(1) 	
+template &lt; 形参列表 &gt; requires 约束 函数声明 	(2) 	(C++20 起)
+带占位符函数声明 	(3) 	(C++20 起)
+export template &lt; 形参列表 &gt; 函数声明 	(4) 	(C++11 中移除)</pre><pre class="hljs"><code>template &lt; 形参列表 &gt; 函数声明 	<span class="hljs-comment">(1)</span> 	
+template &lt; 形参列表 &gt; requires 约束 函数声明 	<span class="hljs-comment">(2)</span> 	<span class="hljs-comment">(C++20 起)</span>
+带占位符函数声明 	<span class="hljs-comment">(3)</span> 	<span class="hljs-comment">(C++20 起)</span>
+export template &lt; 形参列表 &gt; 函数声明 	<span class="hljs-comment">(4)</span> 	<span class="hljs-comment">(C++11 中移除)</span></code></pre></div>
+<p>形参列表</p>
+<ul>
+<li>非空的模板形参的逗号分隔列表，每项是非类型形参、类型形参、模板形参或这些的形参包之一。与任何模板一样，形参可以受约束。 (C++20 起)</li>
+</ul>
+<p>函数声明</p>
+<ul>
+<li>函数声明。所声明的函数名成为模板名。</li>
+</ul>
+<p>约束</p>
+<ul>
+<li>约束表达式，它限制此函数模板接受的模板形参。</li>
+</ul>
+<p>带占位符函数声明</p>
+<ul>
+<li>函数声明，其中至少一个形参的类型使用了占位符 auto 或 概念 auto：每个占位符都会对应模板形参列表中的一个虚设形参。（见下文“简写函数模板”）</li>
+</ul>
+<p>。。概念auto： concept auto</p>
+<p>C++20起：简写函数模板<br>
+当函数声明或函数模板声明的<strong>形参</strong>列表中<strong>出现占位符类型</strong>（auto 或 概念 auto）时，该声明会声明一个函数模板，并且为每个占位符向模板形参列表追加一个虚设的模板形参：</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C++" data-joplin-source-open="```C++&#10;" data-joplin-source-close="&#10;```">void f1(auto); // 与 template&lt;class T&gt; void f(T) 相同
+void f2(C1 auto); // 如果 C1 是概念，那么与 template&lt;C1 T&gt; void f2(T) 相同
+void f3(C2 auto...); // 如果 C2 是概念，那么与 template&lt;C2... Ts&gt; void f3(Ts...) 相同
+void f4(const C3 auto*, C4 auto&amp;); // 与 template&lt;C3 T, C4 U&gt; void f4(const T*, U&amp;); 相同
+ 
+template&lt;class T, C U&gt;
+void g(T x, U y, C auto z); // 与 template&lt;class T, C U, C W&gt; void g(T x, U y, W z); 相同</pre><pre class="hljs"><code><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">f1</span><span class="hljs-params">(<span class="hljs-keyword">auto</span>)</span></span>; <span class="hljs-comment">// 与 template&lt;class T&gt; void f(T) 相同</span>
+<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">f2</span><span class="hljs-params">(C1 <span class="hljs-keyword">auto</span>)</span></span>; <span class="hljs-comment">// 如果 C1 是概念，那么与 template&lt;C1 T&gt; void f2(T) 相同</span>
+<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">f3</span><span class="hljs-params">(C2 <span class="hljs-keyword">auto</span>...)</span></span>; <span class="hljs-comment">// 如果 C2 是概念，那么与 template&lt;C2... Ts&gt; void f3(Ts...) 相同</span>
+<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">f4</span><span class="hljs-params">(<span class="hljs-type">const</span> C3 <span class="hljs-keyword">auto</span>*, C4 <span class="hljs-keyword">auto</span>&amp;)</span></span>; <span class="hljs-comment">// 与 template&lt;C3 T, C4 U&gt; void f4(const T*, U&amp;); 相同</span>
+ 
+<span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span> T, C U&gt;
+<span class="hljs-type">void</span> <span class="hljs-title">g</span><span class="hljs-params">(T x, U y, C <span class="hljs-keyword">auto</span> z)</span></span>; <span class="hljs-comment">// 与 template&lt;class T, C U, C W&gt; void g(T x, U y, W z); 相同</span></code></pre></div>
+<p>简写函数模板可以和所有函数模板一样进行特化。</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template&lt;&gt;
+void f4&lt;int&gt;(const int*, const double&amp;); // f4&lt;int, const double&gt; 的特化</pre><pre class="hljs"><code><span class="hljs-keyword">template</span>&lt;&gt;
+<span class="hljs-type">void</span> <span class="hljs-built_in">f4</span>&lt;<span class="hljs-type">int</span>&gt;(<span class="hljs-type">const</span> <span class="hljs-type">int</span>*, <span class="hljs-type">const</span> <span class="hljs-type">double</span>&amp;); <span class="hljs-comment">// f4&lt;int, const double&gt; 的特化</span></code></pre></div>
+<h2 id="函数模板实例化">函数模板实例化</h2>
+<p>函数模板自身并不是类型、函数或任何其他实体。不会从只包含模板定义的源文件生成任何代码。模板只有实例化才会有代码出现：必须确定各模板实参，使得编译器能生成实际的函数（或从类模板生成类）。</p>
+<h3 id="显式实例化-2">显式实例化</h3>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template 返回类型 名字 &lt; 实参列表 &gt; ( 形参列表 ) ; 	(1) 	
+template 返回类型 名字 ( 形参列表 ) ; 	(2) 	
+extern template 返回类型 名字 &lt; 实参列表 &gt; ( 形参列表 ) ; 	(3) 	(C++11 起)
+extern template 返回类型 名字 ( 形参列表 ) ; 	(4) 	(C++11 起)</pre><pre class="hljs"><code>template 返回类型 名字 &lt; 实参列表 &gt; ( 形参列表 ) ; 	(<span class="hljs-number">1</span>) 	
+template 返回类型 名字 ( 形参列表 ) ; 	(<span class="hljs-number">2</span>) 	
+extern template 返回类型 名字 &lt; 实参列表 &gt; ( 形参列表 ) ; 	(<span class="hljs-number">3</span>) 	(C++<span class="hljs-number">11</span> 起)
+extern template 返回类型 名字 ( 形参列表 ) ; 	(<span class="hljs-number">4</span>) 	(C++<span class="hljs-number">11</span> 起)</code></pre></div>
+<ol>
+<li>显式实例化定义（显式指定所有无默认值模板形参时不会推导模板实参）</li>
+<li>显式实例化定义，对所有形参进行模板实参推导</li>
+<li>显式实例化声明（显式指定所有无默认值模板形参时不会推导模板实参）</li>
+<li>显式实例化声明，对所有形参进行模板实参推导</li>
+</ol>
+<p>显式实例化定义强制实例化它所指代的函数或成员函数。它可以出现在程序中模板定义后的任何位置，而对于给定的实参列表，它在整个程序中只能出现一次，不要求诊断。</p>
+<p>C++11： 显式实例化声明（extern 模板）阻止隐式实例化：本来会导致隐式实例化的代码必须改为使用已在程序的别处所提供的显式实例化。</p>
+<p>在函数模板特化或成员函数模板特化的显式实例化中，尾部的各模板实参在能从函数参数推导时不需要指定：</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template&lt;typename T&gt;
+void f(T s)
+{
+    std::cout &lt;&lt; s &lt;&lt; '\n';
+}
+ 
+template void f&lt;double&gt;(double); // 实例化 f&lt;double&gt;(double)
+template void f&lt;&gt;(char);         // 实例化 f&lt;char&gt;(char)，推导出模板实参
+template void f(int);            // 实例化 f&lt;int&gt;(int)，推导出模板实参</pre><pre class="hljs"><code><span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;
+<span class="hljs-type">void</span> <span class="hljs-title">f</span><span class="hljs-params">(T s)</span>
+</span>{
+    std::cout &lt;&lt; s &lt;&lt; <span class="hljs-string">&#x27;\n&#x27;</span>;
+}
+ 
+<span class="hljs-keyword">template</span> <span class="hljs-type">void</span> <span class="hljs-built_in">f</span>&lt;<span class="hljs-type">double</span>&gt;(<span class="hljs-type">double</span>); <span class="hljs-comment">// 实例化 f&lt;double&gt;(double)</span>
+<span class="hljs-keyword">template</span> <span class="hljs-type">void</span> f&lt;&gt;(<span class="hljs-type">char</span>);         <span class="hljs-comment">// 实例化 f&lt;char&gt;(char)，推导出模板实参</span>
+<span class="hljs-function"><span class="hljs-keyword">template</span> <span class="hljs-type">void</span> <span class="hljs-title">f</span><span class="hljs-params">(<span class="hljs-type">int</span>)</span></span>;            <span class="hljs-comment">// 实例化 f&lt;int&gt;(int)，推导出模板实参</span></code></pre></div>
+<p>函数模板或类模板成员函数的显式实例化不能使用 inline 或 constexpr。如果显式实例化的声明指名了某个隐式声明的特殊成员函数，那么程序非良构。</p>
+<p>构造函数的显式实例化不能使用模板形参列表（语法 (1)），也始终不需要使用，因为能推导它们（语法 (2)）。</p>
+<p>C++20： 预期的析构函数的显式实例化必须指名该类的被选择的析构函数。</p>
+<p>显式实例化声明不会抑制 inline 函数，auto 声明，引用，以及类模板特化的隐式实例化。（从而当作为显式实例化声明目标的 inline 函数被 ODR 式使用时，它会为内联而隐式实例化，但此翻译单元中不会生成它的非内联副本）</p>
+<p>带有默认实参的函数模板的显式实例化定义不会使用或试图初始化该实参：</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">char* p = 0;
+ 
+template&lt;class T&gt;
+T g(T x = &amp;p) { return x; }
+ 
+template int g&lt;int&gt;(int); // OK，即使 &amp;p 不是 int。</pre><pre class="hljs"><code>char* p = <span class="hljs-number">0</span>;
+ 
+template&lt;<span class="hljs-keyword">class</span> <span class="hljs-symbol">T</span>&gt;
+<span class="hljs-symbol">T</span> <span class="hljs-symbol">g</span>(<span class="hljs-symbol">T</span> <span class="hljs-symbol">x</span> = &amp;<span class="hljs-symbol">p</span>) { <span class="hljs-keyword">return</span> x; }
+ 
+template <span class="hljs-built_in">int</span> g&lt;<span class="hljs-built_in">int</span>&gt;(<span class="hljs-built_in">int</span>); <span class="hljs-comment">// OK，即使 &amp;p 不是 int。</span></code></pre></div>
+<h3 id="隐式实例化-2">隐式实例化</h3>
+<p>当代码在要求存在函数定义的语境中指涉某个函数，或定义存在与否会影响程序语义 (C++11 起)，而这个特定函数尚未被显式实例化时，发生隐式实例化。如果模板实参列表能从语境推导，那么不必提供它。</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template&lt;typename T&gt;
+void f(T s)
+{
+    std::cout &lt;&lt; s &lt;&lt; '\n';
+}
+ 
+int main()
+{
+    f&lt;double&gt;(1); // 实例化并调用 f&lt;double&gt;(double)
+    f&lt;&gt;('a');     // 实例化并调用 f&lt;char&gt;(char)
+    f(7);         // 实例化并调用 f&lt;int&gt;(int)
+    void (*pf)(std::string) = f; // 实例化 f&lt;string&gt;(string)
+    pf(&quot;∇&quot;);                     // 调用 f&lt;string&gt;(string)
+}</pre><pre class="hljs"><code><span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;
+<span class="hljs-type">void</span> <span class="hljs-title">f</span><span class="hljs-params">(T s)</span>
+</span>{
+    std::cout &lt;&lt; s &lt;&lt; <span class="hljs-string">&#x27;\n&#x27;</span>;
+}
+ 
+<span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span>
+</span>{
+    <span class="hljs-built_in">f</span>&lt;<span class="hljs-type">double</span>&gt;(<span class="hljs-number">1</span>); <span class="hljs-comment">// 实例化并调用 f&lt;double&gt;(double)</span>
+    f&lt;&gt;(<span class="hljs-string">&#x27;a&#x27;</span>);     <span class="hljs-comment">// 实例化并调用 f&lt;char&gt;(char)</span>
+    <span class="hljs-built_in">f</span>(<span class="hljs-number">7</span>);         <span class="hljs-comment">// 实例化并调用 f&lt;int&gt;(int)</span>
+    <span class="hljs-built_in">void</span> (*pf)(std::string) = f; <span class="hljs-comment">// 实例化 f&lt;string&gt;(string)</span>
+    <span class="hljs-built_in">pf</span>(<span class="hljs-string">&quot;∇&quot;</span>);                     <span class="hljs-comment">// 调用 f&lt;string&gt;(string)</span>
+}</code></pre></div>
+<p>C++11： 如果有表达式需要某函数进行常量求值，那么函数定义存在与否会影响程序语义，即使不要求常量求值表达式，或常量表达式求值不使用该定义。</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template&lt;typename T&gt;
+constexpr int f() { return T::value; }
+ 
+template&lt;bool B, typename T&gt;
+void g(decltype(B ? f&lt;T&gt;() : 0));
+template&lt;bool B, typename T&gt;
+void g(...);
+ 
+template&lt;bool B, typename T&gt;
+void h(decltype(int{B ? f&lt;T&gt;() : 0}));
+template&lt;bool B, typename T&gt;
+void h(...);
+ 
+void x()
+{
+    g&lt;false, int&gt;(0); // OK： B ? f&lt;T&gt;() : 0 不会潜在常量求值
+    h&lt;false, int&gt;(0); // 错误：即使 B 求值为 false 且
+                      // 从 int 到 int 的列表初始化不可能是窄化仍实例化 f&lt;int&gt;
+}</pre><pre class="hljs"><code><span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;
+<span class="hljs-keyword">constexpr</span> <span class="hljs-type">int</span> <span class="hljs-title">f</span><span class="hljs-params">()</span> </span>{ <span class="hljs-keyword">return</span> T::value; }
+ 
+<span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-type">bool</span> B, <span class="hljs-keyword">typename</span> T&gt;
+<span class="hljs-type">void</span> <span class="hljs-title">g</span><span class="hljs-params">(<span class="hljs-keyword">decltype</span>(B ? f&lt;T&gt;() : <span class="hljs-number">0</span>))</span></span>;
+<span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-type">bool</span> B, <span class="hljs-keyword">typename</span> T&gt;
+<span class="hljs-type">void</span> <span class="hljs-title">g</span><span class="hljs-params">(...)</span></span>;
+ 
+<span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-type">bool</span> B, <span class="hljs-keyword">typename</span> T&gt;
+<span class="hljs-type">void</span> <span class="hljs-title">h</span><span class="hljs-params">(<span class="hljs-keyword">decltype</span>(<span class="hljs-type">int</span>{B ? f&lt;T&gt;() : <span class="hljs-number">0</span>}))</span></span>;
+<span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-type">bool</span> B, <span class="hljs-keyword">typename</span> T&gt;
+<span class="hljs-type">void</span> <span class="hljs-title">h</span><span class="hljs-params">(...)</span></span>;
+ 
+<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">x</span><span class="hljs-params">()</span>
+</span>{
+    <span class="hljs-built_in">g</span>&lt;<span class="hljs-literal">false</span>, <span class="hljs-type">int</span>&gt;(<span class="hljs-number">0</span>); <span class="hljs-comment">// OK： B ? f&lt;T&gt;() : 0 不会潜在常量求值</span>
+    <span class="hljs-built_in">h</span>&lt;<span class="hljs-literal">false</span>, <span class="hljs-type">int</span>&gt;(<span class="hljs-number">0</span>); <span class="hljs-comment">// 错误：即使 B 求值为 false 且</span>
+                      <span class="hljs-comment">// 从 int 到 int 的列表初始化不可能是窄化仍实例化 f&lt;int&gt;</span>
+}</code></pre></div>
+<p>注意：完全省略 &lt;&gt; 允许重载决议同时检验模板与非模板重载。</p>
+<h3 id="模板实参推导">模板实参推导</h3>
+<p>实例化一个函数模板需要知道它的所有模板实参，但不需要指定每个模板实参。编译器会尽可能从函数实参推导缺失的模板实参。这会在尝试进行函数调用以及取函数模板的地址时发生。</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template&lt;typename To, typename From&gt;
+To convert(From f);
+ 
+void g(double d) 
+{
+    int i = convert&lt;int&gt;(d);    // 调用 convert&lt;int,double&gt;(double)
+    char c = convert&lt;char&gt;(d);  // 调用 convert&lt;char,double&gt;(double)
+    int(*ptr)(float) = convert; // 实例化 convert&lt;int, float&gt;(float)
+}</pre><pre class="hljs"><code>template&lt;typename To, typename From&gt;
+To convert(From f);
+ 
+void g(<span class="hljs-keyword">double</span> d) 
+{
+    <span class="hljs-built_in">int</span> i = convert&lt;<span class="hljs-built_in">int</span>&gt;(d);    // 调用 convert&lt;<span class="hljs-built_in">int</span>,<span class="hljs-keyword">double</span>&gt;(<span class="hljs-keyword">double</span>)
+    <span class="hljs-built_in">char</span> c = convert&lt;<span class="hljs-built_in">char</span>&gt;(d);  // 调用 convert&lt;<span class="hljs-built_in">char</span>,<span class="hljs-keyword">double</span>&gt;(<span class="hljs-keyword">double</span>)
+    <span class="hljs-built_in">int</span>(*ptr)(<span class="hljs-built_in">float</span>) = convert; // 实例化 convert&lt;<span class="hljs-built_in">int</span>, <span class="hljs-built_in">float</span>&gt;(<span class="hljs-built_in">float</span>)
+}</code></pre></div>
+<p>模板运算符依赖此机制，因为除了将它重写为函数调用表达式之外，不存在为运算符指定模板实参的语法。</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">int main() 
+{
+    std::cout &lt;&lt; &quot;Hello, world&quot; &lt;&lt; std::endl;
+    // operator&lt;&lt; 经由 ADL 查找为 std::operator&lt;&lt;，
+    // 然后推导出 operator&lt;&lt;&lt;char, std::char_traits&lt;char&gt;&gt;
+    // 同时推导 std::endl 为 &amp;std::endl&lt;char, std::char_traits&lt;char&gt;&gt;
+}</pre><pre class="hljs"><code><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> 
+</span>{
+    std::cout &lt;&lt; <span class="hljs-string">&quot;Hello, world&quot;</span> &lt;&lt; std::endl;
+    <span class="hljs-comment">// operator&lt;&lt; 经由 ADL 查找为 std::operator&lt;&lt;，</span>
+    <span class="hljs-comment">// 然后推导出 operator&lt;&lt;&lt;char, std::char_traits&lt;char&gt;&gt;</span>
+    <span class="hljs-comment">// 同时推导 std::endl 为 &amp;std::endl&lt;char, std::char_traits&lt;char&gt;&gt;</span>
+}</code></pre></div>
+<p>模板实参推导在函数模板的名字查找（可能涉及实参依赖查找）之后，重载决议之前进行。<br>
+细节见模板实参推导。</p>
+<h3 id="显式模板实参">显式模板实参</h3>
+<p>函数模板的模板实参可从以下途径获得：</p>
+<ul>
+<li>模板实参推导</li>
+<li>默认模板实参</li>
+<li>显式指定，可以在下列语境中进行：<br>
+-    在函数调用表达式中<br>
+-    当取函数地址时<br>
+-    当初始化到函数的引用时<br>
+-    当构成成员函数指针时<br>
+-    在显式特化中<br>
+-    在显式实例化中<br>
+-    在友元声明中</li>
+</ul>
+<p>不存在为<strong>重载的运算符</strong>、<strong>转换函数</strong>和<strong>构造函数</strong>显式指定模板实参的方法，因为它们<strong>不会通过函数名调用。</strong></p>
+<p>所指定的各模板实参必须与各模板形参在种类上相匹配（即类型对类型，非类型对非类型，模板对模板）。实参的数量不能多于形参（除非形参中有形参包，这种情况下每个非包形参必须对应一个实参）。</p>
+<p>所指定的非类型实参必须要么与其对应的非类型模板形参的类型相匹配，要么可以转换到这些类型。</p>
+<p>不参与模板实参推导的函数实参（例如对应的模板实参已经被显式指定）会参与到它对应的函数形参的类型的隐式转换（如在通常重载决议中一样）。</p>
+<p>当有额外的实参时，模板实参推导可以扩充显式指定的模板形参包：</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template&lt;class... Types&gt;
+void f(Types... values);
+ 
+void g()
+{
+    f&lt;int*, float*&gt;(0, 0, 0); // Types = {int*, float*, int}
+}</pre><pre class="hljs"><code><span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span>... Types&gt;
+<span class="hljs-type">void</span> <span class="hljs-title">f</span><span class="hljs-params">(Types... values)</span></span>;
+ 
+<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">g</span><span class="hljs-params">()</span>
+</span>{
+    <span class="hljs-built_in">f</span>&lt;<span class="hljs-type">int</span>*, <span class="hljs-type">float</span>*&gt;(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>); <span class="hljs-comment">// Types = {int*, float*, int}</span>
+}</code></pre></div>
+<h3 id="模板实参替换">模板实参替换</h3>
+<p>当已经指定、推导出或从默认模板实参获得了所有的模板实参之后，函数形参列表中对模板形参的每次使用都会被替换成对应的模板实参。</p>
+<p>函数模板在替换失败时（即以推导或提供的模板实参替换模板形参失败）会从重载集中移除。这样就有许多方式通过模板元编程来操作重载集：细节见 <strong>SFINAE</strong>。</p>
+<p>替换之后，所有数组和函数类型的函数形参都被调整为指针，且所有函数形参都会移除顶层 cv 限定（如在<strong>常规函数声明</strong>中一样）。<br>
+移除顶层 cv 限定并不会影响形参在函数内展现的类型：</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template&lt;class T&gt;
+void f(T t);
+ 
+template&lt;class X&gt;
+void g(const X x);
+ 
+template&lt;class Z&gt;
+void h(Z z, Z* zp);
+ 
+// 两个不同的函数的类型相同，但 t 在这些函数中有不同的 cv 限定
+f&lt;int&gt;(1);       // 函数类型是 void(int)，t 是 int
+f&lt;const int&gt;(1); // 函数类型是 void(int)，t 是 const int
+ 
+// 两个不同的函数的类型和 x 相同
+// （指向这两个函数的指针不相等，且函数局部的静态变量可以拥有不同地址）
+g&lt;int&gt;(1);       // 函数类型是 void(int)，x 是 const int
+g&lt;const int&gt;(1); // 函数类型是 void(int)，x 是 const int
+ 
+// 只移除顶层 cv 限定：
+h&lt;const int&gt;(1, NULL); // 函数类型是 void(int, const int*) 
+                       // z 是 const int，zp 是 int*</pre><pre class="hljs"><code><span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span> T&gt;
+<span class="hljs-type">void</span> <span class="hljs-title">f</span><span class="hljs-params">(T t)</span></span>;
+ 
+<span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span> X&gt;
+<span class="hljs-type">void</span> <span class="hljs-title">g</span><span class="hljs-params">(<span class="hljs-type">const</span> X x)</span></span>;
+ 
+<span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span> Z&gt;
+<span class="hljs-type">void</span> <span class="hljs-title">h</span><span class="hljs-params">(Z z, Z* zp)</span></span>;
+ 
+<span class="hljs-comment">// 两个不同的函数的类型相同，但 t 在这些函数中有不同的 cv 限定</span>
+<span class="hljs-built_in">f</span>&lt;<span class="hljs-type">int</span>&gt;(<span class="hljs-number">1</span>);       <span class="hljs-comment">// 函数类型是 void(int)，t 是 int</span>
+<span class="hljs-built_in">f</span>&lt;<span class="hljs-type">const</span> <span class="hljs-type">int</span>&gt;(<span class="hljs-number">1</span>); <span class="hljs-comment">// 函数类型是 void(int)，t 是 const int</span>
+ 
+<span class="hljs-comment">// 两个不同的函数的类型和 x 相同</span>
+<span class="hljs-comment">// （指向这两个函数的指针不相等，且函数局部的静态变量可以拥有不同地址）</span>
+<span class="hljs-built_in">g</span>&lt;<span class="hljs-type">int</span>&gt;(<span class="hljs-number">1</span>);       <span class="hljs-comment">// 函数类型是 void(int)，x 是 const int</span>
+<span class="hljs-built_in">g</span>&lt;<span class="hljs-type">const</span> <span class="hljs-type">int</span>&gt;(<span class="hljs-number">1</span>); <span class="hljs-comment">// 函数类型是 void(int)，x 是 const int</span>
+ 
+<span class="hljs-comment">// 只移除顶层 cv 限定：</span>
+<span class="hljs-built_in">h</span>&lt;<span class="hljs-type">const</span> <span class="hljs-type">int</span>&gt;(<span class="hljs-number">1</span>, <span class="hljs-literal">NULL</span>); <span class="hljs-comment">// 函数类型是 void(int, const int*) </span>
+                       <span class="hljs-comment">// z 是 const int，zp 是 int*</span></code></pre></div>
+<h3 id="函数模板重载">函数模板重载</h3>
+<p>函数模板与非模板函数可以重载。</p>
+<p>非模板函数与具有相同类型的模板特化始终不同。即使具有相同类型，不同函数模板的特化也始终互不相同。两个具有相同返回类型和相同形参列表的函数模板是不同的，而且可以用显式模板实参列表进行区分。</p>
+<p>当使用了类型或非类型模板形参的表达式在函数形参列表或返回类型中出现时，该表达式会为了重载而保留为函数模板签名的一部分：</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template&lt;int I, int J&gt;
+A&lt;I+J&gt; f(A&lt;I&gt;, A&lt;J&gt;); // 重载 #1
+ 
+template&lt;int K, int L&gt;
+A&lt;K+L&gt; f(A&lt;K&gt;, A&lt;L&gt;); // 同 #1
+ 
+template&lt;int I, int J&gt;
+A&lt;I-J&gt; f(A&lt;I&gt;, A&lt;J&gt;); // 重载 #2</pre><pre class="hljs"><code>template&lt;int <span class="hljs-selector-tag">I</span>, int J&gt;
+<span class="hljs-selector-tag">A</span>&lt;<span class="hljs-selector-tag">I</span>+J&gt; f(<span class="hljs-selector-tag">A</span>&lt;<span class="hljs-selector-tag">I</span>&gt;, <span class="hljs-selector-tag">A</span>&lt;J&gt;); // 重载 <span class="hljs-selector-id">#1</span>
+ 
+template&lt;int K, int L&gt;
+<span class="hljs-selector-tag">A</span>&lt;K+L&gt; f(<span class="hljs-selector-tag">A</span>&lt;K&gt;, <span class="hljs-selector-tag">A</span>&lt;L&gt;); // 同 <span class="hljs-selector-id">#1</span>
+ 
+template&lt;int <span class="hljs-selector-tag">I</span>, int J&gt;
+<span class="hljs-selector-tag">A</span>&lt;<span class="hljs-selector-tag">I</span>-J&gt; f(<span class="hljs-selector-tag">A</span>&lt;<span class="hljs-selector-tag">I</span>&gt;, <span class="hljs-selector-tag">A</span>&lt;J&gt;); // 重载 <span class="hljs-selector-id">#2</span></code></pre></div>
+<p>对于两个涉及模板形参的表达式，如果两个包含这些表达式的函数定义根据 单一定义规则相同，那么称它们等价，就是说，除了模板形参的命名可以不同之外，这两个表达式含有相同的记号序列，其中的各个名字通过名字查找都解析到相同的实体。两个 lambda 表达式始终不等价。 (C++20 起)</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template&lt;int I, int J&gt;
+void f(A&lt;I+J&gt;);  // 模板重载 #1
+ 
+template&lt;int K, int L&gt;
+void f(A&lt;K+L&gt;);  // 等价于 #1</pre><pre class="hljs"><code><span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-type">int</span> I, <span class="hljs-type">int</span> J&gt;
+<span class="hljs-type">void</span> <span class="hljs-title">f</span><span class="hljs-params">(A&lt;I+J&gt;)</span></span>;  <span class="hljs-comment">// 模板重载 #1</span>
+ 
+<span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-type">int</span> K, <span class="hljs-type">int</span> L&gt;
+<span class="hljs-type">void</span> <span class="hljs-title">f</span><span class="hljs-params">(A&lt;K+L&gt;)</span></span>;  <span class="hljs-comment">// 等价于 #1</span></code></pre></div>
+<p>在确定两个待决表达式是否等价时，只考虑其中所涉及的各待决名，而不考虑名字查找的结果。如果相同模板的多个声明在名字查找的结果上有所不同，那么使用它们中的第一个：</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template&lt;class T&gt;
+decltype(g(T())) h(); // decltype(g(T())) 是待决类型
+ 
+int g(int);
+ 
+template&lt;class T&gt;
+decltype(g(T())) h()
+{                  // h() 的再声明使用较早的查找，
+    return g(T()); // 尽管此处的查找找到了 g(int)
+}
+ 
+int i = h&lt;int&gt;(); // 模板实参替换失败；g(int) 不在 h() 的首个声明处的作用域中</pre><pre class="hljs"><code><span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span> T&gt;
+<span class="hljs-title">decltype</span><span class="hljs-params">(g(T()))</span> <span class="hljs-title">h</span><span class="hljs-params">()</span></span>; <span class="hljs-comment">// decltype(g(T())) 是待决类型</span>
+ 
+<span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">g</span><span class="hljs-params">(<span class="hljs-type">int</span>)</span></span>;
+ 
+<span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span> T&gt;
+<span class="hljs-title">decltype</span><span class="hljs-params">(g(T()))</span> <span class="hljs-title">h</span><span class="hljs-params">()</span>
+</span>{                  <span class="hljs-comment">// h() 的再声明使用较早的查找，</span>
+    <span class="hljs-keyword">return</span> <span class="hljs-built_in">g</span>(<span class="hljs-built_in">T</span>()); <span class="hljs-comment">// 尽管此处的查找找到了 g(int)</span>
+}
+ 
+<span class="hljs-type">int</span> i = <span class="hljs-built_in">h</span>&lt;<span class="hljs-type">int</span>&gt;(); <span class="hljs-comment">// 模板实参替换失败；g(int) 不在 h() 的首个声明处的作用域中</span></code></pre></div>
+<p>当满足下列条件时，认为两个函数模板等价：</p>
+<ul>
+<li>它们在同一作用域声明</li>
+<li>它们具有相同的名字</li>
+<li>它们拥有等价的模板形参列表，意思是列表长度相同，且每对对应的形参均满足下列条件：<br>
+-     两个形参的种类相同（都是类型、都是非类型或都是模板），<br>
+-     它们都是形参包或都不是，<br>
+-     如果是非类型，那么它们的类型等价，<br>
+-     如果是模板，那么它们的模板形参等价，<br>
+-     如果有一个声明带概念名，那么另一个也有等价的概念名。(C++20 起)</li>
+<li>它们的返回类型和形参列表中所有涉及模板实参的表达式均等价</li>
+<li>模板形参列表之后的 requires 子句（如果存在）中的各个表达式均等价 (C++20 起)</li>
+<li>函数声明符之后的 requires 子句（如果存在）中的各个表达式均等价 (C++20 起)</li>
+</ul>
+<p>对于两个涉及模板形参的潜在求值 (C++20 起)表达式，如果它们不等价但它们对于任何给定的模板实参集的求值都产生相同的值，那么称它们功能等价。</p>
+<p>如果两个函数模板本来可以等价，但它们的返回类型和形参列表中一或多个涉及模板形参的表达式功能等价，那么称它们功能等价。</p>
+<p>另外，如果为两个函数模板指定的约束不同，但它们接受且被相同的模板实参列表的集合所满足，那么它们功能等价但不等价。(C++20 起)</p>
+<p>如果程序含有功能等价但不等价的函数模板声明，那么程序非良构；不要求诊断。</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">// 等价
+template&lt;int I&gt;
+void f(A&lt;I&gt;, A&lt;I+10&gt;); // 重载 #1
+template&lt;int I&gt;
+void f(A&lt;I&gt;, A&lt;I+10&gt;); // 重载 #1 的再声明
+ 
+// 不等价
+template&lt;int I&gt;
+void f(A&lt;I&gt;, A&lt;I+10&gt;); // 重载 #1
+template&lt;int I&gt;
+void f(A&lt;I&gt;, A&lt;I+11&gt;); // 重载 #2
+ 
+// 功能等价但不等价
+// 程序非良构，不要求诊断
+template&lt;int I&gt;
+void f(A&lt;I&gt;, A&lt;I+10&gt;);      // 重载 #1
+template&lt;int I&gt;
+void f(A&lt;I&gt;, A&lt;I+1+2+3+4&gt;); // 功能等价</pre><pre class="hljs"><code><span class="hljs-comment">// 等价</span>
+<span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-type">int</span> I&gt;
+<span class="hljs-type">void</span> <span class="hljs-title">f</span><span class="hljs-params">(A&lt;I&gt;, A&lt;I+<span class="hljs-number">10</span>&gt;)</span></span>; <span class="hljs-comment">// 重载 #1</span>
+<span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-type">int</span> I&gt;
+<span class="hljs-type">void</span> <span class="hljs-title">f</span><span class="hljs-params">(A&lt;I&gt;, A&lt;I+<span class="hljs-number">10</span>&gt;)</span></span>; <span class="hljs-comment">// 重载 #1 的再声明</span>
+ 
+<span class="hljs-comment">// 不等价</span>
+<span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-type">int</span> I&gt;
+<span class="hljs-type">void</span> <span class="hljs-title">f</span><span class="hljs-params">(A&lt;I&gt;, A&lt;I+<span class="hljs-number">10</span>&gt;)</span></span>; <span class="hljs-comment">// 重载 #1</span>
+<span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-type">int</span> I&gt;
+<span class="hljs-type">void</span> <span class="hljs-title">f</span><span class="hljs-params">(A&lt;I&gt;, A&lt;I+<span class="hljs-number">11</span>&gt;)</span></span>; <span class="hljs-comment">// 重载 #2</span>
+ 
+<span class="hljs-comment">// 功能等价但不等价</span>
+<span class="hljs-comment">// 程序非良构，不要求诊断</span>
+<span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-type">int</span> I&gt;
+<span class="hljs-type">void</span> <span class="hljs-title">f</span><span class="hljs-params">(A&lt;I&gt;, A&lt;I+<span class="hljs-number">10</span>&gt;)</span></span>;      <span class="hljs-comment">// 重载 #1</span>
+<span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-type">int</span> I&gt;
+<span class="hljs-type">void</span> <span class="hljs-title">f</span><span class="hljs-params">(A&lt;I&gt;, A&lt;I+<span class="hljs-number">1</span>+<span class="hljs-number">2</span>+<span class="hljs-number">3</span>+<span class="hljs-number">4</span>&gt;)</span></span>; <span class="hljs-comment">// 功能等价</span></code></pre></div>
+<p>当同一个函数模板特化与多于一个重载的函数模板相匹配时（这通常由模板实参推导所导致），执行重载函数模板的<strong>偏序处理</strong>以选择最佳匹配。</p>
+<p>具体而言，在以下情形中发生偏序处理：</p>
+<ol>
+<li>对函数模板特化的调用的重载决议：</li>
+</ol>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template&lt;class X&gt;
+void f(X a);
+template&lt;class X&gt;
+void f(X* a);
+ 
+int* p;
+f(p);</pre><pre class="hljs"><code><span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span> X&gt;
+<span class="hljs-type">void</span> <span class="hljs-title">f</span><span class="hljs-params">(X a)</span></span>;
+<span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span> X&gt;
+<span class="hljs-type">void</span> <span class="hljs-title">f</span><span class="hljs-params">(X* a)</span></span>;
+ 
+<span class="hljs-type">int</span>* p;
+<span class="hljs-built_in">f</span>(p);</code></pre></div>
+<ol start="2">
+<li>取函数模板特化的地址时：</li>
+</ol>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template&lt;class X&gt;
+void f(X a);
+template&lt;class X&gt;
+void f(X* a);
+ 
+void (*p)(int*) = &amp;f;</pre><pre class="hljs"><code>template&lt;<span class="hljs-keyword">class</span> X&gt;
+void f(X a);
+template&lt;<span class="hljs-keyword">class</span> X&gt;
+void f(X* a);
+ 
+void <span class="hljs-comment">(*p)(int*)</span> = &amp;f;</code></pre></div>
+<ol start="3">
+<li>选择作为函数模板特化的布置 operator delete 以匹配布置 operator new 时：</li>
+<li>当友元函数声明、显式实例化或显式特化指代函数模板特化时：</li>
+</ol>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template&lt;class X&gt;
+void f(X a);  // 第一个模板 f
+template&lt;class X&gt;
+void f(X* a); // 第二个模板 f
+ 
+template&lt;&gt; void f&lt;&gt;(int *a) {} // 显式特化
+ 
+// 模板实参推导出现两个候选：
+// f&lt;int*&gt;(int*) 与 f&lt;int&gt;(int*)
+// 偏序选择 f&lt;int&gt;(int*)，因为它更特殊</pre><pre class="hljs"><code><span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span> X&gt;
+<span class="hljs-type">void</span> <span class="hljs-title">f</span><span class="hljs-params">(X a)</span></span>;  <span class="hljs-comment">// 第一个模板 f</span>
+<span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span> X&gt;
+<span class="hljs-type">void</span> <span class="hljs-title">f</span><span class="hljs-params">(X* a)</span></span>; <span class="hljs-comment">// 第二个模板 f</span>
+ 
+<span class="hljs-keyword">template</span>&lt;&gt; <span class="hljs-type">void</span> f&lt;&gt;(<span class="hljs-type">int</span> *a) {} <span class="hljs-comment">// 显式特化</span>
+ 
+<span class="hljs-comment">// 模板实参推导出现两个候选：</span>
+<span class="hljs-comment">// f&lt;int*&gt;(int*) 与 f&lt;int&gt;(int*)</span>
+<span class="hljs-comment">// 偏序选择 f&lt;int&gt;(int*)，因为它更特殊</span></code></pre></div>
+<p>非正式而言，“A 比 B 更特殊”意味着“A 比 B 接受更少的类型”。</p>
+<p>正式而言，为确定任意两个函数模板中哪个更特殊，偏序处理首先对两个模板之一进行以下变换：</p>
+<ul>
+<li>对于每个类型、非类型及模板形参，包括形参包，生成一个唯一的虚构类型、值或模板，并将其替换到模板的函数类型中</li>
+<li>如果要比较的两个函数模板中只有一个是成员函数，且该函数模板是某个类 A 的非静态成员，那么向它的形参列表的开头插入一个新的形参。给定 cv 作为该函数模板的 cv 限定符和 <code class="inline-code">ref 作为该函数模板的引用限定符 (C++11 起)</code>，该形参的类型是 cv A&amp;，<code class="inline-code">除非 ref 是 &amp;&amp;，或 ref 不存在且要比较的另一个模板的首个形参的类型是右值引用类型，此时新形参的类型是 cv A&amp;&amp; (C++11 起)</code>。这有助于对运算符的定序，它们是同时作为成员和非成员函数查找的：</li>
+</ul>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">struct A {};
+ 
+template&lt;class T&gt;
+struct B
+{
+    template&lt;class R&gt;
+    int operator*(R&amp;); // #1
+};
+ 
+template&lt;class T, class R&gt;
+int operator*(T&amp;, R&amp;); // #2
+ 
+int main()
+{
+    A a;
+    B&lt;A&gt; b;
+    b * a; // 模板实参推导对于 int B&lt;A&gt;::operator*(R&amp;) 给出 R=A 
+           //           对于 int operator*(T&amp;, R&amp;)，T=B&lt;A&gt;，R=A
+ 
+    // 为进行偏序处理，将成员 template B&lt;A&gt;::operator*
+    // 变换成 template&lt;class R&gt; int operator*(B&lt;A&gt;&amp;, R&amp;);
+ 
+    //     int operator*(   T&amp;, R&amp;)  T=B&lt;A&gt;, R=A
+    // 与  int operator*(B&lt;A&gt;&amp;, R&amp;)  R=A 间的偏序
+    // 选择 int operator*(B&lt;A&gt;&amp;, A&amp;) 为更特殊者
+}</pre><pre class="hljs"><code><span class="hljs-keyword">struct</span> <span class="hljs-title class_">A</span> {};
+ 
+<span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">T</span>&gt;
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">B</span>
+{
+    <span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">R</span>&gt;
+    <span class="hljs-type">int</span> <span class="hljs-keyword">operator</span>*(R&amp;); <span class="hljs-comment">// #1</span>
+};
+ 
+<span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">T</span>, <span class="hljs-keyword">class</span> <span class="hljs-title class_">R</span>&gt;
+<span class="hljs-type">int</span> <span class="hljs-keyword">operator</span>*(T&amp;, R&amp;); <span class="hljs-comment">// #2</span>
+ 
+<span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span>
+</span>{
+    A a;
+    B&lt;A&gt; b;
+    b * a; <span class="hljs-comment">// 模板实参推导对于 int B&lt;A&gt;::operator*(R&amp;) 给出 R=A </span>
+           <span class="hljs-comment">//           对于 int operator*(T&amp;, R&amp;)，T=B&lt;A&gt;，R=A</span>
+ 
+    <span class="hljs-comment">// 为进行偏序处理，将成员 template B&lt;A&gt;::operator*</span>
+    <span class="hljs-comment">// 变换成 template&lt;class R&gt; int operator*(B&lt;A&gt;&amp;, R&amp;);</span>
+ 
+    <span class="hljs-comment">//     int operator*(   T&amp;, R&amp;)  T=B&lt;A&gt;, R=A</span>
+    <span class="hljs-comment">// 与  int operator*(B&lt;A&gt;&amp;, R&amp;)  R=A 间的偏序</span>
+    <span class="hljs-comment">// 选择 int operator*(B&lt;A&gt;&amp;, A&amp;) 为更特殊者</span>
+}</code></pre></div>
+<p>。。跳</p>
+<h3 id="函数重载-vs-函数特化">函数重载 vs 函数特化</h3>
+<p>注意，只有非模板和主模板重载参与重载决议。特化并不是重载，因此不受考虑。只有在重载决议选择最佳匹配的主函数模板后，才检验它的特化以查看最佳匹配者。</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template&lt;class T&gt;
+void f(T);    // #1：所有类型的重载
+template&lt;&gt;
+void f(int*); // #2：#1 的特化，针对指向 int 的指针
+template&lt;class T&gt;
+void f(T*);   // #3：所有指针类型的重载
+ 
+f(new int(1)); // 调用 #3，虽然 #1 的特化是完美匹配</pre><pre class="hljs"><code><span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span> T&gt;
+<span class="hljs-type">void</span> <span class="hljs-title">f</span><span class="hljs-params">(T)</span></span>;    <span class="hljs-comment">// #1：所有类型的重载</span>
+<span class="hljs-keyword">template</span>&lt;&gt;
+<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">f</span><span class="hljs-params">(<span class="hljs-type">int</span>*)</span></span>; <span class="hljs-comment">// #2：#1 的特化，针对指向 int 的指针</span>
+<span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span> T&gt;
+<span class="hljs-type">void</span> <span class="hljs-title">f</span><span class="hljs-params">(T*)</span></span>;   <span class="hljs-comment">// #3：所有指针类型的重载</span>
+ 
+<span class="hljs-built_in">f</span>(<span class="hljs-keyword">new</span> <span class="hljs-built_in">int</span>(<span class="hljs-number">1</span>)); <span class="hljs-comment">// 调用 #3，虽然 #1 的特化是完美匹配</span></code></pre></div>
+<p>在对翻译单元的头文件进行排序时，记住此规则很重要</p>
+<h3 id="函数模板特化">函数模板特化</h3>
+<p>================<br>
+<a data-from-md title='https://zh.cppreference.com/w/cpp/language/type_alias' href='https://zh.cppreference.com/w/cpp/language/type_alias'>https://zh.cppreference.com/w/cpp/language/type_alias</a></p>
+<h1 id="类型别名别名模板-c11-起">类型别名，别名模板 (C++11 起)</h1>
+<p>类型别名是指代【先前定义的类型】的名字（与 typedef 类似）。<br>
+别名模版是指代一族类型的名字。</p>
+<p>语法<br>
+别名声明是具有下列语法的声明：</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">using 标识符 属性(可选) = 类型标识 ; 	(1) 	
+
+template &lt; 模板形参列表 &gt;
+using 标识符 属性(可选) = 类型标识 ;   (2)</pre><pre class="hljs"><code>using 标识符 属性(可选) <span class="hljs-operator">=</span> 类型标识 <span class="hljs-comment">; 	(1) 	</span>
+
+template &lt; 模板形参列表 &gt;
+using 标识符 属性(可选) <span class="hljs-operator">=</span> 类型标识 <span class="hljs-comment">;   (2)</span></code></pre></div>
+<p>属性(C++11) 	- 	可选的任意数量属性的序列<br>
+标识符 	- 	此声明引入的名字，它成为一个类型名 (1) 或一个模板名 (2)<br>
+模板形参列表 	- 	模板形参列表，同模板声明<br>
+类型标识 	- 	抽象声明符或其他任何合法的 类型标识（可以引入新类型，如 类型标识 中所注明）。类型标识 不能直接或间接涉指 标识符。注意，标识符的声明点处于跟在 类型标识 之后的分号处。</p>
+<p>。。跳</p>
+<p>================<br>
+<a data-from-md title='https://zh.cppreference.com/w/cpp/language/variable_template' href='https://zh.cppreference.com/w/cpp/language/variable_template'>https://zh.cppreference.com/w/cpp/language/variable_template</a></p>
+<h1 id="变量模板c14-起">变量模板(C++14 起)</h1>
+<p>变量模板定义一族变量或静态数据成员。</p>
+<p>语法</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template &lt; 形参列表 &gt; 变量声明</pre><pre class="hljs"><code><span class="hljs-keyword">template</span> &lt; 形参列表 &gt; 变量声明</code></pre></div>
+<p>变量声明 	- 	变量的声明。声明的变量名成为模板名。<br>
+形参列表 	- 	非空的模板形参的逗号分隔列表，每项是非类型形参、类型形参、模板形参，或任何上述的形参包之一。</p>
+<p>从变量模板实例化的变量被称为 被实例化变量，从静态数据成员模板实例化的变量被称为 被实例化静态数据成员。</p>
+<p>变量模板可以通过处于命名空间作用域中的模板声明引入，其中 变量声明 声明一个变量。</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template&lt;class T&gt;
+constexpr T pi = T(3.1415926535897932385L); // 变量模板
+ 
+template&lt;class T&gt;
+T circular_area(T r) // 函数模板
+{
+    return pi&lt;T&gt; * r * r; // pi&lt;T&gt; 是变量模板实例化
+}</pre><pre class="hljs"><code>template<span class="hljs-operator">&lt;</span><span class="hljs-built_in">class</span> <span class="hljs-built_in">T</span><span class="hljs-operator">&gt;</span>
+constexpr <span class="hljs-built_in">T</span> <span class="hljs-built_in">pi</span> <span class="hljs-operator">=</span> <span class="hljs-built_in">T</span><span class="hljs-punctuation">(</span><span class="hljs-number">3.1415926535897932385L</span><span class="hljs-punctuation">)</span>; <span class="hljs-operator">/</span><span class="hljs-operator">/</span> 变量模板
+ 
+template<span class="hljs-operator">&lt;</span><span class="hljs-built_in">class</span> <span class="hljs-built_in">T</span><span class="hljs-operator">&gt;</span>
+<span class="hljs-built_in">T</span> circular_area<span class="hljs-punctuation">(</span><span class="hljs-built_in">T</span> r<span class="hljs-punctuation">)</span> <span class="hljs-operator">/</span><span class="hljs-operator">/</span> 函数模板
+<span class="hljs-punctuation">{</span>
+    <span class="hljs-built_in">return</span> <span class="hljs-built_in">pi</span><span class="hljs-operator">&lt;</span><span class="hljs-built_in">T</span><span class="hljs-operator">&gt;</span> <span class="hljs-operator">*</span> r <span class="hljs-operator">*</span> r; <span class="hljs-operator">/</span><span class="hljs-operator">/</span> <span class="hljs-built_in">pi</span><span class="hljs-operator">&lt;</span><span class="hljs-built_in">T</span><span class="hljs-operator">&gt;</span> 是变量模板实例化
+<span class="hljs-punctuation">}</span></code></pre></div>
+<p>在类作用域中使用时，变量模板声明一个静态数据成员模板。</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">using namespace std::literals;
+struct matrix_constants
+{
+    template&lt;class T&gt;
+    using pauli = hermitian_matrix&lt;T, 2&gt;; // 别名模版
+ 
+    template&lt;class T&gt; // 静态数据成员模板
+    static constexpr pauli&lt;T&gt; sigmaX = {{0, 1}, { 1, 0 }}; 
+ 
+    template&lt;class T&gt;
+    static constexpr pauli&lt;T&gt; sigmaY = {{0, -1i}, {1i, 0}};
+ 
+    template&lt;class T&gt;
+    static constexpr pauli&lt;T&gt; sigmaZ = {{1, 0}, {0, -1}};
+};</pre><pre class="hljs"><code><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> std::literals;
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">matrix_constants</span>
+{
+    <span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">T</span>&gt;
+    <span class="hljs-keyword">using</span> pauli = hermitian_matrix&lt;T, <span class="hljs-number">2</span>&gt;; <span class="hljs-comment">// 别名模版</span>
+ 
+    <span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">T</span>&gt; <span class="hljs-comment">// 静态数据成员模板</span>
+    <span class="hljs-type">static</span> <span class="hljs-keyword">constexpr</span> pauli&lt;T&gt; sigmaX = {{<span class="hljs-number">0</span>, <span class="hljs-number">1</span>}, { <span class="hljs-number">1</span>, <span class="hljs-number">0</span> }}; 
+ 
+    <span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">T</span>&gt;
+    <span class="hljs-type">static</span> <span class="hljs-keyword">constexpr</span> pauli&lt;T&gt; sigmaY = {{<span class="hljs-number">0</span>, <span class="hljs-number">-1</span>i}, {<span class="hljs-number">1</span>i, <span class="hljs-number">0</span>}};
+ 
+    <span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">T</span>&gt;
+    <span class="hljs-type">static</span> <span class="hljs-keyword">constexpr</span> pauli&lt;T&gt; sigmaZ = {{<span class="hljs-number">1</span>, <span class="hljs-number">0</span>}, {<span class="hljs-number">0</span>, <span class="hljs-number">-1</span>}};
+};</code></pre></div>
+<p>与其他静态成员一样，静态数据成员模板的需要一个定义。这种定义可以在类定义外提供。处于命名空间作用域的静态数据成员的模板声明也可以是类模板的非模板数据成员的定义：</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">struct limits
+{
+    template&lt;typename T&gt;
+    static const T min; // 静态数据成员模板的声明
+};
+ 
+template&lt;typename T&gt;
+const T limits::min = {}; // 静态数据成员模板的定义
+ 
+template&lt;class T&gt;
+class X
+{
+    static T s; // 类模板的非模板静态数据成员的声明
+};
+ 
+template&lt;class T&gt;
+T X&lt;T&gt;::s = 0; // 类模板的非模板静态数据成员的定义</pre><pre class="hljs"><code><span class="hljs-keyword">struct</span> <span class="hljs-title class_">limits</span>
+{
+    <span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;
+    <span class="hljs-type">static</span> <span class="hljs-type">const</span> T min; <span class="hljs-comment">// 静态数据成员模板的声明</span>
+};
+ 
+<span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;
+<span class="hljs-type">const</span> T limits::min = {}; <span class="hljs-comment">// 静态数据成员模板的定义</span>
+ 
+<span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">T</span>&gt;
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">X</span>
+{
+    <span class="hljs-type">static</span> T s; <span class="hljs-comment">// 类模板的非模板静态数据成员的声明</span>
+};
+ 
+<span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">T</span>&gt;
+T X&lt;T&gt;::s = <span class="hljs-number">0</span>; <span class="hljs-comment">// 类模板的非模板静态数据成员的定义</span></code></pre></div>
+<p>除非变量模板被显式特化或显式实例化，否则在变量模板的特化在要求变量定义存在的语境中被引用，或定义存在与否影响程序语义时，即表达式（可能不使用定义）对常量求值需要该变量时，隐式实例化它。</p>
+<p>如果有表达式需要某变量进行常量求值，那么变量定义存在与否会影响程序语义，即使不要求常量求值表达式，或常量表达式求值不使用该定义。</p>
+<p>注解<br>
+在 C++14 引入变量模板前，参数化变量通常实现为类模板的静态数据成员，或返回所需值的 constexpr 函数模板。</p>
+<p>变量模板不能用作模板模板实参。</p>
+<p>================</p>
+<p>================<br>
+<a data-from-md title='https://zh.cppreference.com/w/cpp/language/parameter_pack' href='https://zh.cppreference.com/w/cpp/language/parameter_pack'>https://zh.cppreference.com/w/cpp/language/parameter_pack</a></p>
+<h1 id="形参包-c11-起">形参包 (C++11 起)</h1>
+<p>模板形参包是接受零个或更多个模板实参（非类型、类型或模板）的模板形参。函数形参包是接受零个或更多个函数实参的函数形参。</p>
+<p>至少有一个形参包的模板被称作变参模板。</p>
+<p>语法<br>
+模板形参包（在别名模版、类模板、变量模板 (C++14 起)及函数模板形参列表中出现）</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">类型 ... 包名(可选) 	(1) 	
+typename|class ... 包名(可选) 	(2) 	
+类型约束 ... 包名(可选) 	(3) 	(C++20 起)
+template &lt; 形参列表 &gt; class ... 包名(可选) 	(4) 	(C++17 前)
+template &lt; 形参列表 &gt; typename|class ... 包名(可选) 	(4) 	(C++17 起)</pre><pre class="hljs"><code>类型 ... 包名(可选) 	(<span class="hljs-number">1</span>) 	
+typename|class ... 包名(可选) 	(2) 	
+类型约束 ... 包名(可选) 	(<span class="hljs-number">3</span>) 	(<span class="hljs-type">C</span>++<span class="hljs-number">20</span> 起)
+<span class="hljs-title">template</span> &lt; 形参列表 &gt; class ... 包名(可选) 	(<span class="hljs-number">4</span>) 	(<span class="hljs-type">C</span>++<span class="hljs-number">17</span> 前)
+<span class="hljs-title">template</span> &lt; 形参列表 &gt; typename|class ... 包名(可选) 	(4) 	(<span class="hljs-type">C</span>++17 起)</code></pre></div>
+<p>函数参数包（声明符的一种形式，在变参函数模板的函数形参列表中出现）</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">包名 ... 包形参名(可选) 	(5)</pre><pre class="hljs"><code>包名 ... 包形参名<span class="hljs-comment">(可选)</span> 	<span class="hljs-comment">(5)</span></code></pre></div>
+<p>形参包展开（在变参模板体中出现）</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">模式 ... 	(6)</pre><pre class="hljs"><code>模式 ... 	<span class="hljs-comment">(6)</span></code></pre></div>
+<ol>
+<li>可以有名字的非类型模板形参包</li>
+<li>可以有名字的类型模板形参包</li>
+<li>可以有名字的受约束的类型模板形参包 (C++20 起)</li>
+<li>可以有名字的模板模板形参包</li>
+<li>可以有名字的函数形参包</li>
+<li>形参包展开：展开成零个或更多个 模式 的逗号分隔列表。模式必须包含至少一个形参包。</li>
+</ol>
+<p>解释<br>
+变参类模板可以用<strong>任意数量</strong>的模板实参实例化：</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template&lt;class... Types&gt;
+struct Tuple {};
+ 
+Tuple&lt;&gt; t0;           // Types 不包含实参
+Tuple&lt;int&gt; t1;        // Types 包含一个实参：int
+Tuple&lt;int, float&gt; t2; // Types 包含两个实参：int 与 float
+Tuple&lt;0&gt; error;       // 错误：0 不是类型</pre><pre class="hljs"><code>template&lt;<span class="hljs-keyword">class</span>... Types&gt;
+struct <span class="hljs-type">Tuple</span> {};
+ 
+<span class="hljs-type">Tuple</span>&lt;&gt; t0;           // Types 不包含实参
+<span class="hljs-type">Tuple</span>&lt;<span class="hljs-built_in">int</span>&gt; t1;        // Types 包含一个实参：<span class="hljs-built_in">int</span>
+<span class="hljs-type">Tuple</span>&lt;<span class="hljs-built_in">int</span>, <span class="hljs-built_in">float</span>&gt; t2; // Types 包含两个实参：<span class="hljs-built_in">int</span> 与 <span class="hljs-built_in">float</span>
+<span class="hljs-type">Tuple</span>&lt;<span class="hljs-number">0</span>&gt; error;       // 错误：<span class="hljs-number">0</span> 不是类型</code></pre></div>
+<p>变参函数模板可以用任意数量的函数实参调用（模板实参通过模板实参推导推导）：</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template&lt;class... Types&gt;
+void f(Types... args);
+
+f();       // OK：args 不包含实参
+f(1);      // OK：args 包含一个实参：int
+f(2, 1.0); // OK：args 包含两个实参：int 与 double</pre><pre class="hljs"><code>template&lt;class... Types&gt;
+void <span class="hljs-built_in">f</span>(Types... args);
+
+<span class="hljs-built_in">f</span>();       <span class="hljs-comment">// OK：args 不包含实参</span>
+<span class="hljs-built_in">f</span>(<span class="hljs-number">1</span>);      <span class="hljs-comment">// OK：args 包含一个实参：int</span>
+<span class="hljs-built_in">f</span>(<span class="hljs-number">2</span>, <span class="hljs-number">1.0</span>); <span class="hljs-comment">// OK：args 包含两个实参：int 与 double</span></code></pre></div>
+<p>在主类模板中，模板形参包必须是模板形参列表的最后一个形参。在函数模板中，模板参数包可以在列表中更早出现，只要其后的所有形参都可以从函数实参推导或拥有默认实参即可：</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template&lt;typename U, typename... Ts&gt;    // OK：能推导出 U
+struct valid;
+// template&lt;typename... Ts, typename U&gt; // 错误：Ts... 不在结尾
+// struct Invalid;
+ 
+template&lt;typename... Ts, typename U, typename=void&gt;
+void valid(U, Ts...);    // OK：能推导出 U
+// void valid(Ts..., U); // 不能使用：Ts... 在此位置是不推导语境
+ 
+valid(1.0, 1, 2, 3);     // OK：推导出 U 是 double，Ts 是 {int, int, int}</pre><pre class="hljs"><code><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> U, <span class="hljs-keyword">typename</span>... Ts&gt;    <span class="hljs-comment">// OK：能推导出 U</span>
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">valid</span>;
+<span class="hljs-comment">// template&lt;typename... Ts, typename U&gt; // 错误：Ts... 不在结尾</span>
+<span class="hljs-comment">// struct Invalid;</span>
+ 
+<span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span>... Ts, <span class="hljs-keyword">typename</span> U, <span class="hljs-keyword">typename</span></span>=<span class="hljs-type">void</span>&gt;
+<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">valid</span><span class="hljs-params">(U, Ts...)</span></span>;    <span class="hljs-comment">// OK：能推导出 U</span>
+<span class="hljs-comment">// void valid(Ts..., U); // 不能使用：Ts... 在此位置是不推导语境</span>
+ 
+<span class="hljs-built_in">valid</span>(<span class="hljs-number">1.0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>);     <span class="hljs-comment">// OK：推导出 U 是 double，Ts 是 {int, int, int}</span></code></pre></div>
+<p>如果变参模板的每个合法的特化都要求空模板形参包，那么程序非良构，不要求诊断。</p>
+<h2 id="包展开">包展开</h2>
+<p>后随省略号且其中至少有一个形参包的名字至少出现了一次的模式会被展开成零个或更多个逗号分隔的模式实例，其中形参包的名字按顺序被替换成包中的各个元素：</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template&lt;class... Us&gt;
+void f(Us... pargs) {}
+ 
+template&lt;class... Ts&gt;
+void g(Ts... args)
+{
+    f(&amp;args...); // “&amp;args...” 是包展开
+                 // “&amp;args” 是它的模式
+}
+ 
+g(1, 0.2, &quot;a&quot;); // Ts... args 会展开成 int E1, double E2, const char* E3
+                // &amp;args... 会展开成 &amp;E1, &amp;E2, &amp;E3
+                // Us... 会展开成 int* E1, double* E2, const char** E3</pre><pre class="hljs"><code><span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span>... Us&gt;
+<span class="hljs-type">void</span> <span class="hljs-title">f</span><span class="hljs-params">(Us... pargs)</span> </span>{}
+ 
+<span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span>... Ts&gt;
+<span class="hljs-type">void</span> <span class="hljs-title">g</span><span class="hljs-params">(Ts... args)</span>
+</span>{
+    <span class="hljs-built_in">f</span>(&amp;args...); <span class="hljs-comment">// “&amp;args...” 是包展开</span>
+                 <span class="hljs-comment">// “&amp;args” 是它的模式</span>
+}
+ 
+<span class="hljs-built_in">g</span>(<span class="hljs-number">1</span>, <span class="hljs-number">0.2</span>, <span class="hljs-string">&quot;a&quot;</span>); <span class="hljs-comment">// Ts... args 会展开成 int E1, double E2, const char* E3</span>
+                <span class="hljs-comment">// &amp;args... 会展开成 &amp;E1, &amp;E2, &amp;E3</span>
+                <span class="hljs-comment">// Us... 会展开成 int* E1, double* E2, const char** E3</span></code></pre></div>
+<p>如果两个形参包在同一模式中出现，那么它们同时展开而且长度必须相同：</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template&lt;typename...&gt;
+struct Tuple {};
+ 
+template&lt;typename T1, typename T2&gt;
+struct Pair {};
+ 
+template&lt;class... Args1&gt;
+struct zip
+{
+    template&lt;class... Args2&gt;
+    struct with
+    {
+        typedef Tuple&lt;Pair&lt;Args1, Args2&gt;...&gt; type;
+        // Pair&lt;Args1, Args2&gt;... 是包展开
+        // Pair&lt;Args1, Args2&gt; 是模式
+    };
+};
+ 
+typedef zip&lt;short, int&gt;::with&lt;unsigned short, unsigned&gt;::type T1;
+// Pair&lt;Args1, Args2&gt;... 会展开成
+// Pair&lt;short, unsigned short&gt;, Pair&lt;int, unsigned int&gt; 
+// T1 是 Tuple&lt;Pair&lt;short, unsigned short&gt;, Pair&lt;int, unsigned&gt;&gt;
+ 
+typedef zip&lt;short&gt;::with&lt;unsigned short, unsigned&gt;::type T2;
+// 错误：包展开中的形参包包含不同长度</pre><pre class="hljs"><code><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span>...&gt;
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">Tuple</span> {};
+ 
+<span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T1, <span class="hljs-keyword">typename</span> T2&gt;
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">Pair</span> {};
+ 
+<span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span>... Args1&gt;
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">zip</span>
+{
+    <span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span>... Args2&gt;
+    <span class="hljs-keyword">struct</span> <span class="hljs-title class_">with</span>
+    {
+        <span class="hljs-keyword">typedef</span> Tuple&lt;Pair&lt;Args1, Args2&gt;...&gt; type;
+        <span class="hljs-comment">// Pair&lt;Args1, Args2&gt;... 是包展开</span>
+        <span class="hljs-comment">// Pair&lt;Args1, Args2&gt; 是模式</span>
+    };
+};
+ 
+<span class="hljs-keyword">typedef</span> zip&lt;<span class="hljs-type">short</span>, <span class="hljs-type">int</span>&gt;::with&lt;<span class="hljs-type">unsigned</span> <span class="hljs-type">short</span>, <span class="hljs-type">unsigned</span>&gt;::type T1;
+<span class="hljs-comment">// Pair&lt;Args1, Args2&gt;... 会展开成</span>
+<span class="hljs-comment">// Pair&lt;short, unsigned short&gt;, Pair&lt;int, unsigned int&gt; </span>
+<span class="hljs-comment">// T1 是 Tuple&lt;Pair&lt;short, unsigned short&gt;, Pair&lt;int, unsigned&gt;&gt;</span>
+ 
+<span class="hljs-keyword">typedef</span> zip&lt;<span class="hljs-type">short</span>&gt;::with&lt;<span class="hljs-type">unsigned</span> <span class="hljs-type">short</span>, <span class="hljs-type">unsigned</span>&gt;::type T2;
+<span class="hljs-comment">// 错误：包展开中的形参包包含不同长度</span></code></pre></div>
+<p>如果包展开内嵌于另一个包展开中，那么它所展开的是在最内层包展开出现的形参包，并且在外围（而非最内层）的包展开中必须提及其它形参包：</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template&lt;class... Args&gt;
+void g(Args... args)
+{
+    f(const_cast&lt;const Args*&gt;(&amp;args)...); 
+    // const_cast&lt;const Args*&gt;(&amp;args) 是模式，它同时展开两个包（Args 与 args）
+ 
+    f(h(args...) + args...); // 嵌套包展开：
+    // 内层包展开是 “args...”，它首先展开
+    // 外层包展开是 h(E1, E2, E3) + args 它其次被展开
+    // （成为 h(E1, E2, E3) + E1, h(E1, E2, E3) + E2, h(E1, E2, E3) + E3）
+}</pre><pre class="hljs"><code>template&lt;class<span class="hljs-params">...</span> Args&gt;
+<span class="hljs-literal">void</span> g(Args<span class="hljs-params">...</span> args)
+{
+    f(const_cast&lt;const Args*&gt;(&amp;args)<span class="hljs-params">...</span>); 
+    <span class="hljs-comment">// const_cast&lt;const Args*&gt;(&amp;args) 是模式，它同时展开两个包（Args 与 args）</span>
+ 
+    f(h(args<span class="hljs-params">...</span>) + args<span class="hljs-params">...</span>); <span class="hljs-comment">// 嵌套包展开：</span>
+    <span class="hljs-comment">// 内层包展开是 “args...”，它首先展开</span>
+    <span class="hljs-comment">// 外层包展开是 h(E1, E2, E3) + args 它其次被展开</span>
+    <span class="hljs-comment">// （成为 h(E1, E2, E3) + E1, h(E1, E2, E3) + E2, h(E1, E2, E3) + E3）</span>
+}</code></pre></div>
+<h2 id="展开场所">展开场所</h2>
+<p>展开所产生的逗号分隔列表按发生展开的各个场所可以是不同种类的列表：函数形参列表，成员初始化器列表，属性列表，等等。以下列出了所有允许的语境。</p>
+<p>函数实参列表<br>
+。。里面内容略<br>
+有括号初始化器<br>
+花括号包围的初始化器<br>
+模板实参列表<br>
+函数形参列表<br>
+模板形参列表<br>
+基类说明符与成员初始化器列表<br>
+Lambda 捕获<br>
+sizeof... 运算符<br>
+动态异常说明<br>
+对齐说明符<br>
+属性列表<br>
+折叠表达式<br>
+using 声明</p>
+<p>下面的例子定义了类似 std::printf 的函数，并以一个值替换格式字符串中字符 % 的每次出现。</p>
+<p>首个重载在仅传递格式字符串且无形参展开时调用。</p>
+<p>第二个重载中分别包含针对实参头的一个模板形参和一个形参包，这样就可以在递归调用中只传递形参的尾部，直到它变为空。</p>
+<p>Targs 是模板形参包而 Fargs 是函数形参包。</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">#include &lt;iostream&gt;
+ 
+void tprintf(const char* format) // 基础函数
+{
+    std::cout &lt;&lt; format;
+}
+ 
+template&lt;typename T, typename... Targs&gt;
+void tprintf(const char* format, T value, Targs... Fargs) // 递归变参函数
+{
+    for (; *format != '\0'; format++)
+    {
+        if ( *format == '%' )
+        {
+            std::cout &lt;&lt; value;
+            tprintf(format + 1, Fargs...); // 递归调用
+            return;
+        }
+        std::cout &lt;&lt; *format;
+    }
+}
+ 
+int main()
+{
+    tprintf(&quot;% world% %\n&quot;, &quot;Hello&quot;, '!', 123);
+    return 0;
+}</pre><pre class="hljs"><code><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span>
+ 
+<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">tprintf</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">char</span>* format)</span> <span class="hljs-comment">// 基础函数</span>
+</span>{
+    std::cout &lt;&lt; format;
+}
+ 
+<span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T, <span class="hljs-keyword">typename</span>... Targs&gt;
+<span class="hljs-type">void</span> <span class="hljs-title">tprintf</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">char</span>* format, T value, Targs... Fargs)</span> <span class="hljs-comment">// 递归变参函数</span>
+</span>{
+    <span class="hljs-keyword">for</span> (; *format != <span class="hljs-string">&#x27;\0&#x27;</span>; format++)
+    {
+        <span class="hljs-keyword">if</span> ( *format == <span class="hljs-string">&#x27;%&#x27;</span> )
+        {
+            std::cout &lt;&lt; value;
+            <span class="hljs-built_in">tprintf</span>(format + <span class="hljs-number">1</span>, Fargs...); <span class="hljs-comment">// 递归调用</span>
+            <span class="hljs-keyword">return</span>;
+        }
+        std::cout &lt;&lt; *format;
+    }
+}
+ 
+<span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span>
+</span>{
+    <span class="hljs-built_in">tprintf</span>(<span class="hljs-string">&quot;% world% %\n&quot;</span>, <span class="hljs-string">&quot;Hello&quot;</span>, <span class="hljs-string">&#x27;!&#x27;</span>, <span class="hljs-number">123</span>);
+    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+}</code></pre></div>
+<p>================</p>
+<p>================</p>
+<p>================<br>
+<a data-from-md title='https://zh.cppreference.com/w/cpp/language/sfinae' href='https://zh.cppreference.com/w/cpp/language/sfinae'>https://zh.cppreference.com/w/cpp/language/sfinae</a></p>
+<h1 id="sfinae">SFINAE</h1>
+<p>“替换失败不是错误” (Substitution Failure Is Not An Error)</p>
+<p>在函数模板的重载决议中会应用此规则：<strong>当模板形参在替换成显式指定的类型或推导出的类型失败时，从重载集中丢弃这个特化，而非导致编译失败</strong>。</p>
+<p>此特性被用于<mark>模板元编程</mark>。</p>
+<p>解释<br>
+对函数模板形参进行两次替换（由模板实参所替代）：</p>
+<ul>
+<li>显式指定的模板实参在模板实参推导前替换</li>
+<li>推导出的实参和从默认项获得的实参在模板实参推导后替换</li>
+</ul>
+<p>替换发生于</p>
+<ul>
+<li>函数类型中使用的所有类型（包括返回类型和所有形参的类型）</li>
+<li>各个模板形参声明中使用的所有类型</li>
+<li>函数类型中使用的所有表达式   C++11</li>
+<li>各个模板形参声明中使用的所有表达式  C++11</li>
+<li>explicit 说明符中使用的所有表达式  C++20</li>
+</ul>
+<p>以上类型或表达式在以用来替换的实参写出时谬构（并带有必要的诊断）的场合是替换失败。</p>
+<p>只有在函数类型或其模板形参类型或其 explicit 说明符 (C++20 起)的立即语境中的类型与表达式中的失败是 SFINAE 错误。如果对替换后的类型/表达式的求值导致副作用，例如实例化某模板特化、生成某隐式定义的成员函数等，那么这些副作用中的错误被当做硬错误。lambda 表达式不被当作是立即语境的一部分。 (C++20 起)</p>
+<p>替换以词法序进行，并在遇到失败时终止。</p>
+<p>如果多个声明具有不同的词法顺序（例如，某个函数模板声明为具有尾随返回类型，它在某个形参之后替换，然后被重声明为具有常规返回类型，它则在该形参之前替换），而这会导致模板实例化以不同顺序出现或完全不出现，那么程序谬构；不要求诊断。</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template&lt;typename A&gt;
+struct B { using type = typename A::type; };
+ 
+template&lt;
+    class T,
+    class U = typename T::type,    // 如果 T 没有成员 type 那么就是 SFINAE 失败
+    class V = typename B&lt;T&gt;::type&gt; // 如果 T 没有成员 type 那么就是硬错误
+                                   // （经由 CWG 1227 保证不出现，
+                                   // 因为到 U 的默认模板实参中的替换会首先失败）
+void foo (int);
+ 
+template&lt;class T&gt;
+typename T::type h(typename B&lt;T&gt;::type);
+ 
+template&lt;class T&gt;
+auto h(typename B&lt;T&gt;::type) -&gt; typename T::type; // 重声明
+ 
+template&lt;class T&gt;
+void h(...) {}
+ 
+using R = decltype(h&lt;int&gt;(0));     // 谬构，不要求诊断</pre><pre class="hljs"><code>template&lt;typename A&gt;
+struct B { <span class="hljs-keyword">using</span> type = typename A::type; };
+ 
+template&lt;
+    <span class="hljs-keyword">class</span> <span class="hljs-title class_">T</span>,
+    <span class="hljs-keyword">class</span> <span class="hljs-title class_">U</span> = typename T::type,    <span class="hljs-comment">// 如果 T 没有成员 type 那么就是 SFINAE 失败</span>
+    <span class="hljs-keyword">class</span> <span class="hljs-title class_">V</span> = typename B&lt;T&gt;::type&gt; <span class="hljs-comment">// 如果 T 没有成员 type 那么就是硬错误</span>
+                                   <span class="hljs-comment">// （经由 CWG 1227 保证不出现，</span>
+                                   <span class="hljs-comment">// 因为到 U 的默认模板实参中的替换会首先失败）</span>
+<span class="hljs-keyword">void</span> foo (<span class="hljs-built_in">int</span>);
+ 
+template&lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">T</span>&gt;
+typename T::type h(typename B&lt;T&gt;::type);
+ 
+template&lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">T</span>&gt;
+auto h(typename B&lt;T&gt;::type) -&gt; typename T::type; <span class="hljs-comment">// 重声明</span>
+ 
+template&lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">T</span>&gt;
+<span class="hljs-keyword">void</span> h(...) {}
+ 
+<span class="hljs-keyword">using</span> R = decltype(h&lt;<span class="hljs-built_in">int</span>&gt;(<span class="hljs-number">0</span>));     <span class="hljs-comment">// 谬构，不要求诊断</span></code></pre></div>
+<h2 id="类型-sfinae">类型 SFINAE</h2>
+<p>下列类型的错误是 SFINAE 错误：</p>
+<ul>
+<li>试图实例化含有多个不同长度的包的包展开 	(C++11 起)</li>
+<li>试图创建 void 的数组，引用的数组，函数的数组，负大小的数组，非整型大小的数组，或者零大小的数组：</li>
+</ul>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template&lt;int I&gt;
+void div(char(*)[I % 2 == 0] = 0)
+{
+    // 当 I 是偶数时选择这个重载
+}
+ 
+template&lt;int I&gt;
+void div(char(*)[I % 2 == 1] = 0)
+{
+    // 当 I 是奇数时选择这个重载
+}</pre><pre class="hljs"><code><span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-type">int</span> I&gt;
+<span class="hljs-type">void</span> <span class="hljs-title">div</span><span class="hljs-params">(<span class="hljs-type">char</span>(*)[I % <span class="hljs-number">2</span> == <span class="hljs-number">0</span>] = <span class="hljs-number">0</span>)</span>
+</span>{
+    <span class="hljs-comment">// 当 I 是偶数时选择这个重载</span>
+}
+ 
+<span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-type">int</span> I&gt;
+<span class="hljs-type">void</span> <span class="hljs-title">div</span><span class="hljs-params">(<span class="hljs-type">char</span>(*)[I % <span class="hljs-number">2</span> == <span class="hljs-number">1</span>] = <span class="hljs-number">0</span>)</span>
+</span>{
+    <span class="hljs-comment">// 当 I 是奇数时选择这个重载</span>
+}</code></pre></div>
+<ul>
+<li>试图在作用域解析运算符 :: 左侧使用类和枚举以外的类型：</li>
+</ul>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template&lt;class T&gt;
+int f(typename T::B*);
+ 
+template&lt;class T&gt;
+int f(T);
+ 
+int i = f&lt;int&gt;(0); // 使用第二个重载</pre><pre class="hljs"><code><span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span> T&gt;
+<span class="hljs-type">int</span> <span class="hljs-title">f</span><span class="hljs-params">(<span class="hljs-keyword">typename</span> T::B*)</span></span>;
+ 
+<span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span> T&gt;
+<span class="hljs-type">int</span> <span class="hljs-title">f</span><span class="hljs-params">(T)</span></span>;
+ 
+<span class="hljs-type">int</span> i = <span class="hljs-built_in">f</span>&lt;<span class="hljs-type">int</span>&gt;(<span class="hljs-number">0</span>); <span class="hljs-comment">// 使用第二个重载</span></code></pre></div>
+<ul>
+<li>
+<p>试图使用类型的成员，其中<br>
+- 类型不包含指定成员<br>
+- 在要求类型的地方，指定成员不是类型<br>
+- 在要求模板的地方，指定成员不是模板<br>
+- 在要求非类型的地方，指定成员不是非类型</p>
+</li>
+<li>
+<p>试图创建指向引用的指针</p>
+</li>
+<li>
+<p>试图创建到 void 的引用</p>
+</li>
+<li>
+<p>试图创建指向 T 的成员的指针，其中 T 不是类类型：</p>
+</li>
+<li>
+<p>试图将非法类型给予非类型模板形参：</p>
+</li>
+<li>
+<p>试图在以下语境中进行非法转换：</p>
+<ul>
+<li>模板实参表达式</li>
+<li>函数声明中使用的表达式：</li>
+</ul>
+</li>
+<li>
+<p>试图创建形参类型为 void 的函数类型</p>
+</li>
+<li>
+<p>试图创建返回数组类型或函数类型的函数类型</p>
+</li>
+</ul>
+<h2 id="表达式-sfinae">表达式 SFINAE</h2>
+<p>C++11 前，只有在类型中使用的常量表达式（例如数组边界）才要求被当做 SFINAE（而非硬错误）。</p>
+<p>C++11起，下列表达式错误是 SFINAE 错误：</p>
+<ul>
+<li>模板形参类型中使用的谬构表达式</li>
+<li>函数类型中使用的谬构表达式</li>
+</ul>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">struct X {};
+struct Y { Y(X){} }; // X 可以转换到 Y
+ 
+template&lt;class T&gt;
+auto f(T t1, T t2) -&gt; decltype(t1 + t2); // 重载 #1
+ 
+X f(Y, Y);                               // 重载 #2
+ 
+X x1, x2;
+X x3 = f(x1, x2);  // 推导在 #1 上失败（表达式 x1+x2 为谬构）
+                   // 重载集中只有 #2，调用它</pre><pre class="hljs"><code>struct X {};
+struct Y { Y(X){} }; <span class="hljs-regexp">//</span> X 可以转换到 Y
+ 
+template&lt;class T&gt;
+auto f(T t1, T t2) -&gt; decltype(t1 + t2); <span class="hljs-regexp">//</span> 重载 <span class="hljs-comment">#1</span>
+ 
+X f(Y, Y);                               <span class="hljs-regexp">//</span> 重载 <span class="hljs-comment">#2</span>
+ 
+X x1, x2;
+X x3 = f(x1, x2);  <span class="hljs-regexp">//</span> 推导在 <span class="hljs-comment">#1 上失败（表达式 x1+x2 为谬构）</span>
+                   <span class="hljs-regexp">//</span> 重载集中只有 <span class="hljs-comment">#2，调用它</span></code></pre></div>
+<h2 id="部分特化中的-sfinae">部分特化中的 SFINAE</h2>
+<p>在确定一个类或变量 (C++14 起)模板的特化是由部分特化还是主模板生成的时候也会出现推导与替换。在这种确定期间，编译器不会把替换失败当作硬错误，反而像涉及函数模板的重载决议中一样忽略对应的部分特化声明。</p>
+<h2 id="库支持">库支持</h2>
+<p>(C++11 起) 标准库组件 std::enable_if 允许创建替换失败，以基于某个在编译时求值的条件来启用或禁用特定的重载。<br>
+另外，许多类型特性在适合的编译器扩展不可用时必须以 SFINAE 实现。</p>
+<p>(C++17 起) 标准库组件 std::void_t 是另一个简化部分特化 SFINAE 的应用的工具元函数。</p>
+<h2 id="替代方案">替代方案</h2>
+<p>只要可用，标签派发、if constexpr (C++17 起)以及概念 (C++20 起)通常都比直接使用 SFINAE 更好。<br>
+。。Where applicable, tag dispatch, if constexpr (since C++17), and concepts (since C++20) are usually preferred over use of SFINAE.<br>
+如果只想要条件性的编译时错误，static_assert 通常比 SFINAE 更适合。 (C++11 起)</p>
+<p>================</p>
+<p>================</p>
+<p>================</p>
+<p>================</p>
+<p>================</p>
+<p>================</p>
+<p><a data-from-md title='https://zh.cppreference.com/w/cpp/language/constraints' href='https://zh.cppreference.com/w/cpp/language/constraints'>https://zh.cppreference.com/w/cpp/language/constraints</a></p>
+<h1 id="约束与概念-c20-起">约束与概念 (C++20 起)</h1>
+<p>。。Constraints and concepts</p>
+<p>类模板，函数模板，以及非模板函数（通常是类模板的成员），可以关联到约束（constraint），它指定了对模板实参的一些要求，这些要求可以被用于选择最恰当的函数重载和模板特化。</p>
+<p>这种要求的具名集合被称为概念（concept）。每个概念都是谓词，在编译时求值，并在自己被用作约束时成为模板接口的一部分：</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">// 概念 &quot;Hashable&quot; 的声明可以被符合以下条件的任意类型 T 满足：
+// 对于 T 类型的值 a，表达式 std::hash&lt;T&gt;{}(a) 可以编译并且它的结果可以转换到 std::size_t
+template&lt;typename T&gt;
+concept Hashable = requires(T a)
+{
+    { std::hash&lt;T&gt;{}(a) } -&gt; std::convertible_to&lt;std::size_t&gt;;
+};
+ 
+struct meow {};
+ 
+template&lt;Hashable T&gt;
+void f(T); // 受约束的 C++20 函数模板
+ 
+// 应用相同约束的另一种方式：
+// template&lt;typename T&gt;
+//     requires Hashable&lt;T&gt;
+// void f(T); 
+// 
+// template&lt;typename T&gt;
+// void f(T) requires Hashable&lt;T&gt;; 
+ 
+int main()
+{
+    using std::operator&quot;&quot;s;
+ 
+    f(&quot;abc&quot;s); // OK，std::string 满足 Hashable
+    f(meow{}); // 错误：meow 不满足 Hashable
+}</pre><pre class="hljs"><code><span class="hljs-regexp">//</span> 概念 <span class="hljs-string">&quot;Hashable&quot;</span> 的声明可以被符合以下条件的任意类型 T 满足：
+<span class="hljs-regexp">//</span> 对于 T 类型的值 a，表达式 std::hash&lt;T&gt;{}(a) 可以编译并且它的结果可以转换到 std::size_t
+template&lt;typename T&gt;
+concept Hashable = requires(T a)
+{
+    { std::hash&lt;T&gt;{}(a) } -&gt; std::convertible_to&lt;std::size_t&gt;;
+};
+ 
+struct meow {};
+ 
+template&lt;Hashable T&gt;
+void f(T); <span class="hljs-regexp">//</span> 受约束的 C++<span class="hljs-number">20</span> 函数模板
+ 
+<span class="hljs-regexp">//</span> 应用相同约束的另一种方式：
+<span class="hljs-regexp">//</span> template&lt;typename T&gt;
+<span class="hljs-regexp">//</span>     requires Hashable&lt;T&gt;
+<span class="hljs-regexp">//</span> void f(T); 
+<span class="hljs-regexp">//</span> 
+<span class="hljs-regexp">//</span> template&lt;typename T&gt;
+<span class="hljs-regexp">//</span> void f(T) requires Hashable&lt;T&gt;; 
+ 
+int main()
+{
+    using std::operato<span class="hljs-string">r&quot;&quot;</span>s;
+ 
+    f(<span class="hljs-string">&quot;abc&quot;</span>s); <span class="hljs-regexp">//</span> OK，std::string 满足 Hashable
+    f(meow{}); <span class="hljs-regexp">//</span> 错误：meow 不满足 Hashable
+}</code></pre></div>
+<p>在编译时（模板实例化过程的早期）就检测是否违背约束，这样错误信息就更容易理解：</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">std::list&lt;int&gt; l = {3,-1,10};
+std::sort(l.begin(), l.end()); 
+// 没有概念时典型编译器的诊断：
+// 二元表达式的操作数非法 ('std::_List_iterator&lt;int&gt;' 和 'std::_List_iterator&lt;int&gt;')
+//                           std::__lg(__last - __first) * 2);
+//                                     ~~~~~~ ^ ~~~~~~~
+// …… 50 行输出……
+//
+// 有概念时典型编译器的诊断：
+// 错误：无法以 std::_List_iterator&lt;int&gt; 调用 std::sort
+// 注意：未满足概念 RandomAccessIterator&lt;std::_List_iterator&lt;int&gt;&gt;</pre><pre class="hljs"><code>std::list&lt;int&gt; l = {<span class="hljs-number">3</span>,-<span class="hljs-number">1</span>,<span class="hljs-number">10</span>};
+std::sort(l.begin(), l.end()); 
+<span class="hljs-regexp">//</span> 没有概念时典型编译器的诊断：
+<span class="hljs-regexp">//</span> 二元表达式的操作数非法 (<span class="hljs-string">&#x27;std::_List_iterator&lt;int&gt;&#x27;</span> 和 <span class="hljs-string">&#x27;std::_List_iterator&lt;int&gt;&#x27;</span>)
+<span class="hljs-regexp">//</span>                           std::__lg(__last - __first) * <span class="hljs-number">2</span>);
+<span class="hljs-regexp">//</span>                                     ~~~~~~ ^ ~~~~~~~
+<span class="hljs-regexp">//</span> …… <span class="hljs-number">50</span> 行输出……
+<span class="hljs-regexp">//</span>
+<span class="hljs-regexp">//</span> 有概念时典型编译器的诊断：
+<span class="hljs-regexp">//</span> 错误：无法以 std::_List_iterator&lt;int&gt; 调用 std::sort
+<span class="hljs-regexp">//</span> 注意：未满足概念 RandomAccessIterator&lt;std::_List_iterator&lt;int&gt;&gt;</code></pre></div>
+<p>概念的目的是塑造<mark>语义分类</mark>（Number、Range、RegularFunction）而非语法上的限制（HasPlus、Array）。按照 ISO C++ 核心方针 T.20 所说，“与语法限制相反，真正的概念的一个决定性的特征是有能力指定有意义的语义。”</p>
+<h2 id="概念">概念</h2>
+<p>概念是要求的具名集合。概念的定义必须在命名空间作用域中出现。<br>
+概念定义拥有以下形式：</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template &lt; 模板形参列表 &gt;
+concept 概念名 属性(可选) = 约束表达式;</pre><pre class="hljs"><code>template &lt; 模板形参列表 &gt;
+concept 概念名 属性(可选) <span class="hljs-operator">=</span> 约束表达式<span class="hljs-comment">;</span></code></pre></div>
+<p>属性 	- 	任意数量的属性序列</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">// 概念
+template&lt;class T, class U&gt;
+concept Derived = std::is_base_of&lt;U, T&gt;::value;</pre><pre class="hljs"><code><span class="hljs-comment">// 概念</span>
+<span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">T</span>, <span class="hljs-keyword">class</span> <span class="hljs-title class_">U</span>&gt;
+<span class="hljs-keyword">concept</span> Derived = std::is_base_of&lt;U, T&gt;::value;</code></pre></div>
+<p>概念不能递归地提及自身，而且不能受约束：</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template&lt;typename T&gt;
+concept V = V&lt;T*&gt;; // 错误：递归的概念
+ 
+template&lt;class T&gt;
+concept C1 = true;
+template&lt;C1 T&gt;
+concept Error1 = true; // 错误：C1 T 试图约束概念定义
+template&lt;class T&gt; requires C1&lt;T&gt;
+concept Error2 = true; // 错误：requires 子句试图约束概念</pre><pre class="hljs"><code><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;
+<span class="hljs-keyword">concept</span> V = V&lt;T*&gt;; <span class="hljs-comment">// 错误：递归的概念</span>
+ 
+<span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">T</span>&gt;
+<span class="hljs-keyword">concept</span> C1 = <span class="hljs-literal">true</span>;
+<span class="hljs-keyword">template</span>&lt;C1 T&gt;
+<span class="hljs-keyword">concept</span> Error1 = <span class="hljs-literal">true</span>; <span class="hljs-comment">// 错误：C1 T 试图约束概念定义</span>
+<span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">T</span>&gt; <span class="hljs-keyword">requires</span> C1&lt;T&gt;
+<span class="hljs-keyword">concept</span> Error2 = <span class="hljs-literal">true</span>; <span class="hljs-comment">// 错误：requires 子句试图约束概念</span></code></pre></div>
+<p>概念不能被显式实例化、显式特化或部分特化（不能更改约束的原初定义的含义）。</p>
+<p>概念可以在标识表达式中命名。该标识表达式的值在满足约束表达式时是 true，否则是 false。</p>
+<p>概念在作为以下内容的一部分时也可以在类型约束中被命名：</p>
+<ul>
+<li>
+<pre><code>类型模板形参声明
+</code></pre>
+</li>
+<li>占位类型说明符</li>
+<li>复合要求</li>
+</ul>
+<p><strong>概念在 类型约束 中接受的实参要比它的形参列表要求的<mark>要少一个</mark>，因为按语境推导出的类型会<mark>隐式地</mark>用作第一个实参</strong>：</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template&lt;class T, class U&gt;
+concept Derived = std::is_base_of&lt;U, T&gt;::value;
+ 
+template&lt;Derived&lt;Base&gt; T&gt;
+void f(T); // T 被 Derived&lt;T, Base&gt; 约束</pre><pre class="hljs"><code><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">T</span>, <span class="hljs-keyword">class</span> <span class="hljs-title class_">U</span>&gt;
+<span class="hljs-keyword">concept</span> Derived = std::is_base_of&lt;U, T&gt;::value;
+ 
+<span class="hljs-keyword">template</span>&lt;Derived&lt;Base&gt; T&gt;
+<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">f</span><span class="hljs-params">(T)</span></span>; <span class="hljs-comment">// T 被 Derived&lt;T, Base&gt; 约束</span></code></pre></div>
+<h2 id="约束">约束</h2>
+<p>约束是逻辑操作和操作数的序列，它指定了对模板实参的要求。它们可以在 requires 表达式（见下文）中出现，也可以直接作为概念的主体。<br>
+有三种类型的约束：</p>
+<ol>
+<li>合取（conjunction）</li>
+<li>析取（disjunction）</li>
+<li>不可分割约束（atomic constraint）</li>
+</ol>
+<p>对包含遵循以下顺序的操作数的逻辑与表达式进行规范化，确定与一个声明关联的约束：</p>
+<ul>
+<li>每个声明中受约束的类型模板形参或带占位类型声明的非类型模板形参所引入的约束表达式，按出现顺序；</li>
+<li>模板形参列表之后的 requires 子句中的约束表达式；</li>
+<li>简写函数模板声明中每个拥有受约束占位类型的形参所引入的约束表达式;</li>
+<li>尾部的 requires 子句中的约束表达式。</li>
+</ul>
+<p>这个顺序决定了在检查是否满足时各个约束时的实例化顺序。</p>
+<p>受约束的声明只能以相同的语法形式重声明。不要求诊断：</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template&lt;Incrementable T&gt;
+void f(T) requires Decrementable&lt;T&gt;;
+ 
+template&lt;Incrementable T&gt;
+void f(T) requires Decrementable&lt;T&gt;; // OK：重声明
+ 
+template&lt;typename T&gt;	
+    requires Incrementable&lt;T&gt; &amp;&amp; Decrementable&lt;T&gt;
+void f(T); // 非良构，不要求诊断
+ 
+// 下列两个声明拥有不同的约束：
+// 第一个声明拥有 Incrementable&lt;T&gt; &amp;&amp; Decrementable&lt;T&gt;
+// 第二个声明拥有 Decrementable&lt;T&gt; &amp;&amp; Incrementable&lt;T&gt;
+// 尽管它们在逻辑上等价
+ 
+template&lt;Incrementable T&gt; 
+void g(T) requires Decrementable&lt;T&gt;;
+ 
+template&lt;Decrementable T&gt; 
+void g(T) requires Incrementable&lt;T&gt;; // 非良构，不要求诊断</pre><pre class="hljs"><code><span class="hljs-function"><span class="hljs-keyword">template</span>&lt;Incrementable T&gt;
+<span class="hljs-type">void</span> <span class="hljs-title">f</span><span class="hljs-params">(T)</span> <span class="hljs-keyword">requires</span> Decrementable&lt;T&gt;</span>;
+ 
+<span class="hljs-function"><span class="hljs-keyword">template</span>&lt;Incrementable T&gt;
+<span class="hljs-type">void</span> <span class="hljs-title">f</span><span class="hljs-params">(T)</span> <span class="hljs-keyword">requires</span> Decrementable&lt;T&gt;</span>; <span class="hljs-comment">// OK：重声明</span>
+ 
+<span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;	
+    <span class="hljs-keyword">requires</span> Incrementable&lt;T&gt; &amp;&amp; Decrementable&lt;T&gt;
+<span class="hljs-type">void</span> <span class="hljs-title">f</span><span class="hljs-params">(T)</span></span>; <span class="hljs-comment">// 非良构，不要求诊断</span>
+ 
+<span class="hljs-comment">// 下列两个声明拥有不同的约束：</span>
+<span class="hljs-comment">// 第一个声明拥有 Incrementable&lt;T&gt; &amp;&amp; Decrementable&lt;T&gt;</span>
+<span class="hljs-comment">// 第二个声明拥有 Decrementable&lt;T&gt; &amp;&amp; Incrementable&lt;T&gt;</span>
+<span class="hljs-comment">// 尽管它们在逻辑上等价</span>
+ 
+<span class="hljs-function"><span class="hljs-keyword">template</span>&lt;Incrementable T&gt; 
+<span class="hljs-type">void</span> <span class="hljs-title">g</span><span class="hljs-params">(T)</span> <span class="hljs-keyword">requires</span> Decrementable&lt;T&gt;</span>;
+ 
+<span class="hljs-function"><span class="hljs-keyword">template</span>&lt;Decrementable T&gt; 
+<span class="hljs-type">void</span> <span class="hljs-title">g</span><span class="hljs-params">(T)</span> <span class="hljs-keyword">requires</span> Incrementable&lt;T&gt;</span>; <span class="hljs-comment">// 非良构，不要求诊断</span></code></pre></div>
+<h3 id="合取">合取</h3>
+<p>两个约束的合取是通过在约束表达式中使用 &amp;&amp; 运算符来构成的：</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template&lt;class T&gt;
+concept Integral = std::is_integral&lt;T&gt;::value;
+template&lt;class T&gt;
+concept SignedIntegral = Integral&lt;T&gt; &amp;&amp; std::is_signed&lt;T&gt;::value;
+template&lt;class T&gt;
+concept UnsignedIntegral = Integral&lt;T&gt; &amp;&amp; !SignedIntegral&lt;T&gt;;</pre><pre class="hljs"><code>template<span class="hljs-operator">&lt;</span><span class="hljs-built_in">class</span> <span class="hljs-built_in">T</span><span class="hljs-operator">&gt;</span>
+concept Integral <span class="hljs-operator">=</span> std<span class="hljs-operator">::</span>is_integral<span class="hljs-operator">&lt;</span><span class="hljs-built_in">T</span><span class="hljs-operator">&gt;</span><span class="hljs-operator">::</span>value;
+template<span class="hljs-operator">&lt;</span><span class="hljs-built_in">class</span> <span class="hljs-built_in">T</span><span class="hljs-operator">&gt;</span>
+concept SignedIntegral <span class="hljs-operator">=</span> Integral<span class="hljs-operator">&lt;</span><span class="hljs-built_in">T</span><span class="hljs-operator">&gt;</span> <span class="hljs-operator">&amp;&amp;</span> std<span class="hljs-operator">::</span>is_signed<span class="hljs-operator">&lt;</span><span class="hljs-built_in">T</span><span class="hljs-operator">&gt;</span><span class="hljs-operator">::</span>value;
+template<span class="hljs-operator">&lt;</span><span class="hljs-built_in">class</span> <span class="hljs-built_in">T</span><span class="hljs-operator">&gt;</span>
+concept UnsignedIntegral <span class="hljs-operator">=</span> Integral<span class="hljs-operator">&lt;</span><span class="hljs-built_in">T</span><span class="hljs-operator">&gt;</span> <span class="hljs-operator">&amp;&amp;</span> <span class="hljs-operator">!</span>SignedIntegral<span class="hljs-operator">&lt;</span><span class="hljs-built_in">T</span><span class="hljs-operator">&gt;</span>;</code></pre></div>
+<p>两个约束的合取只有在两个约束都被满足时才会得到满足。合取从左到右短路求值（如果不满足左侧的约束，那么就不会尝试对右侧的约束进行模板实参替换：这样就会防止出现立即语境外的替换所导致的失败）。</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template&lt;typename T&gt;
+constexpr bool get_value() { return T::value; }
+ 
+template&lt;typename T&gt;
+    requires (sizeof(T) &gt; 1 &amp;&amp; get_value&lt;T&gt;())
+void f(T);   // #1
+ 
+void f(int); // #2
+ 
+void g() 
+{
+    f('A'); // OK，调用 #2。当检查 #1 的约束时，
+            // 不满足 'sizeof(char) &gt; 1'，故不检查 get_value&lt;T&gt;()
+}</pre><pre class="hljs"><code><span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;
+<span class="hljs-keyword">constexpr</span> <span class="hljs-type">bool</span> <span class="hljs-title">get_value</span><span class="hljs-params">()</span> </span>{ <span class="hljs-keyword">return</span> T::value; }
+ 
+<span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;
+    <span class="hljs-title">requires</span> <span class="hljs-params">(<span class="hljs-keyword">sizeof</span>(T) &gt; <span class="hljs-number">1</span> &amp;&amp; get_value&lt;T&gt;())</span>
+<span class="hljs-type">void</span> <span class="hljs-title">f</span><span class="hljs-params">(T)</span></span>;   <span class="hljs-comment">// #1</span>
+ 
+<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">f</span><span class="hljs-params">(<span class="hljs-type">int</span>)</span></span>; <span class="hljs-comment">// #2</span>
+ 
+<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">g</span><span class="hljs-params">()</span> 
+</span>{
+    <span class="hljs-built_in">f</span>(<span class="hljs-string">&#x27;A&#x27;</span>); <span class="hljs-comment">// OK，调用 #2。当检查 #1 的约束时，</span>
+            <span class="hljs-comment">// 不满足 &#x27;sizeof(char) &gt; 1&#x27;，故不检查 get_value&lt;T&gt;()</span>
+}</code></pre></div>
+<h3 id="析取">析取</h3>
+<p>两个约束的析取，是通过在约束表达式中使用 || 运算符来构成的：</p>
+<p>如果其中一个约束得到满足，那么两个约束的析取的到满足。析取从左到右短路求值（如果满足左侧约束，那么就不会尝试对右侧约束进行模板实参替换）。</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template&lt;class T = void&gt;
+    requires EqualityComparable&lt;T&gt; || Same&lt;T, void&gt;
+struct equal_to;</pre><pre class="hljs"><code><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">T</span> = <span class="hljs-type">void</span>&gt;
+    <span class="hljs-keyword">requires</span> EqualityComparable&lt;T&gt; || Same&lt;T, <span class="hljs-type">void</span>&gt;
+<span class="hljs-keyword">struct</span> equal_to;</code></pre></div>
+<h3 id="不可分割约束">不可分割约束</h3>
+<p>不可分割约束由一个表达式 E，和一个从 E 内出现的模板形参到（对受约束实体的各模板形参的有所涉及的）模板实参的映射组成。这种映射被称作形参映射。</p>
+<p>不可分割约束在约束规范化过程中形成。E 始终不会是逻辑与（AND）或者逻辑或（OR）表达式（它们分别构成析取和合取）。</p>
+<p>对不可分割约束是否满足的检查会通过替换形参映射和各个模板实参到表达式 E 中来进行。如果替换产生了无效的类型或表达式，那么约束就没有被满足。否则，在任何左值到右值转换后，E 应当是 bool 类型的纯右值常量表达式，当且仅当它求值为 true 时该约束得以满足。</p>
+<p>E 在替换后的类型必须严格为 bool。不能有任何转换：</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template&lt;typename T&gt;
+struct S
+{
+    constexpr operator bool() const { return true; }
+};
+ 
+template&lt;typename T&gt;
+    requires (S&lt;T&gt;{})
+void f(T);   // #1
+ 
+void f(int); // #2
+ 
+void g()
+{
+    f(0); // 错误：检查 #1 时 S&lt;int&gt;{} 不具有 bool 类型，
+          // 尽管 #2 能更好地匹配
+}</pre><pre class="hljs"><code><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">S</span>
+{
+    <span class="hljs-function"><span class="hljs-keyword">constexpr</span> <span class="hljs-keyword">operator</span> <span class="hljs-title">bool</span><span class="hljs-params">()</span> <span class="hljs-type">const</span> </span>{ <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>; }
+};
+ 
+<span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;
+    <span class="hljs-title">requires</span> <span class="hljs-params">(S&lt;T&gt;{})</span>
+<span class="hljs-type">void</span> <span class="hljs-title">f</span><span class="hljs-params">(T)</span></span>;   <span class="hljs-comment">// #1</span>
+ 
+<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">f</span><span class="hljs-params">(<span class="hljs-type">int</span>)</span></span>; <span class="hljs-comment">// #2</span>
+ 
+<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">g</span><span class="hljs-params">()</span>
+</span>{
+    <span class="hljs-built_in">f</span>(<span class="hljs-number">0</span>); <span class="hljs-comment">// 错误：检查 #1 时 S&lt;int&gt;{} 不具有 bool 类型，</span>
+          <span class="hljs-comment">// 尽管 #2 能更好地匹配</span>
+}</code></pre></div>
+<p>如果两个不可分割约束由在源码层面上相同的表达式组成，且它们的形参映射等价，那么认为它们等同。</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template&lt;class T&gt;
+constexpr bool is_meowable = true;
+ 
+template&lt;class T&gt;
+constexpr bool is_cat = true;
+ 
+template&lt;class T&gt;
+concept Meowable = is_meowable&lt;T&gt;;
+ 
+template&lt;class T&gt;
+concept BadMeowableCat = is_meowable&lt;T&gt; &amp;&amp; is_cat&lt;T&gt;;
+ 
+template&lt;class T&gt;
+concept GoodMeowableCat = Meowable&lt;T&gt; &amp;&amp; is_cat&lt;T&gt;;
+ 
+template&lt;Meowable T&gt;
+void f1(T); // #1
+ 
+template&lt;BadMeowableCat T&gt;
+void f1(T); // #2
+ 
+template&lt;Meowable T&gt;
+void f2(T); // #3
+ 
+template&lt;GoodMeowableCat T&gt;
+void f2(T); // #4
+ 
+void g()
+{
+    f1(0); // 错误，有歧义：
+           // BadMeowableCat 和 Meowable 中的 is_meowable&lt;T&gt;
+           // 构成了有区别的不可分割约束且它们并不等同（因此它们不互相包含）
+ 
+    f2(0); // OK，调用 #4，它比 #3 更受约束
+           // GoodMeowableCat 从 Meowable 获得其 is_meowable&lt;T&gt;
+}</pre><pre class="hljs"><code><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">T</span>&gt;
+<span class="hljs-keyword">constexpr</span> <span class="hljs-type">bool</span> is_meowable = <span class="hljs-literal">true</span>;
+ 
+<span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">T</span>&gt;
+<span class="hljs-keyword">constexpr</span> <span class="hljs-type">bool</span> is_cat = <span class="hljs-literal">true</span>;
+ 
+<span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">T</span>&gt;
+<span class="hljs-keyword">concept</span> Meowable = is_meowable&lt;T&gt;;
+ 
+<span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">T</span>&gt;
+<span class="hljs-keyword">concept</span> BadMeowableCat = is_meowable&lt;T&gt; &amp;&amp; is_cat&lt;T&gt;;
+ 
+<span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">T</span>&gt;
+<span class="hljs-keyword">concept</span> GoodMeowableCat = Meowable&lt;T&gt; &amp;&amp; is_cat&lt;T&gt;;
+ 
+<span class="hljs-function"><span class="hljs-keyword">template</span>&lt;Meowable T&gt;
+<span class="hljs-type">void</span> <span class="hljs-title">f1</span><span class="hljs-params">(T)</span></span>; <span class="hljs-comment">// #1</span>
+ 
+<span class="hljs-function"><span class="hljs-keyword">template</span>&lt;BadMeowableCat T&gt;
+<span class="hljs-type">void</span> <span class="hljs-title">f1</span><span class="hljs-params">(T)</span></span>; <span class="hljs-comment">// #2</span>
+ 
+<span class="hljs-function"><span class="hljs-keyword">template</span>&lt;Meowable T&gt;
+<span class="hljs-type">void</span> <span class="hljs-title">f2</span><span class="hljs-params">(T)</span></span>; <span class="hljs-comment">// #3</span>
+ 
+<span class="hljs-function"><span class="hljs-keyword">template</span>&lt;GoodMeowableCat T&gt;
+<span class="hljs-type">void</span> <span class="hljs-title">f2</span><span class="hljs-params">(T)</span></span>; <span class="hljs-comment">// #4</span>
+ 
+<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">g</span><span class="hljs-params">()</span>
+</span>{
+    <span class="hljs-built_in">f1</span>(<span class="hljs-number">0</span>); <span class="hljs-comment">// 错误，有歧义：</span>
+           <span class="hljs-comment">// BadMeowableCat 和 Meowable 中的 is_meowable&lt;T&gt;</span>
+           <span class="hljs-comment">// 构成了有区别的不可分割约束且它们并不等同（因此它们不互相包含）</span>
+ 
+    <span class="hljs-built_in">f2</span>(<span class="hljs-number">0</span>); <span class="hljs-comment">// OK，调用 #4，它比 #3 更受约束</span>
+           <span class="hljs-comment">// GoodMeowableCat 从 Meowable 获得其 is_meowable&lt;T&gt;</span>
+}</code></pre></div>
+<h4 id="约束规范化">约束规范化</h4>
+<p>约束规范化是将一个约束表达式变换为一个不可分割约束的合取与析取的序列的过程。表达式的范式定义如下：</p>
+<ul>
+<li>表达式 (E) 的范式就是 E 的范式；</li>
+<li>表达式 E1 &amp;&amp; E2 的范式是 E1 和 E2 范式的合取；</li>
+<li>表达式 E1 || E2 的范式是 E1 和 E2 范式的析取；</li>
+<li>表达式 C&lt;A1, A2, ... , AN&gt;（其中 C 指名某个概念）的范式，是以 A1, A2, ... , AN 对 C 的每个不可分割约束的形参映射中的 C 的对应模板形参进行替换之后，C 的约束表达式的范式。如果在这种形参映射中的替换产生了无效的类型或表达式，那么程序非良构，不要求诊断。</li>
+</ul>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template&lt;typename T&gt;
+concept A = T::value || true;
+ 
+template&lt;typename U&gt; 
+concept B = A&lt;U*&gt;; // OK：规范化为以下各项的析取
+                   // - T::value（映射为 T -&gt; U*）和
+                   // - true（映射为空）。
+                   // 映射中没有无效类型，尽管 T::value 对所有指针类型均非良构
+ 
+template&lt;typename V&gt; 
+concept C = B&lt;V&amp;&gt;; // 规范化为以下的析取
+                   // - T::value（映射为 T-&gt; V&amp;*）和
+                   // - true（映射为空）。
+                   // 映射中构成了无效类型 V&amp;* =&gt; 非良构，不要求诊断</pre><pre class="hljs"><code><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;
+<span class="hljs-keyword">concept</span> A = T::value || <span class="hljs-literal">true</span>;
+ 
+<span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> U&gt; 
+<span class="hljs-keyword">concept</span> B = A&lt;U*&gt;; <span class="hljs-comment">// OK：规范化为以下各项的析取</span>
+                   <span class="hljs-comment">// - T::value（映射为 T -&gt; U*）和</span>
+                   <span class="hljs-comment">// - true（映射为空）。</span>
+                   <span class="hljs-comment">// 映射中没有无效类型，尽管 T::value 对所有指针类型均非良构</span>
+ 
+<span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> V&gt; 
+<span class="hljs-keyword">concept</span> C = B&lt;V&amp;&gt;; <span class="hljs-comment">// 规范化为以下的析取</span>
+                   <span class="hljs-comment">// - T::value（映射为 T-&gt; V&amp;*）和</span>
+                   <span class="hljs-comment">// - true（映射为空）。</span>
+                   <span class="hljs-comment">// 映射中构成了无效类型 V&amp;* =&gt; 非良构，不要求诊断</span></code></pre></div>
+<ul>
+<li>任何其他表达式 E 的范式是一条不可分割约束，它的表达式是 E 而它的形参映射是恒等映射。这包括所有折叠表达式，甚至包括以 &amp;&amp; 或 || 运算符进行的折叠。</li>
+</ul>
+<p>用户定义的 &amp;&amp; 或 || 重载在约束规范化上无效。</p>
+<h2 id="requires-子句">requires 子句</h2>
+<p>关键词 requires 用来引入 requires 子句，它指定对各模板实参，或对函数声明的约束。</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template&lt;typename T&gt;
+void f(T&amp;&amp;) requires Eq&lt;T&gt;; // 可以作为函数声明符的末尾元素出现
+ 
+template&lt;typename T&gt; requires Addable&lt;T&gt; // 或者在模板形参列表的右边
+T add(T a, T b) { return a + b; }</pre><pre class="hljs"><code><span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;
+<span class="hljs-type">void</span> <span class="hljs-title">f</span><span class="hljs-params">(T&amp;&amp;)</span> <span class="hljs-keyword">requires</span> Eq&lt;T&gt;</span>; <span class="hljs-comment">// 可以作为函数声明符的末尾元素出现</span>
+ 
+<span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt; <span class="hljs-keyword">requires</span> Addable&lt;T&gt; <span class="hljs-comment">// 或者在模板形参列表的右边</span>
+<span class="hljs-function">T <span class="hljs-title">add</span><span class="hljs-params">(T a, T b)</span> </span>{ <span class="hljs-keyword">return</span> a + b; }</code></pre></div>
+<p>这种情况下，关键词 requires 必须后随某个常量表达式（因此可以写成 requires true），但这是为了使用一个具名概念（如上例），具名概念的一条合取/析取，或者一个 requires 表达式。<br>
+表达式必须具有下列形式之一：</p>
+<ul>
+<li>初等表达式，例如 Swappable<t class="jop-noMdConv">、std::is_integral<t class="jop-noMdConv">::value、(std::is_object_v<args class="jop-noMdConv"> &amp;&amp; ...) 或任何带括号的表达式</li>
+<li>以运算符 &amp;&amp; 联结的初等表达式的序列</li>
+<li>以运算符 || 联结的前述表达式的序列</li>
+</ul>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template&lt;class T&gt;
+constexpr bool is_meowable = true;
+ 
+template&lt;class T&gt;
+constexpr bool is_purrable() { return true; }
+ 
+template&lt;class T&gt;
+void f(T) requires is_meowable&lt;T&gt;; // OK
+ 
+template&lt;class T&gt;
+void g(T) requires is_purrable&lt;T&gt;(); // 错误：is_purrable&lt;T&gt;() 不是初等表达式
+ 
+template&lt;class T&gt;
+void h(T) requires (is_purrable&lt;T&gt;()); // OK</pre><pre class="hljs"><code><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">T</span>&gt;
+<span class="hljs-keyword">constexpr</span> <span class="hljs-type">bool</span> is_meowable = <span class="hljs-literal">true</span>;
+ 
+<span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span> T&gt;
+<span class="hljs-keyword">constexpr</span> <span class="hljs-type">bool</span> <span class="hljs-title">is_purrable</span><span class="hljs-params">()</span> </span>{ <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>; }
+ 
+<span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span> T&gt;
+<span class="hljs-type">void</span> <span class="hljs-title">f</span><span class="hljs-params">(T)</span> <span class="hljs-keyword">requires</span> is_meowable&lt;T&gt;</span>; <span class="hljs-comment">// OK</span>
+ 
+<span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span> T&gt;
+<span class="hljs-type">void</span> <span class="hljs-title">g</span><span class="hljs-params">(T)</span> <span class="hljs-keyword">requires</span> is_purrable&lt;T&gt;<span class="hljs-params">()</span></span>; <span class="hljs-comment">// 错误：is_purrable&lt;T&gt;() 不是初等表达式</span>
+ 
+<span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span> T&gt;
+<span class="hljs-type">void</span> <span class="hljs-title">h</span><span class="hljs-params">(T)</span> <span class="hljs-title">requires</span> <span class="hljs-params">(is_purrable&lt;T&gt;())</span></span>; <span class="hljs-comment">// OK</span></code></pre></div>
+<h2 id="约束的偏序">约束的偏序</h2>
+<p>在任何进一步的分析之前都会对各个约束进行规范化，对每个具名概念的主体和每个 requires 表达式进行替换，直到剩下不可分割约束的合取与析取的序列为止。</p>
+<p>如果根据约束 P 和约束 Q 中的各不可分割约束的同一性可以证明 P 蕴含 Q，那么称 P 归入（subsume） Q。（并进行类型和表达式的等价性分析：N &gt; 0 并不归入 N &gt;= 0）。</p>
+<p>具体来说，首先转换 P 为析取范式并转换 Q 为合取范式。当且仅当以下情况下 P 归入 Q：</p>
+<ul>
+<li>P 的析取范式中的每个析取子句都能归入 Q 的合取范式中的每个合取子句，其中</li>
+<li>当且仅当析取子句中存在不可分割约束 U 而合取子句中存在不可分割约束 V，使得 U 归入 V 时，析取子句能归入合取子句；</li>
+<li>当且仅当使用上文所述的规则判定为等同时，称不可分割约束 A 能归入不可分割约束 B。</li>
+</ul>
+<p>归入关系定义了约束的偏序，用于确定：</p>
+<ul>
+<li>重载决议中非模板函数的最佳可行候选</li>
+<li>重载集中的非模板函数的地址</li>
+<li>模板模板实参的最佳匹配</li>
+<li>类模板特化的偏序</li>
+<li>函数模板的偏序</li>
+</ul>
+<p>如果声明 D1 和 D2 均受约束，且 D1 关联的约束能归入 D2 关联的约束，（或 D2 没有约束），那么称 D1 与 D2 相比至少一样受约束。如果 D1 至少与 D2 一样受约束，而 D2 并非至少与 D1 一样受约束，那么 D1 比 D2 更受约束。</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template&lt;typename T&gt;
+concept Decrementable = requires(T t) { --t; };
+template&lt;typename T&gt;
+concept RevIterator = Decrementable&lt;T&gt; &amp;&amp; requires(T t) { *t; };
+ 
+// RevIterator 能归入 Decrementable，但反之不行
+ 
+template&lt;Decrementable T&gt;
+void f(T); // #1
+ 
+template&lt;RevIterator T&gt;
+void f(T); // #2，比 #1 更受约束
+ 
+f(0);       // int 只满足 Decrementable，选择 #1
+f((int*)0); // int* 满足两个约束，选择 #2，因为它更受约束
+ 
+template&lt;class T&gt;
+void g(T); // #3（无约束）
+ 
+template&lt;Decrementable T&gt;
+void g(T); // #4
+ 
+g(true); // bool 不满足 Decrementable，选择 #3
+g(0);    // int 满足 Decrementable，选择 #4，因为它更受约束
+ 
+template&lt;typename T&gt;
+concept RevIterator2 = requires(T t) { --t; *t; };
+ 
+template&lt;Decrementable T&gt;
+void h(T); // #5
+ 
+template&lt;RevIterator2 T&gt;
+void h(T); // #6
+ 
+h((int*)0); // 有歧义</pre><pre class="hljs"><code><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;
+<span class="hljs-keyword">concept</span> Decrementable = <span class="hljs-built_in">requires</span>(T t) { --t; };
+<span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;
+<span class="hljs-keyword">concept</span> RevIterator = Decrementable&lt;T&gt; &amp;&amp; <span class="hljs-built_in">requires</span>(T t) { *t; };
+ 
+<span class="hljs-comment">// RevIterator 能归入 Decrementable，但反之不行</span>
+ 
+<span class="hljs-function"><span class="hljs-keyword">template</span>&lt;Decrementable T&gt;
+<span class="hljs-type">void</span> <span class="hljs-title">f</span><span class="hljs-params">(T)</span></span>; <span class="hljs-comment">// #1</span>
+ 
+<span class="hljs-function"><span class="hljs-keyword">template</span>&lt;RevIterator T&gt;
+<span class="hljs-type">void</span> <span class="hljs-title">f</span><span class="hljs-params">(T)</span></span>; <span class="hljs-comment">// #2，比 #1 更受约束</span>
+ 
+<span class="hljs-built_in">f</span>(<span class="hljs-number">0</span>);       <span class="hljs-comment">// int 只满足 Decrementable，选择 #1</span>
+<span class="hljs-built_in">f</span>((<span class="hljs-type">int</span>*)<span class="hljs-number">0</span>); <span class="hljs-comment">// int* 满足两个约束，选择 #2，因为它更受约束</span>
+ 
+<span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span> T&gt;
+<span class="hljs-type">void</span> <span class="hljs-title">g</span><span class="hljs-params">(T)</span></span>; <span class="hljs-comment">// #3（无约束）</span>
+ 
+<span class="hljs-function"><span class="hljs-keyword">template</span>&lt;Decrementable T&gt;
+<span class="hljs-type">void</span> <span class="hljs-title">g</span><span class="hljs-params">(T)</span></span>; <span class="hljs-comment">// #4</span>
+ 
+<span class="hljs-built_in">g</span>(<span class="hljs-literal">true</span>); <span class="hljs-comment">// bool 不满足 Decrementable，选择 #3</span>
+<span class="hljs-built_in">g</span>(<span class="hljs-number">0</span>);    <span class="hljs-comment">// int 满足 Decrementable，选择 #4，因为它更受约束</span>
+ 
+<span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;
+<span class="hljs-keyword">concept</span> RevIterator2 = <span class="hljs-built_in">requires</span>(T t) { --t; *t; };
+ 
+<span class="hljs-function"><span class="hljs-keyword">template</span>&lt;Decrementable T&gt;
+<span class="hljs-type">void</span> <span class="hljs-title">h</span><span class="hljs-params">(T)</span></span>; <span class="hljs-comment">// #5</span>
+ 
+<span class="hljs-function"><span class="hljs-keyword">template</span>&lt;RevIterator2 T&gt;
+<span class="hljs-type">void</span> <span class="hljs-title">h</span><span class="hljs-params">(T)</span></span>; <span class="hljs-comment">// #6</span>
+ 
+<span class="hljs-built_in">h</span>((<span class="hljs-type">int</span>*)<span class="hljs-number">0</span>); <span class="hljs-comment">// 有歧义</span></code></pre></div>
+<p>================<br>
+<a data-from-md title='https://zh.cppreference.com/w/cpp/language/requires' href='https://zh.cppreference.com/w/cpp/language/requires'>https://zh.cppreference.com/w/cpp/language/requires</a></p>
+<h1 id="requires-表达式-c20-起">Requires 表达式 (C++20 起)</h1>
+<p>产生一个描述约束的 bool 类型的纯右值表达式。</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">requires { 要求序列 } 		
+requires ( 参数列表(可选) ) { 要求序列 }</pre><pre class="hljs"><code><span class="language-xml">requires </span><span class="hljs-template-variable">{ 要求序列 }</span><span class="language-xml"> 		
+requires ( 参数列表(可选) ) </span><span class="hljs-template-variable">{ 要求序列 }</span></code></pre></div>
+<p>参数列表 	- 	一个用逗号分隔的参数列表，就像在函数声明中一样，但不允许使用默认参数，而且不能以省略号结尾（除了一个表示参数包的省略号）。这些参数没有存储周期、链接性质或生命周期，只用于协助指定要求。这些参数的作用域直到要求序列的结束符 }。</p>
+<p>要求序列 	- 	要求序列，每一个要求都是如下形式的一种:</p>
+<ul>
+<li>简单要求</li>
+<li>类型要求</li>
+<li>复合要求</li>
+<li>嵌套要求</li>
+</ul>
+<p>要求可以引用作用域内的模板参数、参数列表中引入的局部参数，以及其他任何在上下文中可见的声明。</p>
+<p>将模板参数替换到模板化实体的声明中使用的 requires 表达式中，可能会导致在其要求中形成无效的类型或表达式，或者违反这些要求的语义。在这种情况下，requires 表达式的值为 false，不会导致非良构。替换和语义约束检查按照词法顺序进行，当遇到决定 requires 表达式结果的条件时就停止。如果替换（若存在）和语义约束检查成功，则 requires 表达式的结果为 true。</p>
+<p>如果在一个 requires 表达式中，任何模板参数替换后都不可能满足要求，则程序非良构，不要求诊断：</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template&lt;class T&gt;
+concept C = requires
+{
+    new int[-(int)sizeof(T)]; // 对任何 T 都无效: 非良构，不要求诊断
+};</pre><pre class="hljs"><code>template&lt;<span class="hljs-keyword">class</span> <span class="hljs-symbol">T</span>&gt;
+<span class="hljs-symbol">concept</span> <span class="hljs-symbol">C</span> = <span class="hljs-symbol">requires</span>
+{
+    new <span class="hljs-built_in">int</span>[-(<span class="hljs-built_in">int</span>)sizeof(T)]; <span class="hljs-comment">// 对任何 T 都无效: 非良构，不要求诊断</span>
+};</code></pre></div>
+<p>如果一个 requires 表达式在其要求中包含无效的类型或表达式，并且它没有出现在模板化实体的声明中，则程序非良构。</p>
+<h2 id="简单要求">简单要求</h2>
+<p>一个简单的要求是一个任何不以关键字 requires 开始的表达式语句。它断言该表达式是有效的。表达式是一个不求值的操作数；只检查语言的正确性。</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template&lt;typename T&gt;
+concept Addable = requires (T a, T b)
+{
+    a + b; // &quot;需要表达式 a+b 被编译为有效的表达式&quot;
+};
+ 
+template&lt;class T, class U = T&gt;
+concept Swappable = requires(T&amp;&amp; t, U&amp;&amp; u)
+{
+    swap(std::forward&lt;T&gt;(t), std::forward&lt;U&gt;(u));
+    swap(std::forward&lt;U&gt;(u), std::forward&lt;T&gt;(t));
+};</pre><pre class="hljs"><code>template&lt;typename T&gt;
+concept Addable = requires (T a, T b)
+{
+    a + b; <span class="hljs-comment">// &quot;需要表达式 a+b 被编译为有效的表达式&quot;</span>
+};
+ 
+template&lt;<span class="hljs-keyword">class</span> <span class="hljs-symbol">T, <span class="hljs-symbol">class</span></span> <span class="hljs-symbol">U</span> = <span class="hljs-symbol">T</span>&gt;
+<span class="hljs-symbol">concept</span> <span class="hljs-symbol">Swappable</span> = <span class="hljs-symbol">requires</span>(<span class="hljs-symbol">T</span>&amp;&amp; <span class="hljs-symbol">t, <span class="hljs-symbol">U</span></span>&amp;&amp; <span class="hljs-symbol">u</span>)
+{
+    swap(std::forward&lt;T&gt;(t), std::forward&lt;U&gt;(u));
+    swap(std::forward&lt;U&gt;(u), std::forward&lt;T&gt;(t));
+};</code></pre></div>
+<p>一个以关键字 requires 开始的要求总是被解释为一个嵌套要求。因此一个简单的要求不能以非父级的 requires 表达式开始。</p>
+<h2 id="类型要求">类型要求</h2>
+<p>类型要求是关键字 typename 后面接一个可选限定的类型名称。该要求是指命名的类型是有效的：可以用来验证某个命名的嵌套类型是否存在，或者某个类模板特化是否命名了某个类型，或者某个别名模板特化是否命名了某个类型。一个命名类模板特化的类型要求并不要求该类型是完整的。</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template&lt;typename T&gt;
+using Ref = T&amp;;
+ 
+template&lt;typename T&gt;
+concept C = requires
+{
+    typename T::inner; // 需要嵌套成员名
+    typename S&lt;T&gt;;     // 需要类模板特化
+    typename Ref&lt;T&gt;;   // 需要别名模板替换
+};
+ 
+template&lt;class T, class U&gt;
+using CommonType = std::common_type_t&lt;T, U&gt;;
+ 
+template&lt;class T, class U&gt;
+concept Common = requires (T&amp;&amp; t, U&amp;&amp; u)
+{
+    typename CommonType&lt;T, U&gt;; // CommonType&lt;T, U&gt; 是一个合法的类型名
+    { CommonType&lt;T, U&gt;{std::forward&lt;T&gt;(t)} }; 
+    { CommonType&lt;T, U&gt;{std::forward&lt;U&gt;(u)} }; 
+};</pre><pre class="hljs"><code><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;
+<span class="hljs-keyword">using</span> Ref = T&amp;;
+ 
+<span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;
+<span class="hljs-keyword">concept</span> C = <span class="hljs-keyword">requires</span>
+{
+    <span class="hljs-keyword">typename</span> T::inner; <span class="hljs-comment">// 需要嵌套成员名</span>
+    <span class="hljs-keyword">typename</span> S&lt;T&gt;;     <span class="hljs-comment">// 需要类模板特化</span>
+    <span class="hljs-keyword">typename</span> Ref&lt;T&gt;;   <span class="hljs-comment">// 需要别名模板替换</span>
+};
+ 
+<span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">T</span>, <span class="hljs-keyword">class</span> <span class="hljs-title class_">U</span>&gt;
+<span class="hljs-keyword">using</span> CommonType = std::<span class="hljs-type">common_type_t</span>&lt;T, U&gt;;
+ 
+<span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">T</span>, <span class="hljs-keyword">class</span> <span class="hljs-title class_">U</span>&gt;
+<span class="hljs-keyword">concept</span> Common = <span class="hljs-built_in">requires</span> (T&amp;&amp; t, U&amp;&amp; u)
+{
+    <span class="hljs-keyword">typename</span> CommonType&lt;T, U&gt;; <span class="hljs-comment">// CommonType&lt;T, U&gt; 是一个合法的类型名</span>
+    { CommonType&lt;T, U&gt;{std::forward&lt;T&gt;(t)} }; 
+    { CommonType&lt;T, U&gt;{std::forward&lt;U&gt;(u)} }; 
+};</code></pre></div>
+<h2 id="复合要求">复合要求</h2>
+<p>一个复合要求具有如下形式</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">{ 表达式 } noexcept(可选) 返回类型要求(可选) ;</pre><pre class="hljs"><code>{ 表达式 } <span class="hljs-built_in">noexcept</span>(可选) 返回类型要求(可选) ;</code></pre></div>
+<p>返回类型要求 	- 	-&gt; 类型约束</p>
+<p>并断言命名表达式的属性。替换和语义约束检查按以下顺序进行：</p>
+<ol>
+<li>模板参数 (若存在) 被替换到表达式;</li>
+<li>如果使用 noexcept，表达式 一定不能潜在抛出;</li>
+<li>如果 返回类型要求 存在，则：<br>
+a) 模板参数被替换到 返回类型要求};<br>
+b) decltype((expression)) 必须满足类型约束的约束。否则，被包含的 requires 表达式是 false。</li>
+</ol>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template&lt;typename T&gt;
+concept C2 = requires(T x)
+{
+    // 表达式 *x 必须合法
+    // 并且 类型 T::inner 必须存在
+    // 并且 *x 的结果必须可以转换为 T::inner
+    {*x} -&gt; std::convertible_to&lt;typename T::inner&gt;;
+ 
+    // 表达式 x + 1 必须合法
+    // 并且 std::same_as&lt;decltype((x + 1)), int&gt; 必须满足
+    // 即, (x + 1) 必须为 int 类型的纯右值
+    {x + 1} -&gt; std::same_as&lt;int&gt;;
+ 
+    // 表达式 x * 1 必须合法
+    // 并且 它的结果必须可以转换为 T
+    {x * 1} -&gt; std::convertible_to&lt;T&gt;;
+};</pre><pre class="hljs"><code>template&lt;typename T&gt;
+concept C2 = requires(T x)
+{
+    <span class="hljs-regexp">//</span> 表达式 *x 必须合法
+    <span class="hljs-regexp">//</span> 并且 类型 T::inner 必须存在
+    <span class="hljs-regexp">//</span> 并且 *x 的结果必须可以转换为 T::inner
+    {*x} -&gt; std::convertible_to&lt;typename T::inner&gt;;
+ 
+    <span class="hljs-regexp">//</span> 表达式 x + <span class="hljs-number">1</span> 必须合法
+    <span class="hljs-regexp">//</span> 并且 std::same_as&lt;decltype((x + <span class="hljs-number">1</span>)), int&gt; 必须满足
+    <span class="hljs-regexp">//</span> 即, (x + <span class="hljs-number">1</span>) 必须为 int 类型的纯右值
+    {x + <span class="hljs-number">1</span>} -&gt; std::same_as&lt;int&gt;;
+ 
+    <span class="hljs-regexp">//</span> 表达式 x * <span class="hljs-number">1</span> 必须合法
+    <span class="hljs-regexp">//</span> 并且 它的结果必须可以转换为 T
+    {x * <span class="hljs-number">1</span>} -&gt; std::convertible_to&lt;T&gt;;
+};</code></pre></div>
+<h2 id="嵌套要求">嵌套要求</h2>
+<p>一个嵌套要求具有如下形式</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">requires 约束表达式 ;</pre><pre class="hljs"><code>requires 约束表达式 <span class="hljs-comment">;</span></code></pre></div>
+<p>它可用于根据本地参数指定其他约束。约束表达式必须由被替换的模板参数（若存在）满足。将模板参数替换到嵌套要求中会导致替换到约束表达式中，仅限于确定是否满足约束表达式所需的程度。</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template&lt;class T&gt;
+concept Semiregular = DefaultConstructible&lt;T&gt; &amp;&amp;
+    CopyConstructible&lt;T&gt; &amp;&amp; Destructible&lt;T&gt; &amp;&amp; CopyAssignable&lt;T&gt; &amp;&amp;
+requires(T a, size_t n)
+{  
+    requires Same&lt;T*, decltype(&amp;a)&gt;; // 嵌套：&quot;Same&lt;...&gt; 被求值为真&quot;
+    { a.~T() } noexcept; // 复合：&quot;a.~T()&quot; 是一个不会抛出的合法表达式
+    requires Same&lt;T*, decltype(new T)&gt;; // 嵌套：&quot;Same&lt;...&gt; 被求值为真&quot;
+    requires Same&lt;T*, decltype(new T[n])&gt;; // 嵌套
+    { delete new T }; // 复合
+    { delete new T[n] }; // 复合
+};</pre><pre class="hljs"><code>template&lt;<span class="hljs-keyword">class</span> <span class="hljs-symbol">T</span>&gt;
+<span class="hljs-symbol">concept</span> <span class="hljs-symbol">Semiregular</span> = <span class="hljs-symbol">DefaultConstructible</span>&lt;<span class="hljs-symbol">T</span>&gt; &amp;&amp;
+    <span class="hljs-symbol">CopyConstructible</span>&lt;<span class="hljs-symbol">T</span>&gt; &amp;&amp; <span class="hljs-symbol">Destructible</span>&lt;<span class="hljs-symbol">T</span>&gt; &amp;&amp; <span class="hljs-symbol">CopyAssignable</span>&lt;<span class="hljs-symbol">T</span>&gt; &amp;&amp;
+<span class="hljs-symbol">requires</span>(<span class="hljs-symbol">T</span> <span class="hljs-symbol">a, <span class="hljs-symbol">size_t</span></span> <span class="hljs-symbol">n</span>)
+{  
+    requires Same&lt;T*, decltype(&amp;a)&gt;; <span class="hljs-comment">// 嵌套：&quot;Same&lt;...&gt; 被求值为真&quot;</span>
+    { a.~T() } noexcept; <span class="hljs-comment">// 复合：&quot;a.~T()&quot; 是一个不会抛出的合法表达式</span>
+    requires Same&lt;T*, decltype(new T)&gt;; <span class="hljs-comment">// 嵌套：&quot;Same&lt;...&gt; 被求值为真&quot;</span>
+    requires Same&lt;T*, decltype(new T[n])&gt;; <span class="hljs-comment">// 嵌套</span>
+    { delete new T }; <span class="hljs-comment">// 复合</span>
+    { delete new T[n] }; <span class="hljs-comment">// 复合</span>
+};</code></pre></div>
+<p>注解</p>
+<p>关键字 requires 也用来引入 requires 子句。</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template&lt;typename T&gt;
+concept Addable = requires (T x) { x + x; }; // requires 表达式
+ 
+template&lt;typename T&gt; requires Addable&lt;T&gt; // requires 子句，不是 requires 表达式
+T add(T a, T b) { return a + b; }
+ 
+template&lt;typename T&gt;
+    requires requires (T x) { x + x; } // 临时约束，注意关键字用了两次
+T add(T a, T b) { return a + b; }</pre><pre class="hljs"><code><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;
+<span class="hljs-keyword">concept</span> Addable = <span class="hljs-built_in">requires</span> (T x) { x + x; }; <span class="hljs-comment">// requires 表达式</span>
+ 
+<span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt; <span class="hljs-keyword">requires</span> Addable&lt;T&gt; <span class="hljs-comment">// requires 子句，不是 requires 表达式</span>
+<span class="hljs-function">T <span class="hljs-title">add</span><span class="hljs-params">(T a, T b)</span> </span>{ <span class="hljs-keyword">return</span> a + b; }
+ 
+<span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;
+    <span class="hljs-keyword">requires</span> <span class="hljs-title">requires</span> <span class="hljs-params">(T x)</span> </span>{ x + x; } <span class="hljs-comment">// 临时约束，注意关键字用了两次</span>
+<span class="hljs-function">T <span class="hljs-title">add</span><span class="hljs-params">(T a, T b)</span> </span>{ <span class="hljs-keyword">return</span> a + b; }</code></pre></div>
+<p>================</p>
+<p>================</p>
+<p>================</p>
+<p>================</p>
+</div></div>
+					</body>
+				</html>
+			

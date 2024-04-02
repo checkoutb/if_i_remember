@@ -1,0 +1,1033 @@
+
+				<!DOCTYPE html>
+				<html>
+					<head>
+						<meta charset="UTF-8">
+						<meta name="viewport" content="width=device-width, initial-scale=1" />
+						<link rel="stylesheet" href="pluginAssets/katex/katex.css"><link rel="stylesheet" href="pluginAssets/highlight.js/atom-one-light.css">
+						<title>epoll</title>
+					</head>
+					<body>
+						<div class="exported-note"><div class="exported-note-title">epoll</div>
+
+<style>
+		/* https://necolas.github.io/normalize.css/ */
+		html{line-height:1.15;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%}body{margin:0}
+		article,aside,footer,header,nav,section{display:block}h1{font-size:2em;margin:.67em 0}hr{box-sizing:content-box;height:0;overflow:visible}
+		pre{font-family:monospace,monospace;font-size:1em}a{background-color:transparent;-webkit-text-decoration-skip:objects}
+		b,strong{font-weight:bolder}small{font-size:80%}img{border-style:none}
+
+		body {
+			font-size: 15px;
+			color: #32373F;
+			word-wrap: break-word;
+			line-height: 1.6em;
+			background-color: #ffffff;
+			font-family: 'Avenir', 'Arial', sans-serif;
+			padding-bottom: 0px;
+			padding-top: 0px;
+		}
+		kbd {
+			border: 1px solid rgb(220, 220, 220);
+			box-shadow: inset 0 -1px 0 rgb(220, 220, 220);
+			padding: 2px 4px;
+			border-radius: 3px;
+			background-color: rgb(243, 243, 243);
+		}
+		::-webkit-scrollbar {
+			width: 7px;
+			height: 7px;
+		}
+		::-webkit-scrollbar-corner {
+			background: none;
+		}
+		::-webkit-scrollbar-track {
+			border: none;
+		}
+		::-webkit-scrollbar-thumb {
+			background: rgba(100, 100, 100, 0.3); 
+			border-radius: 5px;
+		}
+		::-webkit-scrollbar-track:hover {
+			background: rgba(0, 0, 0, 0.1); 
+		}
+		::-webkit-scrollbar-thumb:hover {
+			background: rgba(100, 100, 100, 0.7); 
+		}
+
+		
+
+		/* Remove top padding and margin from first child so that top of rendered text is aligned to top of text editor text */
+
+		#rendered-md > h1:first-child,
+		#rendered-md > h2:first-child,
+		#rendered-md > h3:first-child,
+		#rendered-md > h4:first-child,
+		#rendered-md > ul:first-child,
+		#rendered-md > ol:first-child,
+		#rendered-md > table:first-child,
+		#rendered-md > blockquote:first-child,
+		#rendered-md > img:first-child,
+		#rendered-md > p:first-child {
+			margin-top: 0;
+			padding-top: 0;
+		}
+		
+		p, h1, h2, h3, h4, h5, h6, ul, table {
+			margin-top: .6em;
+			margin-bottom: 1.35em;
+
+			/*
+				Adds support for RTL text in the note body. It automatically detects the direction using the content.
+				Issue: https://github.com/laurent22/joplin/issues/3991
+			*/
+			unicode-bidi: plaintext;
+		}
+
+		h1, h2, h3, h4, h5, h6, ul, table {
+			margin-bottom: 0.65em;
+		}
+
+		h1, h2, h3, h4, h5, h6 {
+			line-height: 1.5em;
+		}
+		h1 {
+			font-size: 1.5em;
+			font-weight: bold;
+			border-bottom: 1px solid #dddddd;
+			padding-bottom: .3em;
+		}
+		h2 {
+			font-size: 1.3em;
+			font-weight: bold;
+			padding-bottom: .1em; */
+		}
+		h3 {
+			font-size: 1.1em;
+			font-weight: bold;
+		}
+		h4, h5, h6 {
+			font-size: 1em;
+			font-weight: bold;
+		}
+
+		.exported-note-title {
+			font-size: 2em;
+			font-weight: bold;
+			margin-bottom: 0.8em;
+			line-height: 1.5em;
+			padding-bottom: .35em;
+			border-bottom: 1px solid #dddddd;
+		}
+
+		a {
+			color: #155BDA;
+		}
+		ul, ol {
+			padding-left: 0;
+			margin-left: 1.7em;
+		}
+		li {
+			margin-bottom: .4em;
+		}
+		li p {
+			margin-top: 0.2em;
+			margin-bottom: 0;
+		}
+
+		.resource-icon {
+			display: inline-block;
+			position: relative;
+			top: 0.3em;
+			text-decoration: none;
+			width: 1.2em;
+			height: 1.4em;
+			margin-right: 0.4em;
+			background-color:  #155BDA;
+		}
+    /* These icons are obtained from the wonderful ForkAwesome project by copying the src svgs 
+     * into the css classes below.
+     * svgs are obtained from https://github.com/ForkAwesome/Fork-Awesome/tree/master/src/icons/svg
+     * instead of the svg width, height property you must use a viewbox here, 0 0 1536 1792 is typically the actual size of the icon
+     * each line begins with the pre-amble -webkit-mask: url("data:image/svg+xml;utf8,
+     * and of course finishes with ");
+     * to precvent artifacts it is also necessary to include -webkit-mask-repeat: no-repeat;
+     * on the following line
+     * */
+		.fa-joplin {
+			/* Awesome Font file */
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M373.834 128C168.227 128 0 296.223 0 501.834v788.336C0 1495.778 168.227 1664 373.834 1664h788.336c205.608 0 373.83-168.222 373.83-373.83V501.834C1536 296.224 1367.778 128 1162.17 128zm397.222 205.431h417.424a7.132 7.132 0 0 1 7.132 7.133v132.552c0 4.461-3.619 8.073-8.077 8.073h-57.23c-24.168 0-43.768 19.338-44.284 43.374v2.377h-.017v136.191h-.053l-.466 509.375c-5.02 77.667-39.222 149.056-96.324 201.046-60.28 54.834-141.948 85.017-229.962 85.017-12.45 0-25.208-.61-37.907-1.785-92.157-8.682-181.494-48.601-251.662-112.438-71.99-65.517-117.147-150.03-127.164-238-11.226-98.763 23.42-192.783 95.045-257.937 81.99-74.637 198.185-101.768 316.613-75.704 5.574 1.227 9.55 6.282 9.55 11.997v199.52c-.199 2.625-1.481 6.599-8.183 2.896-.663-.365-1.194-.511-1.653-.531-21.987-10.587-45.159-17.57-68.559-19.916-.38-.04-.757-.124-1.138-.163-.537-.048-1.034-.033-1.556-.075-4.13-.354-8.183-.517-12.203-.58-.87-.011-1.771-.127-2.641-.127-.486 0-.951.05-1.437.057-1.464.011-2.886.115-4.33.163-2.76.102-5.497.211-8.182.448-.273.024-.547.07-.835.097-25.509 2.4-47.864 11.104-65.012 25.47-.954.802-1.974 1.53-2.9 2.36a1.34 1.34 0 0 1-.168.146c-23.96 21.8-34.881 53.872-30.726 90.316 4.62 40.737 26.94 81.156 62.841 113.823 35.908 32.67 80.335 52.977 125.113 57.186 35.118 3.36 66.547-3.919 89.899-20.461a97.255 97.255 0 0 0 9.365-7.501c2.925-2.661 5.569-5.5 8.086-8.416.3-.348.672-.673.975-1.024 8.253-9.864 14.222-21.067 17.996-33.148.639-2.034 1.051-4.148 1.564-6.227.381-1.563.81-3.106 1.112-4.693.555-2.784.923-5.632 1.253-8.49.086-.709.183-1.414.237-2.128.492-4.893.693-9.858.55-14.91h.013V521.623c-2.01-22.626-20.78-40.434-43.928-40.434h-57.23a8.071 8.071 0 0 1-8.077-8.073V340.564a7.132 7.132 0 0 1 7.136-7.133z'/></svg>");
+		}
+		.fa-file-image {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zm-128-448v320H256v-192l192-192 128 128 384-384zm-832-192c-106 0-192-86-192-192s86-192 192-192 192 86 192 192-86 192-192 192z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-pdf {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zm-514-593c25 20 53 38 84 56 42-5 81-7 117-7 67 0 152 8 177 49 7 10 13 28 2 52-1 1-2 3-3 4v1c-3 18-18 38-71 38-64 0-161-29-245-73-139 15-285 46-392 83-103 176-182 262-242 262-10 0-19-2-28-7l-24-12c-3-1-4-3-6-5-5-5-9-16-6-36 10-46 64-123 188-188 8-5 18-2 23 6 1 1 2 3 2 4 31-51 67-116 107-197 45-90 80-178 104-262-32-109-42-221-24-287 7-25 22-40 42-40h22c15 0 27 5 35 15 12 14 15 36 9 68-1 3-2 6-4 8 1 3 1 5 1 8v30c-1 63-2 123-14 192 35 105 87 190 146 238zm-576 411c30-14 73-57 137-158-75 58-122 124-137 158zm398-920c-10 28-10 76-2 132 3-16 5-31 7-44 2-17 5-31 7-43 1-3 2-5 4-8-1-1-1-3-2-5-1-18-7-29-13-36 0 2-1 3-1 4zm-124 661c88-35 186-63 284-81-10-8-20-15-29-23-49-43-93-103-127-176-19 61-47 126-83 197-15 28-30 56-45 83zm646-16c-5-5-31-24-140-24 49 18 94 28 124 28 9 0 14 0 18-1 0-1-1-2-2-3z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-word {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zM233 768v107h70l164 661h159l128-485c5-15 8-30 10-46 1-8 2-16 2-24h4l3 24c3 14 4 30 9 46l128 485h159l164-661h70V768h-300v107h90l-99 438c-4 16-6 33-7 46l-2 21h-4c0-6-2-14-3-21-3-13-5-30-9-46L825 768H711l-144 545c-4 16-5 33-8 46l-4 21h-4l-2-21c-1-13-3-30-7-46l-99-438h90V768H233z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-powerpoint {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zm-992-234v106h327v-106h-93v-167h137c43 0 82-2 118-15 90-31 146-124 146-233s-54-193-137-228c-38-15-84-19-130-19H416v107h92v555h-92zm353-280H650V882h120c35 0 62 6 83 18 36 21 56 62 56 115 0 56-20 99-62 120-21 10-47 15-78 15z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-excel {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zm-979-234v106h281v-106h-75l103-161c12-19 18-34 21-34h2c1 4 3 7 5 10 4 8 10 14 17 24l107 161h-76v106h291v-106h-68l-192-273 195-282h67V768H828v107h74l-103 159c-12 19-21 34-21 33h-2c-1-4-3-7-5-10-4-7-9-14-17-23L648 875h76V768H434v107h68l189 272-194 283h-68z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-audio {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zM620 850c12 5 20 17 20 30v544c0 13-8 25-20 30-4 1-8 2-12 2-8 0-16-3-23-9l-166-167H288c-18 0-32-14-32-32v-192c0-18 14-32 32-32h131l166-167c10-9 23-12 35-7zm417 689c19 0 37-8 50-24 83-102 129-231 129-363s-46-261-129-363c-22-28-63-32-90-10-28 23-32 63-9 91 65 80 100 178 100 282s-35 202-100 282c-23 28-19 68 9 90 12 10 26 15 40 15zm-211-148c17 0 34-7 47-20 56-60 87-137 87-219s-31-159-87-219c-24-26-65-27-91-3-25 24-27 65-2 91 33 36 52 82 52 131s-19 95-52 131c-25 26-23 67 2 91 13 11 29 17 44 17z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-video {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zM768 768c70 0 128 58 128 128v384c0 70-58 128-128 128H384c-70 0-128-58-128-128V896c0-70 58-128 128-128h384zm492 2c12 5 20 17 20 30v576c0 13-8 25-20 30-4 1-8 2-12 2-8 0-17-3-23-9l-265-266v-90l265-266c6-6 15-9 23-9 4 0 8 1 12 2z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-archive {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M640 384V256H512v128h128zm128 128V384H640v128h128zM640 640V512H512v128h128zm128 128V640H640v128h128zm700-388c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H768v128H640V128H128v1536h1280zM781 943c85 287 107 349 107 349 5 17 8 34 8 52 0 111-108 192-256 192s-256-81-256-192c0-18 3-35 8-52 0 0 21-62 120-396V768h128v128h79c29 0 54 19 62 47zm-141 465c71 0 128-29 128-64s-57-64-128-64-128 29-128 64 57 64 128 64z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-code {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zM480 768c11-14 31-17 45-6l51 38c14 11 17 31 6 45l-182 243 182 243c11 14 8 34-6 45l-51 38c-14 11-34 8-45-6l-226-301c-8-11-8-27 0-38zm802 301c8 11 8 27 0 38l-226 301c-11 14-31 17-45 6l-51-38c-14-11-17-31-6-45l182-243-182-243c-11-14-8-34 6-45l51-38c14-11 34-8 45 6zm-620 461c-18-3-29-20-26-37l138-831c3-18 20-29 37-26l63 10c18 3 29 20 26 37l-138 831c-3 18-20 29-37 26z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-alt, .fa-file-csv {
+      /* fork-awesome doesn't have csv so we use the text icon */
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zM384 800c0-18 14-32 32-32h704c18 0 32 14 32 32v64c0 18-14 32-32 32H416c-18 0-32-14-32-32v-64zm736 224c18 0 32 14 32 32v64c0 18-14 32-32 32H416c-18 0-32-14-32-32v-64c0-18 14-32 32-32h704zm0 256c18 0 32 14 32 32v64c0 18-14 32-32 32H416c-18 0-32-14-32-32v-64c0-18 14-32 32-32h704z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		blockquote {
+			border-left: 4px solid rgb(220, 220, 220);
+			padding-left: 1.2em;
+			margin-left: 0;
+			opacity: 0.7;
+		}
+
+		.jop-tinymce table,
+		table {
+			text-align: left;
+			border-collapse: collapse;
+			border: 1px solid rgb(220, 220, 220);
+			background-color: #ffffff;
+		}
+
+		.jop-tinymce table td, .jop-tinymce table th,
+		table td, th {
+			text-align: left;
+			padding: .5em 1em .5em 1em;
+			font-size: 15;
+			color: #32373F;
+			font-family: 'Avenir', 'Arial', sans-serif;
+		}
+
+		.jop-tinymce table td,
+		table td {
+			border: 1px solid rgb(220, 220, 220);
+		}
+
+		.jop-tinymce table th,
+		table th {
+			border: 1px solid rgb(220, 220, 220);
+			border-bottom: 2px solid rgb(220, 220, 220);
+			background-color: rgb(247, 247, 247);
+		}
+
+		.jop-tinymce table tr:nth-child(even),
+		table tr:nth-child(even) {
+			background-color: rgb(247, 247, 247);
+		}
+
+		.jop-tinymce table tr:hover,
+		table tr:hover {
+			background-color: #e5e5e5;
+		}
+
+		hr {
+			border: none;
+			border-bottom: 2px solid #dddddd;
+		}
+		img {
+			max-width: 100%;
+			height: auto;
+		}
+		
+		.inline-code,
+		.mce-content-body code {
+			border: 1px solid rgb(220, 220, 220);
+			background-color: rgb(243, 243, 243);
+			padding-right: .2em;
+			padding-left: .2em;
+			border-radius: .25em;
+			color: rgb(0,0,0);
+			font-size: .9em;
+		}
+
+		.highlighted-keyword {
+			background-color: #F3B717;
+			color: black;
+		}
+
+		.not-loaded-resource img {
+			width: 1.15em;
+			height: 1.15em;
+			background: white;
+			padding: 2px !important;
+			border-radius: 2px;
+			box-shadow: 0 1px 3px #000000aa;
+		}
+
+		a.not-loaded-resource img {
+			margin-right: .2em;
+		}
+
+		a.not-loaded-resource {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+		}
+
+		.md-checkbox input[type=checkbox]:checked {
+			opacity: 0.7;
+		}
+
+		.jop-tinymce ul.joplin-checklist .checked,
+		.md-checkbox .checkbox-label-checked {
+			opacity: 0.5;
+		}
+
+		.exported-note {
+			padding: 1em;
+		}
+
+		.joplin-editable .joplin-source {
+			display: none;
+		}
+
+		mark {
+			background: #F7D26E;
+			color: black;
+		}
+
+		/* =============================================== */
+		/* For TinyMCE */
+		/* =============================================== */
+
+		.mce-content-body {
+			/* Note: we give a bit more padding at the bottom, to allow scrolling past the end of the document */
+			padding: 5px 10px 10em 0;
+		}
+
+		/*
+		.mce-content-body code {
+			background-color: transparent;
+		}
+		*/
+
+		.mce-content-body [data-mce-selected=inline-boundary] {
+			background-color: transparent;
+		}
+
+		.mce-content-body .joplin-editable {
+			cursor: pointer !important;
+		}
+
+		.mce-content-body.mce-content-readonly {
+			opacity: 0.5;
+		}
+
+		/* We need that to make sure click events have the A has a target */
+		.katex a span {
+			pointer-events: none;
+		}
+
+		.media-player {
+			width: 100%;
+			margin-top: 10px;
+		}
+
+		.media-player.media-pdf {
+			min-height: 35rem;
+			width: 100%;
+			max-width: 1000px;
+			margin: 0;
+			border: 0;
+			display: block;
+		}
+
+		/* Clear the CODE style if the element is within a joplin-editable block */
+		.mce-content-body .joplin-editable code {
+			border: none;
+			background: none;
+			padding: 0;
+			color: inherit;
+			font-size: inherit;
+		}
+
+		/* To make code blocks horizontally scrollable */
+		/* https://github.com/laurent22/joplin/issues/5740 */
+		pre.hljs {
+			overflow-x: auto;
+		}
+
+		/* =============================================== */
+		/* For TinyMCE */
+		/* =============================================== */
+
+		@media print {
+			body {
+				height: auto !important;
+			}
+
+			pre {
+				white-space: pre-wrap;
+			}
+
+			.code, .inline-code {
+				border: 1px solid #CBCBCB;
+			}
+
+			#joplin-container-content {
+				/* The height of the content is set dynamically by JavaScript (in updateBodyHeight) to go
+				   around various issues related to scrolling. However when printing we don't want this
+				   fixed size as that would crop the content. So we set it to auto here. "important" is
+				   needed to override the style set by JavaScript at the element-level. */
+				height: auto !important;
+			}
+		}
+	
+
+				/*
+					FOR THE MARKDOWN EDITOR
+				*/
+
+				/* Remove the indentation from the checkboxes at the root of the document
+				   (otherwise they are too far right), but keep it for their children to allow
+				   nested lists. Make sure this value matches the UL margin. */
+
+				li.md-checkbox {
+					list-style-type: none;
+				}
+
+				li.md-checkbox input[type=checkbox] {
+					margin-left: -1.71em;
+					margin-right: 0.7em;
+				}
+				
+				ul.joplin-checklist {
+					list-style:none;
+				}
+
+				/*
+					FOR THE RICH TEXT EDITOR
+				*/
+
+				ul.joplin-checklist li::before {
+					content:"\f14a";
+					font-family:"Font Awesome 5 Free";
+					background-size: 16px 16px;
+					pointer-events: all;
+					cursor: pointer;
+					width: 1em;
+					height: 1em;
+					margin-left: -1.3em;
+					position: absolute;
+					color: #32373F;
+				}
+
+				.joplin-checklist li:not(.checked)::before {
+					content:"\f0c8";
+				}</style><div id="rendered-md"><p>epoll<br>
+2023年4月8日<br>
+9:45</p>
+<p>select，pselect，pool，ppoll</p>
+<nav class="table-of-contents"><ul><li><a href="#linux-epoll-bing">Linux epoll (bing)</a></li><li><a href="#epoll-4">epoll 4</a><ul><li><a href="#name">name</a></li><li><a href="#synopsis">synopsis</a></li><li><a href="#description">description</a></li><li><a href="#notes">notes</a></li><li><a href="#example-for-suggested-usage">Example for Suggested Usage</a></li><li><a href="#q-a-from-linux-kernel">Q &amp; A (from linux-kernel)</a></li><li><a href="#possible-pitfalls-and-ways-to-avoid-them">Possible Pitfalls and Ways to Avoid Them</a><ul><li><a href="#starvation-edge-triggered-饥饿">Starvation ( Edge Triggered ) 饥饿</a></li><li><a href="#if-using-an-event-cache">If using an event cache...</a></li></ul></li><li><a href="#conforming-to">Conforming to</a></li></ul></li><li><a href="#epoll7-linux-man-page">epoll(7) - Linux man page</a><ul><li><a href="#name-1">Name</a></li><li><a href="#synopsis-1">Synopsis</a></li><li><a href="#description-1">Description</a><ul><li><a href="#下面的-system-call-用来-创建和-管理-epoll-实例">下面的 system call 用来 创建和 管理 epoll 实例</a></li><li><a href="#level-triggered-and-edge-triggered">Level-triggered and edge-triggered</a></li><li><a href="#proc-interfaces">/proc interfaces</a></li></ul></li></ul></li><li><a href="#epollltet">epoll,lt,et</a><ul><li><a href="#epoll-api">epoll api</a><ul><li><a href="#epoll_create-epoll_create1">epoll_create / epoll_create1</a></li><li><a href="#epoll_ctl">epoll_ctl</a></li><li><a href="#epoll_wait">epoll_wait</a></li></ul></li><li><a href="#lt-et">LT ET</a><ul><li><a href="#level-triggered-水平触发">level triggered 水平触发</a></li><li><a href="#edge-triggered-边缘触发">edge triggered 边缘触发</a></li><li><a href="#阻塞io">阻塞IO</a></li><li><a href="#非阻塞io">非阻塞IO</a></li></ul></li><li><a href="#几种io模型的触发方式">几种IO模型的触发方式</a></li><li><a href="#demo">demo</a></li></ul></li><li><a href="#io_uring">io_uring</a><ul><li><a href="#异步io发展史">异步IO发展史</a><ul><li><a href="#基于fd的阻塞式io">基于fd的阻塞式io</a></li><li><a href="#非阻塞式io-selectpollepoll">非阻塞式IO: select/poll/epoll</a></li><li><a href="#线程池方式">线程池方式</a></li><li><a href="#direct-io-数据库软件">Direct IO (数据库软件)</a></li><li><a href="#异步io-aio">异步IO (AIO)</a></li></ul></li><li><a href="#io_uring-原理和接口">io_uring 原理和接口</a><ul><li><a href="#基本原理">基本原理</a></li><li><a href="#基本概念">基本概念</a></li><li><a href="#提交队列和完成队列">提交队列和完成队列</a><ul><li><a href="#提交队列sq">提交队列SQ</a></li><li><a href="#sqe">SQE</a></li><li><a href="#完成队列">完成队列</a></li><li><a href="#sq线程">SQ线程</a></li></ul></li><li><a href="#io_uring-接口">io_uring 接口</a></li><li><a href="#liburing库介绍及使用">liburing库介绍及使用</a></li></ul></li></ul></li></ul></nav><hr>
+<h1 id="linux-epoll-bing">Linux epoll (bing)</h1>
+<p>。。bing 搜索 linux epoll， bing给了一段介绍，整合自 wiki，man7，等网站。</p>
+<p>epoll 是 linux kernel 的一个 scalable的 IO event notification 机制。<br>
+它可以监控 一个 file descriptor，来 查看 是否可以对其中一个fd 进行 IO 操作。<br>
+它是为了 <mark>代替 老的 POSIX <strong>select 和 poll</strong> 系统调用</mark>， 并有更好的性能。<br>
+epoll 操作是 O(1) 时间 的，老的 系统调用 是 O(n) 的。<br>
+epoll API 即可以被用作 edge-triggered 接口，也可以被用作 level-triggered 接口，可以很容易地 scale成 监控大量 file descriptor。<br>
+epoll 在 linux 2.6 中引入， 其他 类UNIX 系统没有这个API。<br>
+epoll 是一个 blocking operation，你会 block 线程 直到 一些事件发生，然后你 分发 event 到 你的代码的 不同的 步骤/函数/分支。</p>
+<hr>
+<h1 id="epoll-4">epoll 4</h1>
+<p><a data-from-md title='https://linux.die.net/man/4/epoll' href='https://linux.die.net/man/4/epoll'>https://linux.die.net/man/4/epoll</a><br>
+。在man7.org 中只有 epoll(7)， 没有4。。<br>
+。。网上 没有找到 epoll 4 和 epoll 7 的具体概念，只有epoll，没有 epoll 4/7，不知道这里4 和7 代表什么。。</p>
+<h2 id="name">name</h2>
+<p>epoll: I/O event notification facility</p>
+<h2 id="synopsis">synopsis</h2>
+<p><code class="inline-code">#include &lt;sys/epoll.h&gt;</code></p>
+<h2 id="description">description</h2>
+<p>epoll 是 poll(2) 的变种，用于 edge 或 level triggered interface，可以 监控大量 fds。<br>
+提供了 3个 系统调用，来 设置 和 控制 epoll set：epoll_create(2), epoll_ctl(2), epoll_wait(2)</p>
+<p>epoll set 被连接到 epoll_create 创建的 file descriptor 上。 然后通过 epoll_ctl 注册 感兴趣的 file descriptor。最后，epoll_wait 启动 等待。</p>
+<h2 id="notes">notes</h2>
+<p>epoll 事件分发接口 (event distribution interface )  能表现为 edge triggered (ET) 和 level triggered (LT)。<br>
+ET 和 LT 事件分发机制的 不同如下：<br>
+假设发生这种情况</p>
+<ol>
+<li>代表了 pipe 的 读侧 的 file descriptor (RFD) 被添加到 epoll 装置。</li>
+<li>pipe writer 在 pipe 的写侧 写入 2kb 数据</li>
+<li>执行 完成 一次 epoll_wait，它会返回 RFD，作为 ready file descriptor。</li>
+<li>pipe reader 从 RFD 中读取 1kb 数据</li>
+<li>执行完成一次 epoll_wait</li>
+</ol>
+<p>如果 RFD file descriptor 已经被添加到 使用 EPOLL<mark>ET</mark> 标记的 epoll 接口，第 5 步 完成的 epoll_wait 调用 可能会 挂起，因为 在文件的 input buffer 中依然有 可用数据，且 远程 peer 可能 在等待 针对它刚发送的数据的 响应。这样做的原因是：只有当 event 在 监控的file 中发生时， edge triggered event distribution 才会提供 event。所以，在 第 5 步中，caller 可能 最终 会等待 已经在 input buffer 中的 数据。<br>
+在上面的例子中， RFD 上的 event 会 因为 第 2 步 的 write 行为 而被创建，这个 event 在 第 3 步 中被 消费掉。由于 第4 步 的 read 操作 没有消费 整个 buffer 数据，所以 第 5步 中的 epoll_wait 可能 永远 锁住。<br>
+使用 EPOLLET 标记 的 epoll 接口， 应该使用 非阻塞的 file descriptor 来避免 阻塞read 或 write，处理 多个 fd 的任务 会由于 阻塞IO 而 饥饿。</p>
+<p>以下是 使用 epoll 作为 edge triggered (EPOLLET) 时的 推荐用法，避免可能的陷阱</p>
+<ol>
+<li>使用 非阻塞 fd</li>
+<li>只有在 read  或 write 返回 EAGAIN 后 去等待 event</li>
+</ol>
+<p>当用作 level triggered interface 时， epoll 是一个 更快的 poll，能在 任何使用 poll 的地方使用 epoll， 因为它们的<mark>语义相同</mark>。<br>
+由于 即使使用 edge triggered epoll，在收到 数据的 多个chunk 时，(。。也) 会 生成 多个event，(所以) caller 可以指定 EPOLLONESHOT标记，来告诉 epoll 在收到 epoll_wait 的 一个 event 后 禁用 关联的 fd。 当 EPOLLONWSHOT 被指定时，caller 需要 使用 具有 EPOLL_CTL_MOD 的 epoll_ctl 来 re-arm fd</p>
+<h2 id="example-for-suggested-usage">Example for Suggested Usage</h2>
+<p>level triggered interface 的 epoll 有着 和 poll 相同的语义。<br>
+edge triggered 的 epoll 需要更多的 清晰性 来避免 event loop 中的 停滞。</p>
+<p>在这个例子中，listener 是一个 非阻塞的socket，在这个 socket上 已经调用了 listen。<br>
+do_use_fd() 使用 new ready fd，直到 read 或 write 返回 EAGAIN。<br>
+一个 事件驱动的 状态机 app 应该 在 收到 EAGAIN后， 记录当前的状态， 下次调用 do_use_fd 时，它 从 之前停止的地方 继续 read  或 write。</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C++" data-joplin-source-open="```C++&#10;" data-joplin-source-close="&#10;```">struct epoll_event ev, *events;
+for(;;) {
+    nfds = epoll_wait(kdpfd, events, maxevents, -1);
+    for(n = 0; n &lt; nfds; ++n) {
+        if(events[n].data.fd == listener) {
+            client = accept(listener, (struct sockaddr *) &amp;local,
+                            &amp;addrlen);
+            if(client &lt; 0){
+                perror(&quot;accept&quot;);
+                continue;
+            }
+            setnonblocking(client);
+            ev.events = EPOLLIN | EPOLLET;
+            ev.data.fd = client;
+            if (epoll_ctl(kdpfd, EPOLL_CTL_ADD, client, &amp;ev) &lt; 0) {
+                fprintf(stderr, &quot;epoll set insertion error: fd=%d0,
+                        client);
+                return -1;
+            }
+        }
+        else
+            do_use_fd(events[n].data.fd);
+    }
+}</pre><pre class="hljs"><code><span class="hljs-keyword">struct</span> <span class="hljs-title class_">epoll_event</span> ev, *events;
+<span class="hljs-keyword">for</span>(;;) {
+    nfds = <span class="hljs-built_in">epoll_wait</span>(kdpfd, events, maxevents, <span class="hljs-number">-1</span>);
+    <span class="hljs-keyword">for</span>(n = <span class="hljs-number">0</span>; n &lt; nfds; ++n) {
+        <span class="hljs-keyword">if</span>(events[n].data.fd == listener) {
+            client = <span class="hljs-built_in">accept</span>(listener, (<span class="hljs-keyword">struct</span> sockaddr *) &amp;local,
+                            &amp;addrlen);
+            <span class="hljs-keyword">if</span>(client &lt; <span class="hljs-number">0</span>){
+                <span class="hljs-built_in">perror</span>(<span class="hljs-string">&quot;accept&quot;</span>);
+                <span class="hljs-keyword">continue</span>;
+            }
+            <span class="hljs-built_in">setnonblocking</span>(client);
+            ev.events = EPOLLIN | EPOLLET;
+            ev.data.fd = client;
+            <span class="hljs-keyword">if</span> (<span class="hljs-built_in">epoll_ctl</span>(kdpfd, EPOLL_CTL_ADD, client, &amp;ev) &lt; <span class="hljs-number">0</span>) {
+                <span class="hljs-built_in">fprintf</span>(stderr, <span class="hljs-string">&quot;epoll set insertion error: fd=%d0,
+                        client);
+                return -1;
+            }
+        }
+        else
+            do_use_fd(events[n].data.fd);
+    }
+}</span></code></pre></div>
+<p>当用作 edge triggered interface， 由于 性能因素，可以 指定 ( EPOLLIN | EPOLLOUT) 在 epoll 接口中 (EPOLL_CTL_ADD) 添加 fd。 这可以 避免 在使用 EPOLL_CTL_MOD 调用 epoll_ctl 时， 在 EPOLLIN 和 EPOLLOUT 之间 切换。</p>
+<h2 id="q-a-from-linux-kernel">Q &amp; A (from linux-kernel)</h2>
+<ul>
+<li>重复添加 fd 到 epoll_set会发生什么？
+<ul>
+<li>你可能获得 EEXIST。但是 也可能 2根线程 add 同一个fd 2次。这是一个 无害的condition</li>
+</ul>
+</li>
+<li>2 个epoll set 可以等待 同一个 fd 吗？如果可以，那么 event 会 被 reposted 到 2个 epoll set？
+<ul>
+<li>是的，但这不推荐。 是的，会 同时 report 给 2个 epoll set。</li>
+</ul>
+</li>
+<li>epoll fd 它自己是 poll / epoll / selectable ?
+<ul>
+<li>yes</li>
+</ul>
+</li>
+<li>如果 epoll fd 被 添加到 它自己的 fd set， 会发生什么？
+<ul>
+<li>会失败。 但 你可以 添加 epoll fd  到另一个 epoll fd set 中</li>
+</ul>
+</li>
+<li>可以通过 unix socket 发送 epoll fd 到 另一个 进程？
+<ul>
+<li>no</li>
+</ul>
+</li>
+<li>fd close时，会自动 从 所有 epoll set 中 移除吗？
+<ul>
+<li>yes</li>
+</ul>
+</li>
+<li>在 epoll_wait 调用中，有 多个事件 到来， 它们会被组合起来， 还是 单独 report？
+<ul>
+<li>它们会被组合起来</li>
+</ul>
+</li>
+<li>在 fd 上的操作 会 影响 已经被收集，但是还没有被 report 的event 吗？
+<ul>
+<li>在已经存在的 fd 上，你可以做 2 件事情，remove 是毫无意义的，modify 会 重新读取 可用的 IO</li>
+</ul>
+</li>
+<li>当使用 EPOLLET 时，我必须 不断地 read / write 一个 fd 直到 EAGAIN 吗？
+<ul>
+<li>不，Receiving an event from epoll_wait(2) should suggest to you that such file descriptor is ready for the requested I/O operation. You have simply to consider it ready until you will receive the next EAGAIN. When and how you will use such file descriptor is entirely up to you. Also, the condition that the read/write I/O space is exhausted can be detected by checking the amount of data read/write from/to the target file descriptor. For example, if you call read(2) by asking to read a certain amount of data and read(2) returns a lower number of bytes, you can be sure to have exhausted the read I/O space for such file descriptor. Same is valid when writing using the write(2) function.</li>
+</ul>
+</li>
+</ul>
+<h2 id="possible-pitfalls-and-ways-to-avoid-them">Possible Pitfalls and Ways to Avoid Them</h2>
+<h3 id="starvation-edge-triggered-饥饿">Starvation ( Edge Triggered ) 饥饿</h3>
+<p>If there is a large amount of I/O space, it is possible that by trying to drain it the other files will not get processed causing starvation. This is not specific to epoll.</p>
+<p>The solution is to maintain a ready list and mark the file descriptor as ready in its associated data structure, thereby allowing the application to remember which files need to be processed but still round robin amongst all the ready files. This also supports ignoring subsequent events you receive for fd's that are already ready.</p>
+<h3 id="if-using-an-event-cache">If using an event cache...</h3>
+<p>If you use an event cache or store all the fd's returned from epoll_wait(2), then make sure to provide a way to mark its closure dynamically (ie- caused by a previous event's processing). Suppose you receive 100 events from epoll_wait(2), and in eventi #47 a condition causes event #13 to be closed. If you remove the structure and close() the fd for event #13, then your event cache might still say there are events waiting for that fd causing confusion.</p>
+<p>One solution for this is to call, during the processing of event 47, epoll_ctl(EPOLL_CTL_DEL) to delete fd 13 and close(), then mark its associated data structure as removed and link it to a cleanup list. If you find another event for fd 13 in your batch processing, you will discover the fd had been previously removed and there will be no confusion.</p>
+<h2 id="conforming-to">Conforming to</h2>
+<p>epoll(4) is a new API introduced in Linux kernel 2.5.44. Its interface should be finalized in Linux kernel 2.5.66.</p>
+<hr>
+<h1 id="epoll7-linux-man-page">epoll(7) - Linux man page</h1>
+<p><a data-from-md title='https://linux.die.net/man/7/epoll' href='https://linux.die.net/man/7/epoll'>https://linux.die.net/man/7/epoll</a></p>
+<h2 id="name-2">Name</h2>
+<p>epoll - I/O event notification facility</p>
+<h2 id="synopsis-2">Synopsis</h2>
+<p><code class="inline-code">#include &lt;sys/epoll.h&gt;</code></p>
+<h2 id="description-2">Description</h2>
+<p>epoll API 的功能类似 poll， 监控多个 fd 来查看 是否 发生IO。<br>
+可以 用作 edge triggered interface， 或 level triggered interface。可以监控 很多 fd。</p>
+<h3 id="下面的-system-call-用来-创建和-管理-epoll-实例">下面的 system call 用来 创建和 管理 epoll 实例</h3>
+<ul>
+<li>epoll_create 创建一个 epoll 实例，并返回 指向那个实例的 fd。( 更新的 epoll_create1 扩展了 epoll_create 的功能 )</li>
+<li>然后 通过 epoll_ctl 注册 感兴趣的 fd。当前注册在 epoll 实例上的 fd 集合 有时被称为 epoll set</li>
+<li>epoll_wait 等待 IO事件，如果当前没有 event 可用，则阻塞 calling线程。</li>
+</ul>
+<h3 id="level-triggered-and-edge-triggered">Level-triggered and edge-triggered</h3>
+<p>。。这个 epoll7 和 epoll4 差不多一样。都跳了<br>
+。。除了下面的，epoll7 就多了下面的， 还有就是 example 更复杂。</p>
+<h3 id="proc-interfaces">/proc interfaces</h3>
+<p>下面的接口可以用来 限制 epoll 消费的 kernel 内存 上限：<br>
+<code class="inline-code">/proc/sys/fs/epoll/max_user_watches (since Linux 2.6.28) </code></p>
+<p>这个指定了 用户可以在系统的所有epoll中 注册的 fd 的最大数量总和。<br>
+这个限制是 对 每个user ID 的。<br>
+每个注册的 fd 在 32位kernel上消耗 90byte，在64位kernel上消耗 160 byte<br>
+目前，max_user_watches 的默认值是 available low memory 的 1/25，除以 注册消耗 ( 即，32位90byte，64位160byte)</p>
+<hr>
+<p><a data-from-md title='https://www.cnblogs.com/zhaoosheLBJ/p/9268532.html' href='https://www.cnblogs.com/zhaoosheLBJ/p/9268532.html'>https://www.cnblogs.com/zhaoosheLBJ/p/9268532.html</a></p>
+<h1 id="epollltet">epoll,lt,et</h1>
+<p>epoll 是 select/poll的 加强版，即 enhancement poll。<br>
+epoll模型可以显著提高 程序 在 大量并发连接中 只有少量活跃CPU 系统的 CPU利用率。<br>
+它把 用户关系的 文件描述符 上的时间放在内核的 一个事件表中，无需像 select 和 poll 那样 每次调用 都 重复传入 文件描述符集。<br>
+在获取事件的时候，无需遍历整个被监听的文件描述符集，而是遍历那些被 内核IO 事件 异步唤醒 而加入ready队列的 fd集合。<br>
+所以 epoll 是linux 大规模高并发网络程序的 首选模型。</p>
+<h2 id="epoll-api">epoll api</h2>
+<h3 id="epoll_create-epoll_create1">epoll_create / epoll_create1</h3>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C++" data-joplin-source-open="```C++&#10;" data-joplin-source-close="&#10;```">#include &lt;sys/epoll.h&gt;
+
+int epoll_create(int size);     // since 2.6
+        // create a new epoll instance
+        // 参数被忽略了，但是必须大于0
+
+int epoll_create1(int flags);   // since Linux 2.6.27
+        // 返回 指向 new epoll instance 的 file descriptor
+        // 这个fd 被后续的所有 epoll 接口用到。
+        // 如果 flags 是0， 和 epoll_create 一模一样。
+        // 下面的值可以用在 flags，获得不同的行为
+        //      EPOLL_CLOEXEC：在新的fd上设置 close-on-exec flag。这个等同于 open() 的 O_CLOEXEC标记。
+</pre><pre class="hljs"><code><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;sys/epoll.h&gt;</span></span>
+
+<span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">epoll_create</span><span class="hljs-params">(<span class="hljs-type">int</span> size)</span></span>;     <span class="hljs-comment">// since 2.6</span>
+        <span class="hljs-comment">// create a new epoll instance</span>
+        <span class="hljs-comment">// 参数被忽略了，但是必须大于0</span>
+
+<span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">epoll_create1</span><span class="hljs-params">(<span class="hljs-type">int</span> flags)</span></span>;   <span class="hljs-comment">// since Linux 2.6.27</span>
+        <span class="hljs-comment">// 返回 指向 new epoll instance 的 file descriptor</span>
+        <span class="hljs-comment">// 这个fd 被后续的所有 epoll 接口用到。</span>
+        <span class="hljs-comment">// 如果 flags 是0， 和 epoll_create 一模一样。</span>
+        <span class="hljs-comment">// 下面的值可以用在 flags，获得不同的行为</span>
+        <span class="hljs-comment">//      EPOLL_CLOEXEC：在新的fd上设置 close-on-exec flag。这个等同于 open() 的 O_CLOEXEC标记。</span>
+</code></pre></div>
+<p>创建一个epoll句柄(epoll特有)，用来唯一标识内核中 这个事件表，这个特有的epoll 文件描述符 将是 其他所有epoll 系统调用的 第一个参数 (epollfd)，以指定要访问的内核事件表。</p>
+<h3 id="epoll_ctl">epoll_ctl</h3>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C++" data-joplin-source-open="```C++&#10;" data-joplin-source-close="&#10;```">#include &lt;sys/epoll.h&gt;
+
+int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event);
+// 成功返回0，出错返回-1</pre><pre class="hljs"><code><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;sys/epoll.h&gt;</span></span>
+
+<span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">epoll_ctl</span><span class="hljs-params">(<span class="hljs-type">int</span> epfd, <span class="hljs-type">int</span> op, <span class="hljs-type">int</span> fd, <span class="hljs-keyword">struct</span> epoll_event *event)</span></span>;
+<span class="hljs-comment">// 成功返回0，出错返回-1</span></code></pre></div>
+<ul>
+<li>epfd, 就是 epoll_create创建的 epoll句柄，唯一</li>
+<li>op：3种操作：
+<ul>
+<li>EPOLL_CTL_ADD：向epfd注册fd上的event</li>
+<li>EPOLL_CTL_MOD：修改fd已注册的event</li>
+<li>EPOLL_CTL_DEL：从epfd上删除 fd的event</li>
+</ul>
+</li>
+<li>fd：操作的文件描述符</li>
+<li>event：指定内核要监听的事件，它是 struct epoll_event 的指针</li>
+</ul>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C++" data-joplin-source-open="```C++&#10;" data-joplin-source-close="&#10;```">struct epoll_event {
+    uint32_t  　　events; /* Epoll events */ 
+    epoll_data_t　data;　 /* User data variable */        
+};</pre><pre class="hljs"><code><span class="hljs-keyword">struct</span> <span class="hljs-title class_">epoll_event</span> {
+    <span class="hljs-type">uint32_t</span>  　　events; <span class="hljs-comment">/* Epoll events */</span> 
+    <span class="hljs-type">epoll_data_t</span>　data;　 <span class="hljs-comment">/* User data variable */</span>        
+};</code></pre></div>
+<pre><code>- events成员: 描述了事件类型，将以下宏定义 通过 bit&amp; 组合：
+  - EPOLLIN：表示对应的fd 可以读(包括对端socket正常关闭)
+  - POLLOUT：fd 可以写
+  - EPOLLPRI：fd 有紧急的数据可读(这里应该表示有带外数据到来)
+  - EPOLLERR：fd 发生错误
+  - EPOLLHUP：fd 被挂断
+  - EPOLLET：将epoll设置为 edge triggered
+  - EPOLLONESHOT：只监听一次事件，监听完这次事件后，如果还需要 继续监听这个socket的话，需要再次把这个socket加入到epoll队列中。
+
+- data：用户数据遍历，用于存储用户数据，是 epoll_data_t 结构类型。 epoll_data_t 是一个联合体，fd指定事件从属 目标文件描述符，ptr可以用来指定 fd相关的用户数据，但两者不能同时使用
+</code></pre>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C++" data-joplin-source-open="```C++&#10;" data-joplin-source-close="&#10;```">typedef union epoll_data {
+　　void 　　　　*ptr;
+　　int 　　　　　fd;
+　　uint32_t　　 u32;
+　　uint64_t 　　u64;
+} epoll_data_t;</pre><pre class="hljs"><code><span class="hljs-keyword">typedef</span> <span class="hljs-keyword">union</span> <span class="hljs-title class_">epoll_data</span> {
+　　<span class="hljs-type">void</span> 　　　　*ptr;
+　　<span class="hljs-type">int</span> 　　　　　fd;
+　　<span class="hljs-type">uint32_t</span>　　 u32;
+　　<span class="hljs-type">uint64_t</span> 　　u64;
+} <span class="hljs-type">epoll_data_t</span>;</code></pre></div>
+<p>。。。union。。 一个时间点，只能有一个值。 占用的内存是 最大的成员。</p>
+<h3 id="epoll_wait">epoll_wait</h3>
+<p>等待 监听的fd上的 事件发生</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C++" data-joplin-source-open="```C++&#10;" data-joplin-source-close="&#10;```">#include &lt;sys/epoll.h&gt;
+
+int epoll_wait(int epfd, struct epoll_event *events, int maxevents, int timeout);
+// 成功返回就绪的文件描述符个数，若出错返回 -1，超时返回0</pre><pre class="hljs"><code><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;sys/epoll.h&gt;</span></span>
+
+<span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">epoll_wait</span><span class="hljs-params">(<span class="hljs-type">int</span> epfd, <span class="hljs-keyword">struct</span> epoll_event *events, <span class="hljs-type">int</span> maxevents, <span class="hljs-type">int</span> timeout)</span></span>;
+<span class="hljs-comment">// 成功返回就绪的文件描述符个数，若出错返回 -1，超时返回0</span></code></pre></div>
+<ul>
+<li>epfd： epoll_create 创建的句柄，唯一</li>
+<li>events： 是一个 传入传出函数， 是一个 epoll_event 结构指针，用来从 内核 获得 事件集合</li>
+<li>maxevents: 告知内核 events 的大小，但不能大于 epoll_create() 时创建的size。</li>
+<li>timeout： -1 为阻塞，0位立即返回， 大于0 是等待多少 微秒。</li>
+</ul>
+<p>。。size 不是废弃的吗。</p>
+<h2 id="lt-et">LT ET</h2>
+<h3 id="level-triggered-水平触发">level triggered 水平触发</h3>
+<p>当被监控的文件描述符上有可读写事件发生时，epoll_wait()会通知处理程序去读写。<br>
+如果这次没有把数据一次性全部读写完(如读写缓冲区太小)，<br>
+那么下次调用epoll_wait()时，它还会通知你在上没读写完的文件描述符上继续读写，<br>
+当然如果你一直不去读写，它会一直通知你！！！<br>
+如果系统中有大量你不需要读写的就绪文件描述符，  而它们每次都会返回<br>
+这样会大大降低处理程序检索自己关心的就绪文件描述符的效率！！！</p>
+<h3 id="edge-triggered-边缘触发">edge triggered 边缘触发</h3>
+<p>当被监控的文件描述符上有可读写事件发生时，epoll_wait()会通知处理程序去读写。<br>
+如果这次没有把数据全部读写完(如读写缓冲区太小)，<br>
+那么下次调用epoll_wait()时，它不会通知你<br>
+也就是它只会通知你一次，直到该文件描述符上出现第二次可读写事件才会通知你<br>
+这种模式比水平触发效率高<br>
+系统不会充斥大量你不关心的就绪文件描述符！！！</p>
+<h3 id="阻塞io">阻塞IO</h3>
+<p>当你去读一个阻塞的文件描述符时，如果在该文件描述符上没有数据可读，那么它会一直阻塞(通俗一点就是一直卡在调用函数那里)，直到有数据可读。<br>
+当你去写一个阻塞的文件描述符时，如果在该文件描述符上没有空间(通常是缓冲区)可写，那么它会一直阻塞，直到有空间可写。<br>
+以上的读和写我们统一指在某个文件描述符进行的操作，不单单指真正的读数据，写数据，还包括接收连接accept()，发起连接connect()等操作...</p>
+<h3 id="非阻塞io">非阻塞IO</h3>
+<p>当你去读写一个非阻塞的文件描述符时，不管可不可以读写，它都会立即返回，<br>
+返回成功说明读写操作完成了，返回失败会设置相应errno状态码，根据这个errno可以进一步执行其他处理它不会像阻塞IO那样，卡在那里不动！！！</p>
+<h2 id="几种io模型的触发方式">几种IO模型的触发方式</h2>
+<p>select,poll 模型都是 LT。<br>
+信号驱动IO 是 ET。<br>
+epoll 支持LT，ET， 默认LT</p>
+<h2 id="demo">demo</h2>
+<p>这里讨论 epoll的 LT 和ET，以及阻塞IO 和非阻塞IO 对它们的影响。<br>
+对应监听的socket 文件描述符用 sockfd<br>
+对于 accept返回的 文件描述符 (即要读写的 文件描述符) 用 connfd 表示。</p>
+<p>场景</p>
+<ul>
+<li>水平触发的非阻塞 sockfd</li>
+<li>ET的非阻塞 sockfd</li>
+<li>LT的阻塞 connfd</li>
+<li>LT的 非阻塞 connfd</li>
+<li>ET的 阻塞 connfd</li>
+<li>ET的 非阻塞 connfd</li>
+</ul>
+<p>以上没有验证 阻塞的 sockfd，因为 epoll_wait() 返回 必定是 已就绪的连接，设不设阻塞， accept()都会立即返回。</p>
+<p>例外：UNP里面有个例子，在BSD上，使用select()模型。设置阻塞的监听sockfd时，<br>
+当客户端发起连接请求，由于服务器繁忙没有来得及accept()，此时客户端自己又断开，当服务器到达accept()时，会出现阻塞。<br>
+本机测试epoll()模型没有出现这种情况，我们就暂且忽略这种情况！！！</p>
+<p>。。代码有点多。。</p>
+<p><a data-from-md title='https://www.cnblogs.com/zhaoosheLBJ/p/9268532.html' href='https://www.cnblogs.com/zhaoosheLBJ/p/9268532.html'>https://www.cnblogs.com/zhaoosheLBJ/p/9268532.html</a></p>
+<hr>
+<h1 id="io_uring">io_uring</h1>
+<p><a data-from-md title='https://zhuanlan.zhihu.com/p/636097492' href='https://zhuanlan.zhihu.com/p/636097492'>https://zhuanlan.zhihu.com/p/636097492</a></p>
+<p>2019年5.1引入</p>
+<p>一个使用简单、兼容性强的异步IO框架</p>
+<p>io_uring和eBPF这两个子系统经常一起被提及，并称为改变Linux底层的两个技术革命，因为它们都改变了用户空间应用程序与 Linux 内核交互的方式<br>
+这2者属于不同子系统，并有一个本质区别</p>
+<ul>
+<li>eBPF对于用户来说是看不到的，只需要升级内核，app无需任何改造。</li>
+<li>io_uring 提供了 新的系统调用 和 用户空间交互的API，需要修改 app</li>
+</ul>
+<p>u是指 user<br>
+ring 是指 环形队列</p>
+<p>通俗来说，就是<mark>将 io 放到 user 可以管理的 一个 环形队列中</mark></p>
+<h2 id="异步io发展史">异步IO发展史</h2>
+<h3 id="基于fd的阻塞式io">基于fd的阻塞式io</h3>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C" data-joplin-source-open="```C&#10;" data-joplin-source-close="&#10;```">size_t read(int fd, void *buf, size_t count);
+size_t write(int fd, const void *buf, size_t count);</pre><pre class="hljs"><code><span class="hljs-type">size_t</span> <span class="hljs-title function_">read</span><span class="hljs-params">(<span class="hljs-type">int</span> fd, <span class="hljs-type">void</span> *buf, <span class="hljs-type">size_t</span> count)</span>;
+<span class="hljs-type">size_t</span> <span class="hljs-title function_">write</span><span class="hljs-params">(<span class="hljs-type">int</span> fd, <span class="hljs-type">const</span> <span class="hljs-type">void</span> *buf, <span class="hljs-type">size_t</span> count)</span>;</code></pre></div>
+<p>阻塞式 系统调用。</p>
+<h3 id="非阻塞式io-selectpollepoll">非阻塞式IO: select/poll/epoll</h3>
+<p>不会阻塞，立刻返回，可以获得已经ready的 fd列表</p>
+<p>致命缺点：只支持 network socket，pipe， 不支持文件的读取。</p>
+<p>epoll是用于管理 读和写的，用来检测 io 是否可读写，但是并没有对 io 进行操作。检查完后，还需要用 阻塞的 read/write 来进行读写。</p>
+<h3 id="线程池方式">线程池方式</h3>
+<p>主线程将 io 分发给worker 线程， worker线程进行阻塞式读写， 主线程不会阻塞。</p>
+<p>线程上下文切换 开销可能很大</p>
+<h3 id="direct-io-数据库软件">Direct IO (数据库软件)</h3>
+<p>有时候并不想使用操作系统的page cache，提交给内核处理。内核会通知IO设备独立进行操作</p>
+<ul>
+<li>需要指定 O_DIRECT</li>
+<li>app自己管理缓存</li>
+<li>是 0拷贝 io，应用的缓冲数据 直接发送到 设备，或直接从 设备读取</li>
+</ul>
+<h3 id="异步io-aio">异步IO (AIO)</h3>
+<p>现在市场上的一些设备，把读取文件的异步操作提交给内核处理。内核会通知IO设备独立进行操作。</p>
+<p>Linux 原生AIO 处理流程</p>
+<ul>
+<li>app 调用 io_submit 系统调用 发起一个 异步IO 后，会向内核的IO任务队列中添加一个 IO 任务，并返回成功</li>
+<li>内核会在 后台处理 IO任务队列中的 IO，然后把 处理结果存到 IO任务中</li>
+<li>app 调用 io_getevents 系统调用 来获取 异步IO的处理结果，如果还没有完成，就返回失败信息，否则返回 IO处理结果</li>
+</ul>
+<p>从上面的流程可以看出，Linux的异步IO主要分为2个步骤</p>
+<ul>
+<li>调用 io_submit 发起一个 异步IO操作</li>
+<li>调用 io_getevents 获取异步IO的结果</li>
+</ul>
+<p>但还存在问题</p>
+<ul>
+<li>仅支持 direct IO，无法借助 文件系统缓存 来缓存当前 IO请求，还有 size对齐。</li>
+<li>依然可能被阻塞。</li>
+<li>系统调用 开销大</li>
+<li>数据拷贝 开销大</li>
+<li>API不友好，一个IO 至少需要2次 系统调用</li>
+<li>IOPOLL 支持不好。</li>
+</ul>
+<p>按io完成方式，分为2种</p>
+<ul>
+<li>基于中断进行通知</li>
+<li>用户轮询IO事件，这就是 IOPOLL。 适合于 高速设备。</li>
+</ul>
+<h2 id="io_uring-原理和接口">io_uring 原理和接口</h2>
+<h3 id="基本原理">基本原理</h3>
+<p>io_uring 为了尽量减少系统调用的发生，采用了用户态与<mark>内核</mark>态“<mark>共享内存</mark>”的方式来通信。<br>
+用户进程可以向共享内存提交要发起的I/O操作，而内核线程可以从共享内存中读取I/O 操作，并且进行相关的I/O操作。<br>
+用户态对共享内存进行读写操作是不需要使用系统调用的，所以<mark>不会发生上下文切换</mark>的情况。</p>
+<p>3个问题</p>
+<ul>
+<li>用户空间 和 内核空间 应该如何实现 对共享内存的管理？</li>
+<li>IO的请求 及 完成后，用什么样的数据结构传输？</li>
+<li>如果完成 iopoll，以及负责的io操作？</li>
+</ul>
+<h3 id="基本概念">基本概念</h3>
+<p>用户 和 内核 通过提交队列 和 完成队列 来进行 IO 任务的 提交 和 交割。</p>
+<ul>
+<li>SQ，submission queue，提交队列，一整块连续的 内存空间存储的 环形队列。用于存放 执行的 操作数据项</li>
+<li>CQ，completion queue，完成队列，一整块连续的 内存空间存储的 环形队列。用于存放执行完成后的结果。</li>
+<li>SQE，submission queue entry，提交队列项，存储在 SQ中的数据项</li>
+<li>CQE，completion queue entry，完成队列项，存储在 CQ中的数据项</li>
+<li>Ring，环，SQ和CQ 都是 环形队列结构，Ring用来代表一个 io_uring 的实体。包括 队列数据，队列大小，丢失项等信息</li>
+</ul>
+<h3 id="提交队列和完成队列">提交队列和完成队列</h3>
+<p>io_uring 通过用户态与内核态共享内存的方式，来免去了使用系统调用发起 I/O 操作的过程。io_uring 主要创建了 3 块共享内存：SQ、CQ和SQE。</p>
+<p><img src="../_resources/105d5952cf7d4ed1be6d64f6f6fdacde.png" alt="1ec35aa5a31075c5a9b121989f9a1cec.png"></p>
+<p>SQ和CQ 中每个节点 保存的都是 SQEs 数组的 索 引。<br>
+提交的时候，可以提交 SQE 数组上 不连续的 请求。</p>
+<h4 id="提交队列sq">提交队列SQ</h4>
+<p>内核中，用 io_sq_ring 来表示 提交队列</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C" data-joplin-source-open="```C&#10;" data-joplin-source-close="&#10;```">struct io_sq_ring {
+    struct io_uring {
+        u32 head;//环形队列的头指针
+        u32 tail;//环形队列的尾指针
+    } r; // 使用head和tail指针来模拟环形操作
+    ...
+    u32 ring_entries; // 队列中的提交项总数
+    ...
+    u32 flags;
+    u32 array[]; // 环形队列数组（指向提交队列项数组的索引）
+};</pre><pre class="hljs"><code><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">io_sq_ring</span> {</span>
+    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">io_uring</span> {</span>
+        u32 head;<span class="hljs-comment">//环形队列的头指针</span>
+        u32 tail;<span class="hljs-comment">//环形队列的尾指针</span>
+    } r; <span class="hljs-comment">// 使用head和tail指针来模拟环形操作</span>
+    ...
+    u32 ring_entries; <span class="hljs-comment">// 队列中的提交项总数</span>
+    ...
+    u32 flags;
+    u32 <span class="hljs-built_in">array</span>[]; <span class="hljs-comment">// 环形队列数组（指向提交队列项数组的索引）</span>
+};</code></pre></div>
+<p>io_sq_ring 结构 array 字段只是一个整形类型的数组，用于存储指向 提交队列项数组 的的索引</p>
+<h4 id="sqe">SQE</h4>
+<p>在内核中，提交队列项 使用 io_uring_sqe 结构表示</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C" data-joplin-source-open="```C&#10;" data-joplin-source-close="&#10;```">struct io_uring_sqe {
+    __u8 opcode; //I/O 操作码，主要用于表示当前的 I/O 操作是什么类型，如读、写或者同步等。
+
+    __u8 flags;// 包含了跨命令类型的常见修饰符标志
+    __u16 ioprio; //：I/O 操作的优先级，可以通过此字段来把一些重要的 I/O 操作提前执行。
+    __s32 fd; //I/O 操作对应的文件句柄。
+    __u64 off; //当前 I/O 操作的偏移量。
+    __u64 addr; //用于指向当前 I/O 操作所关联的内存地址。如写操作，指向的是要写入到文件的内容的内存地址。
+    __u32 len; //表示当前 I/O 操作的数据长度
+    union {
+        __kernel_rwf_t rw_flags;
+        __u32 fsync_flags;
+        __u16 poll_events;
+        __u32 sync_range_flags;
+        __u32 msg_flags;
+    };
+    __u64 user_data;//可以适用于所有操作码，并且不会被内核修改。当该请求的完成事件发布时（请求完成），复制到完成事件 cqe 中
+    union {
+        __u16 buf_index;
+        __u64 __pad2[3];
+    };
+};</pre><pre class="hljs"><code><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">io_uring_sqe</span> {</span>
+    __u8 opcode; <span class="hljs-comment">//I/O 操作码，主要用于表示当前的 I/O 操作是什么类型，如读、写或者同步等。</span>
+
+    __u8 flags;<span class="hljs-comment">// 包含了跨命令类型的常见修饰符标志</span>
+    __u16 ioprio; <span class="hljs-comment">//：I/O 操作的优先级，可以通过此字段来把一些重要的 I/O 操作提前执行。</span>
+    __s32 fd; <span class="hljs-comment">//I/O 操作对应的文件句柄。</span>
+    __u64 off; <span class="hljs-comment">//当前 I/O 操作的偏移量。</span>
+    __u64 addr; <span class="hljs-comment">//用于指向当前 I/O 操作所关联的内存地址。如写操作，指向的是要写入到文件的内容的内存地址。</span>
+    __u32 len; <span class="hljs-comment">//表示当前 I/O 操作的数据长度</span>
+    <span class="hljs-class"><span class="hljs-keyword">union</span> {</span>
+        <span class="hljs-type">__kernel_rwf_t</span> rw_flags;
+        __u32 fsync_flags;
+        __u16 poll_events;
+        __u32 sync_range_flags;
+        __u32 msg_flags;
+    };
+    __u64 user_data;<span class="hljs-comment">//可以适用于所有操作码，并且不会被内核修改。当该请求的完成事件发布时（请求完成），复制到完成事件 cqe 中</span>
+    <span class="hljs-class"><span class="hljs-keyword">union</span> {</span>
+        __u16 buf_index;
+        __u64 __pad2[<span class="hljs-number">3</span>];
+    };
+};</code></pre></div>
+<p>io_uring_setup() 系统调用，创建一个 io_ring 对象时，内核会创建一个类型为 io_uring_sqe 结构的数组。<br>
+内核会会将此数组映射到应用程序的内存空间，这样应用程序就可以直接操作这个数组。</p>
+<p>应用程序提交 I/O 操作时，先要从提交队列项数组中获取一个空闲的项，然后向此项填充数据（如 I/O 操作码、要进行 I/O 操作的文件句柄等），然后将此项在提交队列项数组的索引写入提交队列中。</p>
+<h4 id="完成队列">完成队列</h4>
+<p>当内核完成 I/O 操作后，会将 I/O 操作的结果保存到完成队列中。<br>
+与提交队列相比，完成队列的结构要简单很多，因为不需要像IO提交那样，携带较多的IO描述性信息。<br>
+内核使用 io_cq_ring 结构来表示</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C" data-joplin-source-open="```C&#10;" data-joplin-source-close="&#10;```">
+struct io_cq_ring {
+    struct io_uring {
+        u32 head; //环形队列的头指针。
+        u32 tail; //环形队列的尾指针。
+    };
+...
+    u32 ring_entries; //已完成的 I/O 操作总数。
+
+...
+    struct io_uring_cqe cqes[]; //用于保存 I/O 操作结果的环形队列数组，其元素类型为 io_uring_cqe 结构。
+    // 这里没有额外开辟空间，和io的操作逻辑也有关系；io的执行顺序是无法控制的；但是读取已完成的io，一般都是按序的；
+};
+
+struct io_uring_cqe {
+    __u64 user_data; // 指向 I/O 操作返回的数据
+    __s32 res; // I/O 操作的结果
+...
+};</pre><pre class="hljs"><code>
+<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">io_cq_ring</span> {</span>
+    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">io_uring</span> {</span>
+        u32 head; <span class="hljs-comment">//环形队列的头指针。</span>
+        u32 tail; <span class="hljs-comment">//环形队列的尾指针。</span>
+    };
+...
+    u32 ring_entries; <span class="hljs-comment">//已完成的 I/O 操作总数。</span>
+
+...
+    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">io_uring_cqe</span> <span class="hljs-title">cqes</span>[];</span> <span class="hljs-comment">//用于保存 I/O 操作结果的环形队列数组，其元素类型为 io_uring_cqe 结构。</span>
+    <span class="hljs-comment">// 这里没有额外开辟空间，和io的操作逻辑也有关系；io的执行顺序是无法控制的；但是读取已完成的io，一般都是按序的；</span>
+};
+
+<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">io_uring_cqe</span> {</span>
+    __u64 user_data; <span class="hljs-comment">// 指向 I/O 操作返回的数据</span>
+    __s32 res; <span class="hljs-comment">// I/O 操作的结果</span>
+...
+};</code></pre></div>
+<p>内核也会将完成队列映射到应用程序的内存空间，这样应用程序就可以通过读取完成队列来获取 I/O 操作的结果。<br>
+而不用通过使用系统调用来获取，从而避免了不必要的上下文切换。</p>
+<h4 id="sq线程">SQ线程</h4>
+<p>app 将 IO操作 提交到 提交队列后， 内核什么时候 从 提交队列 中获取要进行的 IO操作，并发起IO请求呢？</p>
+<p>当用户使用 SQPOLL 模式 (指定了 IORING_SETUP_SQPOLL 标志) 创建io_uring时，内核将会 创建一个 名为 io_uring-sq 的内核线程， 这个内核线程 会不断从 提交队列中读取 IO操作，并发起 IO请求。</p>
+<p><img src="../_resources/fab05029226342ea8bcd79ebe04c11bf.png" alt="761291e78e25c069596f3124e1faa12b.png"></p>
+<ul>
+<li>app 通过向 io_uring 的 提交队列 提交 IO操作</li>
+<li>SQ内核线程 从 提交队列 读取IO操作</li>
+<li>SQ内核线程 发起 IO请求</li>
+<li>IO请求完成后，SQ内核线程会 将IO请求的结果 写入到 io_uring 的完成队列中</li>
+<li>app 从 完成队列中读取到 IO操作的结果</li>
+</ul>
+<h3 id="io_uring-接口">io_uring 接口</h3>
+<p>io_uring 提供了 3个系统调用</p>
+<ul>
+<li>io_uring_setup，建立一个 io_uring 实体，初始化环境和上下文</li>
+<li>io_uring_enter，将 SQE 提交到 SQ中； 或从 CQ中 提取已处理好的 IO</li>
+<li>io_uring_register，用于 预注册读写文件 等，提供一些高级功能</li>
+</ul>
+<p>io_uring_setup 是对 io_uring_create 的封装。<br>
+创建一个 上下文结构 io_ring_ctx 来管理 整个会话，随后 创建 SQ 和 CQ 内存区，并将 2个偏移带给外层</p>
+<p>CQ 默认长度是 SQ 的2倍， 因为 SQ中的 SQE 一旦被 内核发现，就会被消耗掉，SQE的生命周期很短。  请求的完成事件放到 CQ环中。 内核会在 内部 存储 溢出的 事件，直到CQ 有空闲空间。</p>
+<p>io_uring_enter 主要4步</p>
+<ul>
+<li>将IO请求交给 SQE</li>
+<li>通知内核 消费 SQE</li>
+<li>内核完成 SQE后，写入CQ</li>
+<li>用户获取 CQE</li>
+</ul>
+<p>io_uring_register<br>
+开启一些高级功能</p>
+<ul>
+<li>IORING_SETUP_SQPOLL<br>
+<mark>创建</mark>一个<mark>内核线程</mark>，主动进行sqe的处理（io提交）。<br>
+该功能几乎完全能消除了内核态上下文的切换开销，并且真正将IO逻辑offload，实现业务逻辑与IO逻辑的分离。</li>
+<li>IORING_SETUP_IOPOLL<br>
+对于<mark>非常快的设备</mark>（如现在常用的NVMe SSD），处理IO完成时的中断通知开销是比较大的。<br>
+该功能允许用户关闭中断，通过轮询来实现对已完成的IO消息捕捉。（当开启SQPOLL特性时，该功能由sqthread同时负责）；</li>
+<li>IORING_REGISTER_FILES &amp; IORING_REGISTER_BUFFERS<br>
+每次发起对一个指定文件的操作时，内核都需要花费一些时钟周期将文件描述符映射到内核中，对于那些会针对同一个文件进行重复操作的场景，io_uring支持<mark>提前注册这些文件</mark>，后面直接使用文件就可以了；<br>
+与文件注册类型，direct IO的场景中，内核需要map/unmap memory areas，io_uring支持<mark>提前注册这些缓冲区</mark>。SQEs也是通过register_buffer，放到page中的</li>
+<li>IORING_FEAT_FAST_POLL<br>
+传统的epoll流程中，会等到网络包到了之后，再去通知用户读取数据。<br>
+FAST_POLL可以实现，当socketfd有数据的时候， 会<mark>直接从内核空间中拿到数据</mark>（可以理解为，在<mark>内核态直接下发read操作</mark>，该新特性对传统的epoll有较大的冲击）；</li>
+<li>IOSQE_IO_LINK<br>
+<mark>通常</mark> sqe 会被单独的<mark>异步执行</mark>。也就是说一个sqe的执行，并不会影响环中后续sqe的执行和顺序，这使操作具有充分的灵活性，并且能够并行的执行和完成，以获得最大效率和性能。<br>
+但有些场景，我们<mark>对io的执行顺序有一定要求</mark>。</li>
+</ul>
+<h3 id="liburing库介绍及使用">liburing库介绍及使用</h3>
+<p>由于io_uring的三个系统调用接口过于精简，需要业务做很多处理，还要手动建立用户态和内核态的队列映射关系，以及调整各种输入参数。<br>
+liburing 提供了一个简单的高层 API， 可用于一些基本场景，应用程序避免了直接使用更底层的系统调用。<br>
+此外，这个 API 还避免了一些重复操作的代码，如设置 io_uring 实例。</p>
+</div></div>
+					</body>
+				</html>
+			

@@ -1,0 +1,2090 @@
+
+				<!DOCTYPE html>
+				<html>
+					<head>
+						<meta charset="UTF-8">
+						<meta name="viewport" content="width=device-width, initial-scale=1" />
+						<link rel="stylesheet" href="pluginAssets/katex/katex.css"><link rel="stylesheet" href="pluginAssets/highlight.js/atom-one-light.css">
+						<title>高性能MySQL</title>
+					</head>
+					<body>
+						<div class="exported-note"><div class="exported-note-title">高性能MySQL</div>
+
+<style>
+		/* https://necolas.github.io/normalize.css/ */
+		html{line-height:1.15;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%}body{margin:0}
+		article,aside,footer,header,nav,section{display:block}h1{font-size:2em;margin:.67em 0}hr{box-sizing:content-box;height:0;overflow:visible}
+		pre{font-family:monospace,monospace;font-size:1em}a{background-color:transparent;-webkit-text-decoration-skip:objects}
+		b,strong{font-weight:bolder}small{font-size:80%}img{border-style:none}
+
+		body {
+			font-size: 15px;
+			color: #32373F;
+			word-wrap: break-word;
+			line-height: 1.6em;
+			background-color: #ffffff;
+			font-family: 'Avenir', 'Arial', sans-serif;
+			padding-bottom: 0px;
+			padding-top: 0px;
+		}
+		kbd {
+			border: 1px solid rgb(220, 220, 220);
+			box-shadow: inset 0 -1px 0 rgb(220, 220, 220);
+			padding: 2px 4px;
+			border-radius: 3px;
+			background-color: rgb(243, 243, 243);
+		}
+		::-webkit-scrollbar {
+			width: 7px;
+			height: 7px;
+		}
+		::-webkit-scrollbar-corner {
+			background: none;
+		}
+		::-webkit-scrollbar-track {
+			border: none;
+		}
+		::-webkit-scrollbar-thumb {
+			background: rgba(100, 100, 100, 0.3); 
+			border-radius: 5px;
+		}
+		::-webkit-scrollbar-track:hover {
+			background: rgba(0, 0, 0, 0.1); 
+		}
+		::-webkit-scrollbar-thumb:hover {
+			background: rgba(100, 100, 100, 0.7); 
+		}
+
+		
+
+		/* Remove top padding and margin from first child so that top of rendered text is aligned to top of text editor text */
+
+		#rendered-md > h1:first-child,
+		#rendered-md > h2:first-child,
+		#rendered-md > h3:first-child,
+		#rendered-md > h4:first-child,
+		#rendered-md > ul:first-child,
+		#rendered-md > ol:first-child,
+		#rendered-md > table:first-child,
+		#rendered-md > blockquote:first-child,
+		#rendered-md > img:first-child,
+		#rendered-md > p:first-child {
+			margin-top: 0;
+			padding-top: 0;
+		}
+		
+		p, h1, h2, h3, h4, h5, h6, ul, table {
+			margin-top: .6em;
+			margin-bottom: 1.35em;
+
+			/*
+				Adds support for RTL text in the note body. It automatically detects the direction using the content.
+				Issue: https://github.com/laurent22/joplin/issues/3991
+			*/
+			unicode-bidi: plaintext;
+		}
+
+		h1, h2, h3, h4, h5, h6, ul, table {
+			margin-bottom: 0.65em;
+		}
+
+		h1, h2, h3, h4, h5, h6 {
+			line-height: 1.5em;
+		}
+		h1 {
+			font-size: 1.5em;
+			font-weight: bold;
+			border-bottom: 1px solid #dddddd;
+			padding-bottom: .3em;
+		}
+		h2 {
+			font-size: 1.3em;
+			font-weight: bold;
+			padding-bottom: .1em; */
+		}
+		h3 {
+			font-size: 1.1em;
+			font-weight: bold;
+		}
+		h4, h5, h6 {
+			font-size: 1em;
+			font-weight: bold;
+		}
+
+		.exported-note-title {
+			font-size: 2em;
+			font-weight: bold;
+			margin-bottom: 0.8em;
+			line-height: 1.5em;
+			padding-bottom: .35em;
+			border-bottom: 1px solid #dddddd;
+		}
+
+		a {
+			color: #155BDA;
+		}
+		ul, ol {
+			padding-left: 0;
+			margin-left: 1.7em;
+		}
+		li {
+			margin-bottom: .4em;
+		}
+		li p {
+			margin-top: 0.2em;
+			margin-bottom: 0;
+		}
+
+		.resource-icon {
+			display: inline-block;
+			position: relative;
+			top: 0.3em;
+			text-decoration: none;
+			width: 1.2em;
+			height: 1.4em;
+			margin-right: 0.4em;
+			background-color:  #155BDA;
+		}
+    /* These icons are obtained from the wonderful ForkAwesome project by copying the src svgs 
+     * into the css classes below.
+     * svgs are obtained from https://github.com/ForkAwesome/Fork-Awesome/tree/master/src/icons/svg
+     * instead of the svg width, height property you must use a viewbox here, 0 0 1536 1792 is typically the actual size of the icon
+     * each line begins with the pre-amble -webkit-mask: url("data:image/svg+xml;utf8,
+     * and of course finishes with ");
+     * to precvent artifacts it is also necessary to include -webkit-mask-repeat: no-repeat;
+     * on the following line
+     * */
+		.fa-joplin {
+			/* Awesome Font file */
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M373.834 128C168.227 128 0 296.223 0 501.834v788.336C0 1495.778 168.227 1664 373.834 1664h788.336c205.608 0 373.83-168.222 373.83-373.83V501.834C1536 296.224 1367.778 128 1162.17 128zm397.222 205.431h417.424a7.132 7.132 0 0 1 7.132 7.133v132.552c0 4.461-3.619 8.073-8.077 8.073h-57.23c-24.168 0-43.768 19.338-44.284 43.374v2.377h-.017v136.191h-.053l-.466 509.375c-5.02 77.667-39.222 149.056-96.324 201.046-60.28 54.834-141.948 85.017-229.962 85.017-12.45 0-25.208-.61-37.907-1.785-92.157-8.682-181.494-48.601-251.662-112.438-71.99-65.517-117.147-150.03-127.164-238-11.226-98.763 23.42-192.783 95.045-257.937 81.99-74.637 198.185-101.768 316.613-75.704 5.574 1.227 9.55 6.282 9.55 11.997v199.52c-.199 2.625-1.481 6.599-8.183 2.896-.663-.365-1.194-.511-1.653-.531-21.987-10.587-45.159-17.57-68.559-19.916-.38-.04-.757-.124-1.138-.163-.537-.048-1.034-.033-1.556-.075-4.13-.354-8.183-.517-12.203-.58-.87-.011-1.771-.127-2.641-.127-.486 0-.951.05-1.437.057-1.464.011-2.886.115-4.33.163-2.76.102-5.497.211-8.182.448-.273.024-.547.07-.835.097-25.509 2.4-47.864 11.104-65.012 25.47-.954.802-1.974 1.53-2.9 2.36a1.34 1.34 0 0 1-.168.146c-23.96 21.8-34.881 53.872-30.726 90.316 4.62 40.737 26.94 81.156 62.841 113.823 35.908 32.67 80.335 52.977 125.113 57.186 35.118 3.36 66.547-3.919 89.899-20.461a97.255 97.255 0 0 0 9.365-7.501c2.925-2.661 5.569-5.5 8.086-8.416.3-.348.672-.673.975-1.024 8.253-9.864 14.222-21.067 17.996-33.148.639-2.034 1.051-4.148 1.564-6.227.381-1.563.81-3.106 1.112-4.693.555-2.784.923-5.632 1.253-8.49.086-.709.183-1.414.237-2.128.492-4.893.693-9.858.55-14.91h.013V521.623c-2.01-22.626-20.78-40.434-43.928-40.434h-57.23a8.071 8.071 0 0 1-8.077-8.073V340.564a7.132 7.132 0 0 1 7.136-7.133z'/></svg>");
+		}
+		.fa-file-image {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zm-128-448v320H256v-192l192-192 128 128 384-384zm-832-192c-106 0-192-86-192-192s86-192 192-192 192 86 192 192-86 192-192 192z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-pdf {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zm-514-593c25 20 53 38 84 56 42-5 81-7 117-7 67 0 152 8 177 49 7 10 13 28 2 52-1 1-2 3-3 4v1c-3 18-18 38-71 38-64 0-161-29-245-73-139 15-285 46-392 83-103 176-182 262-242 262-10 0-19-2-28-7l-24-12c-3-1-4-3-6-5-5-5-9-16-6-36 10-46 64-123 188-188 8-5 18-2 23 6 1 1 2 3 2 4 31-51 67-116 107-197 45-90 80-178 104-262-32-109-42-221-24-287 7-25 22-40 42-40h22c15 0 27 5 35 15 12 14 15 36 9 68-1 3-2 6-4 8 1 3 1 5 1 8v30c-1 63-2 123-14 192 35 105 87 190 146 238zm-576 411c30-14 73-57 137-158-75 58-122 124-137 158zm398-920c-10 28-10 76-2 132 3-16 5-31 7-44 2-17 5-31 7-43 1-3 2-5 4-8-1-1-1-3-2-5-1-18-7-29-13-36 0 2-1 3-1 4zm-124 661c88-35 186-63 284-81-10-8-20-15-29-23-49-43-93-103-127-176-19 61-47 126-83 197-15 28-30 56-45 83zm646-16c-5-5-31-24-140-24 49 18 94 28 124 28 9 0 14 0 18-1 0-1-1-2-2-3z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-word {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zM233 768v107h70l164 661h159l128-485c5-15 8-30 10-46 1-8 2-16 2-24h4l3 24c3 14 4 30 9 46l128 485h159l164-661h70V768h-300v107h90l-99 438c-4 16-6 33-7 46l-2 21h-4c0-6-2-14-3-21-3-13-5-30-9-46L825 768H711l-144 545c-4 16-5 33-8 46l-4 21h-4l-2-21c-1-13-3-30-7-46l-99-438h90V768H233z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-powerpoint {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zm-992-234v106h327v-106h-93v-167h137c43 0 82-2 118-15 90-31 146-124 146-233s-54-193-137-228c-38-15-84-19-130-19H416v107h92v555h-92zm353-280H650V882h120c35 0 62 6 83 18 36 21 56 62 56 115 0 56-20 99-62 120-21 10-47 15-78 15z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-excel {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zm-979-234v106h281v-106h-75l103-161c12-19 18-34 21-34h2c1 4 3 7 5 10 4 8 10 14 17 24l107 161h-76v106h291v-106h-68l-192-273 195-282h67V768H828v107h74l-103 159c-12 19-21 34-21 33h-2c-1-4-3-7-5-10-4-7-9-14-17-23L648 875h76V768H434v107h68l189 272-194 283h-68z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-audio {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zM620 850c12 5 20 17 20 30v544c0 13-8 25-20 30-4 1-8 2-12 2-8 0-16-3-23-9l-166-167H288c-18 0-32-14-32-32v-192c0-18 14-32 32-32h131l166-167c10-9 23-12 35-7zm417 689c19 0 37-8 50-24 83-102 129-231 129-363s-46-261-129-363c-22-28-63-32-90-10-28 23-32 63-9 91 65 80 100 178 100 282s-35 202-100 282c-23 28-19 68 9 90 12 10 26 15 40 15zm-211-148c17 0 34-7 47-20 56-60 87-137 87-219s-31-159-87-219c-24-26-65-27-91-3-25 24-27 65-2 91 33 36 52 82 52 131s-19 95-52 131c-25 26-23 67 2 91 13 11 29 17 44 17z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-video {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zM768 768c70 0 128 58 128 128v384c0 70-58 128-128 128H384c-70 0-128-58-128-128V896c0-70 58-128 128-128h384zm492 2c12 5 20 17 20 30v576c0 13-8 25-20 30-4 1-8 2-12 2-8 0-17-3-23-9l-265-266v-90l265-266c6-6 15-9 23-9 4 0 8 1 12 2z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-archive {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M640 384V256H512v128h128zm128 128V384H640v128h128zM640 640V512H512v128h128zm128 128V640H640v128h128zm700-388c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H768v128H640V128H128v1536h1280zM781 943c85 287 107 349 107 349 5 17 8 34 8 52 0 111-108 192-256 192s-256-81-256-192c0-18 3-35 8-52 0 0 21-62 120-396V768h128v128h79c29 0 54 19 62 47zm-141 465c71 0 128-29 128-64s-57-64-128-64-128 29-128 64 57 64 128 64z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-code {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zM480 768c11-14 31-17 45-6l51 38c14 11 17 31 6 45l-182 243 182 243c11 14 8 34-6 45l-51 38c-14 11-34 8-45-6l-226-301c-8-11-8-27 0-38zm802 301c8 11 8 27 0 38l-226 301c-11 14-31 17-45 6l-51-38c-14-11-17-31-6-45l182-243-182-243c-11-14-8-34 6-45l51-38c14-11 34-8 45 6zm-620 461c-18-3-29-20-26-37l138-831c3-18 20-29 37-26l63 10c18 3 29 20 26 37l-138 831c-3 18-20 29-37 26z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-alt, .fa-file-csv {
+      /* fork-awesome doesn't have csv so we use the text icon */
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zM384 800c0-18 14-32 32-32h704c18 0 32 14 32 32v64c0 18-14 32-32 32H416c-18 0-32-14-32-32v-64zm736 224c18 0 32 14 32 32v64c0 18-14 32-32 32H416c-18 0-32-14-32-32v-64c0-18 14-32 32-32h704zm0 256c18 0 32 14 32 32v64c0 18-14 32-32 32H416c-18 0-32-14-32-32v-64c0-18 14-32 32-32h704z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		blockquote {
+			border-left: 4px solid rgb(220, 220, 220);
+			padding-left: 1.2em;
+			margin-left: 0;
+			opacity: 0.7;
+		}
+
+		.jop-tinymce table,
+		table {
+			text-align: left;
+			border-collapse: collapse;
+			border: 1px solid rgb(220, 220, 220);
+			background-color: #ffffff;
+		}
+
+		.jop-tinymce table td, .jop-tinymce table th,
+		table td, th {
+			text-align: left;
+			padding: .5em 1em .5em 1em;
+			font-size: 15;
+			color: #32373F;
+			font-family: 'Avenir', 'Arial', sans-serif;
+		}
+
+		.jop-tinymce table td,
+		table td {
+			border: 1px solid rgb(220, 220, 220);
+		}
+
+		.jop-tinymce table th,
+		table th {
+			border: 1px solid rgb(220, 220, 220);
+			border-bottom: 2px solid rgb(220, 220, 220);
+			background-color: rgb(247, 247, 247);
+		}
+
+		.jop-tinymce table tr:nth-child(even),
+		table tr:nth-child(even) {
+			background-color: rgb(247, 247, 247);
+		}
+
+		.jop-tinymce table tr:hover,
+		table tr:hover {
+			background-color: #e5e5e5;
+		}
+
+		hr {
+			border: none;
+			border-bottom: 2px solid #dddddd;
+		}
+		img {
+			max-width: 100%;
+			height: auto;
+		}
+		
+		.inline-code,
+		.mce-content-body code {
+			border: 1px solid rgb(220, 220, 220);
+			background-color: rgb(243, 243, 243);
+			padding-right: .2em;
+			padding-left: .2em;
+			border-radius: .25em;
+			color: rgb(0,0,0);
+			font-size: .9em;
+		}
+
+		.highlighted-keyword {
+			background-color: #F3B717;
+			color: black;
+		}
+
+		.not-loaded-resource img {
+			width: 1.15em;
+			height: 1.15em;
+			background: white;
+			padding: 2px !important;
+			border-radius: 2px;
+			box-shadow: 0 1px 3px #000000aa;
+		}
+
+		a.not-loaded-resource img {
+			margin-right: .2em;
+		}
+
+		a.not-loaded-resource {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+		}
+
+		.md-checkbox input[type=checkbox]:checked {
+			opacity: 0.7;
+		}
+
+		.jop-tinymce ul.joplin-checklist .checked,
+		.md-checkbox .checkbox-label-checked {
+			opacity: 0.5;
+		}
+
+		.exported-note {
+			padding: 1em;
+		}
+
+		.joplin-editable .joplin-source {
+			display: none;
+		}
+
+		mark {
+			background: #F7D26E;
+			color: black;
+		}
+
+		/* =============================================== */
+		/* For TinyMCE */
+		/* =============================================== */
+
+		.mce-content-body {
+			/* Note: we give a bit more padding at the bottom, to allow scrolling past the end of the document */
+			padding: 5px 10px 10em 0;
+		}
+
+		/*
+		.mce-content-body code {
+			background-color: transparent;
+		}
+		*/
+
+		.mce-content-body [data-mce-selected=inline-boundary] {
+			background-color: transparent;
+		}
+
+		.mce-content-body .joplin-editable {
+			cursor: pointer !important;
+		}
+
+		.mce-content-body.mce-content-readonly {
+			opacity: 0.5;
+		}
+
+		/* We need that to make sure click events have the A has a target */
+		.katex a span {
+			pointer-events: none;
+		}
+
+		.media-player {
+			width: 100%;
+			margin-top: 10px;
+		}
+
+		.media-player.media-pdf {
+			min-height: 35rem;
+			width: 100%;
+			max-width: 1000px;
+			margin: 0;
+			border: 0;
+			display: block;
+		}
+
+		/* Clear the CODE style if the element is within a joplin-editable block */
+		.mce-content-body .joplin-editable code {
+			border: none;
+			background: none;
+			padding: 0;
+			color: inherit;
+			font-size: inherit;
+		}
+
+		/* To make code blocks horizontally scrollable */
+		/* https://github.com/laurent22/joplin/issues/5740 */
+		pre.hljs {
+			overflow-x: auto;
+		}
+
+		/* =============================================== */
+		/* For TinyMCE */
+		/* =============================================== */
+
+		@media print {
+			body {
+				height: auto !important;
+			}
+
+			pre {
+				white-space: pre-wrap;
+			}
+
+			.code, .inline-code {
+				border: 1px solid #CBCBCB;
+			}
+
+			#joplin-container-content {
+				/* The height of the content is set dynamically by JavaScript (in updateBodyHeight) to go
+				   around various issues related to scrolling. However when printing we don't want this
+				   fixed size as that would crop the content. So we set it to auto here. "important" is
+				   needed to override the style set by JavaScript at the element-level. */
+				height: auto !important;
+			}
+		}
+	
+
+				/*
+					FOR THE MARKDOWN EDITOR
+				*/
+
+				/* Remove the indentation from the checkboxes at the root of the document
+				   (otherwise they are too far right), but keep it for their children to allow
+				   nested lists. Make sure this value matches the UL margin. */
+
+				li.md-checkbox {
+					list-style-type: none;
+				}
+
+				li.md-checkbox input[type=checkbox] {
+					margin-left: -1.71em;
+					margin-right: 0.7em;
+				}
+				
+				ul.joplin-checklist {
+					list-style:none;
+				}
+
+				/*
+					FOR THE RICH TEXT EDITOR
+				*/
+
+				ul.joplin-checklist li::before {
+					content:"\f14a";
+					font-family:"Font Awesome 5 Free";
+					background-size: 16px 16px;
+					pointer-events: all;
+					cursor: pointer;
+					width: 1em;
+					height: 1em;
+					margin-left: -1.3em;
+					position: absolute;
+					color: #32373F;
+				}
+
+				.joplin-checklist li:not(.checked)::before {
+					content:"\f0c8";
+				}</style><div id="rendered-md"><p>高性能MySQL 第四版</p>
+<p>2024-03-23 15:26</p>
+<p>PostgreSQL 更强，但是学习难度更高。<br>
+MySQL 已经够用了。</p>
+<nav class="table-of-contents"><ul><li><a href="#ch01-mysql-架构">ch01 MySQL 架构</a><ul><li><a href="#mysql-逻辑架构">MySQL 逻辑架构</a><ul><li><a href="#连接管理与安全性">连接管理与安全性</a></li><li><a href="#优化与执行">优化与执行</a></li></ul></li><li><a href="#并发控制">并发控制</a><ul><li><a href="#读写锁">读写锁</a></li><li><a href="#锁的粒度">锁的粒度</a><ul><li><a href="#表锁">表锁</a></li><li><a href="#行级锁">行级锁</a></li></ul></li></ul></li><li><a href="#事务">事务</a><ul><li><a href="#隔离级别">隔离级别</a></li><li><a href="#死锁">死锁</a></li><li><a href="#事务日志">事务日志</a></li><li><a href="#mysql中的事务">MySQL中的事务</a><ul><li><a href="#显式锁定隐式锁定">显式锁定，隐式锁定</a></li></ul></li></ul></li><li><a href="#多版本并发控制-mvcc">多版本并发控制 MVCC</a></li><li><a href="#复制主从复制">复制(主从复制)</a></li><li><a href="#innodb引擎">InnoDB引擎</a><ul><li><a href="#json文档支持">JSON文档支持</a></li><li><a href="#数据字典的变化">数据字典的变化</a></li><li><a href="#原子ddl">原子DDL</a></li></ul></li></ul></li><li><a href="#ch2-可靠性工程世界中的监控">ch2 可靠性工程世界中的监控</a><ul><li><a href="#度量长期性能">度量长期性能</a><ul><li><a href="#监控工具">监控工具</a></li></ul></li></ul></li><li><a href="#ch3-performance-schema">ch3 performance schema</a><ul><li><a href="#performance-schema-介绍">performance schema 介绍</a><ul><li><a href="#插桩元件">插桩元件</a></li><li><a href="#消费者表的组织">消费者表的组织</a></li><li><a href="#资源消耗">资源消耗</a></li><li><a href="#局限性">局限性</a></li><li><a href="#sys-schema">sys schema</a></li><li><a href="#理解线程">理解线程</a></li></ul></li><li><a href="#配置">配置</a><ul><li><a href="#启用或禁用performance-schema">启用或禁用Performance Schema</a></li><li><a href="#启用或禁用插桩">启用或禁用插桩</a></li><li><a href="#启用或禁用-消费者表">启用或禁用 消费者表</a></li><li><a href="#优化特定对象的监控">优化特定对象的监控</a></li><li><a href="#优化线程的监控">优化线程的监控</a></li><li><a href="#调整performance-schema的内存大小">调整Performance Schema的内存大小</a></li><li><a href="#默认值">默认值</a></li></ul></li><li><a href="#使用-performance-schema">使用 performance schema</a><ul><li><a href="#检查sql语句">检查SQL语句</a><ul><li><a href="#预处理语句">预处理语句</a></li><li><a href="#存储例程">存储例程</a></li><li><a href="#语句剖析">语句剖析</a></li></ul></li><li><a href="#检查读写性能">检查读写性能</a></li><li><a href="#检查元数据锁">检查元数据锁</a></li><li><a href="#检查内存使用情况">检查内存使用情况</a></li><li><a href="#检查变量">检查变量</a></li><li><a href="#检查最常见的错误">检查最常见的错误</a></li><li><a href="#检查performance-schema-自身">检查performance schema 自身</a></li></ul></li></ul></li><li><a href="#ch4-操作系统和硬件优化">ch4 操作系统和硬件优化</a><ul><li><a href="#cpu">CPU</a></li><li><a href="#配置大内存">配置大内存</a></li><li><a href="#ssd">SSD</a></li><li><a href="#raid">RAID</a></li><li><a href="#网络配置">网络配置</a></li><li><a href="#文件系统">文件系统</a><ul><li><a href="#选择磁盘队列调度器">选择磁盘队列调度器</a></li><li><a href="#内存和交换">内存和交换</a></li><li><a href="#操作系统状态">操作系统状态</a></li></ul></li></ul></li><li><a href="#ch5-优化服务器设置">ch5 优化服务器设置</a><ul><li><a href="#mysql的配置是如何工作的">MySQL的配置是如何工作的</a><ul><li><a href="#查询读取的配置文件">查询读取的配置文件</a></li></ul></li></ul></li><li><a href="#ch06-schema设计与管理">ch06 schema设计与管理</a><ul><li><a href="#选择优化的数据类型">选择优化的数据类型</a><ul><li><a href="#整数类型">整数类型</a></li><li><a href="#实数类型">实数类型</a></li><li><a href="#字符串类型">字符串类型</a></li><li><a href="#日期和时间类型">日期和时间类型</a><ul><li><a href="#datetime">DateTime</a></li><li><a href="#timestamp">Timestamp</a></li></ul></li><li><a href="#位压缩数据类型">位压缩数据类型</a></li><li><a href="#json数据类型">JSON数据类型</a></li><li><a href="#选择标识符">选择标识符</a></li><li><a href="#特殊数据类型">特殊数据类型</a></li></ul></li><li><a href="#mysql-schema设计中的陷阱">MySQL schema设计中的陷阱</a><ul><li><a href="#太多的列">太多的列</a></li><li><a href="#太多的联接">太多的联接</a></li><li><a href="#全能的枚举">全能的枚举</a></li><li><a href="#变相的枚举">变相的枚举</a></li><li><a href="#null不是虚拟值">NULL不是虚拟值</a></li></ul></li><li><a href="#schema管理">schema管理</a></li></ul></li><li><a href="#ch07-创建高性能的索引">ch07 创建高性能的索引</a><ul><li><a href="#索引基础">索引基础</a><ul><li><a href="#索引类型">索引类型</a><ul><li><a href="#b-tree-索引">B-tree 索引</a></li><li><a href="#全文索引">全文索引</a></li></ul></li><li><a href="#使用索引的优点">使用索引的优点</a></li></ul></li><li><a href="#高性能的索引策略">高性能的索引策略</a><ul><li><a href="#前缀索引和索引的选择性">前缀索引和索引的选择性</a></li><li><a href="#多列索引">多列索引</a></li><li><a href="#选择合适的索引列顺序">选择合适的索引列顺序</a></li><li><a href="#聚簇索引">聚簇索引</a><ul><li><a href="#优点">优点</a></li><li><a href="#缺点">缺点</a></li><li><a href="#innodb的数据分布">InnoDB的数据分布</a><ul><li><a href="#在innodb表中按主键顺序插入行">在InnoDB表中按主键顺序插入行</a></li><li><a href="#什么时候按主键顺序插入反而会更糟">什么时候按主键顺序插入反而会更糟</a></li></ul></li></ul></li><li><a href="#覆盖索引">覆盖索引</a></li><li><a href="#使用索引扫描来做排序">使用索引扫描来做排序</a></li><li><a href="#冗余和重复索引">冗余和重复索引</a></li><li><a href="#未使用的索引">未使用的索引</a></li></ul></li><li><a href="#维护索引和表">维护索引和表</a></li></ul></li><li><a href="#ch08-查询性能优化">ch08 查询性能优化</a><ul><li><a href="#为什么查询速度会慢">为什么查询速度会慢</a></li><li><a href="#慢查询基础优化数据访问">慢查询基础：优化数据访问</a><ul><li><a href="#是否向数据库请求了不需要的数据">是否向数据库请求了不需要的数据</a><ul><li><a href="#查询了不需要的记录">查询了不需要的记录</a></li><li><a href="#多表联接时返回全部列">多表联接时返回全部列</a></li><li><a href="#总是取出全部列">总是取出全部列</a></li><li><a href="#重复查询相同的数据">重复查询相同的数据</a></li></ul></li><li><a href="#mysql是否在扫描额外的记录">MySQL是否在扫描额外的记录</a></li></ul></li><li><a href="#重构查询的方式">重构查询的方式</a><ul><li><a href="#一个复杂查询还是多个简单查询">一个复杂查询还是多个简单查询</a></li><li><a href="#切分查询">切分查询</a></li><li><a href="#分解联接查询">分解联接查询</a></li></ul></li><li><a href="#查询执行的基础">查询执行的基础</a><ul><li><a href="#mysql的客户端服务器通信协议">MySQL的客户端/服务器通信协议</a></li><li><a href="#查询状态">查询状态</a></li><li><a href="#查询优化处理">查询优化处理</a></li><li><a href="#查询执行引擎">查询执行引擎</a></li><li><a href="#将结果返回给客户端">将结果返回给客户端</a></li></ul></li><li><a href="#mysql查询优化器的局限性">MySQL查询优化器的局限性</a></li><li><a href="#优化特定类型的查询">优化特定类型的查询</a><ul><li><a href="#优化count查询">优化COUNT()查询</a></li><li><a href="#优化联接查询">优化联接查询</a></li><li><a href="#使用with-rollup优化group-by">使用WITH ROLLUP优化GROUP BY</a></li><li><a href="#优化limit和offset子句">优化LIMIT和OFFSET子句</a></li><li><a href="#优化sql-calc-found-rows">优化SQL CALC FOUND ROWS</a></li><li><a href="#优化union查询">优化UNION查询</a></li></ul></li></ul></li><li><a href="#ch09-复制">ch09 复制</a><ul><li><a href="#复制概述">复制概述</a><ul><li><a href="#复制如何工作">复制如何工作</a></li></ul></li><li><a href="#复制原理">复制原理</a><ul><li><a href="#选择复制格式">选择复制格式</a></li><li><a href="#全局事务标识符">全局事务标识符</a></li><li><a href="#崩溃后的复制安全">崩溃后的复制安全</a></li><li><a href="#延迟复制">延迟复制</a></li><li><a href="#多线程复制">多线程复制</a></li><li><a href="#半同步复制">半同步复制</a></li><li><a href="#复制过滤器">复制过滤器</a></li></ul></li><li><a href="#复制切换">复制切换</a><ul><li><a href="#计划内切换">计划内切换</a></li><li><a href="#计划外切换">计划外切换</a></li><li><a href="#切换时的权衡">切换时的权衡</a></li></ul></li><li><a href="#复制拓扑">复制拓扑</a><ul><li><a href="#主动被动模式">主动/被动模式</a></li><li><a href="#主动只读池模式">主动/只读池模式</a></li><li><a href="#不推荐的一些拓扑架构">不推荐的一些拓扑架构</a></li></ul></li><li><a href="#复制管理和维护">复制管理和维护</a><ul><li><a href="#复制监控">复制监控</a></li><li><a href="#观测复制延迟">观测复制延迟</a></li><li><a href="#确定副本数据的一致性">确定副本数据的一致性</a></li></ul></li><li><a href="#复制问题和解决方案">复制问题和解决方案</a><ul><li><a href="#源端二进制日志损坏">源端二进制日志损坏</a></li><li><a href="#非唯一的服务器id">非唯一的服务器ID</a></li><li><a href="#未配置服务器id">未配置服务器ID</a></li><li><a href="#临时表丢失">临时表丢失</a></li><li><a href="#没有复制所有变更">没有复制所有变更</a></li><li><a href="#复制延迟过大">复制延迟过大</a></li><li><a href="#来自源服务器的超大数据包">来自源服务器的超大数据包</a></li><li><a href="#磁盘空间耗尽">磁盘空间耗尽</a></li></ul></li></ul></li><li><a href="#ch10-备份与恢复">ch10 备份与恢复</a></li><li><a href="#ch11-扩展mysql">ch11 扩展MySQL</a><ul><li><a href="#使用读池-扩展读">使用读池 扩展读</a><ul><li><a href="#管理读池的配置">管理读池的配置</a></li><li><a href="#读池健康检查">读池健康检查</a></li><li><a href="#选择负载均衡器算法">选择负载均衡器算法</a></li></ul></li><li><a href="#排队机制">排队机制</a></li><li><a href="#使用分片-扩展写">使用分片 扩展写</a><ul><li><a href="#选择切分方案">选择切分方案</a></li><li><a href="#多个分片键">多个分片键</a></li><li><a href="#跨分片查询">跨分片查询</a></li></ul></li></ul></li><li><a href="#ch12-云端的mysql">ch12 云端的MySQL</a></li><li><a href="#ch13-mysql的合规性">ch13 MySQL的合规性</a></li></ul></nav><hr>
+<hr>
+<hr>
+<h1 id="ch01-mysql-架构">ch01 MySQL 架构</h1>
+<h2 id="mysql-逻辑架构">MySQL 逻辑架构</h2>
+<p><img src="../_resources/d715ce16c9114f288431e284fd88a66f.png" alt="03ed93d55720dad5cdb30923afeb1ed4.png"></p>
+<p>第一层 非MySQL特有，大多数是 网络的，包括 连接处理，身份验证，安全性等</p>
+<p>第二层，包含了大多数MySQL的核心功能：查询解析，分析，优化，所有的内置函数，所有跨存储引擎的功能 (存储过程，触发器，视图等)<br>
+。。包含了图中的 解析器，优化器。。</p>
+<p>第三层，存储引擎，它负责MySQL中数据的存储和提取。服务器通过存储引擎API进行通信。这些API屏蔽了不同存储引擎之间的差异</p>
+<h3 id="连接管理与安全性">连接管理与安全性</h3>
+<p>默认情况下，<mark>每个客户端连接</mark>都会在服务器进程中拥有<mark>一个线程</mark>，该连接的查询只会在这个单独的线程中执行</p>
+<h3 id="优化与执行">优化与执行</h3>
+<p>MySQL解析查询 以创建 <mark>内部数据结构 (解析树)</mark>，然后进行各种<mark>优化，包括 重写查询，决定表的读取顺序，选择索引等</mark>。</p>
+<p>用户可以通过特殊关键字向优化器传递提示，从而影响优化器的决策过程。</p>
+<p>优化器会向存储引擎询问它的一些功能、某个具体操作的成本，以及表数据的统计信息</p>
+<p>在旧版本中，MySQL可以使用<mark>内部查询缓存（query cache）<mark>来查看是否可以直接提供结果。但是，<mark>随着并发性的增加，查询缓存成为一个让人诟病的瓶颈</mark>。<br>
+从MySQL 5.7.20版本开始，查询缓存已经被官方标注为被弃用的特性，并在8.0版本中被</mark>完全移除</mark>。<br>
+尽管查询缓存不再是MySQL服务器的核心部分，但缓存被频繁请求的结果集依然是一个很好的实践。在本书的范围之外，一个流行的设计模式是在memcached或Redis中缓存数据。</p>
+<p>。。？我怎么觉得，并发越高，缓存越好用呢。。<br>
+。。第三版，第一张 架构图 确实有 缓存的<br>
+。。<br>
+InnoDB存储引擎  维护自己的  buffer pool，在访问  数据时  将表  和  index  数据  缓存在  内存中。经常使用的数据  直接从  内存中处理。这个cache  适用于  多种类型的  信息  并加快处理速度。  在专用的  数据库server上，  多达80%  的物理内存  通常  分配给  buffer pool。<br>
+。。<br>
+。。buffer pool 是 InnoDB的 。。 不是 MySQL server 的。。</p>
+<h2 id="并发控制">并发控制</h2>
+<p>2个级别的并发控制：服务器级别，存储引擎级别。</p>
+<h3 id="读写锁">读写锁</h3>
+<p>。。就是 读写锁 的描述</p>
+<h3 id="锁的粒度">锁的粒度</h3>
+<p>让锁定的数据量最小化，理论上就能保证在给定资源上同时进行更改操作，只要被修改的数据彼此不冲突即可。</p>
+<p>问题是<mark>加锁也需要消耗资源</mark>。<br>
+锁的各种操作，包括获取锁、检查锁是否空闲、释放锁等，都会增加系统的开销。<br>
+如果系统花费大量的时间来管理锁，而不是存取数据，那么系统的性能可能会受影响。</p>
+<p>大多数商业数据库系统没有提供太多的选择，一般都是在<mark>表中施加行级锁</mark>（row level lock）<br>
+锁的实现方式非常复杂。<br>
+<mark>锁是数据库实现一致性保证的方法。</mark></p>
+<p>每种MySQL存储引擎都可以实现自己的锁策略和锁粒度。在设计存储引擎时，锁的管理是一个非常重要的决定。</p>
+<h4 id="表锁">表锁</h4>
+<p>MySQL中 <mark>最基本也是开销最小</mark> 的锁策略</p>
+<p>表锁有一些变体，可以在特定情况下提高性能。<br>
+例如，READ LOCAL表锁支持某些类型的并发写操作。写锁队列和读锁队列是分开的，但写锁队列的优先级绝对高于读队列</p>
+<h4 id="行级锁">行级锁</h4>
+<p>最大程度地支持并发处理（也带来了最大的锁开销）</p>
+<p>谁拥有这些行级锁、已经锁定了多长时间、行级锁的类型，以及何时该清理不再需要的行级锁。</p>
+<p>行级锁是在存储引擎而不是服务器中实现的</p>
+<h2 id="事务">事务</h2>
+<p>事务就是一组SQL语句，作为一个工作单元以原子方式进行处理。</p>
+<h3 id="隔离级别">隔离级别</h3>
+<p>READ UNCOMMITTED级别，在事务中可以查看其他事务中还没有提交的修改。<br>
+读取未提交的数据，也称为<mark>脏读</mark>（dirty read）。</p>
+<p>READ COMMITTED满足前面提到的隔离性的简单定义：一个事务可以看到其他事务在它开始之后提交的修改，但在该事务提交之前，其所做的任何修改对其他事务都是不可见的。这个级别仍然允许<mark>不可重复读（nonrepeatable read），这意味着同一事务中两次执行相同语句，可能会看到不同的数据结果。</mark></p>
+<p>REPEATABLE READ解决了READ COMMITTED级别的不可重复读问题，保证了在同一个事务中多次读取相同行数据的结果是一样的。<br>
+但是理论上，可重复读隔离级别还是无法解决另外一个幻读（phantom read）的问题。<br>
+所谓<mark>幻读</mark>，指的是当某个事务在读取某个范围内的记录时，另外一个事务又在该范围内<mark>插入了新的记录</mark>，当之前的事务再次读取该范围的记录时，会产生<mark>幻行</mark>（phantom row）。<br>
+InnoDB和XtraDB存储引擎通过<mark>多版本并发控制（MVCC，Multiversion Concurrency Control）解决了幻读的问题</mark>。</p>
+<table>
+<thead>
+<tr>
+<th>隔离级别</th>
+<th>脏读</th>
+<th>不可重复读</th>
+<th>幻读</th>
+<th>加锁读</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>read uncommitted</td>
+<td>T</td>
+<td>T</td>
+<td>T</td>
+<td>F</td>
+</tr>
+<tr>
+<td>read committed</td>
+<td>F</td>
+<td>T</td>
+<td>T</td>
+<td>F</td>
+</tr>
+<tr>
+<td>repeatable read</td>
+<td>F</td>
+<td>F</td>
+<td>T</td>
+<td>F</td>
+</tr>
+<tr>
+<td>serializable</td>
+<td>F</td>
+<td>F</td>
+<td>F</td>
+<td>T</td>
+</tr>
+</tbody>
+</table>
+<h3 id="死锁">死锁</h3>
+<p>数据库系统实现了各种死锁检测和锁超时机制<br>
+InnoDB存储引擎，检测到<mark>循环依赖</mark>后会立即返回一个错误信息。这可能是一件好事——否则，死锁将表现为非常缓慢的查询。</p>
+<p>还有一种方式，当超过锁等待超时的时间限制后直接终止查询，这样做通常来说不太好。</p>
+<p>InnoDB目前处理死锁的方式是<mark>将持有最少行级排他锁的事务回滚</mark>（这是一种最容易回滚的近似算法）。</p>
+<h3 id="事务日志">事务日志</h3>
+<p>事务日志有助于提高事务的效率。<br>
+存储引擎只需要更改内存中的数据副本，而不用每次修改磁盘中的表，这会非常快。<br>
+然后再把更改的记录写入事务日志中，事务日志会被持久化保存在硬盘上</p>
+<p>事务日志采用的是追加写操作，是在硬盘中一小块区域内的顺序I/O。写入事务日志是一种相对较快的操作</p>
+<p>一个后台进程在某个时间去更新硬盘中的表</p>
+<p>大多数使用这种技术（write-ahead logging，预写式日志）的存储引擎修改数据最终需要写入磁盘两次。</p>
+<h3 id="mysql中的事务">MySQL中的事务</h3>
+<p>这里描述的事务原语将基于InnoDB引擎中的事务。</p>
+<p>默认情况下，单个 insert,update,delete 被隐式包装在一个事务中并在执行成功后立即提交，这称为自动提交（AUTOCOMMIT）模式。</p>
+<p>当启用AUTOCOMMIT时，也可以使用关键字BEGIN或者START TRANSACTION来开始一个多语句的事务。<br>
+修改AUTOCOMMIT的值对非事务型的表不会有任何影响，这些表没有COMMIT或者ROLLBACK的概念。</p>
+<p>还有一些命令，当在活动的事务中发出时，会导致MySQL在事务的所有语句执行完毕前提交当前事务。<br>
+这些通常是进行重大更改的DDL命令，如ALTER TABLE，但LOCK TABLES和其他一些语句也具有同样的效果。<br>
+有关会导致自动提交事务的完整命令列表，请查看对应版本的官方文档。</p>
+<p>SET TRANSACTION ISOLATION LEVEL命令来设置隔离级别。新的隔离级别会在下一个事务开始的时候生效。</p>
+<p><mark>事务是由下层的存储引擎实现的</mark>。所以在同一个事务中，混合使用多种存储引擎是不可靠的。</p>
+<p>假设在事务中混合使用事务表和非事务表（例如，InnoDB和MyISAM表），如果一切顺利，事务将正常工作。<br>
+如果需要回滚，则<mark>无法撤销对非事务表的更改</mark>。<br>
+这会使数据库处于不一致的状态，可能难以恢复，并使整个事务问题变得毫无意义。</p>
+<h4 id="显式锁定隐式锁定">显式锁定，隐式锁定</h4>
+<p>InnoDB使用两阶段锁定协议（two-phase locking protocol）。<br>
+在事务执行期间，随时都可以获取锁，但<mark>锁只有在提交或回滚后才会释放，并且所有的锁会同时释放</mark>。<br>
+前面描述的锁定机制都是隐式的。InnoDB会根据隔离级别自动处理锁。</p>
+<p>InnoDB还支持通过特定的语句进行显式锁定，这些语句不属于SQL规范：</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="sql" data-joplin-source-open="```sql&#10;" data-joplin-source-close="&#10;```">select .. for share
+select .. for update</pre><pre class="hljs"><code><span class="hljs-keyword">select</span> .. <span class="hljs-keyword">for</span> share
+<span class="hljs-keyword">select</span> .. <span class="hljs-keyword">for</span> <span class="hljs-keyword">update</span></code></pre></div>
+<p>MySQL还支持LOCK TABLES和UNLOCK TABLES命令，这些命令在服务器级别而不在存储引擎中实现</p>
+<p>LOCK TABLES命令和事务之间的交互非常复杂，并且在一些服务器版本中存在意想不到的行为。<br>
+因此，本书建议，除了在禁用AUTOCOMMIT的事务中可以使用之外，其他任何时候都不要显式地执行LOCK TABLES，不管使用的是什么存储引擎。</p>
+<h2 id="多版本并发控制-mvcc">多版本并发控制 MVCC</h2>
+<p>可以认为MVCC是行级锁的一个变种，但是它在很多情况下避免了加锁操作，因此开销更低。<br>
+根据其实现方式，不仅实现了非阻塞的读操作，写操作也只锁定必要的行。</p>
+<p>MVCC的工作原理是使用数据在某个时间点的快照来实现的。<br>
+这意味着，无论事务运行多长时间，都可以看到数据的一致视图，也意味着不同的事务可以在同一时间看到同一张表中的不同数据</p>
+<p>。第一列事务A，最后一列事务B<br>
+<img src="../_resources/bf66b76b8c124eb58b2dfc157f94ecff.png" alt="27e0c1d7ca6ada085eb3477f9baf3782.png"></p>
+<p>InnoDB通过为每个事务在启动时分配一个事务ID来实现MVCC。该ID在事务<mark>首次读取</mark>任何数据时分配。<br>
+在该事务中<mark>修改记录时，将向Undo日志写入一条说明如何恢复该更改的Undo记录</mark>，并且事务的<mark>回滚指针</mark>指向该Undo日志记录。</p>
+<p>当不同的会话读取聚簇主键索引记录时，InnoDB会将该记录的事务ID与该会话的读取视图进行比较。<br>
+如果当前状态下的记录不应可见（更改它的事务尚未提交），那么Undo日志记录将被跟踪并应用，直到会话达到一个符合可见条件的事务ID。</p>
+<p>MVCC仅适用于REPEATABLE READ和READ COMMITTED隔离级别。<br>
+READ UNCOMMITTED 始终都是最新的数据<br>
+SERIALIZABLE 读取行时会锁定它们</p>
+<h2 id="复制主从复制">复制(主从复制)</h2>
+<p>MySQL中的复制变得十分复杂。<br>
+全局事务标识符、多源复制、副本上的并行复制和半同步复制是一些主要的更新</p>
+<p>第9章详细讨论复制</p>
+<h2 id="innodb引擎">InnoDB引擎</h2>
+<p>为处理大量短期事务而设计的，这些事务通常是正常提交的，很少会被回滚</p>
+<p>默认情况下，InnoDB将数据存储在一系列的数据文件中，这些文件统被称为表空间（tablespace）。表空间本质上是一个由InnoDB自己管理的黑盒。</p>
+<p>InnoDB使用MVCC来实现高并发性</p>
+<p>InnoDB默认为REPEATABLE READ隔离级别，并且通过<mark>间隙锁</mark>（next-key locking）策略来<mark>防止在这个隔离级别上的幻读</mark>：InnoDB不只锁定在查询中涉及的行，还会对索引结构中的间隙进行锁定，以防止幻行被插入。</p>
+<p>InnoDB表是基于聚簇索引构建的<br>
+<mark>聚簇索引提供了非常快速的主键查找</mark>。<br>
+但是，因为<mark>二级索引（secondary index，非主键索引）需要包含主键列，如果主键较大，则其他索引也会很大。</mark><br>
+<mark>如果表中的索引较多，主键应当尽量小。</mark></p>
+<p>InnoDB内部做了很多优化。其中包括从磁盘预取数据的可预测性预读、能够自动在内存中构建哈希索引以进行快速查找的自适应哈希索引（adaptive hash index），以及用于加速插入操作的插入缓冲区（insert buffer）</p>
+<h3 id="json文档支持">JSON文档支持</h3>
+<p>JSON类型在5.7版本被首次引入InnoDB，它实现了JSON文档的自动验证，并优化了存储以允许快速读取<br>
+MySQL 8.0.7的进一步改进增加了在JSON数组上定义多值索引的能力。</p>
+<h3 id="数据字典的变化">数据字典的变化</h3>
+<p>MySQL 8.0的另一个主要变化是删除了基于文件的表元数据存储，并将其转移到使用InnoDB表存储的数据字典中</p>
+<h3 id="原子ddl">原子DDL</h3>
+<p>MySQL 8.0引入了原子数据定义更改。这意味着数据定义语句现在要么全部成功完成，要么全部失败回滚。这是通过创建DDL特定的Undo日志和Redo日志来实现的</p>
+<h1 id="ch2-可靠性工程世界中的监控">ch2 可靠性工程世界中的监控</h1>
+<p>Percona监控和管理工具是一个成熟的开源选项<br>
+。。有很多：Netdata，Prometheus，signoz。。。</p>
+<p><mark>在生产中进行测试具有很大的价值</mark>。在生产中，你可以发现这种变化是如何影响系统的其他部分、规模和实际客户流量的。也可以查看对相邻系统的影响。</p>
+<p>需要监控</p>
+<ul>
+<li>可用性</li>
+<li>查询延迟</li>
+<li>报错</li>
+</ul>
+<p>其他方面</p>
+<ul>
+<li>磁盘空间使用率增长</li>
+<li>连接数增长</li>
+<li>复制延迟</li>
+<li>IO使用率</li>
+<li>自增键空间 (自增主键可能耗尽)</li>
+<li>创建备份/恢复时间</li>
+</ul>
+<p>功能分片：将服务于<mark>特定业务功能的特定表分割到一个专用的集群</mark>中，以便单独管理该数据集的正常运行时间、性能甚至访问控制。</p>
+<p>水平分片：当<mark>数据集的大小超过了可以在单个集群中可靠地提供服务的规模</mark>时，将它拆分为多个集群，并从多个节点提供数据，这依赖于某种查找机制来定位所需的数据子集。</p>
+<h2 id="度量长期性能">度量长期性能</h2>
+<p>11.11， 618， 购物网站 大流量</p>
+<p>了解业务的流量节奏非常重要</p>
+<h3 id="监控工具">监控工具</h3>
+<ul>
+<li>不要看平均值， 要<mark>关注峰值</mark></li>
+<li>根据百分比抽取样本。TP99,TP95</li>
+</ul>
+<h1 id="ch3-performance-schema">ch3 performance schema</h1>
+<p>在高负载下调优数据库性能是一个迭代循环的过程。<br>
+每次进行更改以调优数据库的性能时，都需要了解更改是否有什么影响。<br>
+查询速度比以前快吗？<br>
+锁是否会减慢应用程序的速度，或者是否已经完全消失了？<br>
+内存使用情况改变了吗？<br>
+等待磁盘的时间改变了吗？<br>
+一旦理解了如何回答这些问题，你将能够更快地评估和应对日常情况，并更有信心。</p>
+<p>Performance Schema是一个存储回答上述问题所需数据的数据库。</p>
+<h2 id="performance-schema-介绍">performance schema 介绍</h2>
+<p>Performance Schema提供了有关MySQL服务器内部运行的操作上的底层指标</p>
+<p>为了解释清楚Performance Schema的工作机制，先介绍两个概念。</p>
+<ul>
+<li>程序插桩（instrument）<br>
+程序插桩在MySQL代码中插入<mark>探测代码</mark>，以获取我们想了解的信息。例如，如果想收集关于元数据锁的使用情况，<mark>需要启用</mark>wait/lock/meta-data/sql/mdl这个插桩。</li>
+<li>消费者表（consumer）<br>
+指的是存储关于<mark>程序插桩代码信息的表</mark>。如果我们<mark>为查询模块添加插桩</mark>，相应的<mark>消费者表将记录</mark>诸如执行总数、未使用索引的次数、花费的时间等信息。</li>
+</ul>
+<p>当应用程序用户连接到MySQL并执行被测量的插桩指令时，performance_schema将每个检查的调用封装到两个宏中，然后将结果记录在相应的消费者表中。这里的要点是，启用插桩会调用额外的代码，这意味着<mark>插桩会消耗CPU资源。</mark></p>
+<h3 id="插桩元件">插桩元件</h3>
+<p>在performance_schema中，setup_instruments表包含所有支持的插桩的列表<br>
+插桩名称的最左边部分表示插桩的类型<br>
+名称字段中的其余部分从左至右依次表示从通用到特定的子系统</p>
+<p>setup_instruments表中还有一个DOCUMENTATION列，其中包含更多详细信息</p>
+<h3 id="消费者表的组织">消费者表的组织</h3>
+<p>测量结果存储在Performance Schema数据库的多个表中；事实上，MySQL 8.0.25社区版的performance_schema中包含110个表。<br>
+基于它们的用途，可分为以下几个类别。</p>
+<blockquote>
+<p>当前和历时数据</p>
+</blockquote>
+<p>存放事件的表名如下结尾</p>
+<ul>
+<li>*_current，当前服务器上进行中的事件</li>
+<li>*_history，每个线程最近完成的 10个事件</li>
+<li>*_history_long，从全局来看，每个线程最近完成的 10000个事件</li>
+</ul>
+<p>2个 history表 的大小是可配置的</p>
+<p>以下的当前和历史数据</p>
+<ul>
+<li>events_waits, 底层服务器等待，例如获取互斥对象。</li>
+<li>events_statement, SQL查询语句。</li>
+<li>events_stages, 配置文件信息，例如创建临时表或发送数据。</li>
+<li>events_transactions, 事务。</li>
+</ul>
+<blockquote>
+<p>汇总表和摘要</p>
+</blockquote>
+<p>汇总表保存有关该表所建议的内容的聚合信息。<br>
+例如，memory_summary_by_thread_by_event_name表保存了用户连接或任何后台线程的每个MySQL线程的聚合内存使用情况。</p>
+<p>摘要是一种通过删除查询中的变量来聚合查询的方法<br>
+<code class="inline-code">select user from aa where id=123;</code> 的摘要是 <code class="inline-code">select user from aa where id=?</code> 这样的话，不同的 id值 可以归位一类</p>
+<blockquote>
+<p>实例表</p>
+</blockquote>
+<blockquote>
+<p>设置表</p>
+</blockquote>
+<blockquote>
+<p>其他表</p>
+</blockquote>
+<h3 id="资源消耗">资源消耗</h3>
+<p>通过设置消费者表的最大大小来限制其使用的内存量</p>
+<p>performance_schema中的一些表支持自动伸缩，这意味着它们在启动时分配最小数量的内存，并根据需要调整其大小。<br>
+然而，一旦分配了内存，即使禁用了特定的插桩并截断了表，也不会再释放该内存。</p>
+<p>每个插桩指令的调用都会再<mark>添加两个宏调用</mark>，以将数据存储在performance_schema中。这意味着插桩越多，CPU的使用率就越高。</p>
+<p>对CPU使用率的实际影响取决于特定的插桩。<br>
+例如，与statement相关的插桩在查询过程中只能被调用一次，而wait类插桩的被调用频率要高得多。</p>
+<h3 id="局限性">局限性</h3>
+<p>它只在特定的插桩和用户启用后才收集数据。</p>
+<p>它很难释放内存</p>
+<h3 id="sys-schema">sys schema</h3>
+<p>全部基于performance_schema上的视图和存储例程组成。<br>
+目的是让performance_schema体验更加流畅，它本身并不存储任何数据。</p>
+<p>访问存储在performance_schema表中的数据。如果在sys schema中找不到你想看的数据，可尝试在performance_schema的基表中查找。</p>
+<h3 id="理解线程">理解线程</h3>
+<p>MySQL服务端是多线程软件。它的每个组件都使用线程。<br>
+可以是<mark>后台线程</mark>，例如，由主线程或存储引擎创建的，也可以是为用户连接创建的<mark>前台线程</mark>。<br>
+每个线程至少有两个唯一标识符：一个是操作系统线程ID，另一个是MySQL内部线程ID</p>
+<p>MySQL内部线程ID在大多数performance_schema表中以THREAD_ID命名<br>
+每个前台线程都有一个指定的PROCESSLIST_ID：连接标识符，在SHOW PROCESSLIST命令输出中或在MySQL命令行客户端连接时在“Your MySQLconnection id is”字符串中可以看到。</p>
+<p>performance_schema中的 threads 表包含了服务器中存在的所有线程</p>
+<p>Performance Schema到处使用THREAD_ID，而PROCESSLIST_ID只在threads表中可用。<br>
+如果需要获取PROCESSLIST_ID，例如，要杀死持有锁的连接，则需要查询threads表来获取。</p>
+<h2 id="配置">配置</h2>
+<p>Performance Schema的部分设置只能在服务器启动时更改：比如启用或禁用Performance Schema本身以及与内存使用和数据收集的限制相关的变量。</p>
+<p>Performance Schema插桩和消费者表则可以被动态启用或禁用。</p>
+<h3 id="启用或禁用performance-schema">启用或禁用Performance Schema</h3>
+<p>将变量performance_schema设置为ON或OFF<br>
+这是一个只读变量，要么在配置文件中更改，要么在MySQL服务器启动时通过命令行参数更改。</p>
+<h3 id="启用或禁用插桩">启用或禁用插桩</h3>
+<p>通过setup_instruments表 查看插桩的状态</p>
+<p>有三个方法可用于启用或禁用performance_schema插桩：</p>
+<ul>
+<li>使用sql修改setup_instruments表。 重启后失效<br>
+<code class="inline-code">update performance_schema.setup_instruments set enabled='YES' where name='statement/sql/select';</code></li>
+<li>调用sys schema中的ps_setup_enable_instrument、ps_setup_disable_instrument存储过程，来启用和禁用 参数对应的插桩。 重启后失效<br>
+<code class="inline-code">CALL sys.ps_setup_enable_instrument('statement/sql/select');</code></li>
+<li>使用performance-schema-instrument启动参数。<br>
+<code class="inline-code">performance-schema-instrument='statement/sql/select=ON'</code><br>
+还支持通配符。定义多个选项，较长的插桩字符串优先于较短的插桩字符串</li>
+</ul>
+<h3 id="启用或禁用-消费者表">启用或禁用 消费者表</h3>
+<p>3种方式</p>
+<ul>
+<li>使用Performance Schema中的setup_consumers表。</li>
+<li>调用sys schema中的ps_setup_enable_consumer或ps_setup_disable_consuper存储过程。</li>
+<li>使用performance-schema-consumer启动参数。</li>
+</ul>
+<p><img src="../_resources/94129bd797434c8a8b51ffe691ba5b64.png" alt="80b4f08748f4065a1e8405944316e7b6.png"></p>
+<h3 id="优化特定对象的监控">优化特定对象的监控</h3>
+<p>Performance Schema可以针对特定对象类型、schema和对象名称启用或禁用监控。<br>
+这在setup_objects表中完成。</p>
+<p>对象类型（OBJECT_TYPE列）可以是下面的五个值之一：EVENT、FUNCTION、PROCEDURE、TABLE和TRIGGER。<br>
+此外，还可以指定OBJECT_SCHEMA和OBJECT_NAME，并且支持通配符。</p>
+<h3 id="优化线程的监控">优化线程的监控</h3>
+<p>setup_threads表包含可以监控的后台线程列表。ENABLED列指定是否启用了特定线程的监测。<br>
+HISTORY列指定特定线程的检测事件是否也应存储在_history和_history_long表中。</p>
+<h3 id="调整performance-schema的内存大小">调整Performance Schema的内存大小</h3>
+<h3 id="默认值">默认值</h3>
+<p>从5.7版开始，Performance Schema在默认情况下是启用的。<br>
+大多数插桩默认是禁用的，只启用了全局、线程、语句和事务插桩。<br>
+从8.0版本开始，默认情况下还启用了元数据锁和内存插桩。</p>
+<p>mysql、information_schema和performance_schema数据库没有启用插桩，但所有其他对象、线程和actor都启用了插桩。</p>
+<h2 id="使用-performance-schema">使用 performance schema</h2>
+<h3 id="检查sql语句">检查SQL语句</h3>
+<p>statement类型的插桩及描述</p>
+<ul>
+<li>statement/sql</li>
+<li>statement/sp，存储过程控制</li>
+<li>statement/scheduler，事件调度器</li>
+<li>statement/com，命令：quit,kill,DROP database, binlog dump.</li>
+<li>statement/abstract，包括4类命令：clone,query,new_packet,relay_log</li>
+</ul>
+<p>Performance Schema将语句指标存储在<mark>events_statements_current</mark>、events_statements_history和events_statements_history_long表中。</p>
+<p>指标 + 描述 优化方法</p>
+<p><img src="../_resources/79d82b8db6e14b5daa6a890df81fdf8e.png" alt="3d2460be80ef27c8e8bb33ee0ba04198.png"></p>
+<p><img src="../_resources/dd17490875784ed1af5d82f28408b5e3.png" alt="3d342630818d54af35d9c536a45406d5.png"></p>
+<p>。。</p>
+<ul>
+<li>磁盘临时表 数量</li>
+<li>内存临时表 数量，太多会转为 磁盘临时表</li>
+<li>没有合适的索引，导致join执行全表扫描</li>
+<li>join是否使用了 被引用表的 范围搜索</li>
+<li>如果join没有索引，则会检查每一行之后的键，非常糟糕，如果大于0，需要重新设计索引</li>
+<li>join是否对第一个表 执行了 全表扫描。</li>
+<li>排序必须执行的合并过程数</li>
+<li>是否使用范围排序</li>
+<li>排序的行数</li>
+<li>排序是否通过扫描表完成，非常糟糕的迹象</li>
+<li>查询没有使用索引</li>
+<li>查询使用的索引不是最合适的。<br>
+。。</li>
+</ul>
+<p>使用sys schema。sys schema提供了可用于查找有问题语句的视图。<br>
+例如，statements_with_errors_or_warnings列出了带有错误和警告的所有语句，statements_with_full_table_scans列出了需要全表扫描的所有语句</p>
+<p>提供的视图:</p>
+<ul>
+<li>statement_analysis<br>
+具有聚合统计信息的规范化语句视图</li>
+<li>statement_with_errors_or_warnings<br>
+所有引起错误或警告的规范化语句</li>
+<li>statement_with_full_table_scans<br>
+所有执行了全表扫描的规范化语句</li>
+<li>statement_with_runtime_in_95th_percentile<br>
+所有平均执行时间在 前95%的 规范化语句</li>
+<li>statement_with_sorting<br>
+所有执行了排序的规范化语句</li>
+<li>statement_with_temp_tables<br>
+所有使用了临时表的规范化语句</li>
+</ul>
+<h4 id="预处理语句">预处理语句</h4>
+<p>prepared_statements_instances表包含服务器中存在的所有预处理语句</p>
+<p>预处理语句检测的插桩</p>
+<ul>
+<li>statement/sql/prepare_sql</li>
+<li>statement/sql/execute_sql</li>
+<li>statement/com/Prepare</li>
+<li>statement/com/Execute</li>
+</ul>
+<h4 id="存储例程">存储例程</h4>
+<p>使用performance_schema可以检索有关存储例程如何执行的信息：例如，IF...ELSE流控制语句的哪个分支被选择了，或者是否调用了错误处理程序。</p>
+<p>需要启用匹配'statement/sp/%'模式的插桩。</p>
+<h4 id="语句剖析">语句剖析</h4>
+<p><code class="inline-code">events_stages_[current|history|history_long]</code>表包含剖析信息，例如MySQL在<mark>创建临时表、更新或等待锁时花费了多少时间</mark>。<br>
+要启用剖析，需要启用上述消费者表以及匹配'stage/%'模式的插桩。<br>
+启用后可以找到类似“查询执行的哪个阶段花费了非常长的时间”等问题的答案。</p>
+<p><img src="../_resources/009f047eb0d341e4b2dfe28008cd5080.png" alt="f5adfb1c670daa045165deb18ed3331f.png"></p>
+<ul>
+<li>临时表</li>
+<li>锁</li>
+<li>等待资源</li>
+<li>创建临时文件或表来解析中间结果</li>
+<li>释放资源</li>
+</ul>
+<h3 id="检查读写性能">检查读写性能</h3>
+<p>Performance Schema中的statement类型的插桩对于理解<mark>工作负载是受读还是受写限制</mark>非常有用。</p>
+<p><code class="inline-code">select event_name, count(event_name) from events_statements_history_long group by event_name;</code></p>
+<p>可以看到如下结果</p>
+<table>
+<thead>
+<tr>
+<th>event_name</th>
+<th>count(event_name)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>statement/sql/insert</td>
+<td>22</td>
+</tr>
+<tr>
+<td>statement/sql/delete</td>
+<td>33</td>
+</tr>
+<tr>
+<td>statement/sql/select</td>
+<td>5555</td>
+</tr>
+<tr>
+<td>statement/sql/update</td>
+<td>22</td>
+</tr>
+<tr>
+<td>statement/sql/commit</td>
+<td>11</td>
+</tr>
+<tr>
+<td>statement/sql/begin</td>
+<td>11</td>
+</tr>
+</tbody>
+</table>
+<p>根据结构，可以知道 系统是 读查询的</p>
+<p>要知道语句延迟情况，可以按 lock_time 进行聚合<br>
+<code class="inline-code">select event_name, count(event_name), sum(lock_time/1000000) as latency_ms from events_statements_history group by event_time order by latency_ms desc;</code></p>
+<p>如果还想知道读取和写入的字节数和行数，可以使用全局状态变量Handler_*<br>
+。。too long</p>
+<h3 id="检查元数据锁">检查元数据锁</h3>
+<p>元数据锁用于保护数据库对象定义不被修改。<br>
+执行任何SQL语句都需要获取共享元数据锁：SELECT、UPDATE等，这不会影响其他需要获取共享元数据锁的语句。</p>
+<p>共享元数据锁会阻止那些更改数据库对象定义的语句，比如ALTER TABLE或CREATE INDEX，直到锁被释放为止。</p>
+<p>事务执行期间会一直持有元数据锁。多语句事务的使用会使故障排除变得更加困难。很容易搞清楚哪个语句在等待元数据锁：DDL语句会隐式提交事务，因此它们是新事务中唯一的语句，并且可以在进程列表中发现它们处于“waiting for a metadata lock”状态。</p>
+<p>performance_schema中的metadata_locks表包含关于当前由不同线程设置的锁的信息，以及处于等待状态的锁请求信息。通过这种方式，可以轻松确定哪个线程阻塞了DDL请求，你可以决定是终止该语句还是等待它完成执行。</p>
+<p>要启用元数据锁监测，需要启用wait/lock/meta-data/sql/mdl插桩。</p>
+<h3 id="检查内存使用情况">检查内存使用情况</h3>
+<p>要在performance_schema中启用内存监测，请启用memory类的插桩。</p>
+<p>Performance Schema将内存使用统计信息存储在摘要表中，摘要表的名称以memory_summary_前缀开头。内存使用聚合统计</p>
+<p>聚合参数</p>
+<ul>
+<li>global， 按事件名全局聚合</li>
+<li>thread， 按线程聚合：包括后台线程 和 用户线程</li>
+<li>account， 按用户账号聚合</li>
+<li>host， 按主机聚合</li>
+<li>user， 按用户名聚合</li>
+</ul>
+<hr>
+<p>使用Sys schema中的视图可以更好地获取内存统计信息，可以按host、user、thread或global进行聚合。<br>
+memory_global_total视图包含一个单独的值，显示被监测内存的总量<br>
+<code class="inline-code">select * from sys.memory_global_total;</code></p>
+<h3 id="检查变量">检查变量</h3>
+<p>全局变量值被存储在表global_variables中。<br>
+当前会话的会话变量被存储在session_variables表中。<br>
+这两个表中只有两列具有自解释的名称：VARIABLE_NAME和VARIABLE_VALUE。</p>
+<p>variables_by_thread表中有一个额外的列THREAD_ID，表示变量所属的线程。</p>
+<h3 id="检查最常见的错误">检查最常见的错误</h3>
+<p>除了特定错误信息，performance_schema还提供摘要表，可以按用户、主机、账户、线程和错误号聚合错误信息。<br>
+所有的聚合表都有类似于events_errors_summary_global_by_error表的结构</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="sql" data-joplin-source-open="```sql&#10;" data-joplin-source-close="&#10;```">use performance_schema;
+show create table events_errors_summary_global_by_error</pre><pre class="hljs"><code>use performance_schema;
+<span class="hljs-keyword">show</span> <span class="hljs-keyword">create</span> <span class="hljs-keyword">table</span> events_errors_summary_global_by_error</code></pre></div>
+<h3 id="检查performance-schema-自身">检查performance schema 自身</h3>
+<p>默认情况下，如果Performance_schema被设为默认数据库，则不会跟踪对它的查询。<br>
+如果需要检查对performance_schema的查询，则需要首先更新setup_actors表。</p>
+<p>一旦setup_actors表被更新，就可以使用所有的插桩。</p>
+<h1 id="ch4-操作系统和硬件优化">ch4 操作系统和硬件优化</h1>
+<h2 id="cpu">CPU</h2>
+<p>最常见的瓶颈是 CPU<br>
+然后是 IO，但是比 CPU 频率低很多。 因为现在基本 SSD了<br>
+内存耗尽有可能发生</p>
+<p>选择CPU时 要看 CPU使用率 和 IO之间的平衡。</p>
+<h2 id="配置大内存">配置大内存</h2>
+<p>可以减少磁盘IO</p>
+<p>多次写操作，一次刷新<br>
+IO合并</p>
+<p>预写日志(write-ahead log) 使得 可以在内存中改变数据，而不必将更新刷到磁盘。<br>
+刷新到磁盘通常是 随机IO。<br>
+预写日志 是 顺序IO</p>
+<h2 id="ssd">SSD</h2>
+<h2 id="raid">RAID</h2>
+<p><img src="../_resources/3957b03873c34bbbb368e39bd2e368e4.png" alt="e423e11be490d2bd2320ac506bb7bd29.png"></p>
+<h2 id="网络配置">网络配置</h2>
+<p>网络运行不正常也是主要的性能瓶颈之一。数据包丢失是一个常见的问题。</p>
+<p>DNS已经成为一个致命弱点，因此对于生产服务器来说，启用skip_name_resolve是一个好主意。<br>
+DNS解析中断或缓慢对于许多应用程序来说都是问题，对于MySQL来说尤其严重。</p>
+<p>通常更重要的是，调整设置以有效地处理大量连接和小查询。一个常见的调整是更改本地端口范围。</p>
+<p>当连接返回到调用方法时，需要使用本地端口。如果同时有多个连接，则可能会耗尽本地端口。<br>
+<code class="inline-code">cat /proc/sys/net/ipv4/ip_local_port_range</code><br>
+<code class="inline-code">echo 1024 65535 &gt; /proc/sys/net/ipv4/ip_local_port_range</code></p>
+<p>TCP允许系统对接收到的连接请求进行排队，你可以允许更多的连接排队<br>
+<code class="inline-code">echo 4096 &gt; /proc/sys/net/ipv4/tcp_max_syn_backlog</code></p>
+<p>对于仅在本地使用的数据库服务器，如果服务器中断后未关闭其连接端时，可以缩短关闭套接字后的超时时间。大多数系统的默认值为1分钟，这相当长<br>
+<code class="inline-code">echo &lt;value&gt; &gt; /proc/sys/net/ipv4/tcp_fin_timeout</code></p>
+<h2 id="文件系统">文件系统</h2>
+<p>大多数文件系统在很多方面都非常接近，单纯为性能寻找文件系统实际上是一种干扰</p>
+<p>总的来说，最好使用日志型文件系统，如ext4、XFS或ZFS。否则，系统崩溃后，检查文件系统可能需要很长时间。</p>
+<p>如果使用ext3或其后续版本ext4，日志级别可设置为3个，你可以在/etc/fstab挂载选项中设置。</p>
+<ul>
+<li>data=writeback，只记录元数据的写入，这会导致对元数据的写入与对数据的写入不同步。这是最快的配置，通常与InnoDB一起使用是安全的</li>
+<li>data=ordered，能保证一定程度的一致性。它只比writeback选项稍微慢一点，而且在发生崩溃时要安全得多</li>
+<li>data=journal，将数据写入最终位置之前将数据先写入日志。此选项通常是不必要的，并且比其他两个选项有更高的开销</li>
+</ul>
+<p>不管使用什么文件系统，都有一些特定的选项是最好禁用的，因为它们没有提供任何好处，并且可能会增加相当多的开销。最著名的是记录访问时间，其在读取文件或目录时也需要写入。要禁用此选项，请将noatime、nodiratime挂载选项添加到/etc/fstab</p>
+<p>调整文件系统的预读行为，因为它可能是多余的。例如，InnoDB有自己的预读机制<br>
+使用innodb_flush_method=O_DIRECT会自动禁用文件系统的预读。</p>
+<p>我们通常<mark>建议使用XFS文件系统</mark>。<br>
+ext4文件系统在特定的内核版本中存在性能瓶颈，但它是一个可以接受的选择</p>
+<p>ext3文件系统有太多太严格的限制，比如每个inode只有一个互斥锁，还有一些不好的行为，比如在fsync()时刷新整个文件系统中的所有脏块，而不是某个文件的脏块</p>
+<h3 id="选择磁盘队列调度器">选择磁盘队列调度器</h3>
+<p>在GNU/Linux上，队列调度器决定了对块设备的请求实际发送到底层设备的顺序。<br>
+默认设置为完全公平排队，即CFQ（Complete Fair Queuing）。</p>
+<p>CFQ有助于防止I/O饥渴，但对于服务器来说很糟糕</p>
+<p>查看哪些调度器可用，哪些处于活动状态<br>
+<code class="inline-code">cat /sys/block/{磁盘设备名}/queue/scheduler</code><br>
+返回<br>
+<code class="inline-code">noop deadline [cfq]</code><br>
+方括号内是 目前生效的</p>
+<p>noop，deadline 都适用于 服务器级硬件，<br>
+noop调度器适合于在后台执行自身调度器的设备，比如硬件RAID控制器和存储区域网络（SAN），<br>
+而deadline则适用于RAID控制器和直接连接的磁盘。</p>
+<p>我们的基准测试显示，这两者之间的差别非常小。<br>
+最重要的还是<mark>不要使用CFQ</mark>，它可能会导致严重的性能问题。</p>
+<h3 id="内存和交换">内存和交换</h3>
+<p>给MySQL分配<mark>大量内存后，它的表现最好</mark>。<br>
+InnoDB使用内存作为缓存来避免磁盘访问。这意味着<mark>内存系统</mark>的性能会直接影响查询的速度。<br>
+即使在今天，确保更快的内存访问的<mark>最佳方法</mark>之一仍然是用<mark>外部内存分配器</mark>（如tcmalloc或jemalloc）来替换内置的内存分配器（glibc）<br>
+与glibc相比，这两种方法都能提高性能并减少内存碎片</p>
+<p>当操作系统因为没有足够的物理内存来容纳虚拟内存而将一些虚拟内存写入磁盘时，就会发生交换。<br>
+交换对操作系统上运行的进程是透明的。 。。。透明的？应该是 无感的 吧<br>
+只有操作系统知道特定的虚拟内存地址是在物理内存中还是在磁盘上。</p>
+<p>当使用SSD时，性能损失不像使用HDD时那样明显<br>
+仍然应该积极地避免交换，即使只是为了避免不必要的写操作，因为<mark>写操作可能会缩短磁盘整体寿命</mark></p>
+<p>可以考虑<mark>关闭交换</mark>，这会完全消除潜在的交换影响，但在内存耗尽时可能导致进程被终止的情况。</p>
+<p>在GNU/Linux上，可以使用<mark>vmstat</mark>来监控交换<br>
+你需要查看si和so列中报告的交换I/O活动，而不是swpd列中报告的交换使用情况。<br>
+我们<mark>希望si和so列的值为0</mark>，它们肯定应该<mark>小于每秒10个块</mark>。</p>
+<p>在极端情况下，过多的内存分配可能会导致操作系统耗尽交换空间。<br>
+Linux内核甚至会完全挂起<br>
+我们建议在<mark>运行数据库时完全不使用交换空间</mark>。磁盘会比RAM慢一个数量级，但这可避免这里提到的所有让人头痛的问题</p>
+<p>在极端的虚拟内存压力下经常发生的另一件事是，<mark>OOM Killer进程</mark>将启动并终止某些进程，通常会是MySQL，也可能是其他进程，比如ssh，ssh关闭后，无法使用网络。<br>
+。。。。。。</p>
+<p>在使用专用数据库服务器时，我们强烈建议识别所有关键进程，如MySQL和SSH，并主动<mark>调整OOM Killer分值</mark>，以防止这些进程被首先终止</p>
+<p>通过正确配置<mark>MySQL缓冲区</mark>，可以解决大多数交换问题，但有时操作系统的虚拟内存系统还是会交换MySQL，有时与Linux中<mark>NUMA</mark>的工作方式有关。</p>
+<p>操作系统通常允许对虚拟内存和I/O进行控制。我们提到了在GNU/Linux上控制它们的几种方法。<br>
+最基本的方法是将/proc/sys/vm/swappiness的值更改为较低值，例如0或1。这告诉内核，除非对虚拟内存的需求非常大，否则不要进行交换<br>
+查看当前值 <code class="inline-code">cat /proc/sys/vm/swappiness</code><br>
+交换设置默认为60（范围从0到100）</p>
+<p>对于服务器应设置为0<br>
+<code class="inline-code">echo 0 &gt; /proc/sys/vm/swappiness</code></p>
+<p>另一种选项是更改存储引擎<mark>读写数据的方式</mark><br>
+例如，设置innodb_flush_method=O_DIRECT可以减轻I/O压力。<br>
+直接I/O没有被缓存，因此操作系统不会将其视为增加文件缓存大小的原因。该参数仅对InnoDB有效。</p>
+<p>还有一个选项是使用MySQL的memlock配置项，它<mark>将MySQL锁定在内存中</mark>。<br>
+这将<mark>避免交换</mark>，但可能<mark>很危险</mark>：如果没有足够的可锁定内存，MySQL在尝试分配更多内存时可能会崩溃。如果锁定了太多内存，导致操作系统没有足够的内存，也可能会出现问题。</p>
+<p>很多技巧都是<mark>特定于内核版本</mark>的，所以要小心，特别是在升级时。<br>
+在某些工作负载中，很难让操作系统合理地运行，唯一的办法可能是将缓冲区大小降低到次优值。</p>
+<h3 id="操作系统状态">操作系统状态</h3>
+<p>使用2个工具：iostat，vmstat</p>
+<p>其他的(不重要)还有，mpstat，sar，ifconfig，netstat。</p>
+<p><code class="inline-code">vmstat -SM 5</code><br>
+每5秒输出一行新数据，以MB为单位展示。<br>
+第一行是 自服务器启动以来的 平均值。<br>
+第二行开始 就是 当前正在发生的</p>
+<p>procs<br>
+r列显示有多少进程在等待CPU时间。<br>
+b列显示了处于不可中断的休眠状态的进程数，这通常意味着它们正在等待I/O（磁盘、网络、用户输入，等等）。</p>
+<p>memory<br>
+swpd列显示了有多少个块被交换到磁盘（paged）。剩下的三列分别显示有多少个块是空闲的（unused），有多少个块用于缓冲区（buff），还有多少个块用于操作系统的缓存（cache）。</p>
+<p>swap<br>
+这些列显示交换活动：操作系统每秒（从磁盘）换入和换出（到磁盘）的块数。它们比swpd列更重要。我们大多数时候都希望看到si和so列的值为0，绝对不希望看到每秒超过10个块。当然这两个值突然增加也是不好的。</p>
+<p>io<br>
+这些列显示每秒从块设备中读入（b i）和写入块设备（b o）的块数。这通常反映了磁盘I/O。</p>
+<p>system<br>
+这些列显示每秒中断数（in）和每秒上下文切换数（cs）。</p>
+<p>cpu<br>
+这些列分别显示运行用户（非内核）代码、运行系统（内核）代码、空闲和等待I/O所花费的CPU总时间百分比。如果使用了虚拟化，可能会有第5列（st），显示从虚拟机“窃取”的百分比。这是指虚拟机上可以运行某些内容，但虚拟机管理程序（hypervisor）却选择运行其他内容的时间。如果虚拟机不想运行任何内容，而虚拟机管理程序运行其他内容，则不算“窃取”时间。</p>
+<p>vmstat的输出结果是和系统相关的，所以如果你的vmstat操作手册与这里展示的示例不同，那么应该阅读系统的vmstat操作手册。</p>
+<hr>
+<p>默认情况下，它显示与vmstat相同的CPU使用信息。不过，我们通常只对I/O统计数据感兴趣，可以使用以下命令仅显示扩展的设备统计数据<br>
+<code class="inline-code">iostat -dxk 5</code></p>
+<p>rrqm/s和wrqm/s<br>
+每秒进入队列的合并读写请求数。合并意味着操作系统从队列中获取多个逻辑请求，并将它们组合成对实际设备的单个请求。</p>
+<p>r/s和w/s<br>
+每秒发送到设备的读写请求数。</p>
+<p>rkB/s和wkB/s<br>
+以KB为单位每秒读写的吞吐量。</p>
+<p>avgrq-sz<br>
+以扇区为单位的请求大小。</p>
+<p>avgqu-sz<br>
+设备队列中等待的请求数。</p>
+<p>await<br>
+在磁盘队列中花费的毫秒数。</p>
+<p>r_await和w_await<br>
+向要服务的设备发出读取和写入请求的平均时间（毫秒）。包括请求在队列中等待的时间以及为它们提供服务所花费的时间。</p>
+<p>svctm<br>
+服务请求所花费的毫秒数，不包括队列时间</p>
+<p>%util<br>
+至少有一个请求处于活动状态的时间百分比。这是一个令人困惑的名字。如果你熟悉排队理论中使用率的标准定义，那么这不是设备的使用率。具有多个硬盘驱动器的设备（如RAID控制器）应该能够支持高于1的并发性，但是%util永远不会超过100%，除非用于计算它的数学中存在舍入误差。因此，它并不是一个很好的设备饱和的指示，这与文档中所说的不同，除非是在查看单个物理硬盘驱动器的特殊情况下。</p>
+<p>读写速率的时间单位为秒，而服务时间的单位为毫秒，使用利特尔法则推导出设备正在服务的并发请求数的公式<br>
+<code class="inline-code">并发读 = (r/s + w/s) * (svctm/1000)</code></p>
+<h1 id="ch5-优化服务器设置">ch5 优化服务器设置</h1>
+<p>应该根据工作负载、数据和应用程序需求来配置服务器，而不仅仅是根据硬件来配置</p>
+<p>MySQL有许多可以更改但不应该更改的设置。<br>
+通常更好的做法是<mark>正确地配置基本设置</mark>（在大多数情况下，只有少数设置是重要的），<br>
+并将更多的时间<mark>花在schema优化、索引和查询设计</mark>上。<br>
+在正确设置MySQL的基本配置选项之后，从进一步的更改中获得的潜在收益通常很小。</p>
+<p>修改配置的潜在缺点可能是巨大的。<br>
+MySQL的默认设置是有充分理由的</p>
+<p><mark>首先</mark>应该确保<mark>InnoDB缓冲池和日志文件大小等基本设置是合适的</mark>。<br>
+然后，如果你想防止不希望的行为出现，应该设置一些<mark>安全选项</mark>（但请注意，这些通常不会提高性能，只会避免问题），然后保持<mark>其他的设置不变</mark>。<br>
+如果遇到问题，首先要仔细诊断。</p>
+<p>另一个节省时间和避免麻烦的好方法是使用默认设置，除非你<mark>明确知道不应该使用默认设置</mark>。<br>
+很多默认设置都是安全的，很多人都会直接使用。这使默认设置成为测试最彻底的设置。</p>
+<h2 id="mysql的配置是如何工作的">MySQL的配置是如何工作的</h2>
+<p>MySQL从何处获取配置信息：命令行参数 和 配置文件中的设置项。</p>
+<p>在类UNIX系统上，配置文件通常位于/etc/my.cnf或/etc/mysql/my.cnf。</p>
+<h3 id="查询读取的配置文件">查询读取的配置文件</h3>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="shell" data-joplin-source-open="```shell&#10;" data-joplin-source-close="&#10;```">which mysqld
+/usr/sbin/mysqld --verbose --help | grep -A 1 'Default options'</pre><pre class="hljs"><code>which mysqld
+/usr/sbin/mysqld --verbose --help | grep -A 1 &#x27;Default options&#x27;</code></pre></div>
+<p>配置文件采用标准INI格式，被分为多个部分，每个部分都以一行包含在方括号中的该部分名称开头。</p>
+<p>MySQL程序通常会读取与该程序同名的部分，很多客户端程序也会读取client部分，这为你提供了放置公共设置的位置。<br>
+服务器通常读取mysqld部分。确保将设置放在文件的正确部分，否则它们将不起作用。</p>
+<p>配置设置全部用小写字母书写，单词之间以下画线或短横线分隔。这两种写法是等效的</p>
+<p>配置设置可以有多个作用域。有些设置是服务器范围的（全局作用域），有些设置对于每个连接都不同（会话作用域），有些设置是基于每个对象的。</p>
+<p>。。跳<br>
+。。一些配置项的讲解<br>
+。。缓冲区，事务日志，表空间，IO，安全，并发，等的配置</p>
+<h1 id="ch06-schema设计与管理">ch06 schema设计与管理</h1>
+<h2 id="选择优化的数据类型">选择优化的数据类型</h2>
+<p>选择正确的数据类型对于获得高性能至关重要</p>
+<p>几个原则</p>
+<ul>
+<li>更小的通常更好<br>
+使用能够正确存储和表示数据的最小数据类型。更小的数据类型通常更快，因为它们占用的磁盘、内存和CPU缓存的空间更少，并且处理时需要的CPU周期也更少。</li>
+<li>简单为好<br>
+简单数据类型的操作通常需要更少的CPU周期。<br>
+例如，整型数据比字符型数据的比较操作代价更低，因为字符集和排序规则（collation）使字符型数据的比较更复杂。<br>
+两个例子：一个是应该将日期和时间存储为MySQL的内置类型而不是字符串类型，另外一个是应该用整型数据存储IP地址。</li>
+<li>尽量避免存储NULL<br>
+通常情况下最好指定列为NOT NULL，除非明确需要存储NULL值。<br>
+如果查询中包含可为NULL的列，对MySQL来说更难优化，因为可为NULL的列使得索引、索引统计和值比较都更复杂。可为NULL的列会使用更多的存储空间，在MySQL里也需要特殊处理。<br>
+通常把可为NULL的列改为NOT NULL带来的性能提升比较小，所以（调优时）没有必要首先在现有schema中查找并修改这种情况，除非确定这会导致问题。</li>
+</ul>
+<p>在为列选择数据类型时，<br>
+第一步需要确定合适的大类型：数字、字符串、时间等。<br>
+下一步是选择具体类型。很多MySQL数据类型可以存储相同类型的数据，但在存储的值范围、表示的精度或者需要的物理空间（磁盘和内存）上存在着差异。</p>
+<p>如果建表时采用数据类型的别名，然后用SHOW CREATE TABLE检查，会发现MySQL报告的是基本类型，而不是别名。</p>
+<h3 id="整数类型">整数类型</h3>
+<p>数字有2种：整数，实数</p>
+<p>整数，可以用：<mark>tinyint,smallint,mediumint,int,bigint. 分别使用 8,16,24,32,64 位</mark></p>
+<p>整数类型有可选的<mark>UNSIGNED属性</mark>，表示不允许负值，这大致可以使正数的上限提高一倍</p>
+<p>整数计算通常使用64位的BIGINT整数。（一些聚合函数是例外，它们使用DECIMAL或DOUBLE进行计算。）</p>
+<p>MySQL可以为整数类型指定宽度，例如，INT（11），这对大多数应用毫无意义：它不会限制值的合法范围，只是规定了MySQL的一些交互工具（例如，MySQL命令行客户端）用来显示字符的个数。<br>
+对于存储和计算来说，<mark>INT（1）和INT（20）是相同的</mark>。</p>
+<h3 id="实数类型">实数类型</h3>
+<p>MySQL既支持精确类型，也支持不精确类型。</p>
+<p>FLOAT列使用4字节的存储空间。DOUBLE占用8字节</p>
+<p>由于额外的空间需求和计算成本，应该尽量只在对小数进行精确计算时才使用DECIMAL——例如，存储财务数据。<br>
+但在一些大容量的场景，可以考虑使用BIGINT代替DECIMAL，将需要存储的货币单位根据小数的位数乘以相应的倍数即可。这样可以同时避免浮点存储计算不精确和DECIMAL精确计算代价高的问题。 。。但是忘记/100就完蛋啦。 不过这种应该很容易测试出来。</p>
+<h3 id="字符串类型">字符串类型</h3>
+<p>varchar,char<br>
+很难精确地解释这些值是如何存储在磁盘和内存中的<br>
+下面的描述假设使用的存储引擎是InnoDB。</p>
+<p>varchar<br>
+存储可变长的字符串，是最常见的字符串数据类型。<br>
+它比固定长度的类型<mark>更节省空间</mark>，因为它仅使用必要的空间</p>
+<p>VARCHAR需要<mark>额外使用1或2字节记录字符串的长度</mark>：如果列的最大长度小于或等于255字节，则只使用1字节表示，否则使用2字节</p>
+<p>由于行是可变长度的，在更新时可能会增长，这会导致额外的工作<br>
+如果行的增长使得原位置无法容纳更多内容，则处理行为取决于所使用的存储引擎。<br>
+例如，InnoDB可能需要<mark>分割页面</mark>来容纳行。其他一些存储引擎也许不在原数据位置更新数据。</p>
+<p>VARCHAR适用于</p>
+<ul>
+<li>字符串列的最大长度远大于平均长度</li>
+<li>列的更新很少</li>
+<li>使用了像UTF-8这样复杂的字符集，每个字符都使用不同的字节数进行存储。</li>
+</ul>
+<p>InnoDB更为复杂，它可以将过长的VARCHAR值存储为BLOB。</p>
+<p>char<br>
+固定长度<br>
+当存储CHAR值时，<mark>MySQL删除所有尾随空格</mark>。如果需要进行比较，值会用空格填充。<br>
+。。varchar不会删除 尾巴的空格</p>
+<p>适合存储非常短的字符串，或者适用于<mark>所有值的长度都几乎相同</mark>的情况<br>
+例如，对于用户密码的MD5值，CHAR是一个很好的选择，它们的长度总是相同的<br>
+对于<mark>经常修改</mark>的数据，CHAR也比VARCHAR更好，因为固定长度的行不容易出现碎片<br>
+对于非常短的列，CHAR也比VARCHAR更高效，因为varchar需要额外1字节保存长度。</p>
+<p>与CHAR和VARCHAR类似的类型还有<mark>BINARY和VARBINARY</mark>，它们存储的是<mark>二进制字符串</mark>。<br>
+当需要存储二进制数据，并且希望MySQL将值作为字节而不是字符进行比较时，这些类型非常有用。</p>
+<p>使用VARCHAR（5）和VARCHAR（200）存储'hello'的空间开销是一样的。那么使用更短的列有什么优势吗？<br>
+事实证明有很大的优势。<br>
+较大的列会使用更多的内存，因为MySQL通常会在内部分配固定大小的内存块来保存值。<br>
+这对于使用内存临时表的排序或操作来说尤其糟糕。<br>
+在利用磁盘临时表进行文件排序时也同样糟糕。</p>
+<p>最好的策略是只分配真正需要的空间。</p>
+<p>blob,text</p>
+<p>BLOB和TEXT都是为存储很大的数据而设计的字符串数据类型，分别采用<mark>二进制</mark>和<mark>字符</mark>方式存储。</p>
+<p>实际上，它们分别属于两组不同的数据类型家族：<br>
+字符类型是TINYTEXT、SMALLTEXT、TEXT、MEDIUMTEXT和LONGTEXT；<br>
+二进制类型是TINYBLOB、SMALLBLOB、BLOB、MEDIUMBLOB、LONGBLOB。</p>
+<p>BLOB是SMALLBLOB的同义词，TEXT是SMALLTEXT的同义词。</p>
+<p>MySQL把每个BLOB和TEXT值当作一个具有自己标识的对象来处理。<br>
+存储引擎通常会专门存储它们。<br>
+当BLOB和TEXT值太大时，InnoDB会使用独立的“外部”存储区域，此时每个值在行内需要1～4字节的存储空间，然后在外部存储区域需要足够的空间来存储实际的值。</p>
+<p>BLOB和TEXT家族之间的唯一区别是，BLOB类型存储的是二进制数据，没有排序规则或字符集，但TEXT类型有字符集和排序规则。</p>
+<p>MySQL对BLOB和TEXT列的排序与其他类型不同：它只对这些列的<mark>最前max_sort_length字节</mark>而不是整个字符串<mark>做排序</mark>。<br>
+如果只需要按前面少数几个字符排序，可以减小max_sort_length服务器变量的值。</p>
+<p>MySQL不能将BLOB和TEXT数据类型的完整字符串放入索引，也不能使用索引进行排序。</p>
+<p>某些应用程序接受上传的<mark>图像</mark>并将其<mark>作为BLOB数据存储</mark>在MySQL数据库中，这是很常见的。<br>
+随着数据大小的增长，修改schema等操作会由于BLOB数据的大小而变得越来越慢。<br>
+如果可以避免的话，不要在数据库中存储像图像这样的数据。<br>
+相反，应该将它们写入单独的对象数据存储，并使用该表来跟踪图像的位置或文件名。</p>
+<p>使用枚举代替字符串类型</p>
+<p>ENUM列可以存储一组预定义的不同字符串值。<br>
+MySQL在存储枚举时非常紧凑，会根据列表值的数量压缩到1或者2字节中。</p>
+<p>如果ENUM经常更改，这种操作需求可能会带来很大的不便</p>
+<h3 id="日期和时间类型">日期和时间类型</h3>
+<p>MySQL可以存储的最小时间粒度是微秒。</p>
+<p>DateTime, Timestamp</p>
+<h4 id="datetime">DateTime</h4>
+<p>保存大范围的数值，从1000年到9999年，精度为1微秒。<br>
+以YYYYMMDDHHMMSS格式存储压缩成整数的日期和时间，且与时区无关。<br>
+这需要8字节的存储空间。</p>
+<p>默认情况下，MySQL以可排序、无歧义的格式显示DATETIME值</p>
+<h4 id="timestamp">Timestamp</h4>
+<p>TIMESTAMP类型存储自1970年1月1日格林尼治标准时间（GMT）午夜以来经过的秒数——与UNIX时间戳相同</p>
+<p>TIMESTAMP只使用4字节的存储空间</p>
+<p>只能表示从1970年到2038年1月19日</p>
+<p>时间戳显示的值依赖于时区。MySQL服务器、操作系统和客户端连接都有时区设置。</p>
+<p>默认情况下，当插入一行记录时没有指定第一个TIMESTAMP列的值，MySQL会将该列的值设置为当前时间<br>
+当更新一行记录时没有指定第一个TIMESTAMP列的值，MySQL默认也会将该列的值更新为当前时间。<br>
+TIMESTAMP列在默认情况下为NOT NULL</p>
+<h3 id="位压缩数据类型">位压缩数据类型</h3>
+<p>MySQL有几种使用值中的单个位来紧凑地存储数据的类型。所有这些位压缩类型，不管底层存储和处理方式如何，从技术上来说都是字符串类型。</p>
+<p>BIT<br>
+存储一个或多个true/false值。BIT（1）定义一个包含1位的字段，BIT（2）存储2位的字段，依此类推；<br>
+BIT列的最大长度为64位<br>
+MySQL在处理时会将BIT视为字符串类型，而不是数字类型</p>
+<p>如果在数字上下文中检索该值，则会将BIT字符串转换为数字.这可能会让人非常困惑，因此我们建议谨慎使用BIT类型。对于大多数应用来说，最好避免使用这种类型。</p>
+<p>如果想在1位的存储空间中存储true/false值，另一个方法是创建一个可为空的CHAR（0）列。该列可以存储空值（NULL）或长度为零的值（空字符串）。但可能对使用数据库中该数据的其他人来说是难以理解的，并且使编写查询变得困难。</p>
+<p>除非你非常注重节省空间，否则我们仍然建议使用TINYINT。</p>
+<p>SET<br>
+如果需要存储多个true/false值，可以考虑使用MySQL原生的SET数据类型，可以将多列组合成一列，这在MySQL内部是以一组打包的位的集合来表示的。</p>
+<p>MySQL具有FIND_IN_SET()和FIELD()等函数，使其易于在查询中使用。</p>
+<p>SET的另一种替代方法是使用整数作为二进制位的打包集合。例如，可以在TINYINT中打包8位，并使用逐位操作符对它们进行操作。可以在应用程序代码中为每个位定义命名常量来简化这一过程。</p>
+<p>与SET相比，这种方法的主要优点是可以在不使用ALTER TABLE的情况下更改字段表示的“枚举”。缺点是查询更难编写和理解（当设置第5位时是什么意思）。有些人喜欢位操作，有些人则不喜欢，所以是否想尝试这种技术很大程度上取决于个人的偏好。</p>
+<h3 id="json数据类型">JSON数据类型</h3>
+<p>json 比 转化为列， 存储空间是 5:3， json占用的空间更多，因为它要保存 属性名，引号，冒号，逗号 等。</p>
+<p>查询速度， json 加上虚拟列 并创建索引后  和  创建索引的表  的速度差不多，稍微慢一点。</p>
+<h3 id="选择标识符">选择标识符</h3>
+<p>标识符是引用行及通常使其唯一的方式</p>
+<p>整数类型<br>
+整数通常是标识符的最佳选择，因为它们速度快，并且可以自动递增。<br>
+AUTO_INCREMENT是一个列属性</p>
+<p>应该确保选择适合预期数据增长的整数大小，与<mark>整数意外耗尽</mark>有关的系统停机事故可不止发生一次。</p>
+<p>ENUM和SET类型<br>
+通常是糟糕的选择</p>
+<p>字符串类型<br>
+如果可能，应<mark>避免</mark>使用字符串类型作为标识符的数据类型，因为它们很消耗空间，而且通常比整数类型慢。</p>
+<p>对于完全“随机”的字符串要非常小心，如MD5()、SHA1()或UUID()生成的字符串。<br>
+这些函数生成的新值会任意分布在很大的空间内，这会减慢INSERT和某些类型的SELECT查询的速度：</p>
+<ul>
+<li>因为插入的值会写到索引的随机位置，所以会使得INSERT查询变慢。这会导致<mark>页分裂、磁盘随机访问</mark>，以及对于聚簇存储引擎产生<mark>聚簇索引碎片</mark>。</li>
+<li>SELECT查询也会变慢，因为逻辑上相邻的行会<mark>广泛分布在<strong>磁盘和内存</strong>中</mark>。</li>
+<li>对于所有类型的查询，随机值都会导致缓存的性能低下，因为它们会破坏<mark>引用的局部性</mark>，而<mark>这正是缓存的工作原理</mark>。如果整个数据集都是“热的”，那么将任何特定部分的数据缓存到内存中都没有任何好处，而且如果工作集比内存大，缓存就会出现大量刷新和不命中。</li>
+</ul>
+<p>如果存储通用唯一标识符（UUID）值，则应该<mark>删除破折号</mark><br>
+或者更好的做法是，使用==UNHEX()<mark>函数将UUID值转换为16字节的数字，并将其存储在一个</mark>BINARY（16）==列中。可以使用HEX()函数以十六进制格式检索值。</p>
+<h3 id="特殊数据类型">特殊数据类型</h3>
+<p>通常使用VARCHAR（15）列来存储IP地址</p>
+<p>然而，它们实际上是32位无符号整数，而不是字符串。<br>
+所以应该将I P地址存储为无符号整数。</p>
+<p>MySQL提供了INET_ATON()和INET_NTOA()函数来在这两种表示形式之间进行转换。<br>
+使用的空间从VARCHAR（15）的约16字节缩减到无符号32位整数的4字节。</p>
+<p>如果你担心数据库的可读性，不想继续使用函数查看行数据，请记住MySQL有视图，可以使用视图来简化数据查看的复杂性。</p>
+<h2 id="mysql-schema设计中的陷阱">MySQL schema设计中的陷阱</h2>
+<h3 id="太多的列">太多的列</h3>
+<p>存储引擎API 通过在 服务器和 存储引擎之间 以 行缓冲区格式 复制行 来工作。<br>
+服务器将缓冲区解码为列<br>
+将行缓冲区转换为具有解码列的行数据结构的操作代价是非常高的<br>
+InnoDB的行格式总是需要转换的。这种转换的成本取决于列数。</p>
+<p>当调查一个具有非常宽的表（数百列）的客户的高CPU消耗问题时，我们发现这种转换代价可能会变得非常昂贵，尽管实际上只使用了几列。<br>
+如果计划使用数百列，请注意服务器的性能特征会有所不同。</p>
+<h3 id="太多的联接">太多的联接</h3>
+<p>所谓的实体属性值（entity attribute value，EAV）设计模式是一种被普遍认为糟糕的设计模式的典型案例，尤其是在MySQL中效果不佳。</p>
+<p>MySQL限制每个联接有61个表，而E AV模式设计的数据库需要许多自联接。</p>
+<p>一个粗略的经验法则是，如果需要以高并发性快速执行查询，那么每个查询最好少于十几个的表。<br>
+。。。十几个表。。</p>
+<h3 id="全能的枚举">全能的枚举</h3>
+<p>要小心过度使用ENUM。</p>
+<h3 id="变相的枚举">变相的枚举</h3>
+<p>ENUM列允许在列中保存一组已定义值中的单个值。<br>
+SET列则允许在列中保存一组已定义值中的一个或多个值。有时很容易混淆</p>
+<h3 id="null不是虚拟值">NULL不是虚拟值</h3>
+<p>避免使用NULL的好处，并且建议尽可能考虑其他选择</p>
+<p>遵循这个原则也不要走极端。当需要表示未知值时，不要太害怕使用NULL。</p>
+<p>MySQL会对NULL值进行索引，而Oracle则不会。</p>
+<h2 id="schema管理">schema管理</h2>
+<p>本节将介绍如何将schema变更管理视为“数据存储平台”的一部分</p>
+<p>。。运维一类。信息挺多的。感觉用不到。</p>
+<h1 id="ch07-创建高性能的索引">ch07 创建高性能的索引</h1>
+<p>索引，在MySQL中也叫作键（key），是存储引擎用于快速找到记录的一种数据结构。</p>
+<p>索引优化应该是对查询性能优化最有效的手段了。<br>
+索引能够轻易将查询性能提高几个数量级，“最优”的索引有时比一个“好的”索引性能要好两个数量级。</p>
+<h2 id="索引基础">索引基础</h2>
+<p>索引可以包含一列或多列的值。<br>
+如果索引包含多列，那么列的顺序也十分重要，因为MySQL只能有效地使用索引的最左前缀列。</p>
+<h3 id="索引类型">索引类型</h3>
+<p>索引是在存储引擎层而不是服务器层实现的</p>
+<h4 id="b-tree-索引">B-tree 索引</h4>
+<p>NDB集群存储引擎虽然依然使用了BTREE标识，但在其内部实际上使用了T-tree结构存储这种索引，InnoDB则使用的是B+tree</p>
+<p>。。 T-tree是一种一个节点中包含多个索引条目的平衡二叉树,T-tree的索引项无论是从大小还是算法上都比B-tree精简得多</p>
+<p>B-tree通常意味着所有的值都是按顺序存储的，并且每一个叶子页到根的距离相同<br>
+下图中，叶子节点保存的是 <mark>指针</mark><br>
+<img src="../_resources/863ae3f963fb407e82b660b3727fb86e.png" alt="9b87c3dbb5077babdfff5c45325f386c.png"></p>
+<p>InnoDB存储引擎有一个被称为<mark>自适应哈希索引</mark>的特性。<br>
+当InnoDB发现某些<mark>索引值被非常频繁地被访问</mark>时，它会在原有的B-tree索引之上，在内存中再构建一个哈希索引</p>
+<p>B-tree索引适用于全键值、键值范围或键前缀查找。其中键前缀查找只适用于根据最左前缀的查找。</p>
+<p>前面所述的索引对如下类型的查询有效：</p>
+<ul>
+<li>全值匹配<br>
+全值匹配指的是和索引中的所有列匹配</li>
+<li>匹配最左前缀<br>
+前面提到的索引可用于查找所有姓为Allen的人，即只使用索引的第一列。</li>
+<li>匹配列前缀<br>
+也可以只匹配某一列的值的开头部分。例如，前面提到的索引可用于查找所有姓以J开头的人。这里也只使用了索引的第一列。</li>
+<li>匹配范围值<br>
+前面提到的索引可用于查找姓在Allen和Barrymore之间的人。这里也只使用了索引的第一列。</li>
+<li>精确匹配某一列而范围匹配另一列<br>
+前面提到的索引也可用于查找所有姓为Allen，并且名字是字母K开头（比如Kim、Karl等）的人，即第一列last_name是全匹配，第二列first_name是范围匹配。</li>
+<li>只访问索引的查询<br>
+B-tree索引通常可以支持“只访问索引的查询”，即<mark>查询只需要访问索引，而无须访问数据行</mark>。后面我们将单独讨论这种“<mark>覆盖索引</mark>”的优化。</li>
+</ul>
+<p>B-tree索引的限制：</p>
+<ul>
+<li>如果不是按照索引的最左列开始查找，则无法使用索引。</li>
+<li>不能跳过索引中的列。</li>
+<li>如果查询中有某列的范围查询，则其右边所有列都无法使用索引优化查找</li>
+</ul>
+<h4 id="全文索引">全文索引</h4>
+<p>FULLTEXT是一种特殊类型的索引，它查找的是文本中的关键词，而不是直接比较索引中的值。<br>
+全文索引和其他几类索引的匹配方式完全不一样。它有许多需要注意的细节，如停用词、词干、复数、布尔搜索等。<br>
+全文索引更类似于搜索引擎做的事情，而不是简单的WHERE条件匹配。</p>
+<p>在相同的列上同时创建全文索引和基于值的B-tree索引并不会有冲突，全文索引适用于MATCH AGAINST操作，而不是普通的WHERE条件操作。</p>
+<h3 id="使用索引的优点">使用索引的优点</h3>
+<p>索引可以让服务器快速地定位到表的指定位置。</p>
+<p>最常见的B-tree索引，按照<mark>顺序存储</mark>数据，所以MySQL可以<mark>用来做ORDER BY和GROUP BY</mark>操作。<br>
+因为数据是有序的，所以B-tree也就会将相关的列值都存储在一起。<br>
+最后，因为<mark>索引中存储了实际的列值</mark>，所以某些查询<mark>只使用索引就能够完成全部查询</mark>。<br>
+据此特性，总结下来索引有如下三个优点：</p>
+<ul>
+<li>索引大大减少了服务器需要扫描的数据量。</li>
+<li>索引可以帮助服务器避免排序和临时表。</li>
+<li>索引可以将随机I/O变为顺序I/O。</li>
+</ul>
+<p>索引 这个主题完全值得单独写一本书，如果想深入理解这部分内容，强烈建议阅读由Tapio Lahdenmaki和Mike Leach编写的Relational Database Index Design and the Optimizers（Wiley出版社出版）一书<br>
+。《数据库索引设计与优化》</p>
+<h2 id="高性能的索引策略">高性能的索引策略</h2>
+<h3 id="前缀索引和索引的选择性">前缀索引和索引的选择性</h3>
+<p>有时候为了提升索引的性能，同时也节省索引空间，可以只对字段的前一部分字符进行索引，这样做的缺点是，会降低索引的选择性。<br>
+索引的选择性是指，不重复的索引值（也称为基数，cardinality）和数据表的记录总数（＃T）的比值，范围从1/＃T到1之间。<br>
+索引的选择性越高则查询效率越高，因为选择性高的索引可以让MySQL在查找时过滤掉更多的行。<br>
+唯一索引的选择性是1，这是最好的索引选择性，性能也是最好的。</p>
+<p>。。唯一索引，n条数据 有 n个 不同的索引值，所以 n/n == 1</p>
+<p>一般情况下，列前缀的选择性也是足够高的，足以满足查询性能。<br>
+对于BLOB、TEXT或者<mark>很长的VARCHAR</mark>类型的列，<mark>必须使用前缀索引</mark>，因为MySQL并不支持对这些列的完整内容进行索引。</p>
+<p>这里的关键点在于，既要选择足够长的前缀以保证较高的选择性，同时又不能太长（以便节约空间）。<br>
+前缀应该足够长，以使得前缀索引的选择性接近于索引整列。</p>
+<p>。先group by city, order by cc 下。 然后 left 慢慢增加。 直到 sql结果 和 不带 left 的 差不多。</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="sql" data-joplin-source-open="```sql&#10;" data-joplin-source-close="&#10;```">select count(*) as c, left(city, 3) as pref from sakila.city_demo group by pref order by cc desc limit 10;</pre><pre class="hljs"><code><span class="hljs-keyword">select</span> <span class="hljs-built_in">count</span>(<span class="hljs-operator">*</span>) <span class="hljs-keyword">as</span> c, <span class="hljs-keyword">left</span>(city, <span class="hljs-number">3</span>) <span class="hljs-keyword">as</span> pref <span class="hljs-keyword">from</span> sakila.city_demo <span class="hljs-keyword">group</span> <span class="hljs-keyword">by</span> pref <span class="hljs-keyword">order</span> <span class="hljs-keyword">by</span> cc <span class="hljs-keyword">desc</span> limit <span class="hljs-number">10</span>;</code></pre></div>
+<p>计算合适的前缀长度的另外一个办法就是计算完整列的选择性，并使 前缀的选择性 接近 完整列的选择性<br>
+<code class="inline-code">select count(distinct city)/count(*) from city_demo;</code></p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="sql" data-joplin-source-open="```sql&#10;" data-joplin-source-close="&#10;```">select count(distinct left(city, 3))/count(*) as sel3,
+count(distinct left(city, 4))/count(*) as sel4,
+count(distinct left(city, 5))/count(*) as sel5,
+count(distinct left(city, 6))/count(*) as sel6
+from city_demo;</pre><pre class="hljs"><code><span class="hljs-keyword">select</span> <span class="hljs-built_in">count</span>(<span class="hljs-keyword">distinct</span> <span class="hljs-keyword">left</span>(city, <span class="hljs-number">3</span>))<span class="hljs-operator">/</span><span class="hljs-built_in">count</span>(<span class="hljs-operator">*</span>) <span class="hljs-keyword">as</span> sel3,
+<span class="hljs-built_in">count</span>(<span class="hljs-keyword">distinct</span> <span class="hljs-keyword">left</span>(city, <span class="hljs-number">4</span>))<span class="hljs-operator">/</span><span class="hljs-built_in">count</span>(<span class="hljs-operator">*</span>) <span class="hljs-keyword">as</span> sel4,
+<span class="hljs-built_in">count</span>(<span class="hljs-keyword">distinct</span> <span class="hljs-keyword">left</span>(city, <span class="hljs-number">5</span>))<span class="hljs-operator">/</span><span class="hljs-built_in">count</span>(<span class="hljs-operator">*</span>) <span class="hljs-keyword">as</span> sel5,
+<span class="hljs-built_in">count</span>(<span class="hljs-keyword">distinct</span> <span class="hljs-keyword">left</span>(city, <span class="hljs-number">6</span>))<span class="hljs-operator">/</span><span class="hljs-built_in">count</span>(<span class="hljs-operator">*</span>) <span class="hljs-keyword">as</span> sel6
+<span class="hljs-keyword">from</span> city_demo;</code></pre></div>
+<p><mark>可以看到当前缀达到 x 时，再增加前缀长度， 选择性的提升 幅度已经很小了</mark></p>
+<p>只看平均选择性是不够的，还有例外的情况，需要考虑最坏情况下的选择性。<br>
+平均选择性会让你认为前缀长度为4或者5的索引已经足够了，但如果数据分布很不均匀，可能就会有陷阱。</p>
+<p>在真实的城市名上建一个长度为4的前缀索引，对于以“San”和“New”开头的城市的选择性就会非常糟糕，因为很多城市都以这两个词开头。</p>
+<p>创建前缀索引<br>
+<code class="inline-code">alter table sakila.city_demo add key (city(7));</code><br>
+。。add key。。好像没有这个啊 ，都是 create index xx on xx(xx,xx) , alter table xx add index xx(xx,xx)</p>
+<p>前缀索引是一种能使索引更小、更快的有效办法，但它也有<mark>缺点</mark>：MySQL无法使用前缀索引做ORDER BY和GROUP BY操作，也无法使用前缀索引做覆盖扫描。</p>
+<p>一个常见的场景是针对很长的十六进制唯一ID使用前缀索引。</p>
+<h3 id="多列索引">多列索引</h3>
+<p>在多列上独立地创建多个单列索引，在大部分情况下并不能提高MySQL的查询性能。<br>
+MySQL引入了一种叫“<mark>索引合并</mark>”（index merge）的策略，它在一定程度上可以使用表中的<mark>多个单列索引来定位指定的行</mark>。<br>
+在这种情况下，查询能够同时使用两个单列索引进行扫描，并将结果进行合并。这种算法有三个变种：OR条件的联合（union），AND条件的相交（intersection），组合前两种情况的联合及相交。</p>
+<p>。。所以，where 后面的查询条件 有 多个列，并且 这些列 都有 单列索引， mysql 还是只会选择 一个列 来进行 索引。 当然，可能触发 索引合并。</p>
+<p>可以从 explain 的 Extra 看到，下面就是 使用了2个 索引的联合<br>
+<code class="inline-code">Extra: using union(primary, idx_fk_file_id); using where</code></p>
+<p>索引合并策略有时候效果非常不错，但更多的时候，它说明了表中的索引建得很糟糕：</p>
+<ul>
+<li>
+<p>当优化器需要对多个索引做相交（相交操作是使用“索引合并”的一种情况，另一种是做联合操作）操作时（通常有多个AND条件），通常意味着需要一个包含所有相关列的多列索引，而不是多个独立的单列索引。</p>
+</li>
+<li>
+<p>当优化器需要对多个索引做联合操作时（通常有多个OR条件），通常需要在算法的缓存、排序和合并操作上耗费大量CPU和内存资源，尤其是当其中有些索引的选择性不高，需要合并扫描返回的大量数据的时候。</p>
+</li>
+<li>
+<p>更重要的是，优化器不会把这些操作计算到“查询成本”（cost）中，优化器只关心随机页面读取。这会使得查询的成本被“低估”，导致该执行计划还不如直接进行全表扫描。这样做不但会消耗更多的CPU和内存资源，还可能会影响并发的查询，但如果单独运行这样的查询则往往会忽略对并发性的影响。通常来说，使用UNION改写查询，往往是最好的办法。</p>
+</li>
+</ul>
+<h3 id="选择合适的索引列顺序">选择合适的索引列顺序</h3>
+<p>将选择性最高的列放到索引最前列。这个建议准确吗？<br>
+在很多场景中可能有帮助，但是要全面地考虑各种场景话，考虑如何避免大量随机I/O和排序可能更重要</p>
+<p>当不需要考虑排序和分组时，将选择性最高的列放在前面通常是很好的</p>
+<p>性能不只依赖于所有索引列的选择性（整体基数），也和查询条件的具体值有关，也就是和值的分布有关</p>
+<hr>
+<p>可能需要根据那些运行频率最高的查询来调整索引列的顺序，让这种情况下索引的选择性最高。<br>
+以下面的查询为例<br>
+<code class="inline-code">select * from payment where staff_id=2 and customer_id=584;</code></p>
+<p>应该创建 (staff_id, customer_id) 还是 (customer_id, staff_id) 呢？</p>
+<p>可以通过运行某些查询来确定在这个表中值的分布情况，并确定哪列的选择性更高<br>
+<code class="inline-code">select sum(staff_id=2), sum(customer_id=583) from payment;</code><br>
+返回</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="text" data-joplin-source-open="```text&#10;" data-joplin-source-close="&#10;```">sum(staff_id = 2) : 7992
+sum(customer_id = 584) : 30</pre><pre class="hljs"><code>sum(staff_id = 2) : 7992
+sum(customer_id = 584) : 30</code></pre></div>
+<p>根据前面的经验法则，应该将索引列customer_id放到前面，因为对应条件值的customer_id数量更小。</p>
+<p>我们再来看看对于这个customer_id的条件值，对应的staff_id列的选择性如何：<br>
+<code class="inline-code">select sum(staff_id=2) from payment where customer_id=584</code><br>
+<code class="inline-code">sum(staff_id = 2) : 17</code></p>
+<p>查询的结果<mark>非常依赖</mark>于选定的具体值。<br>
+如果按上述办法优化，可能对其他一些条件值的查询不公平，服务器的整体性能可能会变得更糟，或者其他某些查询的运行变得不如预期。</p>
+<p>如果是从诸如pt-query-digest这样的工具的报告中<mark>提取“最差”查询</mark>，那么再按上述办法选定索引顺序，往往可以获得更好的性能</p>
+<p>如果<mark>没有</mark>运行类似的查询来确认实际的情况，那么<mark>最好还是按经验法则</mark>来做，因为经验法则考虑的是全局基数和选择性，而不是某个具体查询：</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="sql" data-joplin-source-open="```sql&#10;" data-joplin-source-close="&#10;```">select count(distinct staff_id)/count(*) as staff_id_selectively,
+count(distinct customer_id)/count(*) as customer_id_selectively,
+count(*)
+from payment</pre><pre class="hljs"><code><span class="hljs-keyword">select</span> <span class="hljs-built_in">count</span>(<span class="hljs-keyword">distinct</span> staff_id)<span class="hljs-operator">/</span><span class="hljs-built_in">count</span>(<span class="hljs-operator">*</span>) <span class="hljs-keyword">as</span> staff_id_selectively,
+<span class="hljs-built_in">count</span>(<span class="hljs-keyword">distinct</span> customer_id)<span class="hljs-operator">/</span><span class="hljs-built_in">count</span>(<span class="hljs-operator">*</span>) <span class="hljs-keyword">as</span> customer_id_selectively,
+<span class="hljs-built_in">count</span>(<span class="hljs-operator">*</span>)
+<span class="hljs-keyword">from</span> payment</code></pre></div>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="text" data-joplin-source-open="```text&#10;" data-joplin-source-close="&#10;```">staff_id_selectively: 0.0001
+customer_id_selectively: 0.0373
+count(*): 16049</pre><pre class="hljs"><code>staff_id_selectively: 0.0001
+customer_id_selectively: 0.0373
+count(*): 16049</code></pre></div>
+<p>customer_id的选择性更高，所以<mark>答案是</mark>将其作为索引的第一列</p>
+<p>使用前缀索引的时候，在某些条件值的基数比正常值高的时候，问题就来了。</p>
+<p>例如，在某些应用程序中，对于没有登录的用户，都将其用户名记录为“guset”，在记录用户行为的会话（session）表和其他记录用户活动的表中，“guest”就成为一个特殊用户ID，一旦查询涉及这个用户，那么和对于正常用户的查询就大不相同了</p>
+<p>一个应用通常都有一个特殊的管理员账号，和普通账号不同，它并不是一个具体的用户，系统中所有的其他用户都是这个用户的好友，所以系统往往通过它向网站的所有用户发送状态通知和其他消息。<br>
+这个账号的<mark>巨大的好友列表</mark>很容易导致网站出现服务器性能问题。</p>
+<p>对于任何<mark>异常用户</mark>，不仅那些用于管理应用的设计糟糕的账号会有同样的问题，那些拥有<mark>大量好友、图片、状态、收藏的用户</mark>，也会有前面提到的与系统账号一样的问题。</p>
+<p>尽管关于选择性和基数的经验法则值得去研究和分析，但一定别忘了查询子句中的排序、分组和范围条件等其他因素，这些因素可能会对查询的性能造成非常大的影响。</p>
+<h3 id="聚簇索引">聚簇索引</h3>
+<p>聚簇索引并不是一种单独的索引类型，而是一种数据存储方式</p>
+<p>InnoDB的聚簇索引实际上在<mark>同一个结构</mark>中保存了B-tree<mark>索引和数据行</mark>。</p>
+<p>当表有聚簇索引时，它的<mark>数据行</mark>实际上存放在<mark>索引的叶子页</mark>（leaf page）中。术语“聚簇”表示数据行和相邻的键值紧凑地存储在一起</p>
+<p>因为无法同时把数据行存放在两个不同的地方，所以<mark>一个表只能有一个聚簇索引</mark>（不过，<mark>覆盖索引可以模拟多个聚簇索引</mark>的情况，本章后面将详细介绍）。</p>
+<p>存储引擎负责实现索引，因此，不是所有的存储引擎都支持聚簇索引</p>
+<p>下图是 聚簇索引的数据分布<br>
+叶子页包含了一条记录的全部数据，但是节点页只包含了索引列。在这个案例中，索引列包含的是整数值。<br>
+<img src="../_resources/ebd63111930c411782b69f5109692357.png" alt="a1eedd90cd4a460f5a2ad0da734313ea.png"></p>
+<p>InnoDB根据主键聚簇数据。不能自己选择用于聚簇的索引</p>
+<p>如果你没有定义主键，InnoDB会选择一个唯一的非空索引代替。如果没有这样的索引，InnoDB会隐式定义一个主键来作为聚簇索引</p>
+<h4 id="优点">优点</h4>
+<ul>
+<li>你可以把<mark>相互关联的数据保存在一起</mark>。例如，在实现电子邮箱应用时，可以根据用户ID来聚集数据，这样只需要<mark>从磁盘读取少数的数据页</mark>就能获取某个用户的全部邮件。如果没有使用聚簇索引，则每封邮件都可能导致一次磁盘I/O。</li>
+<li><mark>数据访问更快</mark>。聚簇索引将索引和数据保存在同一个B-tree中，因此从聚簇索引中获取数据通常比在非聚簇索引中查找要快。</li>
+<li>使用覆盖索引扫描的查询可以<mark>直接使用页节点中的主键值</mark>。</li>
+</ul>
+<h4 id="缺点">缺点</h4>
+<ul>
+<li>如果数据全部都放在内存中，则访问的顺序就没那么重要了，聚簇索引也就没什么优势了</li>
+<li>插入速度严重依赖于插入顺序。<mark>按照主键的顺序插入行</mark>是将数据加载到InnoDB表中<mark>最快的方式</mark>。但如果不是按照主键的顺序加载数据，那么在加载完成后最好使用<mark>OPTIMIZE TABLE</mark>命令重新组织一下表。</li>
+<li><mark>更新聚簇索引列的代价很高</mark>，因为它会强制InnoDB将每个被更新的行移动到新的位置</li>
+<li>基于聚簇索引的表在插入新行，或者主键被更新导致需要移动行的时候，可能面临<mark>页分裂</mark>（page split）的问题。当行的主键值要求必须将这一行插入某个已满的页中时，存储引擎会将该页分裂成两个页面来容纳该行，这就是一次页分裂操作。页分裂会导致表占用更多的磁盘空间。</li>
+<li>聚簇索引<mark>可能导致全表扫描变慢</mark>，尤其是行比较稀疏，或者由于页分裂导致数据存储不连续的时候。</li>
+<li>二级索引（非聚簇索引）可能比想象中的要更大，因为<mark>二级索引的叶子节点包含了引用行的主键列</mark>。</li>
+<li>二级索引访问<mark>需要两次索引查找</mark>，而不是一次。</li>
+</ul>
+<p>二级索引中保存的是“行指针”。<br>
+要记住，二级索引叶子节点<mark>保存的不是指向行的物理位置的指针，而是行的主键值</mark>。<br>
+做了双倍工作：两次B-tree查找而不是一次。对于InnoDB，自适应哈希索引（参考本章前面的“B-tree索引”一节）能够减少这样的重复工作。</p>
+<h4 id="innodb的数据分布">InnoDB的数据分布</h4>
+<p>表：</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="sql" data-joplin-source-open="```sql&#10;" data-joplin-source-close="&#10;```">create table layout_test (
+  col1 int not null,
+  col2 int not null,
+
+  primary key(col1),
+  key(col2)
+);</pre><pre class="hljs"><code><span class="hljs-keyword">create</span> <span class="hljs-keyword">table</span> layout_test (
+  col1 <span class="hljs-type">int</span> <span class="hljs-keyword">not</span> <span class="hljs-keyword">null</span>,
+  col2 <span class="hljs-type">int</span> <span class="hljs-keyword">not</span> <span class="hljs-keyword">null</span>,
+
+  <span class="hljs-keyword">primary</span> key(col1),
+  key(col2)
+);</code></pre></div>
+<p>假设该表的主键取值为1～10000，按照随机顺序插入并使用OPTIMIZE TABLE命令做了优化。换句话说，数据在磁盘上的存储方式已经最优，但行的顺序是随机的<br>
+列col2的值是从1～100之间随机赋值的，所以有很多重复的值。</p>
+<p>InnoDB表layout test的主键物理存储分布如下：<br>
+<mark>事务ID，回滚指针</mark><br>
+<img src="../_resources/eb254a1e88e44b0d9486f8248dff4fca.png" alt="924e7e2cd67bc43bea81f74df8b8feef.png"></p>
+<p>聚簇索引的每一个叶子节点都包含了主键值、事务ID、用于事务和MVCC的回滚指针，以及所有的剩余列（在这个例子中是col2）。<br>
+如果主键是一个列前缀索引，InnoDB也会包含完整的主键列和剩下的其他列。</p>
+<p>InnoDB的二级索引的叶子节点中存储的是主键值，并以此作为指向行的“指针”。这样的策略减少了当出现行移动或者数据页分裂时二级索引的维护工作</p>
+<p>使用主键值作为指针会让二级索引占用更多的空间，换来的好处是，InnoDB在<mark>移动行时无须更新二级索引中的这个“指针”</mark>。</p>
+<p>InnoDB表layout test的二级索引分布<br>
+InnoDB的非叶子节点包含了索引列和一个指向下级节点的指针。这对聚簇索引和二级索引都适用。<br>
+<img src="../_resources/0955c7dde8304263bac3f2179e3bbb32.png" alt="dbca8be3c3da9b42a4b7ed5f13e32e55.png"></p>
+<h5 id="在innodb表中按主键顺序插入行">在InnoDB表中按主键顺序插入行</h5>
+<p>最好避免随机的（不连续且值的分布范围非常大）聚簇索引，特别是对于I/O密集型的应用。<br>
+从性能的角度考虑，使用UUID作为聚簇索引会很糟糕</p>
+<p>基准测试</p>
+<ul>
+<li>使用自增整数作为主键</li>
+<li>使用uuid作为主键</li>
+</ul>
+<p>插入100万条记录。然后继续插入300万条记录 使得索引的大小超过服务器的内存容量。</p>
+<table>
+<thead>
+<tr>
+<th>表</th>
+<th>行数</th>
+<th>时间秒</th>
+<th>索引大小MB</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>userinfo</td>
+<td>100w</td>
+<td>137</td>
+<td>342</td>
+</tr>
+<tr>
+<td>userinfo_uuid</td>
+<td>100w</td>
+<td>180</td>
+<td>544</td>
+</tr>
+<tr>
+<td>userinfo</td>
+<td>300w</td>
+<td>1233</td>
+<td>1036</td>
+</tr>
+<tr>
+<td>userinfo_uuid</td>
+<td>300w</td>
+<td>4525</td>
+<td>1707</td>
+</tr>
+</tbody>
+</table>
+<p>向UUID主键插入行不仅花费的时间更长，而且索引占用的空间也更大。一方面是由于主键字段更长；另一方面，无疑是由于页分裂和碎片导致的。</p>
+<p>。。时间，是不是由于 索引太大，导致 内存和磁盘 页交换 所以 300w的时候 uuid直接4倍。</p>
+<p>因为主键的值是顺序的，所以InnoDB把每一条记录都<mark>存储在上一条记录的后面</mark>。<br>
+当达到页的最大填充因子时（InnoDB默认的<mark>最大填充因子是页大小的15/16</mark>，留出部分空间用于以后修改），下一条记录就会被写入新的页中。<br>
+一旦数据按照这种顺序写入，主键页就会<mark>近似于被顺序的记录填满</mark>，这也正是所期望的结果（然而，二级索引页可能有所不同）。</p>
+<p>因为新写入的记录的主键值不一定比之前插入的大，所以InnoDB无法简单地总是把新记录插到索引的最后，而是需要为新记录寻找合适的位置——通常是已有数据的中间位置——并且分配空间。<br>
+这会增加很多额外工作，并导致数据分布不够优化。下面是总结的一些缺点：</p>
+<ul>
+<li>写入的目标页可能已经刷到磁盘上并从缓存中移除，或者还没有被加载到缓存中，InnoDB在插入之前不得不先找到，并<mark>从磁盘将目标页读取到内存中</mark>。这将导致<mark>大量的随机</mark>I/O。</li>
+<li>因为写入是<mark>乱序</mark>的，所以InnoDB不得不频繁地做<mark>页分裂</mark>操作，以便为新记录分配空间。页分裂会导致<mark>移动大量数据</mark>，一次插入最少需要修改三个页而不是一个。</li>
+<li>由于频繁的页分裂，<mark>页会变得稀疏</mark>并被不规则地填充，所以最终<mark>数据会有碎片</mark>。</li>
+</ul>
+<p>在把这些随机值载入聚簇索引后，最好做一次OPTIMIZE TABLE来重建表并优化页的填充情况。</p>
+<h5 id="什么时候按主键顺序插入反而会更糟">什么时候按主键顺序插入反而会更糟</h5>
+<p>对于<mark>高并发</mark>的工作负载，在InnoDB中按主键顺序插入可能会造成<mark>明显的写入竞争</mark>。<br>
+主键的上界会成为“热点”。<br>
+因为<mark>所有的插入都发生在这里</mark>，所以并发插入可能导致<mark>间隙锁竞争</mark>。<br>
+另一个热点可能是<mark>AUTO_INCREMENT锁</mark>机制；如果遇到这个问题，则可能需要考虑重新设计表或者应用，或者更改<mark>innodb_autoinc_lock_mode</mark>配置。<br>
+如果你的服务器版本还不支持innodb_autoinc_lock_mode参数，可以将其升级到新版本的InnoDB，该版本对这种场景会适应得更好。</p>
+<h3 id="覆盖索引">覆盖索引</h3>
+<p>大家通常都会根据查询的WHERE条件来创建合适的索引，不过这只是索引优化的一个方面。</p>
+<p>如果一个索引包含（或者说覆盖）所有需要查询的字段的值，我们就称之为覆盖索引。需要注意的是，只有B-tree索引可以用于覆盖索引。</p>
+<p>查询只需要扫描索引而无须回表</p>
+<ul>
+<li>索引条目通常远小于数据行大小，所以如果只需要读取索引，那么MySQL就会极大地减少数据访问量。</li>
+<li>因为索引是按照列值的顺序存储的（至少在单页内如此），所以对于I/O密集型的范围查询会比随机从磁盘读取每一行数据的I/O要少得多</li>
+<li>由于InnoDB的聚簇索引的特点，覆盖索引对InnoDB表特别有用。InnoDB的二级索引在叶子节点中保存了记录的主键值，所以如果二级索引能够覆盖查询，则可以避免对主键索引的二次查询。</li>
+</ul>
+<h3 id="使用索引扫描来做排序">使用索引扫描来做排序</h3>
+<p>MySQL有两种方式可以生成有序的结果：通过排序操作，或者按索引顺序扫描</p>
+<p>在EXPLAIN的输出结果中，type列的值为“index”，则说明MySQL使用了<mark>索引扫描</mark>来做排序</p>
+<p>扫描索引本身是很快的，因为只需要从一条索引记录移动到紧接着的下一条记录。<br>
+但如果索引不能覆盖查询所需的全部列，那么就不得不每扫描一条索引记录都<mark>回表</mark>查询一次对应的记录。<br>
+这基本上都是<mark>随机I/O</mark>，因此按索引顺序读取数据的速度通常要<mark>比顺序地全表扫描慢</mark>，尤其是在I/O密集型的应用负载上。</p>
+<p>MySQL可以使用同一个索引既满足排序，又用于查找行。因此，如果可能，设计索引时应该尽可能地同时满足这两项任务，这样是最好的。</p>
+<p>只有当索引的顺序和ORDER BY子句的顺序完全一致，并且所有列的排序方向（倒序或正序）都一样时，MySQL才能使用索引来对结果做排序。</p>
+<p>如果查询需要联接多张表，则只有当ORDER BY子句引用的字段全部在第一个表中时，才能使用索引做排序。<br>
+ORDER BY子句和查找型查询的限制是一样的：需要满足索引的最左前缀的要求，否则，MySQL需要执行排序操作，而无法利用索引排序。</p>
+<p>有一种特殊情况，如果前导列为常量的时候，ORDER BY子句中的列也可以不满足索引的最左前缀的要求。如果在WHERE子句或者JOIN子句中将这些列指定为了常量，就可以“填补”索引字段的间隙了。</p>
+<p>。。例子</p>
+<h3 id="冗余和重复索引">冗余和重复索引</h3>
+<p>重复索引是指在相同的列上按照相同顺序创建的相同类型的索引。应该避免创建这样的重复索引，发现以后应该立即移除。</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="sql" data-joplin-source-open="```sql&#10;" data-joplin-source-close="&#10;```">create table test (
+  id int not null primary key,
+  a int not null,
+  unique(id),
+  index(id);
+) engin=InnoDB;</pre><pre class="hljs"><code><span class="hljs-keyword">create</span> <span class="hljs-keyword">table</span> test (
+  id <span class="hljs-type">int</span> <span class="hljs-keyword">not</span> <span class="hljs-keyword">null</span> <span class="hljs-keyword">primary</span> key,
+  a <span class="hljs-type">int</span> <span class="hljs-keyword">not</span> <span class="hljs-keyword">null</span>,
+  <span class="hljs-keyword">unique</span>(id),
+  index(id);
+) engin<span class="hljs-operator">=</span>InnoDB;</code></pre></div>
+<p>上面在 id 列上 创建了 3个 重复的index</p>
+<p>冗余索引和重复索引有一些不同。如果创建了索引（A，B），再创建索引（A）就是冗余索引，因为这只是前一个索引的前缀索引</p>
+<p>可以看到，表中的索引越多，插入的速度越慢。一般来说，增加新索引会导致INSERT、UPDATE、DELETE等操作的速度变慢，特别是当新增索引后达到了内存瓶颈的时候。</p>
+<p>解决冗余索引和重复索引的方法很简单，删除这些索引就可以了，但首先要做的是找出这样的索引。可以针对INFORMATION_SCHEMA表编写各种复杂的查询来识别这类索引，也有更简单的技术，比如可以使用Percona工具箱中的pt-duplicate-key-checker，该工具通过分析表结构来找出冗余和重复索引。</p>
+<p>考虑使用MySQL 8.0的不可见索引特性，而不是直接删除索引。要使用这个特性，可以通过ALTER TABLE语句，改变索引的一个标志位，使得优化器在确定执行计划时，忽略该索引。</p>
+<h3 id="未使用的索引">未使用的索引</h3>
+<p>这样的索引完全是累赘，建议删除</p>
+<p>找到未使用索引的最好办法就是使用系统数据库performance_schema和sys。在sys数据库中，在table_io_waits_summary_by_index_usage视图中可以非常简单地知道哪些索引从来没有被使用过：</p>
+<h2 id="维护索引和表">维护索引和表</h2>
+<p>维护表有三个主要目的：找到并修复损坏的表，维护准确的索引统计信息，减少碎片。</p>
+<p>尝试运行CHECK TABLE来检查是否发生了表损坏<br>
+使用REPAIR TABLE命令来修复损坏的表</p>
+<p>可以通过设置innodb_force_recovery参数进入InnoDB的强制恢复模式来修复数据，更多细节可以参考MySQL手册。</p>
+<hr>
+<p>ANALYZE TABLE<br>
+SHOW INDEX FROM命令来查看索引的基数<br>
+INFORMATION_SCHEMA.STATISTICS<br>
+新版本的InnoDB可以通过参数innodb_stats_sample_pages来设置样本页的数量。</p>
+<hr>
+<p>碎片化的索引可能会以很差或者无序的方式存储在磁盘上。</p>
+<p>数据存储的碎片化比索引更加复杂。有三种类型的数据碎片。</p>
+<ul>
+<li>行碎片<br>
+数据行被存储在多个地方的多个片段中。即使查询只从索引中访问一行记录，行碎片也会导致性能下降。</li>
+<li>行间碎片<br>
+逻辑上顺序的页或者行，在磁盘上不是顺序存储的</li>
+<li>剩余空间碎片<br>
+数据页中有大量的空余空间</li>
+</ul>
+<p>可以通过执行OPTIMIZE TABLE或者导出再导入的方式来重新整理数据。</p>
+<p>对于那些不支持OPTIMIZE TABLE的存储引擎，可以通过一个不做任何操作（n o-o p）的ALTER TABLE操作来重建表。只需将表的存储引擎修改为当前的引擎即可：<br>
+<code class="inline-code">alter table &lt;table&gt; engine=&lt;engine&gt;;</code></p>
+<h1 id="ch08-查询性能优化">ch08 查询性能优化</h1>
+<p>前面介绍了 如何设计最优的库表结构、如何建立最好的索引</p>
+<p>但还 需要合理地设计查询</p>
+<p>查询优化、索引优化、库表结构优化需要齐头并进，一个不落。</p>
+<h2 id="为什么查询速度会慢">为什么查询速度会慢</h2>
+<p>在尝试编写快速的查询之前，需要清楚一点，真正重要的是响应时间。<br>
+如果把查询看作一个任务，那么它由一系列子任务组成，每个子任务都会消耗一定的时间。<br>
+如果要优化查询，实际上要优化其子任务，要么消除其中一些子任务，要么减少子任务的执行次数，要么让子任务运行得更快。</p>
+<p>通常来说，查询的<mark>生命周期</mark>大致可以按照如下顺序来看：<br>
+从客户端到服务器，<br>
+然后在服务器上进行语法解析，<br>
+生成执行计划，<br>
+执行，<br>
+并给客户端返回结果。</p>
+<p>其中，“<mark>执行</mark>”可以被认为是整个生命周期中<mark>最重要</mark>的阶段，这其中包括大量为了检索数据对存储引擎的调用以及调用后的数据处理，包括排序、分组等。</p>
+<h2 id="慢查询基础优化数据访问">慢查询基础：优化数据访问</h2>
+<p>一条查询，如果性能很差，最常见的原因是<mark>访问的数据太多</mark>。<br>
+某些查询可能不可避免地需要筛选大量数据，但这并不常见。<br>
+大部分性能低下的查询都可以通过<mark>减少访问的数据量</mark>的方式进行优化。</p>
+<p>对于低效的查询，我们发现通过下面两个步骤来分析总是很有效：</p>
+<ol>
+<li>确认应用程序是否在检索大量且不必要的数据。这通常意味着访问了<mark>太多的行</mark>，但有时候也可能是访问了<mark>太多的列</mark>。</li>
+<li>确认MySQL服务器层是否在分析大量不需要的数据行</li>
+</ol>
+<h3 id="是否向数据库请求了不需要的数据">是否向数据库请求了不需要的数据</h3>
+<h4 id="查询了不需要的记录">查询了不需要的记录</h4>
+<p>一个常见的错误是，常常会误以为MySQL只会返回需要的数据，实际上MySQL却是<mark>先返回全部结果集再进行计算</mark>。<br>
+实际情况是，MySQL会查询出全部的结果集，客户端的应用程序会接收全部的结果集数据，然后抛弃其中大部分数据。最简单有效的解决方法就是在这样的查询后面加上LIMIT子句。</p>
+<h4 id="多表联接时返回全部列">多表联接时返回全部列</h4>
+<h4 id="总是取出全部列">总是取出全部列</h4>
+<h4 id="重复查询相同的数据">重复查询相同的数据</h4>
+<p>当初次查询的时候将这个数据缓存起来</p>
+<h3 id="mysql是否在扫描额外的记录">MySQL是否在扫描额外的记录</h3>
+<p>在<mark>确定查询只返回需要的数据以后</mark>，接下来应该看看查询<mark>为了返回结果是否扫描了过多的数据</mark>。对于MySQL，最简单的衡量查询开销的三个指标如下：</p>
+<ul>
+<li>响应时间<br>
+响应时间是两部分之和：服务时间和排队时间。<br>
+服务时间是指数据库处理这个查询真正花了多长时间。<br>
+排队时间是指服务器因为等待某些资源而没有真正执行查询的时间——可能是等I/O操作完成，也可能是等待行锁，等等。<br>
+遗憾的是，我们无法把响应时间细分到上面这些部分，除非有什么办法能够逐个测量这些消耗，这很难做到。</li>
+<li>扫描的行数与访问类型<br>
+理想情况下扫描的行数和返回的行数应该是相同的<br>
+在做一个联接查询时，服务器必须要扫描多行才能生成结果集中的一行。<br>
+扫描的行数与返回的行数的比率通常很低，一般在1：1到10：1之间，不过有时候这个值也可能非常非常大。<br>
+EXPLAIN语句中的type列反映了访问类型。访问类型有很多种，从<mark>全表扫描到索引扫描、范围扫描、唯一索引查询、常数引用</mark>等</li>
+<li>返回的行数<br>
+如果发现查询需要扫描大量的数据但只返回少数行，那么通常可以尝试下面的技巧去优化它：
+<ul>
+<li>使用<mark>索引覆盖</mark>扫描，<mark>把所有需要用的列都放到索引中</mark>，这样存储引擎无须回表获取对应行就可以返回结果了（在第7章中我们已经讨论过了）。</li>
+<li>改变库表结构。例如，使用单独的汇总表（这是我们在第6章中讨论的办法）。</li>
+<li>重写这个复杂的查询，让MySQL优化器能够以更优化的方式执行这个查询（这是本章后续需要讨论的问题）。</li>
+</ul>
+</li>
+</ul>
+<h2 id="重构查询的方式">重构查询的方式</h2>
+<h3 id="一个复杂查询还是多个简单查询">一个复杂查询还是多个简单查询</h3>
+<h3 id="切分查询">切分查询</h3>
+<p>将大查询切分成小查询，每个查询的功能完全一样，只完成一小部分，每次只返回一小部分查询结果。</p>
+<h3 id="分解联接查询">分解联接查询</h3>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="sql" data-joplin-source-open="```sql&#10;" data-joplin-source-close="&#10;```">select * from tag
+join tag_post on tag_post.tag_id = tag.id
+join post on tag_post.post_id = post.id
+where tag.tag = 'mysql';</pre><pre class="hljs"><code><span class="hljs-keyword">select</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">from</span> tag
+<span class="hljs-keyword">join</span> tag_post <span class="hljs-keyword">on</span> tag_post.tag_id <span class="hljs-operator">=</span> tag.id
+<span class="hljs-keyword">join</span> post <span class="hljs-keyword">on</span> tag_post.post_id <span class="hljs-operator">=</span> post.id
+<span class="hljs-keyword">where</span> tag.tag <span class="hljs-operator">=</span> <span class="hljs-string">&#x27;mysql&#x27;</span>;</code></pre></div>
+<p>可以分解为</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="sql" data-joplin-source-open="```sql&#10;" data-joplin-source-close="&#10;```">select * from tag where tag='mysql';
+select * from tag_post where tag_id = 1234;
+select * from post where post.id in (123,234,345,456,567);</pre><pre class="hljs"><code><span class="hljs-keyword">select</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">from</span> tag <span class="hljs-keyword">where</span> tag<span class="hljs-operator">=</span><span class="hljs-string">&#x27;mysql&#x27;</span>;
+<span class="hljs-keyword">select</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">from</span> tag_post <span class="hljs-keyword">where</span> tag_id <span class="hljs-operator">=</span> <span class="hljs-number">1234</span>;
+<span class="hljs-keyword">select</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">from</span> post <span class="hljs-keyword">where</span> post.id <span class="hljs-keyword">in</span> (<span class="hljs-number">123</span>,<span class="hljs-number">234</span>,<span class="hljs-number">345</span>,<span class="hljs-number">456</span>,<span class="hljs-number">567</span>);</code></pre></div>
+<p>用分解联接查询的方式重构查询有如下优势：</p>
+<ul>
+<li><mark>让缓存的效率更高</mark>。<br>
+许多应用程序可以方便地缓存单表查询对应的结果对象。<br>
+例如，上面查询中的tag mysql已经被缓存了，那么应用就可以跳过第一个查询。<br>
+再例如，应用中已经缓存了ID为123、567、9098的内容，那么第三个查询的IN()中就可以少几个ID。</li>
+<li>将查询分解后，执行单个查询可以<mark>减少锁的竞争</mark>。</li>
+<li><mark>在应用层做联接</mark>，可以<mark>更容易对数据库进行拆分</mark>，更容易做到高性能和可扩展。</li>
+<li>查询本身的效率也可能会有所提升。在这个例子中，使用IN()代替联接查询，可以让MySQL按照ID顺序进行查询，这可能比随机的联接要更高效。</li>
+<li>可以减少对冗余记录的访问。在应用层做联接查询，意味着对于某条记录应用只需要查询一次，而在数据库中做联接查询，则可能需要重复地访问一部分数据。从这点看，这样的重构还可能会减少网络和内存的消耗。</li>
+</ul>
+<h2 id="查询执行的基础">查询执行的基础</h2>
+<p>当希望MySQL能够以更高的性能运行查询时，最好的办法就是弄清楚MySQL是如何优化和执行查询的</p>
+<p>查询执行路径<br>
+<img src="../_resources/893704911de64b759b639a8feedd9e38.png" alt="2dc8954d331a0404cfad59e52030df0c.png"></p>
+<p>查询优化器是其中特别复杂也特别难理解的部分</p>
+<h3 id="mysql的客户端服务器通信协议">MySQL的客户端/服务器通信协议</h3>
+<p>MySQL的客户端和服务器之间的通信协议是“<mark>半双工</mark>”的，这意味着，在任何时刻，要么是由服务器向客户端发送数据，要么是由客户端向服务器发送数据，这两个动作不能同时发生。<br>
+所以，我们无法也无须将一个消息切成小块来独立发送。</p>
+<p>一个明显的限制是，这意味着<mark>没法进行流量控制</mark>。一旦一端开始发送消息，另一端要接收完整个消息才能响应它。</p>
+<p>客户端用一个单独的数据包将查询传给服务器。这也是为什么当查询的语句很长的时候，参数max_allowed_packet就特别重要了<br>
+。。限制单个查询或数据包的 大小</p>
+<p>一般的服务器响应给用户的数据通常很多，由多个数据包组成。当服务器开始响应客户端请求时，客户端必须完整地接收整个返回结果，而不能简单地只取前面几条结果，然后让服务器停止发送数据。</p>
+<p>多数连接MySQL的<mark>库函数</mark>都可以<mark>获得全部结果集</mark>并将结果<mark>缓存到内存</mark>里，还可以逐行获取需要的数据</p>
+<p>当使用多数连接MySQL的库函数从MySQL获取数据时，其结果看起来都像是从MySQL服务器获取数据，而实际上都是从这个库函数的缓存获取数据。<br>
+需要返回一个很大的结果集的时候，这样做并不好，因为<mark>库函数会花很多时间和内存来存储所有的结果集</mark>。<br>
+如果能够<mark>尽早开始处理这些结果集</mark>，就能大大减少内存的消耗，在这种情况下可以不使用缓存来记录结果而是直接处理。<br>
+这样做的缺点是，对于服务器来说，需要查询完成后才能释放资源，所以在和客户端交互的整个过程中，服务器的资源都是被这个查询所占用的</p>
+<p><mark>PHP 用mysql_unbuffered_query()代替mysql_query()，PHP则不会缓存结果</mark><br>
+在Perl的DBD：mysql驱动中需要指定C客户端库的mysql_use_result属性（默认是mysql_buffer_result）</p>
+<h3 id="查询状态">查询状态</h3>
+<p>对于一个MySQL连接，或者一个线程，任何时刻都有一个状态，该状态表示了MySQL当前正在做什么。<br>
+有很多种方式能查看当前的状态，最简单的是使用<mark>SHOW FULL PROCESSLIST</mark>命令（该命令返回结果中的Command列，其就表示当前的状态）<br>
+。。这个命令 可以看到 所有的 当前线程的 状态。 要看自己的任务的话，要 新建一个 连接</p>
+<ul>
+<li>sleep<br>
+线程正在等待客户端发送新的请求。</li>
+<li>query<br>
+线程正在执行查询或者正在将结果发送给客户端。</li>
+<li>locked<br>
+在MySQL服务器层，该线程正在等待表锁。<br>
+在存储引擎级别实现的锁，例如InnoDB的行锁，并不会体现在线程状态中。</li>
+<li>analyzing and statistics<br>
+线程正在检查存储引擎的统计信息，并优化查询。</li>
+<li>copying to tmp table [on disk]<br>
+线程正在执行查询，并且将其结果集复制到一个临时表中，这种状态一般要么是在做GROUP BY操作，要么是在进行文件排序操作，或者是在进行UNION操作。<br>
+如果这个状态后面还有“on disk”标记，那表示MySQL正在将一个内存临时表放到磁盘上。</li>
+<li>sorting result<br>
+线程正在对结果集进行排序。</li>
+</ul>
+<p>了解这些状态的基本含义非常有用，这可以让你很快地了解当前“谁正在持球”。在一个繁忙的服务器上，可能会看到大量的不正常的状态，例如，statistics正占用大量的时间。这通常表示，某个地方有异常了。</p>
+<p>。。有几十个状态。</p>
+<h3 id="查询优化处理"><mark>查询优化处理</mark></h3>
+<p><mark>。。这章太多了。。</mark></p>
+<p>查询的生命周期的下一步是将一个SQL查询转换成一个执行计划，MySQL再依照这个执行计划和存储引擎进行交互。<br>
+这包括多个子阶段：解析SQL、预处理、优化SQL执行计划</p>
+<p>语法解析器和预处理<br>
+MySQL通过关键字将SQL语句进行解析，并生成一棵对应的“解析树”<br>
+使用MySQL语法规则验证和解析查询。</p>
+<p>查询优化器<br>
+现在解析树被认为是合法的了，并且由优化器将其转化成查询执行计划<br>
+MySQL使用<mark>基于成本的优化器</mark>，它将尝试预测一个查询使用某种执行计划时的成本，并选择其中成本最小的一个。</p>
+<p>可以通过查询当前会话的Last_query_cost的值来得知MySQL计算的当前查询的成本</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="sql" data-joplin-source-open="```sql&#10;" data-joplin-source-close="&#10;```">select sql_no_cache count(*) from film_actor;
+show status like 'Last_query_cost';</pre><pre class="hljs"><code><span class="hljs-keyword">select</span> sql_no_cache <span class="hljs-built_in">count</span>(<span class="hljs-operator">*</span>) <span class="hljs-keyword">from</span> film_actor;
+<span class="hljs-keyword">show</span> status <span class="hljs-keyword">like</span> <span class="hljs-string">&#x27;Last_query_cost&#x27;</span>;</code></pre></div>
+<p>返回的值 是表示，需要进行 多少个 数据页的随机查询 才能完成 sql。</p>
+<p>这是根据一系列的统计信息计算得来的：<br>
+每个表或者索引的页面个数、<br>
+索引的基数（索引中不同值的数量）、<br>
+索引和数据行的长度、<br>
+索引分布情况。<br>
+优化器在评估成本的时候并不考虑任何层面的缓存带来的影响，它假设读取任何数据都需要一次磁盘I/O</p>
+<p>MySQL的查询优化器是一个非常复杂的软件</p>
+<p>一些MySQL能够处理的优化类型。<br>
+重新定义联接表的顺序<br>
+将外联接转化成内联接<br>
+使用代数等价变换规则，使用一些代数等价变换规则来简化并规范表达式。它可以合并和减少一些比较，还可以移除一些恒成立和一些恒不成立的判断<br>
+优化COUNT()、MIN()和MAX()<br>
+预估并转化为常数表达式，例如min()<br>
+覆盖索引扫描<br>
+子查询优化<br>
+提前终止查询，例子就是当使用了LIMIT子句的时候<br>
+等值传播<br>
+列表IN()的比较，MySQL将IN()列表中的数据先进行排序，然后通过二分查找的方式来确定列表中的值是否满足条件，这是一个O（logn）复杂度的操作，等价地转换成OR查询的复杂度为O（n），对于IN()列表中有大量取值的时候，MySQL的处理速度将会更快。</p>
+<p>上面列举的远不是MySQL优化器的全部，MySQL还会做大量其他的优化</p>
+<p>如果说从上面这段讨论中我们应该学到什么，那就是<mark>不要自以为比优化器更聪明</mark>。<br>
+最终你可能会占一些便宜，但是有可能会使查询变得更加复杂而难以维护，而最终的收益为零。<br>
+<mark>让优化器按照它的方式工作就可以了。</mark></p>
+<p>表和索引的统计信息</p>
+<p><mark>MySQL如何执行联接查询</mark><br>
+MySQL中使用的术语“联接”（对应英文为Join）的范围可能比你熟悉的更广泛。<br>
+总的来说，MySQL认为每一个查询都是联接——不仅是匹配两张表中对应行的查询，而是每一个查询、每一个片段（包括子查询，甚至基于单表的SELECT）都是联接。<br>
+因此，理解MySQL如何执行联接查询是非常重要的。</p>
+<p>所以，理解MySQL如何执行UNION查询至关重要。<br>
+我们先来看一个UNION查询的例子。<br>
+对于UNION查询，MySQL先将<mark>一系列的单个查询结果放到一个临时表中</mark>，然后再重新读出临时表中的数据来完成UNION查询。<br>
+在MySQL的概念中，每个查询都是一次联接，所以读取临时表的结果也是一次联接。</p>
+<p>当前MySQL的联接执行策略很简单：MySQL<mark>对任何联接(。。join)都执行嵌套循环联接(。。union)操作</mark>，即MySQL先在一个表中循环取出单条数据，然后再嵌套循环到下一个表中寻找匹配的行，依次下去，直到找到所有表中匹配的行为止。<br>
+最后根据各个表匹配的行，返回查询中需要的各列。MySQL会尝试在最后一个联接表中找到所有匹配的行，如果最后一个联接表无法找到更多的行，MySQL返回到上一层次的联接表，看是否能够找到更多的匹配记录，依此类推，迭代执行。</p>
+<p>在MySQL 8.0.20版本之后，已经不再使用基于块的嵌套循环联接操作，取而代之的是哈希联接（参见链接33）。这让联接操作性能变得更好，特别是当数据集可以全部存储在内存时。</p>
+<p>执行计划</p>
+<p>和很多其他关系数据库不同，MySQL并不会生成查询字节码来执行查询。MySQL生成查询的一棵指令树，然后通过查询执行引擎执行完成这棵指令树并返回结果。</p>
+<p>联接查询优化器</p>
+<p>排序优化</p>
+<h3 id="查询执行引擎">查询执行引擎</h3>
+<p>相对于查询优化阶段，查询执行阶段不是那么复杂：MySQL只是简单地根据执行计划给出的指令逐步执行。<br>
+在根据执行计划逐步执行的过程中，有大量的操作需要通过调用<mark>存储引擎实现的接口</mark>来完成，这些接口也就是我们称为“handler API”的接口。</p>
+<p>存储引擎接口有着非常丰富的功能，但是底层接口却只有几十个，这些接口像“搭积木”一样能够完成查询的大部分操作。</p>
+<h3 id="将结果返回给客户端">将结果返回给客户端</h3>
+<p>一旦服务器处理完最后一个联接表，开始<mark>生成第一条结果时</mark>，MySQL就可以<mark>开始向客户端逐步返回结果集</mark>了。<br>
+这样处理有两个好处：服务器端无须存储太多的结果，也就不会因为要返回太多结果而消耗太多内存。另外，这样的处理也可让MySQL客户端第一时间获得返回的结果<br>
+结果集中的每一行都会以一个满足MySQL客户端/服务器通信协议的封包发送，再通过TCP协议进行传输，在TCP传输的过程中，可能对MySQL的封包进行缓存，然后批量传输。</p>
+<h2 id="mysql查询优化器的局限性">MySQL查询优化器的局限性</h2>
+<p>UNION的限制<br>
+MySQL无法将限制条件从UNION的外层“下推”到内层，这使得原本能够限制部分返回结果的条件无法应用到内层查询的优化上。<br>
+如果希望UNION的各个子句能够根据LIMIT只取部分结果集，或者希望能够先排好序再合并结果集的话，就需要在UNION的各个子句中分别使用这些子句。</p>
+<p>等值传递<br>
+等值传递会带来一些意想不到的额外消耗。<br>
+例如，考虑一列上的巨大IN()列表，优化器知道它将等于其他表中的一些列，这是由于WHERE、ON或USING子句使列彼此相等。<br>
+优化器通过将列表复制到所有相关表中的相应列来“共享”列表。<br>
+通常，因为各个表新增了过滤条件，所以优化器可以更高效地从存储引擎过滤记录。<br>
+但是如果这个列表非常大，则会导致优化和执行都会变慢</p>
+<p>并行执行<br>
+MySQL无法利用多核特性来并行执行查询。<br>
+很多其他的关系数据库能够提供这个特性，但是MySQL做不到。<br>
+这里特别指出是想告诉读者不要花时间去尝试寻找并行执行查询的方法。</p>
+<p>在同一个表中查询和更新<br>
+MySQL不允许对一张表同时进行查询和更新。</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="sql" data-joplin-source-open="```sql&#10;" data-joplin-source-close="&#10;```">updata tbl as outer_tbl set c = (select count(*) from tbl as inner_tbl where inner_tbl.type = outer.tbl.type);</pre><pre class="hljs"><code>updata tbl <span class="hljs-keyword">as</span> outer_tbl <span class="hljs-keyword">set</span> c <span class="hljs-operator">=</span> (<span class="hljs-keyword">select</span> <span class="hljs-built_in">count</span>(<span class="hljs-operator">*</span>) <span class="hljs-keyword">from</span> tbl <span class="hljs-keyword">as</span> inner_tbl <span class="hljs-keyword">where</span> inner_tbl.type <span class="hljs-operator">=</span> outer.tbl.type);</code></pre></div>
+<p>会报错。</p>
+<p>可以使用生成表的形式来绕过上面的限制，因为MySQL只会把这个表当作一个临时表来处理。实际上，这执行了两个查询：一个是子查询中的SELECT语句，另一个是多表UPDATE查询，其中包含原表和子查询的联接结果。子查询会在UPDATE语句打开表之前就完成，所以下面的查询将会正常执行：</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="sql" data-joplin-source-open="```sql&#10;" data-joplin-source-close="&#10;```">update tbl inner join (select type, count(*) as c from tbl group by type) as der using(type) set tbl.c=der.c</pre><pre class="hljs"><code><span class="hljs-keyword">update</span> tbl <span class="hljs-keyword">inner</span> <span class="hljs-keyword">join</span> (<span class="hljs-keyword">select</span> type, <span class="hljs-built_in">count</span>(<span class="hljs-operator">*</span>) <span class="hljs-keyword">as</span> c <span class="hljs-keyword">from</span> tbl <span class="hljs-keyword">group</span> <span class="hljs-keyword">by</span> type) <span class="hljs-keyword">as</span> der <span class="hljs-keyword">using</span>(type) <span class="hljs-keyword">set</span> tbl.c<span class="hljs-operator">=</span>der.c</code></pre></div>
+<h2 id="优化特定类型的查询">优化特定类型的查询</h2>
+<h3 id="优化count查询">优化COUNT()查询</h3>
+<p>它可以统计某列的值的数量，也可以统计行数。在统计列值时要求列值是非空的（不统计NULL）</p>
+<p>我们发现最常见的错误之一是，当需要统计行数时，在COUNT()函数的括号内指定了列名。如果想要知道结果中的行数，应该始终使用COUNT（*），这样可以更清晰地传达意图，避免糟糕的性能表现。</p>
+<p>简单优化<br>
+通常会看到这样的问题：如何在一个查询中统计同一列的不同值的数量，以减少查询的语句量。</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="sql" data-joplin-source-open="```sql&#10;" data-joplin-source-close="&#10;```">select sum(if (color='blue', 1, 0)) as blue, sum(if(color='red',1,0)) as red from items;
+
+-- or
+
+select count(color='blue' or null) as blue, count(color='red' or nULL) as red from items;</pre><pre class="hljs"><code><span class="hljs-keyword">select</span> <span class="hljs-built_in">sum</span>(if (color<span class="hljs-operator">=</span><span class="hljs-string">&#x27;blue&#x27;</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>)) <span class="hljs-keyword">as</span> blue, <span class="hljs-built_in">sum</span>(if(color<span class="hljs-operator">=</span><span class="hljs-string">&#x27;red&#x27;</span>,<span class="hljs-number">1</span>,<span class="hljs-number">0</span>)) <span class="hljs-keyword">as</span> red <span class="hljs-keyword">from</span> items;
+
+<span class="hljs-comment">-- or</span>
+
+<span class="hljs-keyword">select</span> <span class="hljs-built_in">count</span>(color<span class="hljs-operator">=</span><span class="hljs-string">&#x27;blue&#x27;</span> <span class="hljs-keyword">or</span> <span class="hljs-keyword">null</span>) <span class="hljs-keyword">as</span> blue, <span class="hljs-built_in">count</span>(color<span class="hljs-operator">=</span><span class="hljs-string">&#x27;red&#x27;</span> <span class="hljs-keyword">or</span> <span class="hljs-keyword">nULL</span>) <span class="hljs-keyword">as</span> red <span class="hljs-keyword">from</span> items;</code></pre></div>
+<p>使用近似值</p>
+<p>很多时候，计算精确值非常复杂，而计算近似值则非常简单。曾经有一个客户希望我们统计他的网站的当前活跃用户数是多少，这个活跃用户数保存在缓存中，过期时间为30分钟，所以每隔30分钟需要重新计算并放入缓存。这个活跃用户数本身就不是精确值，所以使用近似值代替是可以接受的。另外，如果要精确统计在线人数，使用WHERE条件会很复杂，一方面需要剔除当前非活跃用户，另一方面还要剔除系统中某些特定ID的“默认”用户，去掉这些约束条件对总数的影响很小，但却可能提升该查询的性能。更进一步的优化则可以尝试删除DISTINCT这样的约束来避免文件排序。这样重写过的查询比原来精确统计的查询快很多，而返回的结果则几乎相同。</p>
+<p>更复杂的优化</p>
+<h3 id="优化联接查询">优化联接查询</h3>
+<p>这里需要特别提到以下几点。</p>
+<ul>
+<li>确保ON或者USING子句中的列上有索引。在创建索引的时候就要考虑到联接的顺序。当表A和表B用列c联接的时候，如果优化器的<mark>联接顺序是B、A</mark>，那么就不需要在B表的对应列上建索引。没有用到的索引只会带来额外的负担。一般来说，除非有其他理由，否则<mark>只需在联接顺序中的第二个表的相应列上创建索引</mark>。</li>
+<li>确保任何GROUP BY和ORDER BY中的表达式<mark>只涉及一个表中的列</mark>，这样MySQL才有可能使用索引来优化这个过程。</li>
+<li>当升级MySQL的时候需要注意：联接语法、运算符优先级等其他可能会发生变化的地方。因为以前是普通联接的地方可能会变成笛卡儿积，不同类型的联接可能会生成不同的结果，甚至会产生语法错误。</li>
+</ul>
+<h3 id="使用with-rollup优化group-by">使用WITH ROLLUP优化GROUP BY</h3>
+<h3 id="优化limit和offset子句">优化LIMIT和OFFSET子句</h3>
+<p>一个非常常见又令人头疼的问题是，在偏移量非常大的时候，例如，可能是LIMIT 10000，20这样的查询，这时MySQL需要查询10020条记录然后只返回最后20条，前面10000条记录都将被抛弃，这样的代价非常高。</p>
+<p>优化此类分页查询的一个最简单的办法就是尽可能地使用索引覆盖扫描，而不是查询所有的行。然后根据需要做一次联接操作再返回所需的列。<br>
+在偏移量很大的时候，这样做的效率会有非常大的提升。考虑下面的查询：<br>
+<code class="inline-code">select film_id, description from film order by title limit 50, 5;</code><br>
+改为</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="sql" data-joplin-source-open="```sql&#10;" data-joplin-source-close="&#10;```">select film.film_id, film.description from film inner join (
+  select film_id from film order by title limit 50, 5
+) as lim using (film_id);</pre><pre class="hljs"><code><span class="hljs-keyword">select</span> film.film_id, film.description <span class="hljs-keyword">from</span> film <span class="hljs-keyword">inner</span> <span class="hljs-keyword">join</span> (
+  <span class="hljs-keyword">select</span> film_id <span class="hljs-keyword">from</span> film <span class="hljs-keyword">order</span> <span class="hljs-keyword">by</span> title limit <span class="hljs-number">50</span>, <span class="hljs-number">5</span>
+) <span class="hljs-keyword">as</span> lim <span class="hljs-keyword">using</span> (film_id);</code></pre></div>
+<p>这种“延迟联接”之所以有效，是因为它允许服务器在不访问行的情况下检查索引中尽可能少的数据，然后，一旦找到所需的行，就将它们与整个表联接，以从该行中检索其他列。类似的技术也适用于带有LIMIT子句的联接。</p>
+<p>有时候也可以将LIMIT查询转换为已知位置的查询<br>
+<code class="inline-code">select * from film order by rental_id desc limit 20;</code><br>
+<code class="inline-code">select * from film where rental_id &lt; 16030 order by rental_id desc limit 20;</code></p>
+<p>其他优化办法还包括使用预先计算的汇总表，或者联接到一个冗余表，冗余表只包含主键列和需要做排序的数据列。</p>
+<h3 id="优化sql-calc-found-rows">优化SQL CALC FOUND ROWS</h3>
+<p>分页的时候，另一个常用的技巧是在LIMIT语句中加上SQL_CALC_FOUND_ROWS提示（hint），这样就可以获得去掉LIMIT以后满足条件的行数，因此可以作为分页的总数。</p>
+<p>一个更好的设计是将具体的页数换成“下一页”按钮，假设每页显示20条记录，那么我们每次查询时都是用LIMIT返回21条记录并只显示20条，如果第21条存在，那么就显示“下一页”按钮，否则就说明没有更多的数据，也就无须显示“下一页”按钮了。</p>
+<p>另一种做法是先获取并缓存较多的数据——例如，缓存1000条——然后每次分页都从这个缓存中获取。这样做可以让应用程序根据结果集的大小采取不同的策略，如果结果集小于1000，就可以在页面上显示所有的分页链接，因为数据都在缓存中，所以这样做不会对性能造成影响。如果结果集大于1000，则可以在页面上设计一个额外的“找到的结果多于1000条”之类的按钮。</p>
+<h3 id="优化union查询">优化UNION查询</h3>
+<p>MySQL总是通过创建并填充临时表的方式来执行UNION查询，因此很多优化策略在UNION查询中都没法很好地被使用。经常需要手工地将WHERE、LIMIT、ORDER BY等子句“下推”到UNION的各个子查询中，以便优化器可以充分利用这些条件进行优化（例如，直接将这些子句冗余地写一份到各个子查询）。</p>
+<p>除非你确实需要服务器消除重复的行，否则<mark>一定要使用UNION ALL</mark>，这一点很重要。如果没有ALL关键字，MySQL会给临时表加上DISTINCT选项，这会导致对整个临时表的数据做唯一性检查。这样做的代价非常高。即使有ALL关键字，MySQL仍然会使用临时表存储结果。事实上，MySQL总是将结果放入临时表，然后再读出，再返回给客户端，虽然很多时候这样做是没有必要的（例如，MySQL可以直接把这些结果返回给客户端）</p>
+<h1 id="ch09-复制">ch09 复制</h1>
+<p>MySQL内置的复制功能是构建基于MySQL的大规模、高性能应用的基础，这类应用使用所谓的“<mark>水平扩展</mark>”的架构。</p>
+<h2 id="复制概述">复制概述</h2>
+<p>首先在源服务器（source server）上，任何数据修改和数据结构变更的事件（event）都会被写入日志文件中，然后，副本服务器从源服务器上的日志文件中读取这些事件并在本地重放执行。<br>
+这是一个异步处理的过程，也就是说，并不能保证副本服务器上的数据是最新的<br>
+一个大的SQL查询语句可能会导致副本服务器落后于源服务器几秒钟、几分钟，甚至是几小时。</p>
+<p>MySQL的复制基本上是向后兼容的，新版本的服务器可以作为老版本的服务器的副本，但反过来，将老版本的服务器作为新版本的服务器的副本通常是不可行的，因为它可能无法解析新版本的新特性或SQL语法，而且复制使用的文件格式也可能存在差异。</p>
+<p>下面是复制比较常见的用途。<br>
+数据分发<br>
+MySQL的复制通常不会对带宽造成很大的压力，在后面的内容中，你将会看到基于行的复制会比传统的基于语句的复制模式的带宽压力更大。</p>
+<p>读流量扩展<br>
+通过MySQL的复制可以将读操作分布到多台服务器上，实现对读密集型应用的优化，并且实现很方便，通过简单的代码修改就能实现基本的负载均衡</p>
+<p>备份<br>
+复制是一项有助于备份的有价值的技术，但副本不是备份，也不能够取代备份。</p>
+<p>分析与报告<br>
+为报告/分析（在线分析处理，OLAP）查询使用专用的副本是一项很好的策略，可以很好地<mark>隔离此类查询产生的压力</mark>，以避免对满足外部客户需求的在线业务产生影响。复制可以很好地实现此类隔离。</p>
+<p>高可用性和故障切换<br>
+复制有助于避免MySQL成为应用程序中的单点故障，一个包含复制的设计良好的故障切换系统能够显著地缩短宕机时间。</p>
+<p>MySQL升级测试<br>
+这种做法比较普遍，先使用一个更高版本的MySQL作为副本，确保查询能够在此副本上按照预期执行，再升级所有的实例。</p>
+<h3 id="复制如何工作">复制如何工作</h3>
+<p>总的来说，复制有三个步骤：</p>
+<ol>
+<li>源端把数据更改记录到二进制日志中，称之为“<mark>二进制日志事件</mark>”（binary log events）。</li>
+<li>副本将源上的日志复制到自己的<mark>中继日志</mark>中。</li>
+<li>副本读取中继日志中的事件，将其重放到副本数据之上。</li>
+</ol>
+<p>在复制架构中，读取和重放日志事件是解耦的，这就允许读取日志和重放日志异步进行</p>
+<h2 id="复制原理">复制原理</h2>
+<h3 id="选择复制格式">选择复制格式</h3>
+<p>MySQL提供了三种不同的二进制日志格式用于复制：</p>
+<ul>
+<li>基于语句的</li>
+<li>基于行的</li>
+<li>混合模式</li>
+</ul>
+<p>可以通过系统参数binlog_format控制日志写入时使用哪种日志格式。</p>
+<p>基于语句的复制是通过记录所有在源端执行的数据变更语句来实现的。<br>
+主要优点是<mark>简单且紧凑</mark><br>
+一条更新了大量数据的SQL语句，在二进制日志中可能仅仅需要几十字节存储。<br>
+其最大的弊端则在于会遇到某些具有“<mark>不确定性</mark>”的SQL语句问题。<br>
+假设有一条语句删除了一张有1000行记录的表中的100行，但没有用ORDER BY子句。如果在源和副本上，记录的排序不同，这条SQL语句在源和副本上删除的100条记录就会不同，这将导致数据不一致。</p>
+<p>基于行的复制将事件写入<mark>二进制日志，该事件包含了该行记录发生了什么改变</mark></p>
+<p>“混合模式”（the mixed method）试图结合以上两种格式的优点。在这种模式下，事件的写入，默认使用基于语句的格式，仅在需要时才切换到基于行的格式。</p>
+<p>我们<mark>建议坚持使用基于行的复制</mark></p>
+<h3 id="全局事务标识符">全局事务标识符</h3>
+<p>在MySQL 5.6之前，副本必须跟踪连接到源时读取的二进制日志文件和日志位置。例如，一个副本连接到上游源并从文件binlog.000002的2749位置读取数据。当副本从该二进制日志中读取事件时，它每次都会向后推进日志位点。如果就在这时，故障发生了！比如源数据库崩溃了，必须从备份中重建数据。那么问题来了：在源端，如果二进制日志位点重新开始，怎么能重新将副本连接到源库？确定从哪个位点开始连接是一个非常复杂的过程</p>
+<p>MySQL新增了另一种跟踪复制位点的方法：全局事务标识符（GTID）。使用GTID，源服务器提交的每个事务都被分配一个唯一标识符。此标识符是由server_uuid和一个递增的事务编号组成的。当事务被写入二进制日志时，GTID也随之被写入。回顾本章前面的内容可以了解到，副本将从源库读取的二进制日志事件先写入本地中继日志，再使用SQL线程执行该事务，将变更应用到本地副本上。当SQL线程提交事务时，它也会将GTID标记为执行完成。</p>
+<h3 id="崩溃后的复制安全">崩溃后的复制安全</h3>
+<p>为了尽量降低复制中断的可能性，建议MySQL的部分参数按照如下讲解内容进行配置。</p>
+<p>innodb_flush_log_at_trx_commit=1<br>
+这个参数可以保障每个事务日志都被同步地写到磁盘。这是一个符合ACID要求的配置<br>
+sync_binlog=1<br>
+该变量控制MySQL将二进制日志数据同步到磁盘的频率。将此值设置为1意味着在每次事务执行的时候都会把二进制日志同步写入磁盘。这可以防止在服务器崩溃时丢失事务。<br>
+relay_log_info_repository=TABLE</p>
+<p>relay_log_recovery=ON<br>
+该参数使得副本服务器在检测到崩溃时会丢弃所有本地中继日志，并从源服务器中获取丢失的数据。</p>
+<h3 id="延迟复制">延迟复制</h3>
+<p>在某些场景下，在一个拓扑结构中，某些副本有一些延迟反而是有好处的。在这个策略下，可以让副本中的数据保持在线并且持续运行，但同时<mark>落后于源数据库数小时或者数天</mark>。<br>
+延迟复制的配置语句是CHANGE REPLICATION SOURCE TO，配置选项为SOURCE_DELAY。</p>
+<p>想象一下这样的场景，你正在处理大量数据，突然意外地做了一些变更：删除了一个表。从备份中恢复可能需要几个小时。如果使用了延迟复制的副本，则可以找到DROP TABLE语句对应的GTID，使副本服务器的复制运行到表被删除之前的时间点，这会大大减少修复时间。</p>
+<h3 id="多线程复制">多线程复制</h3>
+<p>多线程复制有两种模式：DATABASE和LOGICAL_CLOCK。<br>
+在DATABASE模式下，可以使用多线程更新不同的数据库；但不会有两个线程同时更新同一个数据库。如果将数据分布在MySQL的多个数据库中，则可以同时并且一致地更新它们，这种模式非常有效。<br>
+另一个模式LOGICAL_CLOCK允许对同一个数据库进行并行更新，只要它们都是同一个二进制日志组提交的一部分。</p>
+<p>在大多数情况下，可以简单地通过将replica_parallel_workers设置为非零值来开启该配置，并立即看到效果。<br>
+如果在单个数据库上操作，还需要将replica_parallel_type更改为LOGICAL_CLOCK。由于多线程复制还需要使用协调线程，因此管理这些线程的状态，也会带来一些额外的开销。此外，确保你的副本配置了参数replica_preserve_commit_order，这样就不会出现无序提交的问题。请参阅官方文档中Gaps（“差距”）小节，那里详细解释了这个配置的重要性。</p>
+<p>更精确的方法是，根据实际的工作负载情况，查看每个应用程序线程的繁忙程度，然后再确定并行度。为此，我们需要启用Performance Schema的插桩和消费者表，允许它收集一些信息，然后查看实际情况。<br>
+启用视图：</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="sql" data-joplin-source-open="```sql&#10;" data-joplin-source-close="&#10;```">update performance_schema.setup_consumers set enabled='YES' where name like 'events_transactions%';
+
+update performance_schema.setup_instruments set enabled='YES', timed='YES' where name = 'transaction';</pre><pre class="hljs"><code><span class="hljs-keyword">update</span> performance_schema.setup_consumers <span class="hljs-keyword">set</span> enabled<span class="hljs-operator">=</span><span class="hljs-string">&#x27;YES&#x27;</span> <span class="hljs-keyword">where</span> name <span class="hljs-keyword">like</span> <span class="hljs-string">&#x27;events_transactions%&#x27;</span>;
+
+<span class="hljs-keyword">update</span> performance_schema.setup_instruments <span class="hljs-keyword">set</span> enabled<span class="hljs-operator">=</span><span class="hljs-string">&#x27;YES&#x27;</span>, timed<span class="hljs-operator">=</span><span class="hljs-string">&#x27;YES&#x27;</span> <span class="hljs-keyword">where</span> name <span class="hljs-operator">=</span> <span class="hljs-string">&#x27;transaction&#x27;</span>;</code></pre></div>
+<p>在理想情况下，应该在写入负载最大的时候或其他观察到出现复制延迟的时候：<br>
+<img src="../_resources/c4d6ffc135d94cdd8a44edbe55ee419a.png" alt="341b76699fae108271464679c7bbdf40.png"></p>
+<p>这条查询将帮助你确定每个线程处理了多少个事务。正如我们从这个示例工作负载的结果中看到的，最佳配置是在3到4个线程之间，超出此范围的线程则很少被用到。</p>
+<h3 id="半同步复制">半同步复制</h3>
+<p>在启用半同步复制后，源在完成每个事务提交时，都需要确保事务至少被一个副本所接收。需要确认副本已收到并成功将其<mark>写入自己的中继日志</mark>（但不一定应用到本地数据）。<br>
+如果在一定时间范围内没有副本确认事务，MySQL将<mark>恢复到标准的异步复制模式</mark>。这时事务并不会失败。<br>
+这也说明，半同步复制不是一种防止数据丢失的方法，而是可以让你拥有更具弹性的故障切换的更大工具集的一部分。</p>
+<h3 id="复制过滤器">复制过滤器</h3>
+<p>复制过滤选项可以让副本仅复制一部分数据，不过这个功能并没有想象中那么实用。</p>
+<h2 id="复制切换">复制切换</h2>
+<p>切换副本”（promoting a replica）和“故障切换”（failing over）是同义词，它们都意味着源服务器不再接收写入，并将副本提升为新的源服务器。</p>
+<h3 id="计划内切换">计划内切换</h3>
+<p>切换的最常见原因是某些维护事件，包括安全补丁、内核更新，有时候甚至只是重新启动一下MySQL，因为有一些配置选项更改后需要重新启动才能生效。这种类型的切换被称为计划内切换。</p>
+<p>要成功地执行此类切换，需要完成以下步骤：</p>
+<ol>
+<li>确定将哪个副本切换为新的源。这通常是一个包含所有数据的副本。这就是要操作的目标。</li>
+<li>检查延时，确保延时在秒级别。</li>
+<li>通过设置super_read_only停止数据写入源服务器。</li>
+<li>等待副本与目标完全同步。可以通过比较GTID来确定这一点。</li>
+<li>在目标（需要切换为源的副本）上取消read_only设置。</li>
+<li>将应用流量切换到目标上。</li>
+<li>将所有副本重新指向新的源，包括刚刚被降级为副本的服务器。如果配置了GTID和AUTO_POSITION=1，这很简单。</li>
+</ol>
+<h3 id="计划外切换">计划外切换</h3>
+<p>因为这时候不再存在一个实时运行的源服务器了，因此这将是一个很简短的计划外切换，需要根据副本上的已有数据进行选择：</p>
+<ol>
+<li>确定需要切换的副本。通常会选择数据最完整的副本。这就是要切换的目标。</li>
+<li>在目标上关闭read_only设置。</li>
+<li>将应用流量切换到目标上。</li>
+<li>将所有副本重新指向新源（目标服务器），包括恢复后的原来提供服务的源服务器。在使用了GTID之后，这些操作都很简单。</li>
+</ol>
+<p>还需要注意，切换前的源服务器再次启动时，需要默认启用super_read_only。这将有助于防止任何意外的写入。</p>
+<h3 id="切换时的权衡">切换时的权衡</h3>
+<p>需要说明的是，大多时候，大家对故障的第一反应就是切换。但因为很难知道切换后的目标（新的源服务器）可能丢失了多少数据，所以<mark>有时不进行故障切换可能是更好的策略。</mark></p>
+<h2 id="复制拓扑">复制拓扑</h2>
+<h3 id="主动被动模式">主动/被动模式</h3>
+<p>在主动/被动拓扑中，<mark>应用将所有读取和写入都指向单个源服务器</mark>。此外，还维护了少量不主动服务于任何应用程序流量的被动副本。选择此模型的主要原因是，不用担心复制延迟的问题。由于<mark>所有读取都指向源服务器</mark>，因此可以防止应用程序不接受读取延迟数据的问题。</p>
+<h3 id="主动只读池模式">主动/只读池模式</h3>
+<p>在主动/只读池模式中，你将所有写入指向源服务器。根据应用程序的需要，读取则可以被发送到源服务器或只读池。只读池可以实现读取密集型应用程序的读水平扩展。<br>
+在某些时候，由于源上的复制请求，水平扩展能力会受到限制。</p>
+<h3 id="不推荐的一些拓扑架构">不推荐的一些拓扑架构</h3>
+<p>双源主动-主动架构<br>
+双源主动-被动模式<br>
+带有副本的双源模式<br>
+环形复制<br>
+多源复制</p>
+<h2 id="复制管理和维护">复制管理和维护</h2>
+<h3 id="复制监控">复制监控</h3>
+<h3 id="观测复制延迟">观测复制延迟</h3>
+<h3 id="确定副本数据的一致性">确定副本数据的一致性</h3>
+<h2 id="复制问题和解决方案">复制问题和解决方案</h2>
+<h3 id="源端二进制日志损坏">源端二进制日志损坏</h3>
+<h3 id="非唯一的服务器id">非唯一的服务器ID</h3>
+<h3 id="未配置服务器id">未配置服务器ID</h3>
+<h3 id="临时表丢失">临时表丢失</h3>
+<h3 id="没有复制所有变更">没有复制所有变更</h3>
+<h3 id="复制延迟过大">复制延迟过大</h3>
+<h3 id="来自源服务器的超大数据包">来自源服务器的超大数据包</h3>
+<h3 id="磁盘空间耗尽">磁盘空间耗尽</h3>
+<h1 id="ch10-备份与恢复">ch10 备份与恢复</h1>
+<h1 id="ch11-扩展mysql">ch11 扩展MySQL</h1>
+<h2 id="使用读池-扩展读">使用读池 扩展读</h2>
+<p>集群中的副本可用于多个目的</p>
+<ul>
+<li>副本是故障切换的候选对象</li>
+<li>使用它们来处理读取请求</li>
+</ul>
+<p>为了简单起见，我们假设应用程序节点仍然通过直连源数据库的方式来完成写入请求<br>
+稍后我们将讨论为何连接到源节点能更好地进行扩展</p>
+<p>但是，请注意，相同的应用程序节点连接到一个虚拟IP，该<mark>虚拟IP充当节点和读副本之间的中间层</mark>。<br>
+这就是<mark>副本读池</mark>，用来将不断增长的<mark>读负载扩展到多台主机</mark>。<br>
+你可能还会注意到，<mark>并非所有的复制副本都在池中</mark>，这是一种防止不同的读取工作负载相互影响的常见方法。<br>
+如果你有报告进程，或你的备份进程倾向于消耗所有磁盘I/O资源并导致复制延迟，则可以预留出一个或多个副本节点来完成这些任务，并将其排除在服务于面向客户流量的读池之外。<br>
+或者，也可以通过复制检查来增强负载均衡器的健康检查机制，自动从读池中移除落后的节点，并在其赶上复制进度时重新引入。<br>
+当应用程序需要从单点读取时，将读副本转换为可替换资源的灵活性会显著提升，并且可以在不影响到客户的前提下无缝地管理这些资源。</p>
+<p>应用程序节点通过虚拟IP访问读副本<br>
+<img src="../_resources/2018f465d5154399a0d6b73567ec69eb.png" alt="9267b92d4df97102d846c348e02b851a.png"></p>
+<p>使用读池时会有不止一台服务读请求的数据库主机，为使生产环境顺利运行，有几点需要考虑：</p>
+<ul>
+<li>如何将<mark>流量路由</mark>到读副本？</li>
+<li>如何<mark>均匀地分配负载</mark>？</li>
+<li>如何进行<mark>健康检查</mark>并移除不健康或延迟的副本，以避免提供陈旧的数据？</li>
+<li>如何避免因意外地删除所有节点而对应用程序流量造成更多损害？</li>
+<li>如何<mark>手动移除服务器</mark>以进行维护？</li>
+<li>如何将<mark>新配置的服务器添加到负载均衡器</mark>中？</li>
+<li>有哪些<mark>自动检查</mark>可避免在负载均衡器准备就绪之前添加新配置的节点？</li>
+<li>对“准备好迎接新节点”的定义是否足够明确？</li>
+</ul>
+<p>管理这些读池的一种非常常见的方法是使用负载均衡器来提供虚拟IP，该IP充当所有要访问读副本的流量的中介。<br>
+实现这一目的的技术包括HAProxy、自用主机时的硬件负载均衡器，或在公共云环境中运行时的网络负载均衡器。<br>
+。。就是反向代理</p>
+<p>在使用HAProxy的情况下，所有应用程序主机将连接到一个“前端”，然后HAProxy负责将这些请求引导到后端定义的读副本。</p>
+<p>通常，你可以使用配置管理来自动填充这样的配置文件。<br>
+在进行配置时需要注意几点：<br>
+在MySQL中，建议使用leastconn实现池节点之间的平衡；<br>
+在负载升高时，像“轮询”这样的随机平衡策略将无助于使用未过载的主机；<br>
+确保在MySQL实例上创建了正确的数据库用户以运行健康检查，否则所有节点都将被标记为不正常。</p>
+<p>。。leastconn 是 HAProxy的轮询策略，最少连接数</p>
+<p>一些用于数据分片的工具，如Vitess和ProxySQL，也可以充当负载均衡器的角色。</p>
+<h3 id="管理读池的配置">管理读池的配置</h3>
+<p>现在，在应用程序节点和副本之间有一扇“门”，你需要一种方法来使用选择的负载均衡器，以便轻松管理读池中包含或未包含的节点</p>
+<p>服务发现是一个很好的选择，它可以自动发现新的主机并将其加入池列表。这可能意味着，如果服务发现可用的话，可将服务发现解决方案部署为技术堆栈的一部分，或者依赖于云服务商的托管服务发现选项。</p>
+<p>无论是运行自己的服务发现，还是使用云服务商提供的方案，都应该意识到该服务的保障。不管是运行服务发现还是与一个团队协同工作，都需要考虑以下几点：</p>
+<ul>
+<li>需要多久能检测到主机的故障？</li>
+<li>数据传输速率如何？</li>
+<li>当有数据库实例宕机时，如何刷新负载均衡器上的配置？</li>
+<li>数据库的成员变更是作为后台进程处理的，还是需要切断现有的连接？</li>
+<li>如果服务发现自身宕机，会发生什么呢？这是否会损害任何新建的数据库连接，或仅会导致负载均衡器成员身份的错误更改？在这种情况下，可以手动更改吗？</li>
+</ul>
+<h3 id="读池健康检查">读池健康检查</h3>
+<p>对于判断读副本<mark>是否健康</mark>并已<mark>准备好接受来自应用程序的流量读取请求</mark>，需要考虑一个合理标准。<br>
+这些标准可以是简单的“数据库进程启动并运行，端口正常响应”，但也可以更加复杂，如“数据库启动，复制延迟不能超过30秒，并且读请求的执行延时不能超过100毫秒”。</p>
+<p>检查变量read_only和super_read_only的状态，以确保负载均衡器配置的读池成员都是真正的副本。</p>
+<p>以下是一些需要与团队交流的问题，它们可以用来帮助指导这个决策过程：</p>
+<ul>
+<li>可以接受数据“过期”多长时间？如果返回几分钟前的数据，会有什么影响？</li>
+<li>应用程序可接受的最大查询延迟是多久？</li>
+<li>是否有读请求的重试逻辑，如果有，它是怎样的逻辑，以及它是幂等补偿的吗？</li>
+<li>是否已为应用程序定义SLO？SLO倾向于查询延迟，还是仅关心正常运行时间？</li>
+<li>当出现数据缺失时，系统的行为是怎样的？这种退化是可以接受的吗？如果可接受，能接受其持续多久？</li>
+</ul>
+<h3 id="选择负载均衡器算法">选择负载均衡器算法</h3>
+<p>随机<br>
+轮询<br>
+最少连接<br>
+最快响应<br>
+哈希<br>
+权重</p>
+<p>MySQL的最佳算法取决于具体工作负载。例如，当将新服务器添加到可用服务器池中时，使用最少连接算法可能会导致连接在新服务器缓存未预热之前大量涌入。</p>
+<h2 id="排队机制">排队机制</h2>
+<p>在研究我们接下来要讨论的数据分片之前，应该先检查数据中的写入热点，并考虑是否所有的写入都真的需要主动持久化到数据库中。<br>
+其中的一些是否可以被放入队列中，并在一个可接受的时间范围内写入数据库？</p>
+<p>。。<mark>MQ，延迟写入数据库</mark></p>
+<p>删除的时候，直接202已接收，扔到 MQ中，慢慢处理。</p>
+<p>如果将队列应用于写负载，那么一个重要的设计选择是，预先确定这些调用在被放入队列后所期望完成的时间范围。监控请求在队列中花费时间的增长，对于此策略何时运行，以及你何时确实需要开始分割此数据集以支持更多的并行写负载，能提供重要的衡量指标</p>
+<h2 id="使用分片-扩展写">使用分片 扩展写</h2>
+<p>如果不能通过<mark>最佳的查询</mark>和<mark>排队写入</mark>来管理写入流量的增长，那么<mark>分片</mark>将是剩下的选项。</p>
+<p>分片意味着将数据切分成不同的、更小的数据库集群，这样就可以同时在更多的源主机上执行更多的写入操作。可以进行两种不同类型的分片或分割：<mark>功能分割或数据分片</mark>。</p>
+<p>功能分割（Functional partitioning），或称为职责划分，意味着<mark>将不同的节点用于不同的任务</mark>。<br>
+其中的一个例子可能是将用户记录放在一个集群上，并将其计费放在另一个集群上，这种方法允许每个集群单独扩展。</p>
+<p>数据分片（Data sharding）是当今扩展超大型MySQL应用程序<mark>最常见和最成功</mark>的方法。<br>
+通过将数据切分成更小的部分或分片，并将它们存储在不同的节点上，可以达到拆分数据的目的。</p>
+<h3 id="选择切分方案">选择切分方案</h3>
+<p>分片技术最重要的挑战是查找和检索数据。如何查找数据取决于如何切分数据。有很多方法可以做好这件事，但其中一些方法更为可取。</p>
+<p>目标是使最重要和最频繁的查询接触到尽可能少的分片（请记住，可扩展性的原则之一是避免节点之间的交叉访问）。</p>
+<p>该过程中最关键的部分是为数据选择一个或多个分片键。分片键决定了每个分片上应该分布哪些行。如果知道对象的分片键，就可以回答下面这两个问题：</p>
+<ul>
+<li>我应该把这些数据存储在哪里？</li>
+<li>在哪里可以找到我需要获取的数据？</li>
+</ul>
+<p>一个良好的分片键通常是数据库中一个非常重要的实体的主键。这些键决定了分片的单元</p>
+<h3 id="多个分片键">多个分片键</h3>
+<p>应用程序可能需要从不同的角度看到一个有效的、连贯的数据视图。这意味着可能需要在系统中至少将一些数据存储两次。</p>
+<p>例如，你可能需要通过用户ID和博文ID这两者来切分博客应用的数据，因为这是应用程序查看数据的两种常见方式。</p>
+<p>仅仅因为需要多个分片键，并不意味着需要设计两份完全冗余的数据存储。让我们看另一个例子：一个社交网络的读书俱乐部网站，此网站的用户可以对书籍发表评论，而该网站可以显示对一本书的所有评论，以及用户已经阅读和评论的所有书籍。</p>
+<p>可以为用户数据构建一份切分的数据存储，并为书籍数据构建另一份。评论数据同时具有用户ID和书籍ID，因此它们跨越了不同的分片。<br>
+可以按用户数据来存储评论，然后按书籍数据仅存储评论的标题和ID，而不是完全复制评论。这可能足以在不访问两份数据存储的情况下呈现书籍评论的大多数视图，如果需要显示完整的评论文本，则可以从用户数据存储中检索它。</p>
+<h3 id="跨分片查询">跨分片查询</h3>
+<p>如果跨分片查询是例外情况而不是常态，你所选择的分片方案就是一个好方案</p>
+<p>跨分片查询也可以从汇总表中获益。可以通过遍历所有分片并在完成后将结果冗余地存储在每个分片上来构建汇总表。</p>
+<p>跨分片查询并不是使用分片技术后唯一的难题，维护数据的一致性也很困难。外键不能跨分片工作，所以通常的解决方案是根据应用程序的需要检查引用完整性，或者当分片的内部一致性很重要的时候可以在分片中使用外键。可以使用X A事务（参见链接41），但由于开销问题，这在实践中并不常见。</p>
+<h1 id="ch12-云端的mysql">ch12 云端的MySQL</h1>
+<h1 id="ch13-mysql的合规性">ch13 MySQL的合规性</h1>
+<p>2024-03-25 21:12</p>
+</div></div>
+					</body>
+				</html>
+			

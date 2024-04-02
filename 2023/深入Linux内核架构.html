@@ -1,0 +1,2761 @@
+
+				<!DOCTYPE html>
+				<html>
+					<head>
+						<meta charset="UTF-8">
+						<meta name="viewport" content="width=device-width, initial-scale=1" />
+						<link rel="stylesheet" href="pluginAssets/katex/katex.css"><link rel="stylesheet" href="pluginAssets/highlight.js/atom-one-light.css">
+						<title>深入Linux内核架构</title>
+					</head>
+					<body>
+						<div class="exported-note"><div class="exported-note-title">深入Linux内核架构</div>
+
+<style>
+		/* https://necolas.github.io/normalize.css/ */
+		html{line-height:1.15;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%}body{margin:0}
+		article,aside,footer,header,nav,section{display:block}h1{font-size:2em;margin:.67em 0}hr{box-sizing:content-box;height:0;overflow:visible}
+		pre{font-family:monospace,monospace;font-size:1em}a{background-color:transparent;-webkit-text-decoration-skip:objects}
+		b,strong{font-weight:bolder}small{font-size:80%}img{border-style:none}
+
+		body {
+			font-size: 15px;
+			color: #32373F;
+			word-wrap: break-word;
+			line-height: 1.6em;
+			background-color: #ffffff;
+			font-family: 'Avenir', 'Arial', sans-serif;
+			padding-bottom: 0px;
+			padding-top: 0px;
+		}
+		kbd {
+			border: 1px solid rgb(220, 220, 220);
+			box-shadow: inset 0 -1px 0 rgb(220, 220, 220);
+			padding: 2px 4px;
+			border-radius: 3px;
+			background-color: rgb(243, 243, 243);
+		}
+		::-webkit-scrollbar {
+			width: 7px;
+			height: 7px;
+		}
+		::-webkit-scrollbar-corner {
+			background: none;
+		}
+		::-webkit-scrollbar-track {
+			border: none;
+		}
+		::-webkit-scrollbar-thumb {
+			background: rgba(100, 100, 100, 0.3); 
+			border-radius: 5px;
+		}
+		::-webkit-scrollbar-track:hover {
+			background: rgba(0, 0, 0, 0.1); 
+		}
+		::-webkit-scrollbar-thumb:hover {
+			background: rgba(100, 100, 100, 0.7); 
+		}
+
+		
+
+		/* Remove top padding and margin from first child so that top of rendered text is aligned to top of text editor text */
+
+		#rendered-md > h1:first-child,
+		#rendered-md > h2:first-child,
+		#rendered-md > h3:first-child,
+		#rendered-md > h4:first-child,
+		#rendered-md > ul:first-child,
+		#rendered-md > ol:first-child,
+		#rendered-md > table:first-child,
+		#rendered-md > blockquote:first-child,
+		#rendered-md > img:first-child,
+		#rendered-md > p:first-child {
+			margin-top: 0;
+			padding-top: 0;
+		}
+		
+		p, h1, h2, h3, h4, h5, h6, ul, table {
+			margin-top: .6em;
+			margin-bottom: 1.35em;
+
+			/*
+				Adds support for RTL text in the note body. It automatically detects the direction using the content.
+				Issue: https://github.com/laurent22/joplin/issues/3991
+			*/
+			unicode-bidi: plaintext;
+		}
+
+		h1, h2, h3, h4, h5, h6, ul, table {
+			margin-bottom: 0.65em;
+		}
+
+		h1, h2, h3, h4, h5, h6 {
+			line-height: 1.5em;
+		}
+		h1 {
+			font-size: 1.5em;
+			font-weight: bold;
+			border-bottom: 1px solid #dddddd;
+			padding-bottom: .3em;
+		}
+		h2 {
+			font-size: 1.3em;
+			font-weight: bold;
+			padding-bottom: .1em; */
+		}
+		h3 {
+			font-size: 1.1em;
+			font-weight: bold;
+		}
+		h4, h5, h6 {
+			font-size: 1em;
+			font-weight: bold;
+		}
+
+		.exported-note-title {
+			font-size: 2em;
+			font-weight: bold;
+			margin-bottom: 0.8em;
+			line-height: 1.5em;
+			padding-bottom: .35em;
+			border-bottom: 1px solid #dddddd;
+		}
+
+		a {
+			color: #155BDA;
+		}
+		ul, ol {
+			padding-left: 0;
+			margin-left: 1.7em;
+		}
+		li {
+			margin-bottom: .4em;
+		}
+		li p {
+			margin-top: 0.2em;
+			margin-bottom: 0;
+		}
+
+		.resource-icon {
+			display: inline-block;
+			position: relative;
+			top: 0.3em;
+			text-decoration: none;
+			width: 1.2em;
+			height: 1.4em;
+			margin-right: 0.4em;
+			background-color:  #155BDA;
+		}
+    /* These icons are obtained from the wonderful ForkAwesome project by copying the src svgs 
+     * into the css classes below.
+     * svgs are obtained from https://github.com/ForkAwesome/Fork-Awesome/tree/master/src/icons/svg
+     * instead of the svg width, height property you must use a viewbox here, 0 0 1536 1792 is typically the actual size of the icon
+     * each line begins with the pre-amble -webkit-mask: url("data:image/svg+xml;utf8,
+     * and of course finishes with ");
+     * to precvent artifacts it is also necessary to include -webkit-mask-repeat: no-repeat;
+     * on the following line
+     * */
+		.fa-joplin {
+			/* Awesome Font file */
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M373.834 128C168.227 128 0 296.223 0 501.834v788.336C0 1495.778 168.227 1664 373.834 1664h788.336c205.608 0 373.83-168.222 373.83-373.83V501.834C1536 296.224 1367.778 128 1162.17 128zm397.222 205.431h417.424a7.132 7.132 0 0 1 7.132 7.133v132.552c0 4.461-3.619 8.073-8.077 8.073h-57.23c-24.168 0-43.768 19.338-44.284 43.374v2.377h-.017v136.191h-.053l-.466 509.375c-5.02 77.667-39.222 149.056-96.324 201.046-60.28 54.834-141.948 85.017-229.962 85.017-12.45 0-25.208-.61-37.907-1.785-92.157-8.682-181.494-48.601-251.662-112.438-71.99-65.517-117.147-150.03-127.164-238-11.226-98.763 23.42-192.783 95.045-257.937 81.99-74.637 198.185-101.768 316.613-75.704 5.574 1.227 9.55 6.282 9.55 11.997v199.52c-.199 2.625-1.481 6.599-8.183 2.896-.663-.365-1.194-.511-1.653-.531-21.987-10.587-45.159-17.57-68.559-19.916-.38-.04-.757-.124-1.138-.163-.537-.048-1.034-.033-1.556-.075-4.13-.354-8.183-.517-12.203-.58-.87-.011-1.771-.127-2.641-.127-.486 0-.951.05-1.437.057-1.464.011-2.886.115-4.33.163-2.76.102-5.497.211-8.182.448-.273.024-.547.07-.835.097-25.509 2.4-47.864 11.104-65.012 25.47-.954.802-1.974 1.53-2.9 2.36a1.34 1.34 0 0 1-.168.146c-23.96 21.8-34.881 53.872-30.726 90.316 4.62 40.737 26.94 81.156 62.841 113.823 35.908 32.67 80.335 52.977 125.113 57.186 35.118 3.36 66.547-3.919 89.899-20.461a97.255 97.255 0 0 0 9.365-7.501c2.925-2.661 5.569-5.5 8.086-8.416.3-.348.672-.673.975-1.024 8.253-9.864 14.222-21.067 17.996-33.148.639-2.034 1.051-4.148 1.564-6.227.381-1.563.81-3.106 1.112-4.693.555-2.784.923-5.632 1.253-8.49.086-.709.183-1.414.237-2.128.492-4.893.693-9.858.55-14.91h.013V521.623c-2.01-22.626-20.78-40.434-43.928-40.434h-57.23a8.071 8.071 0 0 1-8.077-8.073V340.564a7.132 7.132 0 0 1 7.136-7.133z'/></svg>");
+		}
+		.fa-file-image {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zm-128-448v320H256v-192l192-192 128 128 384-384zm-832-192c-106 0-192-86-192-192s86-192 192-192 192 86 192 192-86 192-192 192z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-pdf {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zm-514-593c25 20 53 38 84 56 42-5 81-7 117-7 67 0 152 8 177 49 7 10 13 28 2 52-1 1-2 3-3 4v1c-3 18-18 38-71 38-64 0-161-29-245-73-139 15-285 46-392 83-103 176-182 262-242 262-10 0-19-2-28-7l-24-12c-3-1-4-3-6-5-5-5-9-16-6-36 10-46 64-123 188-188 8-5 18-2 23 6 1 1 2 3 2 4 31-51 67-116 107-197 45-90 80-178 104-262-32-109-42-221-24-287 7-25 22-40 42-40h22c15 0 27 5 35 15 12 14 15 36 9 68-1 3-2 6-4 8 1 3 1 5 1 8v30c-1 63-2 123-14 192 35 105 87 190 146 238zm-576 411c30-14 73-57 137-158-75 58-122 124-137 158zm398-920c-10 28-10 76-2 132 3-16 5-31 7-44 2-17 5-31 7-43 1-3 2-5 4-8-1-1-1-3-2-5-1-18-7-29-13-36 0 2-1 3-1 4zm-124 661c88-35 186-63 284-81-10-8-20-15-29-23-49-43-93-103-127-176-19 61-47 126-83 197-15 28-30 56-45 83zm646-16c-5-5-31-24-140-24 49 18 94 28 124 28 9 0 14 0 18-1 0-1-1-2-2-3z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-word {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zM233 768v107h70l164 661h159l128-485c5-15 8-30 10-46 1-8 2-16 2-24h4l3 24c3 14 4 30 9 46l128 485h159l164-661h70V768h-300v107h90l-99 438c-4 16-6 33-7 46l-2 21h-4c0-6-2-14-3-21-3-13-5-30-9-46L825 768H711l-144 545c-4 16-5 33-8 46l-4 21h-4l-2-21c-1-13-3-30-7-46l-99-438h90V768H233z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-powerpoint {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zm-992-234v106h327v-106h-93v-167h137c43 0 82-2 118-15 90-31 146-124 146-233s-54-193-137-228c-38-15-84-19-130-19H416v107h92v555h-92zm353-280H650V882h120c35 0 62 6 83 18 36 21 56 62 56 115 0 56-20 99-62 120-21 10-47 15-78 15z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-excel {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zm-979-234v106h281v-106h-75l103-161c12-19 18-34 21-34h2c1 4 3 7 5 10 4 8 10 14 17 24l107 161h-76v106h291v-106h-68l-192-273 195-282h67V768H828v107h74l-103 159c-12 19-21 34-21 33h-2c-1-4-3-7-5-10-4-7-9-14-17-23L648 875h76V768H434v107h68l189 272-194 283h-68z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-audio {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zM620 850c12 5 20 17 20 30v544c0 13-8 25-20 30-4 1-8 2-12 2-8 0-16-3-23-9l-166-167H288c-18 0-32-14-32-32v-192c0-18 14-32 32-32h131l166-167c10-9 23-12 35-7zm417 689c19 0 37-8 50-24 83-102 129-231 129-363s-46-261-129-363c-22-28-63-32-90-10-28 23-32 63-9 91 65 80 100 178 100 282s-35 202-100 282c-23 28-19 68 9 90 12 10 26 15 40 15zm-211-148c17 0 34-7 47-20 56-60 87-137 87-219s-31-159-87-219c-24-26-65-27-91-3-25 24-27 65-2 91 33 36 52 82 52 131s-19 95-52 131c-25 26-23 67 2 91 13 11 29 17 44 17z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-video {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zM768 768c70 0 128 58 128 128v384c0 70-58 128-128 128H384c-70 0-128-58-128-128V896c0-70 58-128 128-128h384zm492 2c12 5 20 17 20 30v576c0 13-8 25-20 30-4 1-8 2-12 2-8 0-17-3-23-9l-265-266v-90l265-266c6-6 15-9 23-9 4 0 8 1 12 2z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-archive {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M640 384V256H512v128h128zm128 128V384H640v128h128zM640 640V512H512v128h128zm128 128V640H640v128h128zm700-388c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H768v128H640V128H128v1536h1280zM781 943c85 287 107 349 107 349 5 17 8 34 8 52 0 111-108 192-256 192s-256-81-256-192c0-18 3-35 8-52 0 0 21-62 120-396V768h128v128h79c29 0 54 19 62 47zm-141 465c71 0 128-29 128-64s-57-64-128-64-128 29-128 64 57 64 128 64z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-code {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zM480 768c11-14 31-17 45-6l51 38c14 11 17 31 6 45l-182 243 182 243c11 14 8 34-6 45l-51 38c-14 11-34 8-45-6l-226-301c-8-11-8-27 0-38zm802 301c8 11 8 27 0 38l-226 301c-11 14-31 17-45 6l-51-38c-14-11-17-31-6-45l182-243-182-243c-11-14-8-34 6-45l51-38c14-11 34-8 45 6zm-620 461c-18-3-29-20-26-37l138-831c3-18 20-29 37-26l63 10c18 3 29 20 26 37l-138 831c-3 18-20 29-37 26z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-alt, .fa-file-csv {
+      /* fork-awesome doesn't have csv so we use the text icon */
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zM384 800c0-18 14-32 32-32h704c18 0 32 14 32 32v64c0 18-14 32-32 32H416c-18 0-32-14-32-32v-64zm736 224c18 0 32 14 32 32v64c0 18-14 32-32 32H416c-18 0-32-14-32-32v-64c0-18 14-32 32-32h704zm0 256c18 0 32 14 32 32v64c0 18-14 32-32 32H416c-18 0-32-14-32-32v-64c0-18 14-32 32-32h704z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		blockquote {
+			border-left: 4px solid rgb(220, 220, 220);
+			padding-left: 1.2em;
+			margin-left: 0;
+			opacity: 0.7;
+		}
+
+		.jop-tinymce table,
+		table {
+			text-align: left;
+			border-collapse: collapse;
+			border: 1px solid rgb(220, 220, 220);
+			background-color: #ffffff;
+		}
+
+		.jop-tinymce table td, .jop-tinymce table th,
+		table td, th {
+			text-align: left;
+			padding: .5em 1em .5em 1em;
+			font-size: 15;
+			color: #32373F;
+			font-family: 'Avenir', 'Arial', sans-serif;
+		}
+
+		.jop-tinymce table td,
+		table td {
+			border: 1px solid rgb(220, 220, 220);
+		}
+
+		.jop-tinymce table th,
+		table th {
+			border: 1px solid rgb(220, 220, 220);
+			border-bottom: 2px solid rgb(220, 220, 220);
+			background-color: rgb(247, 247, 247);
+		}
+
+		.jop-tinymce table tr:nth-child(even),
+		table tr:nth-child(even) {
+			background-color: rgb(247, 247, 247);
+		}
+
+		.jop-tinymce table tr:hover,
+		table tr:hover {
+			background-color: #e5e5e5;
+		}
+
+		hr {
+			border: none;
+			border-bottom: 2px solid #dddddd;
+		}
+		img {
+			max-width: 100%;
+			height: auto;
+		}
+		
+		.inline-code,
+		.mce-content-body code {
+			border: 1px solid rgb(220, 220, 220);
+			background-color: rgb(243, 243, 243);
+			padding-right: .2em;
+			padding-left: .2em;
+			border-radius: .25em;
+			color: rgb(0,0,0);
+			font-size: .9em;
+		}
+
+		.highlighted-keyword {
+			background-color: #F3B717;
+			color: black;
+		}
+
+		.not-loaded-resource img {
+			width: 1.15em;
+			height: 1.15em;
+			background: white;
+			padding: 2px !important;
+			border-radius: 2px;
+			box-shadow: 0 1px 3px #000000aa;
+		}
+
+		a.not-loaded-resource img {
+			margin-right: .2em;
+		}
+
+		a.not-loaded-resource {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+		}
+
+		.md-checkbox input[type=checkbox]:checked {
+			opacity: 0.7;
+		}
+
+		.jop-tinymce ul.joplin-checklist .checked,
+		.md-checkbox .checkbox-label-checked {
+			opacity: 0.5;
+		}
+
+		.exported-note {
+			padding: 1em;
+		}
+
+		.joplin-editable .joplin-source {
+			display: none;
+		}
+
+		mark {
+			background: #F7D26E;
+			color: black;
+		}
+
+		/* =============================================== */
+		/* For TinyMCE */
+		/* =============================================== */
+
+		.mce-content-body {
+			/* Note: we give a bit more padding at the bottom, to allow scrolling past the end of the document */
+			padding: 5px 10px 10em 0;
+		}
+
+		/*
+		.mce-content-body code {
+			background-color: transparent;
+		}
+		*/
+
+		.mce-content-body [data-mce-selected=inline-boundary] {
+			background-color: transparent;
+		}
+
+		.mce-content-body .joplin-editable {
+			cursor: pointer !important;
+		}
+
+		.mce-content-body.mce-content-readonly {
+			opacity: 0.5;
+		}
+
+		/* We need that to make sure click events have the A has a target */
+		.katex a span {
+			pointer-events: none;
+		}
+
+		.media-player {
+			width: 100%;
+			margin-top: 10px;
+		}
+
+		.media-player.media-pdf {
+			min-height: 35rem;
+			width: 100%;
+			max-width: 1000px;
+			margin: 0;
+			border: 0;
+			display: block;
+		}
+
+		/* Clear the CODE style if the element is within a joplin-editable block */
+		.mce-content-body .joplin-editable code {
+			border: none;
+			background: none;
+			padding: 0;
+			color: inherit;
+			font-size: inherit;
+		}
+
+		/* To make code blocks horizontally scrollable */
+		/* https://github.com/laurent22/joplin/issues/5740 */
+		pre.hljs {
+			overflow-x: auto;
+		}
+
+		/* =============================================== */
+		/* For TinyMCE */
+		/* =============================================== */
+
+		@media print {
+			body {
+				height: auto !important;
+			}
+
+			pre {
+				white-space: pre-wrap;
+			}
+
+			.code, .inline-code {
+				border: 1px solid #CBCBCB;
+			}
+
+			#joplin-container-content {
+				/* The height of the content is set dynamically by JavaScript (in updateBodyHeight) to go
+				   around various issues related to scrolling. However when printing we don't want this
+				   fixed size as that would crop the content. So we set it to auto here. "important" is
+				   needed to override the style set by JavaScript at the element-level. */
+				height: auto !important;
+			}
+		}
+	
+
+				/*
+					FOR THE MARKDOWN EDITOR
+				*/
+
+				/* Remove the indentation from the checkboxes at the root of the document
+				   (otherwise they are too far right), but keep it for their children to allow
+				   nested lists. Make sure this value matches the UL margin. */
+
+				li.md-checkbox {
+					list-style-type: none;
+				}
+
+				li.md-checkbox input[type=checkbox] {
+					margin-left: -1.71em;
+					margin-right: 0.7em;
+				}
+				
+				ul.joplin-checklist {
+					list-style:none;
+				}
+
+				/*
+					FOR THE RICH TEXT EDITOR
+				*/
+
+				ul.joplin-checklist li::before {
+					content:"\f14a";
+					font-family:"Font Awesome 5 Free";
+					background-size: 16px 16px;
+					pointer-events: all;
+					cursor: pointer;
+					width: 1em;
+					height: 1em;
+					margin-left: -1.3em;
+					position: absolute;
+					color: #32373F;
+				}
+
+				.joplin-checklist li:not(.checked)::before {
+					content:"\f0c8";
+				}</style><div id="rendered-md"><p>深入Linux内核架构</p>
+<p>2.6.24  2008.1 太老了。</p>
+<p>2024-03-26 17:37</p>
+<nav class="table-of-contents"><ul><li><a href="#ch01-简介和概述">ch01 简介和概述</a><ul><li><a href="#实现策略">实现策略</a></li><li><a href="#内核的组成部分">内核的组成部分</a></li><li><a href="#命名空间">命名空间</a></li><li><a href="#虚拟地址">虚拟地址</a></li><li><a href="#特权">特权</a></li><li><a href="#页表">页表</a><ul><li><a href="#全局页目录中间页目录页表页目录偏移量">全局页目录，中间页目录，页表/页目录，偏移量</a></li></ul></li><li><a href="#内存映射">内存映射</a></li><li><a href="#伙伴系统">伙伴系统</a><ul><li><a href="#slab缓存">slab缓存</a></li></ul></li><li><a href="#页面交换和页面回收">页面交换和页面回收</a></li><li><a href="#137-系统调用">1.3.7 系统调用</a></li><li><a href="#设备驱动程序块设备字符设备">设备驱动程序，块设备，字符设备</a></li><li><a href="#网络">网络</a></li><li><a href="#文件系统">文件系统</a></li><li><a href="#模块与热插拔">模块与热插拔</a></li><li><a href="#缓存">缓存</a></li><li><a href="#链表处理">链表处理</a></li><li><a href="#对象管理和引用计数">对象管理和引用计数</a></li><li><a href="#数据类型">数据类型</a><ul><li><a href="#字节序">字节序</a></li></ul></li></ul></li><li><a href="#ch02-进程管理和调度">ch02 进程管理和调度</a><ul><li><a href="#21-进程优先级">2.1 进程优先级</a></li><li><a href="#进程生命周期">进程生命周期</a></li><li><a href="#进程表示">进程表示</a><ul><li><a href="#资源限制">资源限制</a></li><li><a href="#进程类型">进程类型</a></li><li><a href="#命名空间-1">命名空间</a></li><li><a href="#进程idpid">进程ID，pid</a></li></ul></li><li><a href="#24-进程管理相关的系统调用">2.4 进程管理相关的系统调用</a><ul><li><a href="#进程复制">进程复制</a></li><li><a href="#内核线程">内核线程</a></li></ul></li><li><a href="#25-调度器的实现">2.5 调度器的实现</a><ul><li><a href="#数据结构">数据结构</a></li><li><a href="#处理优先级">处理优先级</a></li><li><a href="#核心调度器">核心调度器</a><ul><li><a href="#周期性调度器">周期性调度器</a></li><li><a href="#主调度器">主调度器</a></li><li><a href="#与fork的交互">与fork的交互</a></li><li><a href="#上下文切换">上下文切换</a></li></ul></li></ul></li><li><a href="#26-完全公平调度类">2.6 完全公平调度类</a><ul><li><a href="#数据结构-1">数据结构</a></li><li><a href="#cfs操作">CFS操作</a></li><li><a href="#队列操作">队列操作</a></li><li><a href="#选择下一个进程">选择下一个进程</a></li><li><a href="#处理周期性调度器">处理周期性调度器</a></li><li><a href="#唤醒抢占">唤醒抢占</a></li></ul></li><li><a href="#27-实时调度类">2.7 实时调度类</a><ul><li><a href="#数据结构-2">数据结构</a></li><li><a href="#调度器操作">调度器操作</a></li></ul></li><li><a href="#28-调度器增强">2.8 调度器增强</a><ul><li><a href="#smp调度">SMP调度</a></li><li><a href="#调度域和控制组">调度域和控制组</a></li><li><a href="#内核抢占和低延迟相关工作">内核抢占和低延迟相关工作</a></li></ul></li></ul></li><li><a href="#ch03-内存管理-107">ch03 内存管理 107</a><ul><li><a href="#32-numa-模型中的内存组织">3.2 (N)UMA 模型中的内存组织</a><ul><li><a href="#数据结构-3">数据结构</a><ul><li><a href="#结点管理">结点管理</a></li><li><a href="#内存域">内存域</a></li><li><a href="#冷热页">冷热页</a></li><li><a href="#页帧">页帧</a></li></ul></li></ul></li><li><a href="#33-页表">3.3 页表</a><ul><li><a href="#数据结构-4">数据结构</a></li></ul></li><li><a href="#34-初始化内存管理">3.4 初始化内存管理</a><ul><li><a href="#内核在内存中的布局">内核在内存中的布局</a></li><li><a href="#343-启动过程期间的内存管理">3.4.3 启动过程期间的内存管理</a></li></ul></li><li><a href="#35-物理内存的管理">3.5 物理内存的管理</a><ul><li><a href="#351-伙伴系统的结构">3.5.1 伙伴系统的结构</a><ul><li><a href="#阶">阶</a></li></ul></li><li><a href="#避免碎片">避免碎片</a></li><li><a href="#初始化内存域和结点数据结构">初始化内存域和结点数据结构</a></li><li><a href="#分配器api">分配器API</a></li><li><a href="#分配页">分配页</a></li><li><a href="#356-释放页">3.5.6 释放页</a></li><li><a href="#内核中不连续页的分配">内核中不连续页的分配</a><ul><li><a href="#释放内存">释放内存</a></li></ul></li><li><a href="#358-内核映射">3.5.8 内核映射</a></li></ul></li><li><a href="#36-slab分配器">3.6 slab分配器</a><ul><li><a href="#备选分配器">备选分配器</a></li><li><a href="#slab分配的原理">slab分配的原理</a></li><li><a href="#通用缓存">通用缓存</a></li></ul></li><li><a href="#37-处理器高速缓存和-tlb-控制">3.7 处理器高速缓存和 TLB 控制</a></li></ul></li><li><a href="#ch04-进程虚拟内存">ch04 进程虚拟内存</a><ul><li><a href="#42-进程虚拟地址空间">4.2 进程虚拟地址空间</a><ul><li><a href="#进程地址空间的布局">进程地址空间的布局</a></li><li><a href="#建立布局">建立布局</a></li></ul></li><li><a href="#43-内存映射的原理">4.3 内存映射的原理</a></li><li><a href="#44-数据结构">4.4 数据结构</a><ul><li><a href="#树和链表">树和链表</a></li><li><a href="#虚拟内存区域的表示">虚拟内存区域的表示</a></li><li><a href="#443-优先查找树">4.4.3 优先查找树</a></li></ul></li><li><a href="#对区域的操作">对区域的操作</a><ul><li><a href="#将虚拟地址关联到区域">将虚拟地址关联到区域</a></li><li><a href="#区域合并">区域合并</a></li><li><a href="#插入区域">插入区域</a></li><li><a href="#创建区域">创建区域</a></li></ul></li><li><a href="#46-地址空间">4.6 地址空间</a></li><li><a href="#47-内容映射">4.7 内容映射</a><ul><li><a href="#创建映射">创建映射</a></li><li><a href="#删除映射">删除映射</a></li><li><a href="#非线性映射">非线性映射</a></li></ul></li><li><a href="#48-反向映射">4.8 反向映射</a></li><li><a href="#49-堆的管理">4.9 堆的管理</a></li><li><a href="#410-缺页异常的处理">4.10 缺页异常的处理</a></li><li><a href="#413-在内核和用户空间之间复制数据">4.13 在内核和用户空间之间复制数据</a></li></ul></li><li><a href="#ch05-锁与进程间通信-277">ch05 锁与进程间通信 277</a><ul><li><a href="#52-内核锁机制">5.2 内核锁机制</a><ul><li><a href="#524-rcu机制">5.2.4 RCU机制</a></li><li><a href="#525-内存和优化屏障">5.2.5 内存和优化屏障</a></li><li><a href="#527-大内核锁">5.2.7 大内核锁</a></li></ul></li><li><a href="#53-system-v-进程间通信">5.3 System V 进程间通信</a><ul><li><a href="#532-信号量">5.3.2 信号量</a></li><li><a href="#533-消息队列">5.3.3 消息队列</a></li><li><a href="#534-共享内存">5.3.4 共享内存</a></li></ul></li><li><a href="#54-其他ipc机制">5.4 其他IPC机制</a><ul><li><a href="#541-信号">5.4.1 信号</a></li><li><a href="#542-管道和套接字">5.4.2 管道和套接字</a></li></ul></li></ul></li><li><a href="#ch06-设备驱动程序-312">ch06 设备驱动程序 312</a></li><li><a href="#ch07-模块-377">ch07 模块 377</a></li><li><a href="#ch08-虚拟文件系统-413">ch08 虚拟文件系统 413</a></li><li><a href="#ch09-ext文件系统族-464">ch09 Ext文件系统族 464</a></li><li><a href="#ch10-无持久存储的文件系统-512">ch10 无持久存储的文件系统 512</a></li><li><a href="#ch11-扩展属性和访问控制表-565">ch11 扩展属性和访问控制表 565</a></li><li><a href="#ch12-网络-586">ch12 网络 586</a></li><li><a href="#ch13-系统调用-655">ch13 系统调用 655</a></li><li><a href="#ch14-内核活动-678">ch14 内核活动 678</a></li><li><a href="#ch15-时间管理-714">ch15 时间管理 714</a></li><li><a href="#ch16-页缓存和块缓存-761">ch16 页缓存和块缓存 761</a></li><li><a href="#ch17-数据同步-793">ch17 数据同步 793</a></li><li><a href="#ch18-页面回收和页交换-821">ch18 页面回收和页交换 821</a></li><li><a href="#ch19-审计-882">ch19 审计 882</a></li></ul></nav><hr>
+<hr>
+<h1 id="ch01-简介和概述">ch01 简介和概述</h1>
+<p>版本2.6.24，2008年1月末</p>
+<p>。。 v6.9-rc1 。。</p>
+<p>在纯技术层面上，<mark>内核是硬件与软件之间的一个中间层</mark>。<br>
+其作用是<mark>将应用程序的请求传递给硬件</mark>，并<mark>充当底层驱动程序，对系统中的各种设备和组件进行寻址</mark></p>
+<h2 id="实现策略">实现策略</h2>
+<p>OS方面，主要有2种主要的范型</p>
+<ul>
+<li>微内核，最基本的功能由微内核实现。其他功能委托给独立的进程，它们可以和 微内核通信</li>
+<li>宏内核，构建系统内核的传统方法。内核的全部代码，包括所有子系统（如内存管理、文件系统、设备驱动程序）都打包到一个文件中。内核中的每个函数都可以访问内核中所有其他部分</li>
+</ul>
+<p>Linux 是宏内核。<br>
+宏内核的性能比 微内核好。 (因为不需要IPC，频繁的用户态/内核态切换)</p>
+<h2 id="内核的组成部分">内核的组成部分</h2>
+<p><img src="../_resources/e984e81f1996421789f1934b5d5f270e.png" alt="0b885d9332b554f5650b8dd4d4f8ef97.png"></p>
+<hr>
+<p>每个进程都在CPU的虚拟内存中分配地址空间。<br>
+各个进程的地址空间是完全独立的，因此<mark>进程并不会意识到彼此的存在</mark>。</p>
+<ul>
+<li>进程切换</li>
+<li>调度，确定哪个进程运行多长时间</li>
+</ul>
+<p>Linux对进程采用了一种层次系统，每个进程都依赖于一个父进程。<br>
+内核启动init程序作为第一个进程，该进程负责进一步的系统初始化操作，并显示登录提示符或图形登录界面（现在使用比较广泛）。<br>
+因此init是进程树的根，所有进程都直接或间接起源自该进程</p>
+<p>pstree 查看系统进程树，init是root</p>
+<p>UNIX OS有2种创建新进程的方法</p>
+<ul>
+<li>fork，创建当前进程的一个副本，父进程和子进程 只有 PID(进程ID) 不同，linux使用 COW(写时复制，copy on write) 来让 fork 更高效</li>
+<li>exec，将一个新程序加载到当前进程的内存中并执行</li>
+</ul>
+<p>Linux使用 clone 来创建<mark>线程</mark>。工作方式类似 fork， 但使用 精确的检查，以确认哪些资源 与父进程共享，哪些资源 为线程独立创建。</p>
+<h2 id="命名空间">命名空间</h2>
+<p>命名空间，这使得不同的进程可以看到不同的系统视图。<br>
+启用命名空间之后，以前的全局资源现在具有不同分组。每个命名空间可以包含一个特定的PID集合，或可以提供文件系统的不同视图，在某个命名空间中挂载的卷不会传播到其他命名空间中。</p>
+<h2 id="虚拟地址">虚拟地址</h2>
+<p>Linux将虚拟地址空间划分为两个部分，分别称为内核空间和用户空间</p>
+<p>系统中每个用户进程都有自身的虚拟地址范围，从0到TASK_SIZE。<br>
+用户空间之上的区域（从TASK_SIZE到232或264）保留给内核专用，用户进程不能访问。<br>
+TASK_SIZE是一个特定于计算机体系结构的常数</p>
+<p>由于地址空间虚拟化的结果，<mark>每个用户进程都认为自身有3 GiB内存</mark>。<br>
+各个系统进程的<mark>用户空间是完全彼此分离</mark>的。<br>
+而虚拟地址空间顶部的<mark>内核空间总是同样的</mark>，无论当前执行的是哪个进程</p>
+<h2 id="特权">特权</h2>
+<p>尽管英特尔处理器区分4种特权级别，但Linux只使用两种不同的状态：核心态和用户状态。</p>
+<p>用户进程不能操作或读取内核空间中的数据，也<mark>无法执行内核空间中的代码</mark>。</p>
+<p>从用户状态到核心态的<mark>切换</mark>通过<mark>系统调用</mark>的特定转换手段完成</p>
+<p>除了代表用户程序执行代码之外，内核还可以由异步硬件中断激活，然后在中断上下文中运行。<br>
+与在进程上下文中运行的主要区别是，在中断上下文中运行不能访问虚拟地址空间中的用户空间部分。</p>
+<hr>
+<p>在核心态和用户状态执行。<br>
+CPU大多数时间都在执行用户空间中的代码。<br>
+当应用程序执行系统调用时，则切换到核心态，内核将完成其请求。<br>
+在<mark>此期间，内核可以访问虚拟地址空间的用户部分</mark>。<br>
+在系统调用完成之后，CPU切换回用户状态。<br>
+<mark>硬件中断</mark>也会使CPU切换到核心态，这种情况下<mark>内核不能访问用户空间</mark></p>
+<p><code class="inline-code">ps fax</code><br>
+在多处理器系统上，<mark>许多线程启动时指定了CPU，并限制只能在某个特定的CPU上运行</mark>。<br>
+从内核线程名称之后的斜线和CPU编号可以看到这一点。</p>
+<h2 id="页表">页表</h2>
+<p><mark>页表</mark>来为物理地址分配虚拟地址。虚拟地址关系到进程的用户空间和内核空间，而物理地址则用来寻址实际可用的内存</p>
+<p>物理内存页经常称作页帧。相比之下，页则专指虚拟地址空间中的页。</p>
+<p>由于内核负责将虚拟地址空间映射到物理地址空间，因此可以决定哪些内存区域<mark>在进程之间共享，哪些不共享</mark>。</p>
+<p>用来将虚拟地址空间映射到物理地址空间的数据结构称为<mark>页表</mark></p>
+<p>因为虚拟地址空间的大部分区域都没有使用，因而也没有关联到页帧，那么就可以使用功能相同但内存用量少得多的模型：<mark>多级分页</mark>。</p>
+<p>为减少页表的大小并容许忽略不需要的区域，计算机体系结构的设计会将虚拟地址划分为多个部分，如图1-7所示。（具体在地址字的哪些位区域进行划分，可能依不同的体系结构而异，但这与现在我们讨论的内容不相关）。<br>
+在例子中，我将虚拟地址划分为4部分，这样就需要一个三级的页表。大多数体系结构都是这样的做法。<br>
+但有一些采用了四级的页表，而Linux也采用了四级页表。为简化场景，我在这里会一直用三级页表阐述</p>
+<p><img src="../_resources/c0785cc2d099496eb388a8fbf90a7e03.png" alt="3e15cb6a188b6665027861c10b0f644b.png"></p>
+<h3 id="全局页目录中间页目录页表页目录偏移量">全局页目录，中间页目录，页表/页目录，偏移量</h3>
+<p>虚拟地址的第一部分称为全局页目录（Page Global Directory，PGD）。<br>
+PGD用于索引进程中的一个数组（每个进程有且仅有一个），该数组是所谓的全局页目录或PGD。<br>
+PGD的数组项指向另一些数组的起始地址，这些数组称为中间页目录（Page Middle Directory，PMD）。</p>
+<p>虚拟地址中的第二个部分称为PMD，在通过PGD中的数组项找到对应的PMD之后，则使用PMD来索引PMD。<br>
+PMD的数组项也是指针，指向下一级数组，称为页表或页目录。</p>
+<p>虚拟地址的第三个部分称为PTE（Page Table Entry，页表数组），用作页表的索引。<br>
+虚拟内存页和页帧之间的映射就此完成，因为页表的数组项是指向页帧的。</p>
+<p>虚拟地址最后的一部分称为偏移量。<br>
+它指定了页内部的一个字节位置。归根结底，每个地址都指向地址空间中唯一定义的某个字节</p>
+<p>页表的一个特色在于，对虚拟地址空间中不需要的区域，不必创建中间页目录或页表。与前述使用单个数组的方法相比，多级页表节省了大量内存。</p>
+<p>该方法也有一个缺点。每次访问内存时，必须逐级访问多个数组才能将虚拟地址转换为物理地址。<br>
+CPU试图用下面两种方法加速该过程。</p>
+<ol>
+<li>CPU中有一个专门的部分称为MMU（Memory Management Unit，内存管理单元），该单元优化了内存访问操作。</li>
+<li>地址转换中出现最频繁的那些地址，保存到称为地址转换后备缓冲器（Translation Lookaside Buffer，TLB）的CPU高速缓存中。无需访问内存中的页表即可从高速缓存直接获得地址数据，因而大大加速了地址转换</li>
+</ol>
+<p>内核与体系结构无关的部分总是假定使用四级页表。</p>
+<h2 id="内存映射">内存映射</h2>
+<p>映射方法可以将<mark>任意来源的数据传输到进程的虚拟地址空间中</mark>。<br>
+作为映射目标的地址空间区域，可以像普通内存那样用通常的方法访问。但任何修改都会自动传输到原数据源。<br>
+这样就可以使用相同的函数来处理完全不同的目标对象。<br>
+例如，文件的内容可以映射到内存中。<mark>处理只需读取相应的内存即可访问文件内容，或向内存写入数据来修改文件的内容</mark>。内核将保证任何修改都会自动同步到文件中。<br>
+内核在<mark>实现设备驱动程序时直接使用了内存映射</mark>。<mark>外设的输入/输出可以映射到虚拟地址空间的区域中</mark>。<mark>对相关内存区域的读写会由系统重定向到设备</mark>，因而大大简化了驱动程序的实现。</p>
+<p>。。和读取有什么区别？ 加载文件到内存， 是不是就是这个 内存映射？</p>
+<h2 id="伙伴系统">伙伴系统</h2>
+<p>在内核分配内存时，必须记录页帧的已分配或空闲状态，以免两个进程使用同样的内存区域。<br>
+。。但是 2个进程可以使用 相同的 物理内存区域的吧。 不过 切换的 时候 需要 移动，可能要 移到磁盘上。</p>
+<p>内存分配和释放非常频繁，内核还必须保证相关操作尽快完成。内核可以只分配完整的页帧。<br>
+<mark>将内存划分为更小的部分</mark>的工作，则委托给<mark>用户空间</mark>中的<mark>标准库</mark>。标准库将来源于内核的页帧拆分为小的区域，并为进程分配内存</p>
+<p>。。嗯</p>
+<p>内核中很多时候要求分配连续页。为快速检测内存中的连续区域，内核采用了一种古老而历经检验的技术：伙伴系统。</p>
+<p>系统中的空闲内存块总是两两分组，每组中的两个内存块称作伙伴。伙伴的分配可以是彼此独立的。<br>
+但如果两个伙伴都是空闲的，内核会将其合并为一个更大的内存块，作为下一层次上某个内存块的伙伴。</p>
+<p>内核对所有大小相同的伙伴（1、2、4、8、16或其他数目的页），都放置到同一个列表中管理。各有8页的一对伙伴也在相应的列表中。</p>
+<p>。。就是 merge，split。 当你需要 8个page时， 从 8page 的列表中找，找不到就 从 16page 的列表中找，没有就继续往上找， 找到后，就 split 成2份，放到 下一级中。<br>
+。。释放的时候，反向，看下能不能 合并成 上一级。<br>
+。。不过应该会保留一些吧。不然 感觉 每次都要 从上级找。</p>
+<p>在应用程序释放内存时，内核可以直接检查地址，来判断是否能够创建一组伙伴，并合并为一个更大的内存块放回到伙伴列表中，这刚好是内存块分裂的逆过程。这提高了较大内存块可用的可能性。</p>
+<p><mark>碎片</mark><br>
+频繁的分配和释放页帧可能导致一种情况：系统中有若干页帧是空闲的，但却散布在物理地址空间的各处<br>
+系统中缺乏连续页帧组成的较大的内存块，</p>
+<h3 id="slab缓存">slab缓存</h3>
+<p>内核本身经常需要比完整页帧小得多的内存块。由于<mark>内核无法使用标准库的函数</mark>，因而必须<mark>在伙伴系统基础上自行定义额外的内存管理层</mark>，将伙伴系统提供的页<mark>划分为更小的部分</mark>。<br>
+该方法不仅可以分配内存，还为频繁使用的小对象实现了一个一般性的缓存——slab缓存。</p>
+<p>它可以用两种方法分配内存</p>
+<ul>
+<li>对<mark>频繁使用</mark>的对象，内核定义了<mark>只包含了所需类型对象实例的缓存</mark>。每次需要某种对象时，可以从对应的缓存快速分配（使用后释放到缓存）。slab缓存自动维护与伙伴系统的交互，在缓存用尽时会请求新的页帧</li>
+<li>对通常情况下小内存块的分配，内核针对<mark>不同大小</mark>的对象定义了一组slab缓存，可以像用户空间编程一样，用相同的函数访问这些缓存。不同之处是这些函数都增加了前缀k，表明是与内核相关联的：<mark>kmalloc和kfree</mark>。</li>
+</ul>
+<p>。。第一个是 object pool ？ 第二个是 根据 size 建立 pool ？</p>
+<h2 id="页面交换和页面回收">页面交换和页面回收</h2>
+<p>页面交换通过利用磁盘空间作为扩展内存，从而增大了可用的内存</p>
+<p>通过<mark>缺页异常机制</mark>，这种切换操作对应用程序是透明的(。。无感的)。<br>
+在进程试图访问此类页帧时，CPU则启动一个可以<mark>被内核截取的缺页异常</mark>。此时内核可以将硬盘上的数据切换到内存中。接下来用户进程可以恢复运行。</p>
+<p>页面回收用于将内存映射<mark>被修改的内容与底层的块设备同步</mark>，为此有时<mark>也简称为数据回写</mark>。<br>
+数据刷出后，<mark>内核即可将页帧用于其他用途</mark>（类似于页面交换）。内核的数据结构<mark>包含了与此相关的所有信息</mark>，当<mark>再次需要该数据</mark>时，可根据相关信息<mark>从硬盘找到相应的数据</mark>并加载。</p>
+<p>。。数据回写，页帧回收，但是 进程不知道这个 页被回收了， 它还会访问这个页， 此时会 根据 内核中的信息，从 磁盘读取。<br>
+。。 但是，你回收后 用来干嘛？ 如果还是这个 进程使用的话， 下次 为什么会访问这个页？  除非 这个 页 不是这个进程使用， 但是 进程的 地址空间是独立的， 没有其他人会用啊，  内核不太可能 把 它自己的数据 加载到 用户空间 吧。</p>
+<p>。。<br>
+页面回收的基本思想就是将磁盘和内存看做一体,只是访问速度有差异,将经常访问的数据放到速度比较快的内存中,不经常访问的数据放到磁盘上.<br>
+。。<br>
+。。但是这是 页面交换啊。<br>
+。。主要是 书上说， 用作其他用途。  除非 这段内存 不是 进程申请的。 不然 不可能 页面回收，用作其他用途， 但是 进程空间，还有谁能 修改呢？</p>
+<p>计时<br>
+jiffies，一秒递增 100 - 1000 次<br>
+jiffies_64</p>
+<h2 id="137-系统调用">1.3.7 系统调用</h2>
+<p>系统调用是用户进程与内核交互的经典方法。</p>
+<p>POSIX标准定义了许多系统调用，以及这些系统调用在所有遵从POSIX的系统包括Linux上的语义。传统的系统调用<mark>按不同类别分组</mark>，如下所示。</p>
+<ul>
+<li>进程管理：创建新进程，查询信息，调试。</li>
+<li>信号：发送信号，定时器以及相关处理机制。</li>
+<li>文件：创建、打开和关闭文件，从文件读取和向文件写入，查询信息和状态。</li>
+<li>目录和文件系统：创建、删除和重命名目录，查询信息，链接，变更目录。</li>
+<li>保护机制：读取和变更UID/GID，命名空间的处理。</li>
+<li>定时器函数：定时器函数和统计信息。</li>
+</ul>
+<p>所有这些函数都对内核提出了要求。<br>
+这些函数不能以普通的用户库形式实现，因为<mark>需要特别的保护机制来保证系统稳定性或安全</mark>不受危及。<br>
+此外<mark>许多调用依赖内核内部的结构或函数</mark>来得到所需的数据或结果，这也导致了无法在用户空间实现。<br>
+在发出系统调用时，<mark>处理器</mark>必须<mark>改变特权级别</mark>，从用户状态切换到核心态。</p>
+<h2 id="设备驱动程序块设备字符设备">设备驱动程序，块设备，字符设备</h2>
+<p>设备驱动程序用于与系统连接的输入/输出装置通信，如硬盘、软驱、各种接口、声卡等</p>
+<p>按照经典的UNIX箴言“万物皆文件”（everything is a file），<mark>对外设的访问可利用/dev目录下的设备文件来完成</mark>，程序对设备的处理<mark>完全类似于常规的文件</mark></p>
+<p>设备驱动程序的任务在于支持应用程序经由设备文件与设备通信。换言之，使得能够按适当的方式在设备上读取/写入数据</p>
+<p>外设可分为以下两类</p>
+<ul>
+<li>字符设备<br>
+提供连续的数据流，应用程序可以顺序读取，通常不支持随机存取。<br>
+调制解调器是典型的字符设备</li>
+<li>块设备<br>
+应用程序可以随机访问设备数据，程序可自行确定读取数据的位置。<br>
+硬盘是典型的块设备</li>
+</ul>
+<h2 id="网络">网络</h2>
+<p>网卡也可以通过设备驱动程序控制，但在内核中属于特殊状况，因为网卡<mark>不能利用设备文件访问</mark><br>
+原因在于在网络通信期间，数据打包到了各种协议层中。</p>
+<p>在接收到数据时，内核必须针对各协议层的处理，对数据进行拆包与分析，然后才能将有效数据传递给应用程序。<br>
+在发送数据时，内核必须首先根据各个协议层的要求打包数据，然后才能发送。</p>
+<p>Linux使用了源于BSD的 <mark>套 接 字</mark> 抽象<br>
+套接字可以看作应用程序、文件接口、内核的网络实现之间的代理</p>
+<h2 id="文件系统">文件系统</h2>
+<p>存储使用了层次式文件系统。文件系统使用目录结构组织存储的数据，并将其他元信息（例如所有者、访问权限等）与实际数据关联起来。</p>
+<p>内核必须提供一个额外的软件层，将各种底层文件系统的具体特性与应用层（和内核自身）隔离开来。<br>
+该软件层称为VFS（Virtual Filesystem或Virtual Filesystem Switch，虚拟文件系统或虚拟文件系统交换器）。<br>
+VFS既是向下的接口（<mark>所有文件系统都必须实现该接口</mark>），同时也是向上的接口（用户进程<mark>通过系统调用最终能够访问文件系统功能</mark>）。如图1-10所示</p>
+<p><img src="../_resources/bbf83f81d106479382f1f8a67ab14c47.png" alt="6bd29a29a663feb22fe316503fcee162.png"></p>
+<h2 id="模块与热插拔">模块与热插拔</h2>
+<p>模块在本质上不过是普通的程序，只是在内核空间而不是用户空间执行而已。模块必须提供某些代码段在模块初始化（和终止）时执行，以便向<mark>内核注册和注销模块</mark>。</p>
+<p>模块代码与普通内核代码的权利（和义务）都是相同的，可以像编译到内核中的代码一样，访问内核中所有的函数和数据</p>
+<h2 id="缓存">缓存</h2>
+<p>内核使用缓存来改进系统性能。<br>
+从<mark>低速的块</mark>设备读取的数据会暂时保持在内存中，即使数据在当时已经不再需要了。<br>
+在应用程序下一次访问该数据时，它可以从访问速度较快的内存中读取，因而绕过了低速的块设备。<br>
+由于内核是通过基于页的内存映射来实现访问块设备的，因此<mark>缓存也按页组织</mark>，也就是说整页都缓存起来，故称为<mark>页缓存</mark>（page cache）。</p>
+<p>块缓存用于缓存没有组织成页的数据，其重要性差得多。在传统的UNIX系统上，块缓存用作系统的主缓存，而Linux很久以前也是这样。到如今，<mark>块缓存已经被页缓存取代了</mark>。</p>
+<h2 id="链表处理">链表处理</h2>
+<p>C程序中重复出现的一项任务是对双链表的处理。内核也需要处理这样的链表。</p>
+<p>类型为list_head，其中包含了正向和反向指针</p>
+<p>因为链表的实现不是类型安全的，所以查询时需要显式指定类型。</p>
+<h2 id="对象管理和引用计数">对象管理和引用计数</h2>
+<p>一般性的内核对象机制可用于执行下列对象操作</p>
+<ul>
+<li>引用计数；</li>
+<li>管理对象链表（集合）；</li>
+<li>集合加锁；</li>
+<li>将对象属性导出到用户空间（通过sysfs文件系统）</li>
+</ul>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C" data-joplin-source-open="```C&#10;" data-joplin-source-close="&#10;```">// kobject.h
+struct kobject {
+    const char *k_name; // 对象的文本名，可利用sysfs导出到用户空间
+    struct kref kref;   // 用于简化 引用计数的管理
+    struct list_head entry; // 用于将若干kobject放置到一个链表中（在这种情况下称为集合）。
+    struct kobject *parent; // 指向父对象的指针，建立层次结构
+    struct kset *kset;      // 将对象与其他对象放置到一个集合时，则需要kset。
+    struct kobj_type *ktype;// 包含kobject的数据结构的更多详细信息，最重要的是用于释放该数据结构资源的析构器函数。
+    struct sysfs_dirent *sd;// 用于支持内核对象与sysfs之间的关联
+};</pre><pre class="hljs"><code><span class="hljs-comment">// kobject.h</span>
+<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">kobject</span> {</span>
+    <span class="hljs-type">const</span> <span class="hljs-type">char</span> *k_name; <span class="hljs-comment">// 对象的文本名，可利用sysfs导出到用户空间</span>
+    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">kref</span> <span class="hljs-title">kref</span>;</span>   <span class="hljs-comment">// 用于简化 引用计数的管理</span>
+    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">list_head</span> <span class="hljs-title">entry</span>;</span> <span class="hljs-comment">// 用于将若干kobject放置到一个链表中（在这种情况下称为集合）。</span>
+    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">kobject</span> *<span class="hljs-title">parent</span>;</span> <span class="hljs-comment">// 指向父对象的指针，建立层次结构</span>
+    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">kset</span> *<span class="hljs-title">kset</span>;</span>      <span class="hljs-comment">// 将对象与其他对象放置到一个集合时，则需要kset。</span>
+    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">kobj_type</span> *<span class="hljs-title">ktype</span>;</span><span class="hljs-comment">// 包含kobject的数据结构的更多详细信息，最重要的是用于释放该数据结构资源的析构器函数。</span>
+    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">sysfs_dirent</span> *<span class="hljs-title">sd</span>;</span><span class="hljs-comment">// 用于支持内核对象与sysfs之间的关联</span>
+};</code></pre></div>
+<p>kobject 会直接嵌入到 内核的许多数据结构中， 而不是通过 指针访问。</p>
+<p>kobject的标准方法</p>
+<ul>
+<li>kobject_get, kobject_put： 引用计数器 +1，-1</li>
+<li>kobject_(un)register： 从层次结构中注册或删除</li>
+<li>kobject_init， 初始化kobject</li>
+<li>kobject_add，初始化一个内核对象，并显示在 sysfs 中</li>
+<li>kobject_cleanup，在不需要 kobject 时，释放分配的资源</li>
+</ul>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C" data-joplin-source-open="```C&#10;" data-joplin-source-close="&#10;```">// kref.h
+struct kref {
+    atomic_t refcount;
+};</pre><pre class="hljs"><code><span class="hljs-comment">// kref.h</span>
+<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">kref</span> {</span>
+    <span class="hljs-type">atomic_t</span> refcount;
+};</code></pre></div>
+<p>。。最新的。6.9</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C" data-joplin-source-open="```C&#10;" data-joplin-source-close="&#10;```">struct kobject {
+    const char		*name;
+    struct list_head	entry;
+    struct kobject		*parent;
+    struct kset		*kset;
+    const struct kobj_type	*ktype;
+    struct kernfs_node	*sd; /* sysfs directory entry */
+    struct kref		kref;
+
+    unsigned int state_initialized:1;
+    unsigned int state_in_sysfs:1;
+    unsigned int state_add_uevent_sent:1;
+    unsigned int state_remove_uevent_sent:1;
+    unsigned int uevent_suppress:1;
+
+#ifdef CONFIG_DEBUG_KOBJECT_RELEASE
+    struct delayed_work	release;
+#endif
+};</pre><pre class="hljs"><code><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">kobject</span> {</span>
+    <span class="hljs-type">const</span> <span class="hljs-type">char</span>		*name;
+    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">list_head</span>	<span class="hljs-title">entry</span>;</span>
+    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">kobject</span>		*<span class="hljs-title">parent</span>;</span>
+    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">kset</span>		*<span class="hljs-title">kset</span>;</span>
+    <span class="hljs-type">const</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">kobj_type</span>	*<span class="hljs-title">ktype</span>;</span>
+    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">kernfs_node</span>	*<span class="hljs-title">sd</span>;</span> <span class="hljs-comment">/* sysfs directory entry */</span>
+    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">kref</span>		<span class="hljs-title">kref</span>;</span>
+
+    <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> state_initialized:<span class="hljs-number">1</span>;
+    <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> state_in_sysfs:<span class="hljs-number">1</span>;
+    <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> state_add_uevent_sent:<span class="hljs-number">1</span>;
+    <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> state_remove_uevent_sent:<span class="hljs-number">1</span>;
+    <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> uevent_suppress:<span class="hljs-number">1</span>;
+
+<span class="hljs-meta">#<span class="hljs-keyword">ifdef</span> CONFIG_DEBUG_KOBJECT_RELEASE</span>
+    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">delayed_work</span>	<span class="hljs-title">release</span>;</span>
+<span class="hljs-meta">#<span class="hljs-keyword">endif</span></span>
+};</code></pre></div>
+<p>。。。</p>
+<h2 id="数据类型">数据类型</h2>
+<p>内核使用 typedef 来定义各种数据类型，以避免依赖于体系结构相关的特性，比如，各个处理器上标准数据类型的位长不一致。</p>
+<p>定义的类型名称如sector_t（用于指定块设备上的扇区编号）、pid_t（表示进程ID）等，这些都是由内核在特定于体系结构的代码中定义的，以确保相关类型的<mark>值落在适当的范围</mark>内。</p>
+<p>如果某个变量的类型是typedef而来的，则不能直接访问，而需要通过辅助函数</p>
+<h3 id="字节序">字节序</h3>
+<p><img src="../_resources/4384076925694b679b04a4bb4f5c0bd5.png" alt="d0c84a4632ff8e666f8e2377ebb4ecdb.png"></p>
+<p>内核提供了各种函数和宏，可以在CPU使用的格式与特定的表示法之间转换</p>
+<p>cpu_to_le64将64位数据类型转换为小端序格式，而le64_to_cpu所做的刚好相反</p>
+<p>如果体系结构采用的字节序是小端序格式，这两个例程当然是空操作，否则必须相应地交换字节位置</p>
+<p>per-cpu 变量</p>
+<p>普通的用户空间程序设计不会涉及</p>
+<p>通过DEFINE_PER_CPU(name, type)声明，其中name是变量名，而type是其数据类型（例如int[3]、struct hash等）。<br>
+在单处理器系统上，这与常规的变量声明没有不同。<br>
+在有若干CPU的SMP系统上，会为每个CPU分别创建变量的一个实例。<br>
+用于某个特定CPU的实例可以通过get_cpu(name, cpu)获得，其中smp_processor_id()可以返回当前活动处理器的ID，用作前述的cpu参数。</p>
+<hr>
+<p>源代码中的多处指针都标记为__user，该标识符对用户空间程序设计是未知的。<br>
+内核使用该记号来<mark>标识指向用户地址空间中区域的指针</mark>，在没有进一步预防措施的情况下，不能轻易访问这些指针指向的区域。</p>
+<h1 id="ch02-进程管理和调度">ch02 进程管理和调度</h1>
+<p>多进程，进程间隔离</p>
+<p>内核必须能够</p>
+<ul>
+<li>除非明确地要求，否则应用程序不能彼此干扰</li>
+<li>CPU时间必须在各种应用程序之间尽可能公平地共享</li>
+<li>决定为各个进程分配多长时间，何时切换到下一个进程，哪个进程是下一个</li>
+<li>在内核从进程A切换到进程B时，必须确保进程B的执行环境与上一次撤销其处理器资源时完全相同</li>
+</ul>
+<h2 id="21-进程优先级">2.1 进程优先级</h2>
+<p>进程可以分为<mark>实时</mark>进程和<mark>非实时</mark>进程。</p>
+<p>硬实时进程有严格的时间限制，某些任务必须在指定的时限内完成。<br>
+如果飞机的<mark>飞行控制命令</mark>通过计算机处理，则必须尽快处理发送</p>
+<p>Linux不支持硬实时处理，至少在主流的内核中不支持。但有一些修改版本如RTLinux、Xenomai、RATI提供了该特性。</p>
+<p>软实时进程是硬实时进程的一种弱化形式。尽管仍然需要快速得到结果，但稍微晚一点不会造成世界末日。</p>
+<p>大多数进程是没有特定时间约束的普通进程，但仍然可以根据重要性来分配优先级。</p>
+<p>抢占式多任务处理<br>
+各个进程都分配到一定的时间段可以执行。<br>
+时间段到期后，内核会从进程收回控制权，让一个不同的进程运行，而不考虑前一进程所执行的上一个任务。</p>
+<h2 id="进程生命周期">进程生命周期</h2>
+<p>进程可能有以下几种状态。</p>
+<ul>
+<li>运行：该进程此刻<mark>正在执行</mark>。</li>
+<li>等待：进程<mark>能够运行</mark>，但<mark>没有得到许可</mark>，因为CPU分配给另一个进程。调度器可以在下一次任务切换时选择该进程。</li>
+<li>睡眠：进程正在睡眠<mark>无法运行</mark>，因为它在等待一个外部事件。调度器无法在下一次任务切换时选择该进程。</li>
+<li>终止</li>
+</ul>
+<p><img src="../_resources/3b206c51da2a44f8b5c1f442d0516f98.png" alt="6800fdd248272126ae561e7577efa291.png"></p>
+<p>上文没有列出的一个特殊的进程状态是所谓的“僵尸”状态。顾名思义，这样的进程已经死亡，但仍然以某种方式活着。<br>
+实际上，说这些进程死了，是因为其资源（内存、与外设的连接，等等）<mark>已经释放</mark>，因此它们无法也决不会再次运行。<br>
+说它们仍然活着，是因为<mark>进程表中仍然有</mark>对应的表项。</p>
+<p>僵尸是如何产生的？<br>
+其原因在于UNIX操作系统下<mark>进程创建和销毁的方式</mark>。<br>
+在两种事件发生时，程序将终止运行。<br>
+第一，程序必须由另一个进程或一个用户杀死（通常是通过发送SIGTERM或SIGKILL信号来完成，这等价于正常地终止进程）；<br>
+进程的父进程在子进程终止时必须调用或已经调用wait4（读做wait for）系统调用。<br>
+这相当于<mark>向内核证实父进程已经确认子进程的终结</mark>。<br>
+该系统调用使得内核可以释放为子进程保留的资源。</p>
+<p>只有在第一个条件发生（程序终止）而第二个条件不成立的情况下（wait4），才会出现“僵尸”状态。<br>
+在进程终止之后，其数据尚未从进程表删除之前，进程总是暂时处于“僵尸”状态。有时候（例如，如果父进程编程极其糟糕，没有发出wait调用），僵尸进程可能稳定地寄身于进程表中，直至下一次系统重启。<br>
+从进程工具（如ps或top）的输出，可以看到僵尸进程。因为残余的数据在内核中占据的空间极少，所以这几乎不是问题</p>
+<p>抢占式多任务处理</p>
+<p>用户状态和核心态。这反映了所有现代CPU都有（至少）两种不同执行状态的事实，其中一种具有无限的权利，而另一种则受到各种限制。</p>
+<p>进程通常都处于用户状态，只能访问自身的数据，无法干扰系统中的其他应用程序，甚至也不会注意到自身之外其他程序的存在。</p>
+<p>如果进程想要访问系统数据或功能（后者管理着所有进程之间共享的资源，例如文件系统空间），则必须切换到核心态。<br>
+显然这只能在受控情况下完成，否则所有建立的保护机制都是多余的，而且这种访问必须经由明确定义的路径。<br>
+第1章简要提到“<mark>系统调用</mark>”是在状态之间切换的一种方法。第13章深入讨论了系统调用的实现。</p>
+<p>从用户状态切换到核心态的第二种方法是通过<mark>中断</mark>，此时切换是自动触发的。<br>
+系统调用是由用户应用程序有意调用的，中断则不同，其发生或多或少是<mark>不可预测</mark>的。<br>
+处理中断的操作，<mark>通常与中断发生时执行的进程无关</mark>。</p>
+<p>内核的抢占调度模型建立了一个层次结构，用于判断哪些进程状态可以由其他状态抢占。</p>
+<ul>
+<li>普通进程总是可能被抢占，甚至是由其他进程抢占</li>
+<li>如果系统处于核心态并正在处理系统调用，那么系统中的其他进程是无法夺取其CPU时间的</li>
+<li>中断可以暂停处于用户状态和核心态的进程。中断具有最高优先级</li>
+</ul>
+<p>在内核2.5开发期间，一个称之为内核抢占（kernel preemption）的选项添加到内核。<br>
+该选项支持在紧急情况下切换到另一个进程，甚至当前是处于核心态执行系统调用（中断处理期间是不行的）。</p>
+<h2 id="进程表示">进程表示</h2>
+<p>Linux内核涉及进程和程序的所有算法都围绕一个名为task_struct的数据结构建立，该结构定义在include/sched.h中</p>
+<p>。书上简化后，写了 2页。。。</p>
+<p>。。现在在 include/linux/sched.h , 800行。。</p>
+<p>该结构的内容可以分解为各个部分，每个部分表示进程的一个特定方面。</p>
+<ul>
+<li>状态和执行信息，如待决信号，使用的二进制格式，进程ID，到父进程和其他有关进程的指针，优先级，程序执行有关的时间信息</li>
+<li>有关已经分配的虚拟内存的信息。</li>
+<li>进程身份凭据，如用户ID，组ID，权限。</li>
+<li>使用的文件包含程序代码的二进制文件，以及进程所处理的所有文件的文件系统信息。</li>
+<li>线程信息记录该进程特定于CPU的运行时间数据</li>
+<li>在与其他应用程序协作时所需的进程间通信有关的信息。</li>
+<li>该进程所用的信号处理程序，用于响应到来的信号。</li>
+</ul>
+<h3 id="资源限制">资源限制</h3>
+<p>对进程使用系统资源施加某些限制<br>
+使用了task_struct中的rlim数组，数组项类型为struct rlimit</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C" data-joplin-source-open="```C&#10;" data-joplin-source-close="&#10;```">// resource.h
+struct rlimit {
+    unsigned long rlim_cur; // 进程当前的资源限制，软限制
+    unsigned long rlim_max; // 该限制的最大容许值，硬限制
+};</pre><pre class="hljs"><code><span class="hljs-comment">// resource.h</span>
+<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">rlimit</span> {</span>
+    <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> rlim_cur; <span class="hljs-comment">// 进程当前的资源限制，软限制</span>
+    <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> rlim_max; <span class="hljs-comment">// 该限制的最大容许值，硬限制</span>
+};</code></pre></div>
+<p>。。6.9 task_struct 中没有，在 sched.h 中搜 lim 都没有搜到有用的信息。</p>
+<p>使用 setrlimit 来增减 当前限制。</p>
+<p>特定于进程的资源限制</p>
+<ul>
+<li>RLIMIT_CPU    按毫秒计算的最大CPU时间</li>
+<li>RLIMIT_FSIZE  允许的最大文件长度</li>
+<li>RLIMIT_DATA   数据段的最大长度</li>
+<li>RLIMIT_STACK （用户状态）栈的最大长度</li>
+<li>RLIMIT_CORE   内存转储文件的最大长度</li>
+<li>RLIMIT_RSS    常驻内存的最大尺寸。换句话说，进程使用页帧的最大数目。目前未使用</li>
+<li>RLIMIT_NPROC  与进程真正UID关联的用户可以拥有的进程的最大数目</li>
+<li>RLIMIT_NOFILE 打开文件的最大数目</li>
+<li>RLIMIT_MEMLOCK 不可换出页的最大数目</li>
+<li>RLIMIT_AS     进程占用的虚拟地址空间的最大尺寸</li>
+<li>RLIMIT_LOCKS  文件锁的最大数目</li>
+<li>RLIMIT_SIGPENDING 待决信号的最大数目</li>
+<li>RLIMIT_MSGQUEUE 信息队列的最大数目</li>
+<li>RLIMIT_NICE   非实时进程的优先级（nice level）</li>
+<li>RLIMIT_RTPRIO 最大的实时优先</li>
+</ul>
+<p><code class="inline-code">cat /proc/self/limits</code><br>
+查看当前rlimit值</p>
+<h3 id="进程类型">进程类型</h3>
+<p>fork<br>
+exec</p>
+<p>clone用于实现 线程。</p>
+<h3 id="命名空间-2">命名空间</h3>
+<p>提供了虚拟化的一种轻量级形式</p>
+<h3 id="进程idpid">进程ID，pid</h3>
+<h2 id="24-进程管理相关的系统调用">2.4 进程管理相关的系统调用</h2>
+<h3 id="进程复制">进程复制</h3>
+<p>linux 有3个</p>
+<ul>
+<li>fork，重量级调用，建立了父进程的一个完整副本，然后作为子进程执行。使用 COW技术</li>
+<li>vfork，类似于fork，但不创建 父进程数据的副本。 父子进程 共享数据。 一个进程操作共享数据，另一个进程会注意到。 。 。由于fork使用了写时复制技术，vfork速度方面不再有优势，因此应该<mark>避免使用</mark>它。</li>
+<li>clone，产生 <mark>线程</mark>，可以对 父子进程之间的 共享，复制 进行精确控制</li>
+</ul>
+<p>fork,vfork,clone 系统调用的 入口点分别是 是sys_fork、sys_vfork和sys_clone函数</p>
+<p>上述函数的任务是从处理器<mark>寄存器</mark>中<mark>提取由用户空间提供的信息</mark>，调用体系结构无关的<mark>do_fork</mark>函数，后者负责进程复制。</p>
+<p>父子进程的task_struct实例<mark>只有一个成员不同</mark>：新进程分配了一个<mark>新的核心态栈</mark>，即task_struct-&gt;stack。<br>
+通常栈和thread_info一同保存在一个联合中，thread_info保存了线程所需的所有特定于处理器的底层信息。</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C" data-joplin-source-open="```C&#10;" data-joplin-source-close="&#10;```">// sched.h
+union thread_union { 
+    struct thread_info thread_info; 
+    unsigned long stack[THREAD_SIZE/sizeof(long)];      // THREAD_SIZE / sizeof(long) !!!
+};</pre><pre class="hljs"><code><span class="hljs-comment">// sched.h</span>
+<span class="hljs-class"><span class="hljs-keyword">union</span> <span class="hljs-title">thread_union</span> {</span> 
+    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">thread_info</span> <span class="hljs-title">thread_info</span>;</span> 
+    <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> <span class="hljs-built_in">stack</span>[THREAD_SIZE/<span class="hljs-keyword">sizeof</span>(<span class="hljs-type">long</span>)];      <span class="hljs-comment">// THREAD_SIZE / sizeof(long) !!!</span>
+};</code></pre></div>
+<p>在大多数体系结构上，使用一两个内存页来保存一个thread_union的实例。<br>
+在IA-32上，两个内存页是默认设置，<mark>因此可用的内核栈长度略小于8 KiB</mark>，其中一部分被thread_info实例占据。<br>
+不过要注意，配置选项4KSTACKS会将栈长度降低到4 KiB，即一个页面。</p>
+<h3 id="内核线程">内核线程</h3>
+<p>直接由内核本身启动的进程。内核线程实际上是将内核函数委托给独立的进程<br>
+内核线程经常称之为（内核）守护进程<br>
+它们用于执行下列任务。</p>
+<ul>
+<li>周期性地将修改的内存页与页来源块设备同步（例如，使用mmap的文件映射）。</li>
+<li>如果内存页很少使用，则写入交换区。</li>
+<li>管理延时动作（deferred action）。</li>
+<li>实现文件系统的事务日志。</li>
+</ul>
+<p>有两种类型的内核线程。</p>
+<ul>
+<li>类型1：线程启动后一直等待，直至内核请求线程执行某一特定操作。</li>
+<li>类型2：线程启动后按周期性间隔运行，检测特定资源的使用，在用量超出或低于预置的限制值时采取行动。内核使用这类线程用于连续监测任务</li>
+</ul>
+<p>大多数计算机上系统的<mark>全部虚拟地址空间分成两个部分</mark>：<mark>底部可以由用户层程序访问</mark>，<mark>上部则专供内核使用</mark>。</p>
+<p>惰性TLB处理（lazy TLB handling）</p>
+<hr>
+<p>使用kthread_create_cpu代替kthread_create创建内核线程，使之<mark>绑定到特定的CPU</mark>。<br>
+内核线程会出现在系统进程列表中，但在ps的输出中由方括号包围，以便与普通进程区分。<br>
+如果内核线程绑定到特定的CPU，CPU的编号在斜线后给出</p>
+<hr>
+<p>execve</p>
+<h2 id="25-调度器的实现">2.5 调度器的实现</h2>
+<p>内存中保存了对每个进程的唯一描述，并通过若干结构与其他进程连接起来。<br>
+调度器面对的情形就是这样，其任务是在程序之间共享CPU时间，创造并行执行的错觉。<br>
+任务分为两个不同部分：一个涉及<mark>调度策略</mark>，另一个涉及<mark>上下文切换</mark></p>
+<p>schedule函数是理解调度操作的起点。该函数定义在kernel/sched.c中，是内核代码中最常调用的函数之一。调度器的实现受若干因素的影响而稍显模糊。</p>
+<ul>
+<li>在多处理器系统上，必须要注意几个细节（有一些非常微妙），以避免调度器自相干扰。</li>
+<li>不仅实现了优先调度，还实现了Posix标准需要的其他两种软实时策略。</li>
+<li>使用goto以生成最优的汇编语言代码。这些语句在C代码中来回地跳转，与结构化程序设计的所有原理背道而驰。但如果小心翼翼地使用它，该特性就可以发挥作用（调度器就是一个例子）。</li>
+</ul>
+<p>。。没有，没有这个文件，在其他地方有好几个 sched.c， 随便打开了一个 <code class="inline-code">arch/powerpc/platforms/cell/spufs/sched.c</code>，里面使用了 schedule()，但是没有定义<br>
+。。看了一遍，根据 sched.c 搜到的所有文件中 都没有 schedule()的定义</p>
+<p>Linux调度器的一个杰出特性是，它<mark>不需要时间片概念</mark>，至少不需要传统的时间片。</p>
+<p><mark>经典的调度器</mark>对系统中的进程分别计算时间片，使进程运行直至时间片用尽。在<mark>所有进程的所有时间片都已经用尽</mark>时，则需要重新计算。</p>
+<p>linux的完全公平调度器 只考虑进程的等待时间，即进程在就绪队列（run-queue）中已经等待了多长时间。对CPU时间需求最严格的进程被调度执行。</p>
+<p>调度器的一般原理是，按所能分配的计算能力，向系统中的每个进程提供最大的公正性。</p>
+<p>如果通过轮流运行各个进程来模拟多任务，那么当前运行的进程，其待遇显然好于哪些等待调度器选择的进程，即等待的进程受到了不公平的对待。不公平的程度正比于等待时间。<br>
+每次调用调度器时，它会挑选具有最高等待时间的进程，把CPU提供给该进程。如果经常发生这种情况，那么进程的不公平待遇不会累积，不公平会均匀分布到系统中的所有进程<br>
+。。无法理解<br>
+。。第一段的意思是：进程执行完，然后执行下一个进程？<br>
+。。第二段的意思是：每隔一段时间，就 挑选 最高等待时间的进程，让它执行？ 就是约等于时间片？</p>
+<p>图2-12说明了调度器如何记录哪个进程已经等待了多长时间。由于可运行进程是排队的，该结构称之为 <mark>就绪队列</mark><br>
+<img src="../_resources/c9026ee861f44ecbabce2329b8064a56.png" alt="39aafa4d62f05bb8f8343d03f30ffab9.png"></p>
+<p>所有的可运行进程都按时间在一个红黑树中排序，所谓时间即其等待时间。等待CPU时间最长的进程是最左侧的项，调度器下一次会考虑该进程。等待时间稍短的进程在该树上从左至右排序。</p>
+<p>。。<br>
+图中 就绪队列的 哪行是不是有问题？  怎么从 红黑转为 数组？<br>
+为什么不用 heap<br>
+红黑树 和 数组 中元素个数 是一样的？<br>
+。。</p>
+<p>除了红黑树外，就绪队列还装备了虚拟时钟。<br>
+该时钟的时间流逝速度慢于实际的时钟，精确的速度依赖于当前等待调度器挑选的进程的数目。<br>
+假定该队列上<mark>有4个进程</mark>，那么虚拟时钟将以<mark>实际时钟四分之一</mark>的速度运行。</p>
+<p>假定就绪队列的虚拟时间由fair_clock给出，而进程的等待时间保存在wait_runtime。为排序红黑树上的进程，内核使用差值fair_clock - wait_runtime。fair_clock是完全公平调度的情况下进程将会得到的CPU时间的度量，而wait_runtime直接度量了实际系统的不足造成的不公平。</p>
+<p>。。wtf？<br>
+。。好像理解一些，主要是 没有一个 例子。<br>
+。。<mark>要用控制变量法看</mark></p>
+<ol>
+<li>
+<p>如果 fair_clock 相同， 有2个进程A，B， A等待了10s (wait_runtime)， B等待了20s， 这样的话， A的 差值就是 fair_clock - 10, B的是 fair_clock-20, 插入 红黑树后， B 在 A之前， 即 B的下次调用 会在 A的下次调用之前 被调用。 这样就 弥补了一定的 不公平 ( 因为 B 之前 等待的时间(20s) &gt; A之前等待的(10s))<br>
+。。而且 某个进程 等待的时候 够长的话， 可能下一次 就是 还是这个进程。</p>
+</li>
+<li>
+<p>如果 2个进程，等待时间相同， 那么 先调用的，下一次还是 先调用。 这个就是 完全公平的情况下的， 就类似 1,2,3,4,1,2,3,4,1,2,3,4 这种 完全公平的 顺序。</p>
+</li>
+</ol>
+<p>。。主要就是 不知道 真实情况下 fair_clock 是保存的什么， wait_runtime 保存的是什么。  还有 大约值是多少， 估计wait_runtime 1ms都不满？ 。百度了下， 一个时间片 约 10ms。不同系统 不同</p>
+<p>fair_clock，知道，是 内置的一个时钟。<br>
+wait_runtime，应该是 开始执行前 才能计算出来的。  就是 应该保存了 上次结束(或开始？) 的时间点， 等待 队列 轮到这个进程后， 用 now - 上次结束时间， 就知道了 它等待了 多久，就是 wait_runtime。<br>
+。。</p>
+<p>在进程允许运行时，将从wait_runtime减去它已经运行的时间。这样，在按时间排序的树中它会向右移动到某一点，另一个进程将成为最左边，下一次会被调度器选择。</p>
+<p>该策略受若干现实问题的影响，已经变得复杂了</p>
+<ul>
+<li>进程的不同优先级（即，nice值）</li>
+<li>进程不能切换得太频繁，因为上下文切换，即从一个进程改变到另一个，是有一定开销的。</li>
+</ul>
+<p>理解调度决策的一个好方法是，在<mark>编译时激活调度器统计</mark>。<br>
+这会在运行时生成文件/proc/sched_debug，其中包含了调度器当前状态所有方面的信息。</p>
+<h3 id="数据结构">数据结构</h3>
+<p>调度器使用一系列数据结构，来排序和管理系统中的进程。调度器的工作方式与这些结构的设计密切相关。几个组件在许多方面彼此交互，图2-13概述了这些组件的关联。</p>
+<p><img src="../_resources/e23b93d90d2b48f3b559c47a39d165cf.png" alt="1939df13d51fd01b47a9939ed84d84e4.png"></p>
+<p><mark>2种方式激活调度</mark><br>
+一种是直接的，比如进程打算睡眠或出于其他原因放弃CPU；<br>
+另一种是通过周期性机制，以固定的频率运行，不时检测是否有必要进行进程切换。</p>
+<p>在下文中我将这两个组件称为<mark>通用调度器</mark>（generic scheduler）或<mark>核心调度器</mark>（core scheduler）。<br>
+本质上，通用调度器是一个分配器，与其他两个组件交互</p>
+<p><mark>调度类</mark>用于判断接下来运行哪个进程。<br>
+<mark>内核支持不同的调度策略（完全公平调度、实时调度、在无事可做时调度空闲进程</mark>），调度类使得能够以模块化方法实现这些策略，即一个类的代码不需要与其他类的代码交互。</p>
+<p>在调度器被调用时，它会查询调度器类，得知接下来运行哪个进程。</p>
+<p>在选中将要运行的进程之后，必须执行底层<mark>任务切换</mark>。这需要与CPU的紧密交互。</p>
+<p>每个进程都刚好属于某一调度类，各个调度类负责管理所属的进程。通用调度器自身完全不涉及进程管理，其工作都委托给调度器类。<br>
+。。多个调度器类 怎么合作？ 哪个调度器类的 首进程 先运行？</p>
+<p>进程的 task_struct 中有几个成员和 调度有关</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C" data-joplin-source-open="```C&#10;" data-joplin-source-close="&#10;```">int prio, static_prio, normal_prio; // 静态优先级在进程启动时设置，normal_prio是 静态优先级 + 调度策略 计算出的优先级。 prio 是 调度器使用的 优先级，因为有时需要 提高 优先级。
+unsigned int rt_priority;   // 实时优先级 0-99，含义和nice 相反
+struct list_head run_list; // 见 最后一个 time_slice
+const struct sched_class *sched_class;  // 调度器类
+struct sched_entity se;   // 用于组调度
+unsigned int policy;  // -- 调度策略 --
+cpumask_t cpus_allowed; // -- 位域，限制进程在哪些CPU上运行 --
+unsigned int time_slice;  // 循环实时调度所需要的，但不用于完全公平调度器</pre><pre class="hljs"><code><span class="hljs-type">int</span> prio, static_prio, normal_prio; <span class="hljs-comment">// 静态优先级在进程启动时设置，normal_prio是 静态优先级 + 调度策略 计算出的优先级。 prio 是 调度器使用的 优先级，因为有时需要 提高 优先级。</span>
+<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> rt_priority;   <span class="hljs-comment">// 实时优先级 0-99，含义和nice 相反</span>
+<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">list_head</span> <span class="hljs-title">run_list</span>;</span> <span class="hljs-comment">// 见 最后一个 time_slice</span>
+<span class="hljs-type">const</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">sched_class</span> *<span class="hljs-title">sched_class</span>;</span>  <span class="hljs-comment">// 调度器类</span>
+<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">sched_entity</span> <span class="hljs-title">se</span>;</span>   <span class="hljs-comment">// 用于组调度</span>
+<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> policy;  <span class="hljs-comment">// -- 调度策略 --</span>
+<span class="hljs-type">cpumask_t</span> cpus_allowed; <span class="hljs-comment">// -- 位域，限制进程在哪些CPU上运行 --</span>
+<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> time_slice;  <span class="hljs-comment">// 循环实时调度所需要的，但不用于完全公平调度器</span></code></pre></div>
+<p><mark>调度策略</mark>，linux支持5个值</p>
+<ul>
+<li>SCHED_NORMAL，用于普通进程。通过完全公平调度器来处理。</li>
+<li>SCHED_BATCH,SCHED_IDLE，通过完全公平调度器处理，不过可用于 次要的进程。
+<ul>
+<li>SCHED_BATCH 用于 <mark>非交互，CPU使用密集的 批处理进程</mark>。调度决策对此类进程给予“冷处理”：它们决不会抢占CF调度器处理的另一个进程，因此不会干扰交互式进程。如果不打算用nice降低进程的静态优先级，同时又不希望该进程影响系统的交互性，此时最适合使用该调度类。</li>
+<li>SCHED_IDLE 这个类型的进程 <mark>重要性也较低</mark>，其相对权重总是最小的。 不负责调度空闲进程，空闲进程由内核提供单独的机制来处理。</li>
+</ul>
+</li>
+<li>SCHED_RR,SCHED_FIFO，用于实现 软实时进程。 不是由完全公平调度器类处理，而是由 实时调度器类 处理。
+<ul>
+<li>SCHED_RR 实现了一种 循环方法</li>
+<li>SCHED_FIFO 使用先进先出</li>
+</ul>
+</li>
+</ul>
+<hr>
+<p>调度器类</p>
+<p>sched.h<br>
+struct sched_class {};</p>
+<p>类提供了通用调度器和各个调度方法之间的关联。<br>
+调度器类由特定数据结构中汇集的几个函数指针表示。<br>
+全局调度器请求的各个操作都可以由一个指针表示。<br>
+这使得无需了解不同调度器类的内部工作原理，即可创建通用调度器。</p>
+<p>调度类 之间的 结构层次：<br>
+<mark>实时进程最重要，在完全公平进程之前处理；而完全公平进程则优先于空闲进程</mark>；空闲进程只有CPU无事可做时才处于活动状态。</p>
+<p>各个调度器可以提供的操作。</p>
+<ul>
+<li>enqueue_task<br>
+向就绪队列添加一个新进程。在进程从睡眠状态<mark>变为可运行</mark>状态时，即<mark>发生该</mark>操作。</li>
+<li>dequeue_task<br>
+将一个进程从就绪队列去除。在进程从可运行状态<mark>切换到不可运行</mark>状态时，就会发生该操作。内核有可能因为其他理由将进程从就绪队列去除(如，进程的优先级需要改变)</li>
+<li>sched_yield系统调用，进程<mark>自愿放弃</mark>对处理器的控制权。这导致 内核调用 yield_task</li>
+<li>check_preempt_curr，用一个新唤醒的进程来抢占当前进程。 使用 wake_up_new_task 唤醒新进程时，会使用这个函数</li>
+<li>pick_next_task，选择下个要执行的进程</li>
+<li>put_prev_task，在用另一个进程 代替当前运行的进程 之前使用。 这2个方法不等价于 出队，入队。 它们向进程 提供 或撤销CPU</li>
+<li>set_curr_task，进程的调度策略发生变化时需要调用</li>
+<li>task_tick，每次激活周期性调度器时，由周期性调度器调用</li>
+<li>new_task，建立 fork 系统调用 与 调度器之间的关联。 每次新进程建立后，使用 new_task 通知调度器</li>
+</ul>
+<hr>
+<p>就绪队列</p>
+<p>核心调度器用于管理活动进程的主要数据结构称之为就绪队列。各个<mark>CPU都有自身的就绪队列</mark>，各个活动进程只出现在一个就绪队列中。</p>
+<p>就绪队列是全局调度器许多操作的起点<br>
+要注意，进程并不是由就绪队列的成员直接管理的！这是各个调度器类的职责，因此在各个就绪队列中嵌入了特定于调度器类的子就绪队列。</p>
+<p>就绪队列是使用下列数据结构实现的。</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C" data-joplin-source-open="```C&#10;" data-joplin-source-close="&#10;```">// kernel/sched.c
+struct rq { 
+  unsigned long nr_running;   // 队列上可运行进程的数目，不考虑其优先级，调度类
+  #define CPU_LOAD_IDX_MAX 5 
+  unsigned long cpu_load[CPU_LOAD_IDX_MAX]; 
+... 
+  struct load_weight load;  // 就绪队列当前负荷的度量
+  struct cfs_rq cfs; // 和rt，都是 嵌入的 子就绪队列，分别用于 完全公平调度器 和 实时调度器
+  struct rt_rq rt; 
+  struct task_struct *curr, *idle; // curr指向当前运行的进程的task_struct实例。 idle指向idle进程的task_struct实例，在无其他可执行进程时执行
+  u64 clock; // 用于实现 就绪队列自身的时钟。每次调用 周期性调度器时，都会更新clock的值。
+... 
+}; </pre><pre class="hljs"><code><span class="hljs-comment">// kernel/sched.c</span>
+<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">rq</span> {</span> 
+  <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> nr_running;   <span class="hljs-comment">// 队列上可运行进程的数目，不考虑其优先级，调度类</span>
+  <span class="hljs-meta">#<span class="hljs-keyword">define</span> CPU_LOAD_IDX_MAX 5 </span>
+  <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> cpu_load[CPU_LOAD_IDX_MAX]; 
+... 
+  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">load_weight</span> <span class="hljs-title">load</span>;</span>  <span class="hljs-comment">// 就绪队列当前负荷的度量</span>
+  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">cfs_rq</span> <span class="hljs-title">cfs</span>;</span> <span class="hljs-comment">// 和rt，都是 嵌入的 子就绪队列，分别用于 完全公平调度器 和 实时调度器</span>
+  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">rt_rq</span> <span class="hljs-title">rt</span>;</span> 
+  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">task_struct</span> *<span class="hljs-title">curr</span>, *<span class="hljs-title">idle</span>;</span> <span class="hljs-comment">// curr指向当前运行的进程的task_struct实例。 idle指向idle进程的task_struct实例，在无其他可执行进程时执行</span>
+  u64 clock; <span class="hljs-comment">// 用于实现 就绪队列自身的时钟。每次调用 周期性调度器时，都会更新clock的值。</span>
+... 
+}; </code></pre></div>
+<hr>
+<p>调度实体</p>
+<p>调度器可以操作比进程更一般的实体，因此需要一个适当的数据结构来描述此类实体。</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C" data-joplin-source-open="```C&#10;" data-joplin-source-close="&#10;```">// sched.h
+struct sched_entity { 
+  struct load_weight load; /* 用于负载均衡 */  // 指定了权重。
+  struct rb_node run_node;  // 标准的树节点，使得实体可以在红黑树上排序
+  unsigned int on_rq;   // 该实体 当前是否在 就绪队列上 接受调度。
+  u64 exec_start;   // 调用时 更新到当前时间
+  u64 sum_exec_runtime; // 记录进程执行消耗的CPU时间，用于完全公平调度器。
+  u64 vruntime; // 记录 进程执行 消耗的 虚拟时钟上的流逝的时间
+  u64 prev_sum_exec_runtime; // 进程被撤销CPU时，sum_exec_runtime被保存到这里
+... 
+} </pre><pre class="hljs"><code><span class="hljs-comment">// sched.h</span>
+<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">sched_entity</span> {</span> 
+  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">load_weight</span> <span class="hljs-title">load</span>;</span> <span class="hljs-comment">/* 用于负载均衡 */</span>  <span class="hljs-comment">// 指定了权重。</span>
+  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">rb_node</span> <span class="hljs-title">run_node</span>;</span>  <span class="hljs-comment">// 标准的树节点，使得实体可以在红黑树上排序</span>
+  <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> on_rq;   <span class="hljs-comment">// 该实体 当前是否在 就绪队列上 接受调度。</span>
+  u64 exec_start;   <span class="hljs-comment">// 调用时 更新到当前时间</span>
+  u64 sum_exec_runtime; <span class="hljs-comment">// 记录进程执行消耗的CPU时间，用于完全公平调度器。</span>
+  u64 vruntime; <span class="hljs-comment">// 记录 进程执行 消耗的 虚拟时钟上的流逝的时间</span>
+  u64 prev_sum_exec_runtime; <span class="hljs-comment">// 进程被撤销CPU时，sum_exec_runtime被保存到这里</span>
+... 
+} </code></pre></div>
+<p>每次调用时，会计算当前时间和exec_start之间的差值，exec_start则更新到当前时间。差值则被加到sum_exec_runtime<br>
+。？ 那么 exec_start 是启动的时间， 当前 - 上次启动 计算出来的 值 无意义啊。 而且 肯定不是 消耗的时间啊。</p>
+<p>每个task_struct都嵌入了sched_entity的一个实例，所以进程是可调度实体。</p>
+<h3 id="处理优先级">处理优先级</h3>
+<p>处理优先级相当复杂</p>
+<hr>
+<p>优先级的内核表示</p>
+<p>在用户空间可以通过nice命令设置进程的静态优先级，这在内部会调用<mark>nice系统调用</mark>。<br>
+进程的nice值在 -20和+19之间（包含）。值越低，表明优先级越高</p>
+<p>内核使用一个简单些的数值范围，从0到139（包含），用来表示内部优先级。同样是值越低，优先级越高。</p>
+<p>从<mark>0到99</mark>的范围专供<mark>实时进程</mark>使用。nice值[-20, +19]映射到范围<mark>100到139</mark></p>
+<hr>
+<p>计算优先级</p>
+<p>回想一下，可知只考虑进程的静态优先级是不够的，还必须考虑下面3个优先级。</p>
+<ul>
+<li>动态优先级（task_struct-&gt;prio）</li>
+<li>普通优先级（task_struct-&gt;normal_prio）</li>
+<li>静态优先级（task_struct-&gt;static_prio）</li>
+</ul>
+<p>static_prio是计算的起点。假定它已经设置好，而内核现在想要计算其他优先级。一行代码即可：<br>
+<code class="inline-code">p-&gt;prio = effective_prio(p); </code></p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C" data-joplin-source-open="```C&#10;" data-joplin-source-close="&#10;```">// kernel/sched.c
+static int effective_prio(struct task_struct *p) 
+{
+  p-&gt;normal_prio = normal_prio(p);
+  /* 
+  * 如果是实时进程或已经提高到实时优先级，则保持优先级不变。否则，返回普通优先级：
+  */ 
+  if (!rt_prio(p-&gt;prio))
+    return p-&gt;normal_prio; 
+  return p-&gt;prio; 
+}</pre><pre class="hljs"><code><span class="hljs-comment">// kernel/sched.c</span>
+<span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">effective_prio</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> task_struct *p)</span> 
+{
+  p-&gt;normal_prio = normal_prio(p);
+  <span class="hljs-comment">/* 
+  * 如果是实时进程或已经提高到实时优先级，则保持优先级不变。否则，返回普通优先级：
+  */</span> 
+  <span class="hljs-keyword">if</span> (!rt_prio(p-&gt;prio))
+    <span class="hljs-keyword">return</span> p-&gt;normal_prio; 
+  <span class="hljs-keyword">return</span> p-&gt;prio; 
+}</code></pre></div>
+<p>这里首先计算了普通优先级，并保存在normal_priority。这个副效应使得能够用一个函数调用设置两个优先级（prio和normal_prio）。<br>
+另一个辅助函数rt_prio，会检测普通优先级是否在实时范围中，即是否小于RT_RT_PRIO。<br>
+请注意，该检测与调度类无关，它只涉及优先级的数值。</p>
+<p>假定我们在处理<mark>普通进程</mark>，不涉及实时调度<br>
+在这种情况下，normal_prio只是返回静态优先级。结果很简单：所有3个优先级都是同一个值，即静态优先级</p>
+<p><mark>实时进程</mark>的情况有所不同。注意普通优先级的计算方法：</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C" data-joplin-source-open="```C&#10;" data-joplin-source-close="&#10;```">kernel/sched.c 
+static inline int normal_prio(struct task_struct *p) 
+{ 
+  int prio; 
+  if (task_has_rt_policy(p)) 
+    prio = MAX_RT_PRIO - 1 - p-&gt;rt_priority;  // .
+  else 
+    prio = __normal_prio(p); 
+  return prio; 
+} </pre><pre class="hljs"><code>kernel/sched.c 
+<span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">int</span> <span class="hljs-title function_">normal_prio</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> task_struct *p)</span> 
+{ 
+  <span class="hljs-type">int</span> prio; 
+  <span class="hljs-keyword">if</span> (task_has_rt_policy(p)) 
+    prio = MAX_RT_PRIO - <span class="hljs-number">1</span> - p-&gt;rt_priority;  <span class="hljs-comment">// .</span>
+  <span class="hljs-keyword">else</span> 
+    prio = __normal_prio(p); 
+  <span class="hljs-keyword">return</span> prio; 
+} </code></pre></div>
+<p>__normal_prio的计算<mark>只适用于普通</mark>进程。只是返回 静态优先级</p>
+<p>而实时进程的普通优先级计算，则需要根据其rt_priority设置。<br>
+由于更高的rt_priority值表示更高的实时优先级，内核内部优先级的表示刚好相反，<mark>越低</mark>的值表示的<mark>优先级越高</mark>。</p>
+<hr>
+<p>计算负荷权重</p>
+<p>进程的重要性不仅是由优先级指定的，而且还需要考虑保存在task_struct-&gt;se.load的负荷权重。<br>
+set_load_weight负责根据进程类型及其静态优先级计算负荷权重</p>
+<p>内核不仅维护了负荷权重自身，而且还有另一个数值，用于计算被负荷权重除的结果</p>
+<p>一般概念是这样，进程每降低一个nice值，则多获得10%的CPU时间，每升高一个nice值，则放弃10%的CPU时间。为执行该策略，内核将优先级转换为权重值</p>
+<p>转换表</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C" data-joplin-source-open="```C&#10;" data-joplin-source-close="&#10;```">kernel/sched.c 
+static const int prio_to_weight[40] = { 
+/* -20 */ 88761, 71755, 56483, 46273, 36291, 
+/* -15 */ 29154, 23254, 18705, 14949, 11916, 
+/* -10 */ 9548, 7620, 6100, 4904, 3906, 
+/* -5 */ 3121, 2501, 1991, 1586, 1277, 
+/* 0 */ 1024, 820, 655, 526, 423, 
+/* 5 */ 335, 272, 215, 172, 137, 
+/* 10 */ 110, 87, 70, 56, 45, 
+/* 15 */ 36, 29, 23, 18, 15, 
+}; </pre><pre class="hljs"><code>kernel/sched.c 
+<span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-type">int</span> prio_to_weight[<span class="hljs-number">40</span>] = { 
+<span class="hljs-comment">/* -20 */</span> <span class="hljs-number">88761</span>, <span class="hljs-number">71755</span>, <span class="hljs-number">56483</span>, <span class="hljs-number">46273</span>, <span class="hljs-number">36291</span>, 
+<span class="hljs-comment">/* -15 */</span> <span class="hljs-number">29154</span>, <span class="hljs-number">23254</span>, <span class="hljs-number">18705</span>, <span class="hljs-number">14949</span>, <span class="hljs-number">11916</span>, 
+<span class="hljs-comment">/* -10 */</span> <span class="hljs-number">9548</span>, <span class="hljs-number">7620</span>, <span class="hljs-number">6100</span>, <span class="hljs-number">4904</span>, <span class="hljs-number">3906</span>, 
+<span class="hljs-comment">/* -5 */</span> <span class="hljs-number">3121</span>, <span class="hljs-number">2501</span>, <span class="hljs-number">1991</span>, <span class="hljs-number">1586</span>, <span class="hljs-number">1277</span>, 
+<span class="hljs-comment">/* 0 */</span> <span class="hljs-number">1024</span>, <span class="hljs-number">820</span>, <span class="hljs-number">655</span>, <span class="hljs-number">526</span>, <span class="hljs-number">423</span>, 
+<span class="hljs-comment">/* 5 */</span> <span class="hljs-number">335</span>, <span class="hljs-number">272</span>, <span class="hljs-number">215</span>, <span class="hljs-number">172</span>, <span class="hljs-number">137</span>, 
+<span class="hljs-comment">/* 10 */</span> <span class="hljs-number">110</span>, <span class="hljs-number">87</span>, <span class="hljs-number">70</span>, <span class="hljs-number">56</span>, <span class="hljs-number">45</span>, 
+<span class="hljs-comment">/* 15 */</span> <span class="hljs-number">36</span>, <span class="hljs-number">29</span>, <span class="hljs-number">23</span>, <span class="hljs-number">18</span>, <span class="hljs-number">15</span>, 
+}; </code></pre></div>
+<p>对内核使用的范围[0, 39]中的每个nice级别，该数组中都有一个对应项。各数组之间的乘数因子是1.25。</p>
+<p>要知道为何使用该因子，可考虑下列例子。<br>
+两个进程A和B在nice级别0运行，因此两个进程的CPU份额相同，即都是50%。nice级别为0的进程，其权重查表可知为1024。每个进程的份额是1024/（1024+1024）=0.5，即50%。<br>
+如果进程B的优先级加1，那么其CPU份额应该减少10%。换句话说，这意味着进程A得到总的CPU时间的55%，而进程B得到45%。优先级增加1导致权重减少，即1024/1.25≈820。因此进程A现在将得到的CPU份额是1024/(1024+820)≈0.55，而进程B的份额则是820/(1024+820)≈0.45，这样就产生了10%的差值。</p>
+<p>执行转换的代码也需要考虑实时进程。实时进程的权重是普通进程的两倍</p>
+<h3 id="核心调度器">核心调度器</h3>
+<p>调度器的实现基于两个函数：周期性调度器函数和主调度器函数。<br>
+这些函数根据现有进程的优先级分配CPU时间。</p>
+<p>本节将论述优先调度的实现方式</p>
+<hr>
+<h4 id="周期性调度器">周期性调度器</h4>
+<p>周期性调度器在 scheduler_tick 中实现<br>
+如果系统正在活动中，内核会按照频率HZ自动调用该函数。<br>
+如果没有进程在等待调度，那么在<mark>计算机电力供应不足</mark>的情况下，也可以关闭该调度器以减少电能消耗。例如，笔记本电脑或小型嵌入式系统</p>
+<p>该函数有下面两个主要任务。</p>
+<ol>
+<li>管理内核中 与整个系统 和 各个进程的调度相关的统计量。其间执行的主要操作是对各种计数器加1</li>
+<li>激活负责当前进程的调度类的周期性调度方法</li>
+</ol>
+<h4 id="主调度器">主调度器</h4>
+<p>在内核中的许多地方，如果要将CPU分配给与当前活动进程不同的另一个进程，都会直接调用主调度器函数（schedule）。</p>
+<h4 id="与fork的交互">与fork的交互</h4>
+<p>每当使用fork系统调用或其变体之一建立新进程时，调度器有机会用sched_fork函数挂钩到该进程。</p>
+<h4 id="上下文切换">上下文切换</h4>
+<p>内核选择新进程之后，必须处理与多任务相关的技术细节。这些细节总称为上下文切换（context switching）。<br>
+辅助函数context_switch是个分配器，它会调用所需的特定于体系结构的方法</p>
+<p>上下文切换本身通过调用两个特定于处理器的函数完成。</p>
+<ol>
+<li>switch_mm更换通过task_struct-&gt;mm描述的内存管理上下文。该工作的细节取决于处理器，主要包括<mark>加载页表、刷出地址转换后备缓冲器（部分或全部）、向内存管理单元（MMU）提供新的信息</mark>。由于这些操作深入到CPU的细节中，我不打算在此讨论其实现。</li>
+<li>switch_to切换<mark>处理器寄存器内容和内核栈</mark>（虚拟地址空间的用户部分在第一步已经变更，其中也包括了用户状态下的栈，因此用户栈就不需要显式变更了）。此项工作在不同的体系结构下可能差别很大，代码通常都使用汇编语言编写。</li>
+</ol>
+<p>switch_to的复杂之处<br>
+调度过程可能选择了一个新进程，而清理则是针对此前的活动进程。<br>
+请注意，这不是发起上下文切换的那个进程，而是系统中随机的某个其他进程！<br>
+内核必须想办法使得该进程能够与context_switch例程通信，这可以通过switch_to宏实现</p>
+<p>惰性FPU模式<br>
+由于上下文切换的速度对系统性能的影响举足轻重，所以内核使用了一种技巧来减少所需的CPU时间。<br>
+浮点寄存器（及其他内核未使用的扩充寄存器，例如IA-32平台上的SSE2寄存器）除非有应用程序实际使用，否则不会保存。<br>
+此外，除非有应用程序需要，否则这些寄存器也不会恢复。这称之为惰性FPU技术。</p>
+<p>如果不考虑平台，浮点寄存器的内容不是保存在进程栈上，而是保存在线程数据结构中。</p>
+<h2 id="26-完全公平调度类">2.6 完全公平调度类</h2>
+<p>核心调度器必须知道的有关完全公平调度器的所有信息，都包含在fair_sched_class中</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C" data-joplin-source-open="```C&#10;" data-joplin-source-close="&#10;```">kernel/sched_fair.c 
+static const struct sched_class fair_sched_class = { 
+  .next = &amp;idle_sched_class, 
+  .enqueue_task = enqueue_task_fair, 
+  .dequeue_task = dequeue_task_fair, 
+  .yield_task = yield_task_fair, 
+  .check_preempt_curr = check_preempt_wakeup, 
+  .pick_next_task = pick_next_task_fair, 
+  .put_prev_task = put_prev_task_fair, 
+... 
+  .set_curr_task = set_curr_task_fair, 
+  .task_tick = task_tick_fair, 
+  .task_new = task_new_fair, 
+}; </pre><pre class="hljs"><code>kernel/sched_fair.c 
+<span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">sched_class</span> <span class="hljs-title">fair_sched_class</span> =</span> { 
+  .next = &amp;idle_sched_class, 
+  .enqueue_task = enqueue_task_fair, 
+  .dequeue_task = dequeue_task_fair, 
+  .yield_task = yield_task_fair, 
+  .check_preempt_curr = check_preempt_wakeup, 
+  .pick_next_task = pick_next_task_fair, 
+  .put_prev_task = put_prev_task_fair, 
+... 
+  .set_curr_task = set_curr_task_fair, 
+  .task_tick = task_tick_fair, 
+  .task_new = task_new_fair, 
+}; </code></pre></div>
+<p>。。？C 还有这个？</p>
+<h3 id="数据结构-2">数据结构</h3>
+<p>CFS的就绪队列<br>
+知主调度器的每个就绪队列中都嵌入了一个该结构的实例</p>
+<p>。。c是什么？ fs 应该是 fair schedule。 难道c是 complete？ 还真是。。</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C" data-joplin-source-open="```C&#10;" data-joplin-source-close="&#10;```">// kernel/sched.c 
+struct cfs_rq { 
+  struct load_weight load; 
+  unsigned long nr_running;   // 队列上可运行进程的数目
+  u64 min_vruntime;   // 队列上所有进程的最小虚拟运行时间。
+  struct rb_root tasks_timeline; // 用于在 按时间排序的 红黑树中管理所有进程
+  struct rb_node *rb_leftmost; 
+  struct sched_entity *curr; // 指向当前执行进程的可调度实体
+}</pre><pre class="hljs"><code><span class="hljs-comment">// kernel/sched.c </span>
+<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">cfs_rq</span> {</span> 
+  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">load_weight</span> <span class="hljs-title">load</span>;</span> 
+  <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> nr_running;   <span class="hljs-comment">// 队列上可运行进程的数目</span>
+  u64 min_vruntime;   <span class="hljs-comment">// 队列上所有进程的最小虚拟运行时间。</span>
+  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">rb_root</span> <span class="hljs-title">tasks_timeline</span>;</span> <span class="hljs-comment">// 用于在 按时间排序的 红黑树中管理所有进程</span>
+  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">rb_node</span> *<span class="hljs-title">rb_leftmost</span>;</span> 
+  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">sched_entity</span> *<span class="hljs-title">curr</span>;</span> <span class="hljs-comment">// 指向当前执行进程的可调度实体</span>
+}</code></pre></div>
+<h3 id="cfs操作">CFS操作</h3>
+<ol>
+<li>虚拟时钟<br>
+所有与虚拟时钟有关的计算都在update_curr中执行，功能包括：</li>
+</ol>
+<ul>
+<li>更新进程的物理运行时间和虚拟运行时间</li>
+<li>对CFS队列更新min_vruntime</li>
+<li>设置rq-&gt;exec_start</li>
+</ul>
+<p>该函数在系统中各个不同地方调用，包括周期性调度器之内</p>
+<p>对于运行在nice级别0的进程来说，根据定义虚拟时间和物理时间是相等的。<br>
+在使用不同的优先级时，必须根据进程的负荷权重重新衡定时间</p>
+<p><code class="inline-code">delta_exec_weighted = delta_exec * (NICE_0_LOAD / Curr-&gt;load.weight)</code></p>
+<p>完全公平调度器的<mark>真正关键点</mark>是，红黑树的排序过程是根据下列键进行的：</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C" data-joplin-source-open="```C&#10;" data-joplin-source-close="&#10;```">// kernel/sched_fair.c 
+static inline s64 entity_key(struct cfs_rq *cfs_rq, struct sched_entity *se) 
+{ 
+  return se-&gt;vruntime - cfs_rq-&gt;min_vruntime; 
+} </pre><pre class="hljs"><code><span class="hljs-comment">// kernel/sched_fair.c </span>
+<span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> s64 <span class="hljs-title function_">entity_key</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> cfs_rq *cfs_rq, <span class="hljs-keyword">struct</span> sched_entity *se)</span> 
+{ 
+  <span class="hljs-keyword">return</span> se-&gt;vruntime - cfs_rq-&gt;min_vruntime; 
+} </code></pre></div>
+<p>键值较小的结点，排序位置就更靠左，因此会被更快地调度。<br>
+用这种方法，内核实现了下面两种对立的机制。<br>
+(1) 在进程运行时，其vruntime稳定地增加，它在红黑树中总是向右移动的。因为越重要的进程vruntime增加越慢，因此它们向右移动的速度也越慢，这样其被调度的机会要大于次要进程，这刚好是我们需要的。<br>
+(2) 如果进程进入睡眠，则其vruntime保持不变。因为每个队列min_vruntime同时会增加（回想一下，它是单调的！），那么睡眠进程醒来后，在红黑树中的位置会更靠左，因为其键值变得更小了。</p>
+<p>。。那前面的  fair_clock - wait_runtime  是什么东西？</p>
+<hr>
+<p>延迟跟踪</p>
+<p>内核有一个固有的概念，称之为良好的调度延迟，即保证每个可运行的进程都应该至少运行一次的某个时间间隔。<br>
+。。这里有注解说，这与时间片无关，旧的调度器才使用时间片！<br>
+。。但是百度下，linux 和时间片 还是有关联的。<br>
+。。估计是 时间片是固定的， 时间间隔是不固定的</p>
+<p>它在sysctl_sched_latency给出，可通过/proc/sys/kernel/sched_latency_ns控制，默认值为20 000 000纳秒或20毫秒。<br>
+。。20ms，0.02s， 好像确实 没有感知。</p>
+<p>第二个控制参数sched_nr_latency，控制在一个延迟周期中处理的最大活动进程数目<br>
+如果活动进程的数目超出该上限，则延迟周期也成比例地线性扩展。</p>
+<h3 id="队列操作">队列操作</h3>
+<p>增删就绪队列的成员：enqueue_task_fair和dequeue_task_fair。</p>
+<p>除了指向所述的就绪队列和task_struct的指针外，该函数还有另一个参数wakeup。<br>
+这用于指定入队的进程是最近才被唤醒并转换为运行状态（在这种情况下wakeup为1），还是此前就是可运行的（那么wakeup是0）</p>
+<p><img src="../_resources/370b5d49daf04d369d798edda669f370.png" alt="8e614c5d8583a517140ebafadd5df752.png"></p>
+<p>如果进程此前在睡眠，那么在place_entity中首先会调整进程的虚拟运行时间</p>
+<p>由于内核已经承诺在当前的延迟周期内使所有活动进程都至少运行一次，队列的min_vruntime用作基准虚拟时间，通过减去sysctl_sched_latency，则可以确保新唤醒的进程只有在当前延迟周期结束后才能运行。</p>
+<h3 id="选择下一个进程">选择下一个进程</h3>
+<p>选择下一个将要运行的进程由pick_next_task_fair执行</p>
+<p><img src="../_resources/7a7eab776128491d992279c07d615ac8.png" alt="0294f4b1bac211b1d63b133f3a6104cc.png"></p>
+<h3 id="处理周期性调度器">处理周期性调度器</h3>
+<p>在处理周期调度时前述的差值很重要。形式上由函数task_tick_fair负责，但实际工作由entity_tick完成。</p>
+<p><img src="../_resources/2582c8e1ae6e41099800776c1730ef74.png" alt="d6cc67e5d138cbeb5a0809bd63a345b8.png"></p>
+<h3 id="唤醒抢占">唤醒抢占</h3>
+<p>当在try_to_wake_up和wake_up_new_task中唤醒进程时，内核使用check_preempt_curr看看是否新进程可以抢占当前运行的进程。<br>
+请注意该过程不涉及核心调度器！<br>
+对完全公平调度器处理的进程，则由check_preempt_wakeup函数执行该检测。</p>
+<h2 id="27-实时调度类">2.7 实时调度类</h2>
+<p>按照POSIX标准的强制要求，除了“普通”进程之外，Linux还支持两种实时调度类。<br>
+调度器结构使得实时进程可以平滑地集成到内核中，而无需修改核心调度器，这显然是调度类带来的好处</p>
+<p>实时进程的特点在于其优先级比普通进程高，对应地，其static_prio值总是比普通进程低</p>
+<p>实时进程与普通进程有一个<mark>根本的不同之处</mark>：如果系统中有一个实时进程且可运行，那么调度器总是会选中它运行，除非有另一个优先级更高的实时进程。</p>
+<p>现有的两种实时类，不同之处如下所示。</p>
+<ul>
+<li>循环进程（SCHED_RR）<br>
+<mark>有时间片</mark>，其值在进程运行时会减少，就像是普通进程。<br>
+在<mark>所有的时间段</mark>都到期后，则该值重置为初始值，而进程则置于队列的末尾。<br>
+这确保了在有几个优先级相同的SCHED_RR进程的情况下，它们总是依次执行。</li>
+<li>先进先出进程（SCHED_FIFO）<br>
+<mark>没有时间片</mark>，在被调度器选择执行后，可以运行任意长时间。<br>
+很明显，如果实时进程编写得比较差，<mark>系统可能变得无法使用</mark>。<br>
+只要写一个无限循环，循环体内不进入睡眠即可。<br>
+在编写实时应用程序时，应该多加小心</li>
+</ul>
+<h3 id="数据结构-3">数据结构</h3>
+<h3 id="调度器操作">调度器操作</h3>
+<h2 id="28-调度器增强">2.8 调度器增强</h2>
+<h3 id="smp调度">SMP调度</h3>
+<p>多处理器系统上，内核必须考虑几个额外的问题，以确保良好的调度</p>
+<ul>
+<li>CPU负荷必须尽可能公平地在所有的处理器上共享。<br>
+如果一个处理器负责3个并发的应用程序，而另一个只能处理空闲进程，那是没有意义的。</li>
+<li>进程与系统中某些处理器的亲合性（affinity）必须是可设置的。<br>
+例如在4个CPU系统中，可以<mark>将计算密集型应用程序绑定到前3个CPU</mark>，而剩余的（交互式）进程则在第4个CPU上运行。</li>
+<li>内核必须能够将进程<mark>从一个CPU迁移到另一个</mark>。<br>
+但该选项必须谨慎使用，因为它<mark>会严重危害性能</mark>。<br>
+在小型SMP系统上CPU高速缓存是最大的问题。<br>
+对于真正大型系统，CPU与迁移进程此前使用的物理内存距离可能有若干米，因此对该进程内存的访问代价高昂。</li>
+</ul>
+<h3 id="调度域和控制组">调度域和控制组</h3>
+<p>调度器并不直接与进程交互，而是处理可调度实体。<br>
+这使得可以实现组调度：进程置于不同的组中，调度器首先在这些组之间保证公平，然后在组中的所有进程之间保证公平</p>
+<p>举例来说，这使得可以向每个 用户 授予相同的CPU时间份额。</p>
+<p>把进程按用户分组不是唯一可能的做法。内核还提供了控制组（control group），该特性使得通过特殊文件系统cgroups可以创建任意的进程集合，甚至可以分为多个层次。</p>
+<h3 id="内核抢占和低延迟相关工作">内核抢占和低延迟相关工作</h3>
+<p>在编译内核时启用对内核抢占的支持，则可以解决这些问题。<br>
+如果高优先级进程有事情需要完成，那么在启用内核抢占的情况下，不仅用户空间应用程序可以被中断，内核也可以被中断。<br>
+切记，内核抢占和用户层进程被其他进程抢占是两个不同的概念！</p>
+<p>内核不能在任意点上被中断。<br>
+幸运的是，大多数不能中断的点已经被SMP实现标识出来了，并且在实现内核抢占时可以重用这些信息。<br>
+内核的某些易于出现问题的部分每次只能由一个处理器访问，这些部分使用所谓的自旋锁保护：到达危险区域（亦称之为临界区）的第一个处理器会获得锁，在离开该区域时释放该锁。<br>
+另一个想要访问该区域的处理器在此期间必须等待，直到第一个处理器释放锁为止。<br>
+只有此时它才能获得锁并进入临界区。</p>
+<h1 id="ch03-内存管理-107">ch03 内存管理 107</h1>
+<p>内存管理的实现涵盖了许多领域：</p>
+<ul>
+<li>内存中的物理内存页的管理；</li>
+<li>分配大块内存的伙伴系统；</li>
+<li>分配较小块内存的slab、slub和slob分配器；</li>
+<li>分配非连续内存块的vmalloc机制；</li>
+<li>进程的地址空间。</li>
+</ul>
+<p>Linux内核一般将处理器的虚拟地址空间划分为两个部分。底部比较大的部分用于用户进程，顶部则专用于内核。<br>
+虽然（在两个用户进程之间的）上下文切换期间会改变下半部分，但虚拟地址空间的内核部分总是保持不变。</p>
+<p>如果物理内存比可以映射到内核地址空间中的数量要多，那么内核必须借助于高端内存（highmem）方法来管理“多余的”内存。<br>
+。。32位 会有这个问题， 64不太可能。</p>
+<p>在内核使用高端内存页之前，必须使用下文讨论的kmap和kunmap函数将其映射到内核虚拟地址空间中</p>
+<p>有两种类型计算机，分别以不同的方法管理物理内存。</p>
+<ul>
+<li>UMA计算机(一致内存访问，uniform memory access)<br>
+将可用内存以连续方式组织起来（可能有小的缺口）。<br>
+SMP系统中的每个处理器访问各个内存区都是同样快。</li>
+<li>NUMA计算机(非一致内存访问，non-uniform memory access)<br>
+总是多处理器计算机。<br>
+系统的各个CPU都有本地内存，可支持特别快速的访问。<br>
+各个处理器之间通过总线连接起来，以支持对其他CPU的本地内存的访问，当然比访问本地内存慢些。</li>
+</ul>
+<p><img src="../_resources/477f3ee488df453cba1bd59db872c788.png" alt="b6e102d3d5d2b34055da6564a2c4972b.png"></p>
+<p>实际上内核会区分3种配置选项：FLATMEM、DISCONTIGMEM和SPARSEMEM。SPARSEMEM和DISCONTIGMEM实际上作用相同，但从开发者的角度看来，对应代码的质量有所不同。SPARSEMEM更激进，有性能优化，但不够稳定</p>
+<p>。。平坦，不连续，稀疏<br>
+。。flatmen 是 UMA<br>
+。。discontigmen sparsemen 是 NUMA</p>
+<p>在以后几节里，我们的讨论主要限于FLATMEM。<br>
+在大多数配置中都使用该内存组织类型，通常它也是内核的默认值。<br>
+由于所有内存模型实际上都使用同样的数据结构，因此不讨论其他选项也没多大损失。</p>
+<p>NUMA计算机过于昂贵。</p>
+<p>。。<br>
+uca，nuca，non-uniform cache access, 就是 L1,L2,L3 cache 是否是共享的，目前都是 CPU 有各自的 L1,2,3 cache</p>
+<p><code class="inline-code">https://zhuanlan.zhihu.com/p/387117470</code></p>
+<p>。。CPU性能=IPC(CPU每一时钟周期内所执行的指令多少)×频率(MHz时钟速度)<br>
+。。作者是 128核 服务器。。</p>
+<p>开启NUMA会优先就近使用内存，在本NUMA上的内存不够的时候可以选择回收本地的PageCache还是到其它NUMA 上分配内存，这是可以通过Linux参数 zone_reclaim_mode 来配置的，默认是到其它NUMA上分配内存，也就是跟关闭NUMA是一样的。</p>
+<p>这个架构距离是物理上就存在的不是你在BIOS里关闭了NUMA差异就消除了，我更愿意认为在BIOS里关掉NUMA只是掩耳盗铃。</p>
+<p>以上理论告诉我们：也就是在开启NUMA和 zone_reclaim_mode 默认在内存不够的如果去其它NUMA上分配内存，比关闭NUMA要快很多而没有任何害处。</p>
+<p>即使Intel在只有两个NUMA的情况下跨性能差异也有2倍，可见正确的绑核方法收益巨大，尤其是在刷榜的情况下， NUMA更多性能差异应该会更大。</p>
+<p>实际在不开NUMA的同样CPU上，进行以上绑核测试测试，测试结果也完全一样。 测试数据说明了前面的理论分析是正确的。</p>
+<p>事实上Linux识别到NUMA架构后，默认的内存分配方案就是：优先尝试在请求线程当前所处的CPU的Local内存上分配空间。如果local内存不足，优先淘汰local内存中无用的Page（Inactive，Unmapped）。然后才到其它NUMA上分配内存。<br>
+我查了2.6.32以及4.19.91内核的机器 zone_reclaim_mode 都是默认0，也就是kernel会：优先使用本NUMA上的内存，如果本NUMA不够了不要优先回收PageCache而是优先使用其它NUMA上的内存。这也是我们想要的。</p>
+<p>总结</p>
+<ul>
+<li>放弃对NUMA的偏见吧，优先回收 PageCache 这个Bug早已修复了</li>
+<li>没必要自欺欺人关掉NUMA了，不管是X86还是ARM关闭NUMA不会带来性能提升</li>
+<li>按NUMA绑定core收益巨大，即使只有两个NUMA的intel芯片，也有一倍以上的性能提升，在飞腾等其他芯片上收益更大</li>
+<li>MySQL这样独占物理机的服务可以做到按NUMA来绑定core，收益可观</li>
+<li>云上的VM售卖如果能够精确地按NUMA绑核的话性能，超卖比能高很多</li>
+<li>在刷TPCC数据的时候更应该开NUMA和正确绑核</li>
+</ul>
+<p>补充下，从评论来看，最容易误解的就是：如果关闭NUMA，就变成UMA了。这里大家首先要理解NUMA的引入是CPU核越来越多，内存条数也越来越多（总内存是由很多条一起组合起来的），这样带来的问题就是一部分内存插在一部分core上，另外一些内存插在剩下的core上，从而导致了core访问不同的内存物理距离不一样，所以RT也不一样，这个物理距离是设计CPU的时候就带来了的，无法改变！</p>
+<p>那么BIOS层面关闭NUMA的意思是什么呢？关闭后OS无法感知CPU的物理架构，也就是没有办法就近分配内存，带来的问题就是没法让性能最优，或者用户能感知到RT上的抖动（如果是2个NUMA节点的话，平均会有50%的RT偏高）<br>
+。。</p>
+<p>。。<br>
+CPU - MMU - cache - memory<br>
+。。</p>
+<p>本书内容集中在UMA系统，不考虑CONFIG_NUMA。</p>
+<p>在下文的讨论中，我们会经常遇到术语 分配阶（allocation order）。<br>
+它表示内存区中页的数目取以2为底的对数。<br>
+阶0的分配由一个页面组成，阶1的分配包括2^1=2个页，阶2的分配包括2^2=4个页，依次类推</p>
+<h2 id="32-numa-模型中的内存组织">3.2 (N)UMA 模型中的内存组织</h2>
+<p>内核对一致和非一致内存访问系统使用相同的数据结构，因此针对各种不同形式的内存布局，各个算法几乎没有什么差别。</p>
+<p>在UMA系统上，只使用一个NUMA结点来管理整个系统内存。而内存管理的其他部分则相信它们是在处理一个伪NUMA系统</p>
+<p>首先，<mark>内存划分为结点</mark>。<mark>每个结点关联到系统中的一个处理器</mark>，在内核中表示为pg_data_t的实例（稍后定义该数据结构）。<br>
+各个<mark>结点又划分为内存域</mark>，是内存的进一步细分。</p>
+<p>只有前16 MiB适用，还有一个高端内存区域无法直接映射。在二者之间是通用的“普通”内存区。因此一个结点最多由3个内存域组成。</p>
+<p>各个<mark>内存域都关联了一个数组</mark>，用来组织属于该内存域的<mark>物理内存页</mark>（内核中称之为页帧）。<br>
+对每个页帧，都分配了一个struct page实例以及所需的管理数据。<br>
+各个内存结点保存在一个单链表中，供内核遍历</p>
+<p>出于性能考虑，在为进程分配内存时，内核总是试图在当前运行的CPU相关联的NUMA结点上进行。<br>
+但这并不总是可行的，例如，该结点的内存可能已经用尽。对此类情况，每个结点都提供了一个备用列表（借助于struct zonelist）。<br>
+该列表包含了其他结点（和相关的内存域），可用于代替当前结点分配内存。<br>
+列表项的位置越靠后，就越不适合分配</p>
+<hr>
+<h3 id="数据结构-4">数据结构</h3>
+<h4 id="结点管理">结点管理</h4>
+<p>pg_data_t是用于表示结点的基本元素</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C" data-joplin-source-open="```C&#10;" data-joplin-source-close="&#10;```">// &lt;mmzone.h&gt; 
+typedef struct pglist_data { 
+  struct zone node_zones[MAX_NR_ZONES]; // 包含了结点中 各内存域的数据结构
+  struct zonelist node_zonelists[MAX_ZONELISTS]; // 备用结点及其 内存域的列表。当前结点没有可用空间时，从这里分配内存
+  int nr_zones; // 不同内存域的数目
+  struct page *node_mem_map; // 指向 page 实例数组的指针，用于描述结点的 所 有 物理内存页。
+  struct bootmem_data *bdata;
+  unsigned long node_start_pfn; // 该NUMA结点 第一个页帧的逻辑编号。在UMA中总是0，因为只有一个结点，所以第一个页帧总是0。
+  unsigned long node_present_pages; /* 物理内存页的总数 */  // 结点中页帧的数目
+  unsigned long node_spanned_pages; /* 物理内存页的总长度，包含洞在内 */ // 该结点以页帧为单位计算的长度， 不一定等于 node_present_pages，因为 结点中 可能有一些空洞，并不对应真正的页帧。
+  int node_id; // 全局结点ID，NUMA结点从0开始编号
+  struct pglist_data *pgdat_next; // 下一个内存结点，系统中所有结点都通过 单链表连接
+  wait_queue_head_t kswapd_wait; // 交换守护进程 (swap daemon) 的等待队列，将页帧换出结点时会用到
+  struct task_struct *kswapd; // 指向负责该结点的交换守护进程的 task_struct
+  int kswapd_max_order; // 用于 页交换子系统的实现，用来定义需要释放的区域的长度。
+} pg_data_t; </pre><pre class="hljs"><code><span class="hljs-comment">// &lt;mmzone.h&gt; </span>
+<span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">pglist_data</span> {</span> 
+  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">zone</span> <span class="hljs-title">node_zones</span>[<span class="hljs-title">MAX_NR_ZONES</span>];</span> <span class="hljs-comment">// 包含了结点中 各内存域的数据结构</span>
+  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">zonelist</span> <span class="hljs-title">node_zonelists</span>[<span class="hljs-title">MAX_ZONELISTS</span>];</span> <span class="hljs-comment">// 备用结点及其 内存域的列表。当前结点没有可用空间时，从这里分配内存</span>
+  <span class="hljs-type">int</span> nr_zones; <span class="hljs-comment">// 不同内存域的数目</span>
+  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">page</span> *<span class="hljs-title">node_mem_map</span>;</span> <span class="hljs-comment">// 指向 page 实例数组的指针，用于描述结点的 所 有 物理内存页。</span>
+  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">bootmem_data</span> *<span class="hljs-title">bdata</span>;</span>
+  <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> node_start_pfn; <span class="hljs-comment">// 该NUMA结点 第一个页帧的逻辑编号。在UMA中总是0，因为只有一个结点，所以第一个页帧总是0。</span>
+  <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> node_present_pages; <span class="hljs-comment">/* 物理内存页的总数 */</span>  <span class="hljs-comment">// 结点中页帧的数目</span>
+  <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> node_spanned_pages; <span class="hljs-comment">/* 物理内存页的总长度，包含洞在内 */</span> <span class="hljs-comment">// 该结点以页帧为单位计算的长度， 不一定等于 node_present_pages，因为 结点中 可能有一些空洞，并不对应真正的页帧。</span>
+  <span class="hljs-type">int</span> node_id; <span class="hljs-comment">// 全局结点ID，NUMA结点从0开始编号</span>
+  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">pglist_data</span> *<span class="hljs-title">pgdat_next</span>;</span> <span class="hljs-comment">// 下一个内存结点，系统中所有结点都通过 单链表连接</span>
+  <span class="hljs-type">wait_queue_head_t</span> kswapd_wait; <span class="hljs-comment">// 交换守护进程 (swap daemon) 的等待队列，将页帧换出结点时会用到</span>
+  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">task_struct</span> *<span class="hljs-title">kswapd</span>;</span> <span class="hljs-comment">// 指向负责该结点的交换守护进程的 task_struct</span>
+  <span class="hljs-type">int</span> kswapd_max_order; <span class="hljs-comment">// 用于 页交换子系统的实现，用来定义需要释放的区域的长度。</span>
+} <span class="hljs-type">pg_data_t</span>; </code></pre></div>
+<p>结点的内存域保存在<code class="inline-code">node_zones[MAX_NR_ZONES]</code>。该数组总是有3个项，即使结点没有那么多内存域，也是如此。如果不足3个，则其余的数组项用0填充。</p>
+<hr>
+<p>结点状态管理<br>
+如果系统中结点多于一个，内核会维护一个位图，用以提供各个结点的状态信息。状态是用位掩码指定的，可使用下列值</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C" data-joplin-source-open="```C&#10;" data-joplin-source-close="&#10;```">// nodemask.h
+enum node_states {
+  N_POSSIBLE, /* 结点在某个时候可能变为联机 */ 
+  N_ONLINE, /* 结点是联机的 */ 
+  N_NORMAL_MEMORY, /* 结点有普通内存域 */ 
+
+#ifdef CONFIG_HIGHMEM 
+  N_HIGH_MEMORY, /* 结点有普通或高端内存域 */ 
+#else 
+  N_HIGH_MEMORY = N_NORMAL_MEMORY, 
+#endif 
+
+  N_CPU, /* 结点有一个或多个CPU */ 
+  NR_NODE_STATES 
+};</pre><pre class="hljs"><code><span class="hljs-comment">// nodemask.h</span>
+<span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">node_states</span> {</span>
+  N_POSSIBLE, <span class="hljs-comment">/* 结点在某个时候可能变为联机 */</span> 
+  N_ONLINE, <span class="hljs-comment">/* 结点是联机的 */</span> 
+  N_NORMAL_MEMORY, <span class="hljs-comment">/* 结点有普通内存域 */</span> 
+
+<span class="hljs-meta">#<span class="hljs-keyword">ifdef</span> CONFIG_HIGHMEM </span>
+  N_HIGH_MEMORY, <span class="hljs-comment">/* 结点有普通或高端内存域 */</span> 
+<span class="hljs-meta">#<span class="hljs-keyword">else</span> </span>
+  N_HIGH_MEMORY = N_NORMAL_MEMORY, 
+<span class="hljs-meta">#<span class="hljs-keyword">endif</span> </span>
+
+  N_CPU, <span class="hljs-comment">/* 结点有一个或多个CPU */</span> 
+  NR_NODE_STATES 
+};</code></pre></div>
+<p>N_POSSIBLE、N_ONLINE和N_CPU用于CPU和内存的热插拔</p>
+<p>对内存管理有必要的标志是N_HIGH_MEMORY和N_NORMAL_MEMORY。<br>
+如果结点有普通或高端内存则使用N_HIGH_MEMORY，仅当结点没有高端内存才设置N_NORMAL_MEMORY。</p>
+<hr>
+<h4 id="内存域">内存域</h4>
+<p>内核使用zone结构来描述内存域</p>
+<p><code class="inline-code">mmzone.h</code><br>
+<code class="inline-code">struct zone {};</code></p>
+<p>该结构比较特殊的方面是它由ZONE_PADDING分隔为几个部分。这是因为对zone结构的访问非常频繁<br>
+如果数据保存在CPU高速缓存中，那么会处理得更快速。<br>
+高速缓存分为行，每一行负责不同的内存区。<br>
+内核使用ZONE_PADDING宏生成“填充”字段添加到结构中，以确保每个自旋锁都处于自身的缓存行中。<br>
+还使用了编译器关键字__cacheline_maxaligned_in_smp，用以实现最优的高速缓存对齐方式</p>
+<hr>
+<p>内存域水印的计算</p>
+<hr>
+<h4 id="冷热页">冷热页</h4>
+<p>struct zone的 pageset 成员用于 实现 冷热分配器</p>
+<p>内核说页是热的，意味着页已经加载到CPU高速缓存</p>
+<h4 id="页帧">页帧</h4>
+<p>页帧代表系统内存的最小单位，对内存中的每个页都会创建struct page的一个实例。<br>
+内核程序员需要注意保持该结构尽可能小，因为即使在中等程度的内存配置下，系统的内存同样会分解为大量的页。</p>
+<p>页的广泛使用，增加了保持结构长度的难度：内存管理的许多部分都使用页，用于各种不同的用途。</p>
+<p>C语言的联合很适合于该问题，尽管它未能增加struct page的清晰程度。</p>
+<p>考虑一个例子：一个物理内存页能够通过多个地方的不同页表映射到虚拟地址空间，内核想要跟踪有多少地方映射了该页。<br>
+为此，struct page中有一个<mark>计数器用于计算映射的数目</mark>。<br>
+如果一页用于slub分配器（将整页细分为更小部分的一种方法，请参见3.6.1节），那么可以确保<mark>只有内核会使用该页</mark>，而不会有其他地方使用，<br>
+因此映射计数信息就是<mark>多余</mark>的。<br>
+因此内核可以重新解释该字段，用来表示该页被细分为多少个小的内存对象使用。<br>
+在数据结构定义中，这种双重解释如下所示</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C" data-joplin-source-open="```C&#10;" data-joplin-source-close="&#10;```">// &lt;mm_types.h&gt; 
+struct page { 
+... 
+  union { 
+    atomic_t _mapcount;  /* 内存管理子系统中映射的页表项计数，
+                          * 用于表示页是否已经映射，还用于限制逆向映射搜索。
+                          */ 
+    unsigned int inuse; /* 用于SLUB分配器：对象的数目 */ 
+  }; 
+... 
+} </pre><pre class="hljs"><code><span class="hljs-comment">// &lt;mm_types.h&gt; </span>
+<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">page</span> {</span> 
+... 
+  <span class="hljs-class"><span class="hljs-keyword">union</span> {</span> 
+    <span class="hljs-type">atomic_t</span> _mapcount;  <span class="hljs-comment">/* 内存管理子系统中映射的页表项计数，
+                          * 用于表示页是否已经映射，还用于限制逆向映射搜索。
+                          */</span> 
+    <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> inuse; <span class="hljs-comment">/* 用于SLUB分配器：对象的数目 */</span> 
+  }; 
+... 
+} </code></pre></div>
+<p><code class="inline-code">struct list_head lru; /* 换出页列表，例如由zone-&gt;lru_lock保护的active_list! */ </code><br>
+。。lru</p>
+<h2 id="33-页表">3.3 页表</h2>
+<p>层次化的页表用于支持对大地址空间的快速、高效的管理</p>
+<p>内核内存管理总是假定使用四级页表，而不管底层处理器是否如此。</p>
+<p><code class="inline-code">page.h, pgtable.h</code></p>
+<h3 id="数据结构-5">数据结构</h3>
+<p>内存管理更喜欢使用unsigned long类型的变量，而不是void指针，因为前者更易于处理和操作。技术上，它们都是有效的。</p>
+<p>根据四级页表结构的需要，虚拟内存地址分为5部分（4个表项用于选择页，1个索引表示页内位置）。</p>
+<p>各个体系结构不仅 <mark>地址字长度不同</mark>，而且地址字<mark>拆分的方式也不同</mark>。因此内核定义了宏，用于将地址分解为各个分量。</p>
+<p>BITS_PER_LONG定义用于unsigned long变量的比特位数目，因而也适用于指向虚拟地址空间的通用指针。</p>
+<p><img src="../_resources/05a92efd78074a66845e1ddcfd6c57ab.png" alt="e2217164b3ff382b581de36a86cc6d2d.png"></p>
+<p>内核提供了4个数据结构（定义在page.h中）来表示页表项的结构。</p>
+<ul>
+<li>pgd_t用于全局页目录项。</li>
+<li>pud_t用于上层页目录项。</li>
+<li>pmd_t用于中间页目录项。</li>
+<li>pte_t用于直接页表项。</li>
+</ul>
+<p>PAGE_ALIGN是另一个每种体系结构都必须定义的标准宏（通常在page.h中）<br>
+它需要一个地址作为参数，并将该地址“舍入”到下一页的起始处<br>
+如果页大小是4 096，该宏总是返回其倍数。PAGE_ALIGN(6000)=8192 = 2× 4096, PAGE_ALIGN(0x84590860)=0x84591000 = 542097 × 4096</p>
+<p>尽管使用了C结构来表示页表项，但大多数页表项都只有一个成员，通常是unsigned long类型，以AMD64体系结构为例:</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C" data-joplin-source-open="```C&#10;" data-joplin-source-close="&#10;```">// include/asm-x86_64/page.h
+typedef struct { unsigned long pte; } pte_t; 
+typedef struct { unsigned long pmd; } pmd_t; 
+typedef struct { unsigned long pud; } pud_t; 
+typedef struct { unsigned long pgd; } pgd_t </pre><pre class="hljs"><code><span class="hljs-comment">// include/asm-x86_64/page.h</span>
+<span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> {</span> <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> pte; } <span class="hljs-type">pte_t</span>; 
+<span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> {</span> <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> pmd; } <span class="hljs-type">pmd_t</span>; 
+<span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> {</span> <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> pud; } <span class="hljs-type">pud_t</span>; 
+<span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> {</span> <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> pgd; } <span class="hljs-type">pgd_t</span> </code></pre></div>
+<p>特定于PTE的信息<br>
+最后一级页表中的项不仅包含了指向页的内存位置的指针，还在上述的多余比特位包含了与页有关的附加信息。</p>
+<h2 id="34-初始化内存管理">3.4 初始化内存管理</h2>
+<p>在内存管理的上下文中，初始化（initialization）可以有多种含义。<br>
+在许多CPU上，必须显式设置适于Linux内核的内存模型。</p>
+<hr>
+<p>对相关数据结构的初始化是从全局启动例程start_kernel中开始的，该例程在加载内核并激活各个子系统之后执行。</p>
+<h4 id="内核在内存中的布局">内核在内存中的布局</h4>
+<p>p136</p>
+<p>物理内存最低几兆字节的布局<br>
+<img src="../_resources/f686a7d556fa47468cea65ca478a2ca1.png" alt="513e264e437c4dae77639d2d50b94079.png"></p>
+<p>0x9e800 = 649216 = 634k</p>
+<p>该图给出了物理内存的前几兆字节，<mark>具体的长度依赖于内核二进制文件的长度</mark>。<br>
+前4 KiB是第一个页帧，一般会忽略，因为通常保留<mark>给BIOS使用</mark>。<br>
+接下来的640 KiB原则上是可用的，但也<mark>不用</mark>于内核加载。其<mark>原因</mark>是，该区域之后紧邻的区域由系统保留，用于映射各种ROM（通常是系统BIOS和显卡ROM）。不可能向映射ROM的区域写入数据。但内核总是会装载到一个连续的内存区中，如果要从4 KiB处作为起始位置来装载内核映像，则要求内核必须小于640 KiB。</p>
+<p>。。但是 图中 0x9e800 是 634k，在 640k之前啊。<br>
+。。根据 文字，ROM的开始应该是 644k (4+640)，是 0xA1000。 我感觉这个 数字好一点。 应该是 图错了。<br>
+。。百度了下，没有具体的， 只有 linux 0.11 的时候 是 0-640k</p>
+<p>IA-32内核使用<mark>0x100000</mark>作为起始地址。这对应于内存中<mark>第二兆</mark>字节的开始处。从此处开始，有足够的连续内存区，可容纳整个内核。</p>
+<p>内核占据的内存分为几个段，其边界保存在变量中。</p>
+<ul>
+<li>_text和_etext是<mark>代码段</mark>的起始和结束地址，包含了编译后的内核代码。</li>
+<li><mark>数据段</mark>位于_etext和_edata之间，保存了大部分内核变量。</li>
+<li><mark>初始化数据</mark>在内核<mark>启动过程结束后不再需要</mark>（例如，包含初始化为0的所有静态全局变量的BSS段）保存在最后一段，从_edata到_end。在内核初始化完成后，其中的大部分数据都可以从内存删除，给应用程序留出更多空间。这一段内存区划分为更小的子区间，以控制哪些可以删除，哪些不能删除，但这对于我们现在的讨论没多大意义</li>
+</ul>
+<p>准确的数值依内核配置而异，因为每种配置的代码段和数据段长度都不相同，这取决于启用和禁用了内核的哪些部分。只有起始地址（_text）总是相同的</p>
+<p>每次编译内核时，都生成一个文件System.map并保存在源代码目录下。除了所有其他（全局）变量、内核定义的函数和例程的地址，该文件还包括图3-11给出的常数的值</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="shell" data-joplin-source-open="```shell&#10;" data-joplin-source-close="&#10;```">wolfgang@meitner&gt; cat /proc/iomem 
+00000000-0009e7ff : System RAM 
+0009e800-0009ffff : reserved 
+000a0000-000bffff : Video RAM area 
+000c0000-000c7fff : Video ROM 
+000f0000-000fffff : System ROM 
+00100000-17ceffff : System RAM 
+00100000-00381ecc : Kernel code 
+00381ecd-004704df : Kernel data</pre><pre class="hljs"><code><span class="hljs-meta prompt_">wolfgang@meitner&gt; </span><span class="language-bash"><span class="hljs-built_in">cat</span> /proc/iomem</span> 
+00000000-0009e7ff : System RAM 
+0009e800-0009ffff : reserved 
+000a0000-000bffff : Video RAM area 
+000c0000-000c7fff : Video ROM 
+000f0000-000fffff : System ROM 
+00100000-17ceffff : System RAM 
+00100000-00381ecc : Kernel code 
+00381ecd-004704df : Kernel data</code></pre></div>
+<p>。。0xa000 == 640k</p>
+<p>在AMD64系统上也可以获得类似的信息。这里内核在第一个页帧之后2 MiB开始，物理内存映射到虚拟地址空间中从0xffffffff80000000开始。</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="shell" data-joplin-source-open="```shell&#10;" data-joplin-source-close="&#10;```">wolfgang@meitner&gt; cat System.map 
+ffffffff80200000 A _text 
+... 
+ffffffff8041fc6f A _etext 
+... 
+ffffffff8056c060 A _edata 
+... 
+ffffffff8077548c A _end </pre><pre class="hljs"><code><span class="hljs-meta prompt_">wolfgang@meitner&gt; </span><span class="language-bash"><span class="hljs-built_in">cat</span> System.map</span> 
+ffffffff80200000 A _text 
+... 
+ffffffff8041fc6f A _etext 
+... 
+ffffffff8056c060 A _edata 
+... 
+ffffffff8077548c A _end </code></pre></div>
+<p>在运行时，也可以从/proc/iomem获得内核的相关信息：</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="shell" data-joplin-source-open="```shell&#10;" data-joplin-source-close="&#10;```">root@meitner # cat/proc/iomem 
+... 
+00100000-cff7ffff : System RAM 
+00200000-0041fc6e : Kernel code 
+0041fc6f-0056c05f : Kernel data 
+006b6000-0077548b : Kernel bss 
+... </pre><pre class="hljs"><code>root@meitner # cat/proc/iomem 
+... 
+00100000-cff7ffff : System RAM 
+00200000-0041fc6e : Kernel code 
+0041fc6f-0056c05f : Kernel data 
+006b6000-0077548b : Kernel bss 
+... </code></pre></div>
+<p><img src="../_resources/2d032fa02ef748a9a3f57ae125688806.png" alt="14365b26615f401dcdb1a341e5e92864.png"></p>
+<hr>
+<p><img src="../_resources/67761d6b35004ef8a9d35f39640b93eb.png" alt="a7d42982befa7219e7ac4a7cd70fef9d.png"></p>
+<hr>
+<p>在IA-32系统上内核通常将总的4 GiB可用虚拟地址空间按3 : 1的比例划分。<mark>低端</mark>3 GiB用于用户状态应用程序，而<mark>高端</mark>的1GiB则专用于内核。</p>
+<p>。。百度了下， 高端内存是指 大于等于 0xc0000000 的内存， 用于 内核， 但是 这是 逻辑地址， 映射到 物理地址的时候 要 减去 0c0000000， 所以 实际上 物理地址从 0开始<br>
+。 这1g 的内存，分为 3块，ZONE_DMA 开始的16mb，ZONE_NORMAL 是16-896mb，ZONE_HIGHMEM (高端内存) 是 896mb - 结束<br>
+。高端内存 (指 896mb之后的，而不是 高端的1g ) 是用来 映射到其他内存的， 以扩展 内核的 1g 的容量 ( 可以访问所有的物理内存)。</p>
+<p>。。不知道 用户空间的 怎么 映射到 物理内存。<br>
+。。而且好多都是 32位的， 天天4g = 3g + 1g 。</p>
+<p>这些划分主要的动机如下所示</p>
+<ul>
+<li>在用户应用程序的执行切换到核心态时（这总是会发生，例如在使用系统调用或发生周期性的时钟中断时），内核必须装载在一个可靠的环境中。因此有必要将地址空间的一部分分配给内核专用。</li>
+<li>物理内存页则映射到内核地址空间的<mark>起始处</mark>，以便内核直接访问，而无需复杂的页表操作。</li>
+</ul>
+<hr>
+<p>按3∶1的比例划分地址空间，只是约略反映了内核中的情况，内核地址空间自身又分为各个段。图3-15对此给出了图示<br>
+<img src="../_resources/a411c4c3b0aa4a95a4cbd41afc28962a.png" alt="46f2d9f6890e709b1912c86cec61d420.png"></p>
+<p>。。IA-32（Intel Architecture 32-bit，英特尔32位体系架构），属于X86体系结构的32位版本</p>
+<p>该图给出了用来管理虚拟地址空间的第四吉字节的页表项的结构。它标明了虚拟地址空间的各个区域的用途，这与物理内存的分配无关。<br>
+。。第4个g的，就是 内核的 内存。  吉==g 。。吉字节 还真有，真是 gb</p>
+<p>地址空间的第一段用于将系统的所有物理内存页映射到内核的虚拟地址空间中。<br>
+由于<mark>内核地址</mark>空间<mark>从偏移量0xC0000000</mark>开始，即经常提到的3 GiB，每个<mark>虚拟地址x</mark>都对应于<mark>物理地址x—0xC0000000</mark>，因此这是一个简单的线性平移。</p>
+<p>如果物理内存超过896 MiB，则内核无法直接映射全部物理内存。<br>
+内核必须保留地址空间最后的128 MiB用于其他目的</p>
+<p>将这128 MiB加上直接映射的896 MiB内存，则得到内核虚拟地址空间的总数为1 024 MiB<br>
+内核使用两个经常使用的缩写normal和highmem，来区分<mark>是否可以直接映射的页帧</mark>。</p>
+<p>内核移植的每个体系结构都必须提供两个宏，用于一致映射的内核虚拟内存部分，进行物理和虚拟地址之间的转换（最终这是一个平台相关的任务）。</p>
+<ul>
+<li>__pa(vaddr)返回与虚拟地址vaddr相关的物理地址。</li>
+<li>__va(paddr)则计算出对应于物理地址paddr的虚拟地址。</li>
+</ul>
+<p>IA-32将页帧映射到从PAGE_OFFSET开始的虚拟地址空间</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C" data-joplin-source-open="```C&#10;" data-joplin-source-close="&#10;```">// include/asm-x86/page_32.h 
+#define __pa(x) ((unsigned long)(x)-PAGE_OFFSET) 
+#define __va(x) ((void *)((unsigned long)(x)+PAGE_OFFSET)) </pre><pre class="hljs"><code><span class="hljs-comment">// include/asm-x86/page_32.h </span>
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> __pa(x) ((unsigned long)(x)-PAGE_OFFSET) </span>
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> __va(x) ((void *)((unsigned long)(x)+PAGE_OFFSET)) </span></code></pre></div>
+<p>。。<br>
+在6.9-rc1中 /include/asm-generic/page.h 中<br>
+这2个宏 和 书上的不一样。 但是 有 virt_to_pfn 这2个方法，不知道用来干什么。不知道 IA32 有没有。</p>
+<p>PAGE_SHIFT 是 16</p>
+<p>而且<br>
+<code class="inline-code">#define PAGE_OFFSET		(0)</code>  书上的 PAGE_OFFSET 在 6.9中是 0 了。。</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C" data-joplin-source-open="```C&#10;" data-joplin-source-close="&#10;```">#define __va(x) ((void *)((unsigned long) (x)))
+#define __pa(x) ((unsigned long) (x))
+
+static inline unsigned long virt_to_pfn(const void *kaddr)
+{
+    return __pa(kaddr) &gt;&gt; PAGE_SHIFT;
+}
+#define virt_to_pfn virt_to_pfn
+static inline void *pfn_to_virt(unsigned long pfn)
+{
+    return __va(pfn) &lt;&lt; PAGE_SHIFT;
+}</pre><pre class="hljs"><code><span class="hljs-meta">#<span class="hljs-keyword">define</span> __va(x) ((void *)((unsigned long) (x)))</span>
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> __pa(x) ((unsigned long) (x))</span>
+
+<span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> <span class="hljs-title function_">virt_to_pfn</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">void</span> *kaddr)</span>
+{
+    <span class="hljs-keyword">return</span> __pa(kaddr) &gt;&gt; PAGE_SHIFT;
+}
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> virt_to_pfn virt_to_pfn</span>
+<span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">void</span> *<span class="hljs-title function_">pfn_to_virt</span><span class="hljs-params">(<span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> pfn)</span>
+{
+    <span class="hljs-keyword">return</span> __va(pfn) &lt;&lt; PAGE_SHIFT;
+}</code></pre></div>
+<p>。。</p>
+<p>内核地址空间的最后128 MiB用于何种用途呢？如图3-15所示，该部分有3个用途。</p>
+<ul>
+<li>虚拟内存中连续、但物理内存中不连续的内存区，可以在<mark>vmalloc区</mark>域分配。该机制通常用于用户过程，内核自身会试图尽力避免非连续的物理地址。内核通常会成功，因为大部分大的内存块都在启动时分配给内核，那时内存的碎片尚不严重。但在已经运行了很长时间的系统上，在内核需要物理内存时，就可能出现可用空间不连续的情况。此类情况，主要出现在动态加载模块时。</li>
+<li><mark>持久映射</mark>用于将高端内存域中的非持久页映射到内核中。3.5.8节将仔细讨论该主题</li>
+<li><mark>固定映射</mark>是与物理地址空间中的固定页关联的虚拟地址空间项，但具体关联的页帧可以自由选择。它与通过固定公式与物理内存关联的直接映射页相反，虚拟固定映射地址与物理内存位置之间的关联可以自行定义，关联建立后内核总是会注意到的</li>
+</ul>
+<p>在这里有两个预处理器符号很重要：__VMALLOC_RESERVE 设置了 vmalloc区域的长度，而 MAXMEM 则表示内核可以直接寻址的物理内存的最大可能数量。</p>
+<p>max_low_pfn 指定了物理内存数量小于896 MiB的系统上内存页的数目。该值的上界受限于896 MiB可容纳的最大页数（具体的计算在find_max_low_pfn给出）。如果启用了高端内存支持，则high_memory 表示两个内存区之间的边界，总是896 MiB。</p>
+<p>如果VMALLOC_OFFSET取最小值，那么在直接映射的所有内存页和用于非连续分配的区域之间，会出现一个缺口。</p>
+<p>这个缺口可用作针对任何内核故障的<mark>保护措施</mark>。如果访问越界地址（即无意地访问物理上不存在的内存区），则访问失败并生成一个异常，报告该错误。</p>
+<p>在某些场合可能最好将地址空间对称划分，2 GiB用于用户地址空间，2 GiB用于内核地址空间。<br>
+那么 <code class="inline-code">__PAGE_OFFSET</code> 必须设置为0x80000000，而不是通常的默认值0xC0000000。<br>
+如果系统执行的任务需要将<mark>大量内存用于内核</mark>，而几乎<mark>没有多少内存用于用户进程</mark>（这样的任务很少见），对称划分可能比较有用。</p>
+<ul>
+<li>对超大内存页的支持。</li>
+<li>如有可能，内核页会设置另一个属性（__PAGE_GLOBAL），这也是__PAGE_KERNEL和__PAGE_KERNEL_EXEC变量中__PAGE_GLOBAL比特位已经置位的原因。</li>
+</ul>
+<p>在上下文切换期间，设置了__PAGE_GLOBAL位的页，对应的TLB缓存项不从TLB刷出。</p>
+<blockquote>
+<p>冷热缓存的初始化</p>
+</blockquote>
+<p>上述代码计算得到的batch，大约相当于内存域中页数的0.25‰</p>
+<p>对热页来说，下限为0，上限为<code class="inline-code">6*batch</code>，缓存中页的平均数量大约是<code class="inline-code">4*batch</code>，因为内核不会让缓存水平降到太低。<br>
+<code class="inline-code">batch * 4</code>相当于内存域中页数的千分之一（这也是zone_batchsize试图将批量大小优化到总页数0.25‰的原因）。</p>
+<p>根据经验，缓存大小是主内存的千分之一。<br>
+考虑到当前系统每个CPU配备的物理内存大约在1 GiB～2 GiB，该规则是有意义的。<br>
+这样，计算出的批量大小使得冷热缓存中的页有可能<mark>放置到CPU的L2缓存</mark>中。</p>
+<hr>
+<blockquote>
+<p>AMD64地址空间的设置</p>
+</blockquote>
+<p>AMD64系统地址空间的设置在某些方面比IA-32容易，但在另一些方面要困难。<br>
+虽然64位地址空间避免了古怪的高端内存域，但有另一个因素使情况复杂化。<br>
+64位地址空间的跨度太大，当前没有什么应用程序需要这个。<br>
+因此，当前只实现了一个比较小的物理地址空间，<mark>地址字宽度为48位</mark>。<br>
+这在不失灵活性的前提下，简化并加速了地址转换。<br>
+48位宽的地址字可以寻址256 TiB的地址空间，或256×1024 GiB，即使对Firefox也足够了！</p>
+<p>尽管物理地址字位宽被限制在48位，但在寻址虚拟地址空间时仍然使用了64位指针，因而虚拟地址空间在形式上仍然会跨越264字节。<br>
+但这引起了一个<mark>问题</mark>：由于物理地址字实际上只有48位宽，虚拟地址空间的某些部分无法寻址。</p>
+<hr>
+<p><img src="../_resources/5beb50881417446cbc13863f0f6f17e9.png" alt="d35dd217e8fd8f3030091531da3da0a4.png"></p>
+<p>可访问的地址空间的整个下半部用作用户空间，而整个上半部专用于内核。<br>
+由于两个空间都极大，无须调整划分比例之类的参数。</p>
+<h3 id="343-启动过程期间的内存管理">3.4.3 启动过程期间的内存管理</h3>
+<p>在启动过程期间，尽管内存管理尚未初始化，但内核仍然需要分配内存以创建各种数据结构。</p>
+<p>bootmem分配器用于在启动阶段早期分配内存。</p>
+<p>显然，对该分配器的需求集中于简单性方面，而不是性能和通用性。因此内核开发者决定实现一个<mark>最先适配（first-fit）分配器</mark>用于在启动阶段管理内存，这是可能想到的最简单方式。<br>
+在需要分配内存时，分配器逐位扫描位图，直至找到一个能提供足够连续页的位置，即所谓的最先最佳（first-best）或最先适配位置。</p>
+<p>该过程不是很高效，因为每次分配都必须从头扫描比特链。<br>
+因此在内核完全初始化之后，不能将该分配器用于内存管理。<br>
+伙伴系统（连同slab、slub或slob分配器）是一个好得多的备选方案，将在3.5.5节讨论。</p>
+<hr>
+<p>内核（为系统中的每个结点都）提供了一个<code class="inline-code">bootmem_data</code>结构的实例，用于该用途</p>
+<p>bootmem分配器的初始化是一个特定于体系结构的过程，此外还取决于所述计算机的内存布局。</p>
+<p><img src="../_resources/23a5a5de7bf3422b8c9ad6c5902d62b2.png" alt="098739742df57caf0c9b515523036b8f.png"></p>
+<hr>
+<p><img src="../_resources/d5c917a65ec14707851ad09370c63168.png" alt="8b96cd15f7d9aea3f882259a251396dc.png"></p>
+<h2 id="35-物理内存的管理">3.5 物理内存的管理</h2>
+<p>在内核初始化完成后，内存管理的责任由<mark>伙伴系统</mark>承担。<br>
+伙伴系统基于一种相对简单然而令人吃惊的强大算法，已经伴随我们几乎40年。它结合了<mark>优秀内存分配器的两个关键特征：速度和效率</mark>。</p>
+<p>。。自定义内存池 岂不是也可以这样？<br>
+。。或者 直接 使用 kernel 的 方法？</p>
+<h3 id="351-伙伴系统的结构">3.5.1 伙伴系统的结构</h3>
+<p>系统内存中的每个物理内存页（页帧），都对应于一个struct page实例。<br>
+每个内存域都关联了一个struct zone的实例，其中保存了用于管理伙伴数据的主要数组。</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C" data-joplin-source-open="```C&#10;" data-joplin-source-close="&#10;```">// &lt;mmzone.h&gt; 
+struct zone { 
+... 
+  /* 
+  * 不同长度的空闲区域
+  */ 
+  struct free_area free_area[MAX_ORDER]; 
+... 
+}; 
+
+struct free_area { 
+  struct list_head free_list[MIGRATE_TYPES]; // 空闲页 的链表
+  unsigned long nr_free;  // 当前内存区的空闲页块的数目
+};</pre><pre class="hljs"><code><span class="hljs-comment">// &lt;mmzone.h&gt; </span>
+<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">zone</span> {</span> 
+... 
+  <span class="hljs-comment">/* 
+  * 不同长度的空闲区域
+  */</span> 
+  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">free_area</span> <span class="hljs-title">free_area</span>[<span class="hljs-title">MAX_ORDER</span>];</span> 
+... 
+}; 
+
+<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">free_area</span> {</span> 
+  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">list_head</span> <span class="hljs-title">free_list</span>[<span class="hljs-title">MIGRATE_TYPES</span>];</span> <span class="hljs-comment">// 空闲页 的链表</span>
+  <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> nr_free;  <span class="hljs-comment">// 当前内存区的空闲页块的数目</span>
+};</code></pre></div>
+<h4 id="阶">阶</h4>
+<p>阶 描述了内存分配的数量单位。 内存块的长度是 2^阶。</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C" data-joplin-source-open="```C&#10;" data-joplin-source-close="&#10;```">// &lt;mmzone.h&gt; 
+#ifndef CONFIG_FORCE_MAX_ZONEORDER 
+#define MAX_ORDER 11 
+#else 
+#define MAX_ORDER CONFIG_FORCE_MAX_ZONEORDER 
+#endif 
+#define MAX_ORDER_NR_PAGES (1 &lt;&lt; (MAX_ORDER -1)) </pre><pre class="hljs"><code><span class="hljs-comment">// &lt;mmzone.h&gt; </span>
+<span class="hljs-meta">#<span class="hljs-keyword">ifndef</span> CONFIG_FORCE_MAX_ZONEORDER </span>
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> MAX_ORDER 11 </span>
+<span class="hljs-meta">#<span class="hljs-keyword">else</span> </span>
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> MAX_ORDER CONFIG_FORCE_MAX_ZONEORDER </span>
+<span class="hljs-meta">#<span class="hljs-keyword">endif</span> </span>
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> MAX_ORDER_NR_PAGES (1 &lt;&lt; (MAX_ORDER -1)) </span></code></pre></div>
+<p>该常数 通常 设置为11，这意味着一次分配可以请求的页数最大是 <code class="inline-code">2^11=2048</code> 。<br>
+值可以手工改变</p>
+<p>。。我翻了几个 mmzone.h ， 没有找到 这个 MAX_ORDER 。。。</p>
+<p>free_area[]数组中各个元素的索引也解释为阶，用于指定对应链表中的连续内存区包含多少个页帧。<br>
+第0个链表包含的内存区为单页，第1个链表管理的内存区为两页，第3个管理的内存区为4页，依次类推。</p>
+<p>内存区是如何连接的？<br>
+内存区中第1页内的链表元素，可用于将内存区维持在链表中。<br>
+因此，也不必引入新的数据结构来管理物理上连续的页，否则这些页不可能在同一内存区中。<br>
+图3-22对此给出了图示。</p>
+<p><img src="../_resources/c18c034c0ffd4ad0b4231478db9f5b45.png" alt="733c0f9d4e5781cb0db8e9368597023b.png"></p>
+<p>伙伴<mark>不必是彼此连接</mark>的。<br>
+如果一个内存区在分配其间分解为两半，内核会自动将未用的一半加入到对应的链表中。<br>
+如果在未来的某个时刻，由于内存释放的缘故，两个内存区都处于空闲状态，可<mark>通过其地址判断其是否为伙伴</mark>。<br>
+管理工作较少，是伙伴系统的一个主要优点。</p>
+<p>。。这里分裂后，是 从当前链表删除，然后放入 下一级阶 的链表中，还是，当前结点置为 已分裂，然后放入 下一阶中？<br>
+。。主要是 都空闲的时候，合并后的状态的问题，<br>
+。。如果是 第一种，那么 可能导致 上一阶 中 链表 不是 两两成对的。 比如，原先有 1,1,2,2,3,3, 有6个小的内存请求，导致分裂了2,3,3, 所以现在 剩下 1,1,2， 分裂后的 一个3的 内存回收了， 就变成了 1,1,2,3 这种 就 不是成对的了。 回收 就必须 遍历整个链表了。</p>
+<p>基于伙伴系统的内存管理专注于某个结点的某个内存域，例如，DMA或高端内存域。<br>
+但所有内存域和结点的伙伴系统都通过备用分配列表连接起来。</p>
+<p><img src="../_resources/8b770ffb150249478057d358916d2751.png" alt="abca9f9e2267bcc1f50982521459a586.png"></p>
+<p>在首选的内存域或节点无法满足内存分配请求时，首先尝试同一结点的另一个内存域，接下来再尝试另一个结点，直至满足请求。</p>
+<h3 id="避免碎片">避免碎片</h3>
+<p>大多数现代CPU都提供了使用<mark>巨型页</mark>的可能性，比普通页大得多。<br>
+这对内存使用密集的应用程序有好处。<br>
+在使用更大的页时，地址转换后备缓冲器只需处理较少的项，降低了TLB缓存失效的可能性。但分配巨型页需要连续的空闲物理内存！</p>
+<p>文件系统也有碎片，该领域的碎片问题主要通过碎片合并工具解决。<br>
+它们分析文件系统，重新排序已分配存储块，从而建立较大的连续存储区。<br>
+理论上，该方法对物理内存也是可能的，但由于<mark>许多物理内存页不能移动到任意位置</mark>，阻碍了该方法的实施。</p>
+<p>内核的方法是反碎片（anti-fragmentation），即<mark>试图从最初开始尽可能防止碎片</mark>。</p>
+<p>反碎片的工作原理如何？为理解该方法，我们必须知道内核将已分配页划分为下面3种不同类型。</p>
+<ul>
+<li>不可移动页<br>
+在内存中有固定位置，不能移动到其他地方<br>
+核心内核分配的大多数内存属于该类别</li>
+<li>可回收页<br>
+不能直接移动，但可以删除，其内容可以从某些源<mark>重新生成</mark>。<br>
+例如，映射自文件的数据属于该类别。<br>
+kswapd守护进程会根据可回收页访问的频繁程度，<mark>周期性释放此类内存</mark>。</li>
+<li>可移动页<br>
+可以随意地移动<br>
+属于用户空间应用程序的页属于该类别。<br>
+它们是通过页表映射的。<br>
+如果它们复制到新位置，页表项可以相应地更新，应用程序不会注意到任何事。</li>
+</ul>
+<p>nr_free 统计了所有列表上空闲页的数目，而每种迁移类型都对应于一个空闲列表。<br>
+宏for_each_migratetype_order(order, type)可用于迭代指定迁移类型的所有分配阶。</p>
+<blockquote>
+<p>全局变量和辅助函数</p>
+</blockquote>
+<p>尽管页可移动性分组特性总是编译到内核中，但只有在系统中有足够内存可以分配到多个迁移类型对应的链表时，才是有意义的。<br>
+由于每个迁移链表都应该有适当数量的内存，内核需要定义“适当”的概念。<br>
+这是通过两个全局变量pageblock_order和pageblock_nr_pages提供的。<br>
+第一个表示内核认为是“大”的一个分配阶，pageblock_nr_pages则表示该分配阶对应的页数。</p>
+<p>如果体系结构提供了巨型页机制，则pageblock_order通常定义为巨型页对应的分配阶：</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C" data-joplin-source-open="```C&#10;" data-joplin-source-close="&#10;```">// &lt;pageblock-flags.h&gt;
+#define pageblock_order HUGETLB_PAGE_ORDER</pre><pre class="hljs"><code><span class="hljs-comment">// &lt;pageblock-flags.h&gt;</span>
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> pageblock_order HUGETLB_PAGE_ORDER</span></code></pre></div>
+<p>。。这个有 /include/linux/pageblock-flags.h</p>
+<p>内核如何知道给定的分配内存属于何种迁移类型？读者在3.5.4节会看到，有关各个内存分配的细节都通过<mark>分配掩码</mark>指定。<br>
+内核提供了两个标志，分别用于表示分配的内存是可移动的（__GFP_MOVABLE）或可回收的（__GFP_RECLAIMABLE）。</p>
+<hr>
+<p>在内存子系统初始化期间，memmap_init_zone负责处理内存域的page实例。<br>
+该函数完成了一些不怎么有趣的标准初始化工作，但其中有一件是实质性的，即<mark>所有</mark>的页<mark>最初</mark>都标记为<mark>可移动</mark>的</p>
+<p>在分配内存时，如果必须“盗取”不同于预定迁移类型的内存区，内核在策略上倾向于==“盗取”更大的<mark>内存区。<br>
+由于所有页最初都是可移动的，那么在内核</mark>分配不可移动==的内存区时，则必须“盗取”<br>
+。。更大是 向上取整，2倍，4倍？</p>
+<hr>
+<p>虚拟可移动内存域</p>
+<p>依据可移动性组织页是防止物理内存碎片的一种可能方法，内核还提供了<mark>另一种阻止</mark>该问题的手段：虚拟内存域ZONE_MOVABLE。</p>
+<p>与可移动性分组相反，ZONE_MOVABLE特性必须由管理员显式激活</p>
+<p>基本思想很简单：可用的物理内存划分为两个内存域，一个<mark>用于可移动分配</mark>，一个<mark>用于不可移动分配</mark>。这会自动防止不可移动页向可移动内存域引入碎片。</p>
+<p>另一个问题：内核如何在两个<mark>竞争的内存域</mark>之间分配可用的内存？这显然对内核要求太高，因此系统管理员必须作出决定。</p>
+<h3 id="初始化内存域和结点数据结构">初始化内存域和结点数据结构</h3>
+<p>体系结构相关代码需要在启动期间建立以下信息：</p>
+<ul>
+<li>系统中各个内存域的页帧边界，保存在max_zone_pfn数组；</li>
+<li>各结点页帧的分配情况，保存在全局变量early_node_map中。</li>
+</ul>
+<h3 id="分配器api">分配器API</h3>
+<p>就伙伴系统的接口而言，NUMA或UMA体系结构是没有差别的，二者的调用语法都是相同的。<br>
+<mark>所有函数</mark>的一个<mark>共同点</mark>是：只能分配<mark>2的整数幂个页</mark>。<br>
+因此，接口中不像C标准库的malloc函数或bootmem分配器那样指定了所需内存大小作为参数。<br>
+相反，必须指定的是<mark>分配阶</mark>，伙伴系统将在内存中分配2^order页。<br>
+内核中<mark>细粒度的分配</mark>只能借助于<mark>slab分配器</mark>（或者slub、slob分配器），后者基于伙伴系统（更多细节在3.6节给出）。</p>
+<p>在空闲内存无法满足请求以至于分配失败的情况下，所有上述函数都返回空指针（alloc_pages和alloc_page）或者0（get_zeroed_page、__get_free_pages和__get_free_page）。</p>
+<p>内核除了伙伴系统函数之外，还提供了其他内存管理函数。它们以伙伴系统为基础，但并不属于伙伴分配器自身。<br>
+这些函数包括vmalloc和vmalloc_32，使用页表将<mark>不连续的内存</mark>映射到<mark>内核地址空间</mark>中，<mark>使之看上去是连续的</mark>。<br>
+还有一组kmalloc类型的函数，用于分配<mark>小于一整页</mark>的内存区。</p>
+<p>内核提供了所谓的内存域修饰符（zone modifier）（在掩码的最低4个比特位定义），来指定从哪个内存域分配所需的页。</p>
+<h3 id="分配页">分配页</h3>
+<p>所有API函数都追溯到alloc_pages_node，从某种意义上说，该函数是伙伴系统主要实现的“发射台”。</p>
+<p>gfp.h</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C" data-joplin-source-open="```C&#10;" data-joplin-source-close="&#10;```">static inline struct page *alloc_pages_node(int nid, gfp_t gfp_mask,  unsigned int order) 
+{ 
+  if (unlikely(order &gt;= MAX_ORDER)) 
+    return NULL; 
+  /* 未知结点即当前结点 */
+  if(nid&lt; 0) 
+    nid = numa_node_id(); 
+  return __alloc_pages(gfp_mask, order, NODE_DATA(nid)-&gt;node_zonelists + gfp_zone(gfp_mask)); 
+} </pre><pre class="hljs"><code><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-keyword">struct</span> page *<span class="hljs-title function_">alloc_pages_node</span><span class="hljs-params">(<span class="hljs-type">int</span> nid, <span class="hljs-type">gfp_t</span> gfp_mask,  <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> order)</span> 
+{ 
+  <span class="hljs-keyword">if</span> (unlikely(order &gt;= MAX_ORDER)) 
+    <span class="hljs-keyword">return</span> <span class="hljs-literal">NULL</span>; 
+  <span class="hljs-comment">/* 未知结点即当前结点 */</span>
+  <span class="hljs-keyword">if</span>(nid&lt; <span class="hljs-number">0</span>) 
+    nid = numa_node_id(); 
+  <span class="hljs-keyword">return</span> __alloc_pages(gfp_mask, order, NODE_DATA(nid)-&gt;node_zonelists + gfp_zone(gfp_mask)); 
+} </code></pre></div>
+<p>只执行了一个简单的检查，避免分配过大的内存块。<br>
+如果指定负的结点ID（不存在），内核自动地使用当前执行CPU对应的结点ID。<br>
+接下来的工作委托给__alloc_pages，只需传递一组适当的参数。<br>
+请注意，gfp_zone用于选择分配内存的内存域。这是个容易遗漏的重要细节！</p>
+<p>内核源代码将__alloc_pages称之为“伙伴系统的心脏”，因为它处理的是实质性的内存分配。</p>
+<blockquote>
+<p>选择页</p>
+</blockquote>
+<p>默认情况下（即没有因其他因素带来的压力而需要更多的内存），只有内存域包含页的数目至少为zone-&gt;pages_high时，才能分配页。这对应于ALLOC_WMARK_HIGH标志。<br>
+如果要使用较低（zone-&gt;pages_low）或最低（zone-&gt;pages_min）设置，则必须相应地设置ALLOC_WMARK_MIN或ALLOC_WMARK_LOW。<br>
+ALLOC_HARDER通知伙伴系统在<mark>急需内存时放宽分配规则</mark>。在分配高端内存域的内存时，ALLOC_HIGH进一步放宽限制。<br>
+最后，ALLOC_CPUSET告知内核，内存只能从当前进程允许运行的CPU相关联的内存结点分配，当然该选项只对NUMA系统有意义。</p>
+<p>。。ALLOC_HIGH，ALLOC_HARDER，就是 将 预期 /2, /4， 所以最大 /8，就是 只分配 1/8 原定目标的 内存。</p>
+<blockquote>
+<p>移除选择的页</p>
+</blockquote>
+<p>如果内核找到适当的内存域，具有足够的空闲页可供分配，那么还有两件事情需要完成。<br>
+首先它必须检查这些页是否是连续的（到目前为止，只知道有许多空闲页）。<br>
+其次，必须按伙伴系统的方式从free_lists移除这些页，这可能需要分解并重排内存区。</p>
+<p>如果只分配一页，内核会进行优化，即分配<mark>阶为0</mark>的情形，2^0 = 1。<br>
+该页不是从伙伴系统直接取得，而是<mark>取自per-CPU的页缓存</mark>（回想一下，可知该缓存提供了CPU本地的热页和冷页的列表，所需数据结构在3.2.2节讲过）</p>
+<p>内核会遍历per-CPU缓存中的所有页，检查是否有指定迁移类型的页可用。<br>
+如果前一次调用中，用不同迁移类型的页重新填充了缓存，就可能找不到。<br>
+如果无法找到适当的页，则向缓存添加一些符合当前要求迁移类型的页，然后从per-CPU列表移除一页，接下来进一步处理。</p>
+<p>如果需要分配多页（由else分支处理），内核调用__rmqueue会从内存域的伙伴列表中选择适当的内存块。<br>
+如有必要，该函数会自动分解大块内存，将未用的部分放回列表中（具体过程将在下文讲解）。<br>
+切记，可能有这样的情况：内存域中有足够空闲页满足分配请求，但<mark>页不是连续</mark>的。在这种情况下，__rmqueue<mark>失败并返回NULL</mark>指针。</p>
+<p>在返回指针之前，prep_new_page需要做一些准备工作，以便内核能够处理这些页<br>
+prep_new_page对页进行几项检查，确保分配之后分配器处于理想状态。<br>
+特别地，这意味着在现存的映射中不能使用该页，也没有设置不正确的标志（如PG_locked或PG_buddy），因为这说明页处于使用中，不应该放置在空闲列表上。<br>
+但通常情况下，不应该发生错误，否则就意味着内核在其他地方出现了错误</p>
+<p>如果设置了__GFP_COMP并请求了多个页，内核必须将这些页组成复合页（compound page）。第一个页称作首页（head page），而所有其余各页称作尾页（tail page）。</p>
+<p>内核可能合并多个相邻的物理内存页，形成所谓的巨型TLB页。<br>
+在用户层应用程序处理大块数据时，许多处理器允许使用巨型TLB页，将数据保存在内存中。<br>
+由于巨型TLB页比普通页大，这降低了保存在地址转换后备缓冲器（TLB）中的信息的数量，因而又降低了TLB缓存失效的概率，从而<mark>加速了内存访问</mark></p>
+<blockquote>
+<p>__rmqueue辅助函数</p>
+</blockquote>
+<p>内核使用了__rmqueue函数（前面讲过），该函数充当进入伙伴系统核心的看门人</p>
+<h3 id="356-释放页">3.5.6 释放页</h3>
+<p>__free_pages是一个基础函数，用于实现内核API中所有涉及内存释放的函数</p>
+<p>首先判断所需释放的内存是单页还是较大的内存块？<br>
+如果释放<mark>单页</mark>，则不还给伙伴系统，而是<mark>置于per-CPU缓存</mark>中，对很可能出现在CPU高速缓存的页，则放置到热页的列表中。<br>
+出于该目的，内核提供了free_hot_page辅助函数，该函数只是作一下参数转换，接下来调用free_hot_ cold_page</p>
+<p>如果free_hot_cold_page判断per-CPU缓存中页的数目超出了pcp-&gt;count，则将数量为pcp-&gt;batch的一批内存页还给伙伴系统。<br>
+该策略称之为惰性合并（lazy coalescing）。<br>
+如果单页直接返回给伙伴系统，那么会发生合并，而为了满足后来的分配请求又需要进行拆分。<br>
+因而<mark>惰性合并策略阻止了大量可能白费时间的合并操作</mark>。free_pages_bulk用于将页还给伙伴系统。</p>
+<h3 id="内核中不连续页的分配">内核中不连续页的分配</h3>
+<p>我们知道物理上连续的映射对内核是最好的，但并不总能成功地使用。</p>
+<p>在分配一大块内存时，可能竭尽全力也无法找到连续的内存块。在用户空间中这不是问题，因为普通进程设计为使用处理器的分页机制，当然这会降低速度并占用TLB。</p>
+<p>在内核中也可以使用同样的技术。在3.4.2节讨论过，内核分配了其虚拟地址空间的一部分，用于建立连续映射</p>
+<p>在IA-32系统中，紧随直接映射的前892 MiB物理内存，在插入的8 MiB安全隙之后，是一个用于管理不连续内存的区域。这一段具有线性地址空间的所有性质。<br>
+<mark>分配到其中的页可能位于物理内存中的任何地方</mark>。通过修改负责该区域的内核页表，即可做到这一点</p>
+<p><img src="../_resources/aa8aad8e34a34b7cb94ed952f8891902.png" alt="dffd98c7a17e947b23adc571abac028b.png"></p>
+<p>每个vmalloc分配的子区域都是自包含的，与其他vmalloc子区域通过一个内存页分隔。<br>
+类似于直接映射和vmalloc区域之间的边界，不同vmalloc子区域之间的分隔也是为防止不正确的内存访问操作。<br>
+这种情况只会因为内核故障而出现，应该通过系统错误信息报告，而不是允许内核其他部分的数据被暗中修改。<br>
+因为分隔是在虚拟地址空间中建立的，不会浪费宝贵的物理内存页。</p>
+<p>vmalloc是一个接口函数，内核代码使用它来分配在<mark>虚拟内存中连续</mark>但在<mark>物理内存中不一定连续的内存</mark></p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C" data-joplin-source-open="```C&#10;" data-joplin-source-close="&#10;```">// &lt;vmalloc.h&gt; 
+void *vmalloc(unsigned long size);  // 字节数，不是页数</pre><pre class="hljs"><code><span class="hljs-comment">// &lt;vmalloc.h&gt; </span>
+<span class="hljs-type">void</span> *<span class="hljs-title function_">vmalloc</span><span class="hljs-params">(<span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> size)</span>;  <span class="hljs-comment">// 字节数，不是页数</span></code></pre></div>
+<p>使用vmalloc的最著名的实例是内核对模块的实现。<br>
+因为模块可能在任何时候加载，如果模块数据比较多，那么无法保证有足够的连续内存可用，特别是在系统已经运行了比较长时间的情况下。<br>
+如果能够用小块内存拼接出足够的内存，那么使用vmalloc可以规避该问题</p>
+<p>因为用于vmalloc的内存页总是必须映射在内核地址空间中，因此使用ZONE_HIGHMEM内存域的页要优于其他内存域。这使得内核可以节省更宝贵的较低端内存域</p>
+<hr>
+<blockquote>
+<p>创建vm_area</p>
+</blockquote>
+<p>在创建一个新的虚拟内存区之前，必须找到一个适当的位置。<br>
+vm_area实例组成的一个链表，管理着vmalloc区域中已经建立的各个子区域。<br>
+定义在mm/vmalloc的全局变量vmlist是表头。</p>
+<p>由于各个vmalloc子区域之间需要插入1页（<mark>警戒页）作为安全隙</mark>，内核首先适当提高需要分配的内存长度。</p>
+<p>内核调用map_vm_area将分散的物理内存页连续映射到虚拟的vmalloc区域</p>
+<hr>
+<p>除了vmalloc之外，还有其他方法可以创建虚拟连续映射。</p>
+<ul>
+<li>vmalloc_32，和vmalloc一样，但保证所使用的物理内存总是可以用 32位指针寻址的。</li>
+<li>vmap，使用一个page数组作为起点，来创建虚拟连续内存区。该函数所用的物理内存位置不是隐式分配的，而需要先行分配好，作为参数传递</li>
+<li>ioremap，特定于处理器的函数，必须在所有体系结构上实现。它可以将取自物理地址空间、由系统总线用于I/O操作的一个内存块，映射到内核的地址空间中</li>
+</ul>
+<h4 id="释放内存">释放内存</h4>
+<p>vfree 用于释放 放vmalloc和vmalloc_32分配的区域<br>
+vunmap用于释放由vmap或ioremap创建的映射</p>
+<h3 id="358-内核映射">3.5.8 内核映射</h3>
+<p>尽管vmalloc函数族可用于从高端内存域向内核映射页帧（这些在内核空间中通常是无法直接看到的），但这并不是这些函数的实际用途。<br>
+重要的是强调以下事实：内核提供了其他函数用于将ZONE_HIGHMEM页帧显式映射到内核空间，这些函数与vmalloc机制无关。因此，这就造成了混乱。</p>
+<hr>
+<p>如果需要将高端页帧长期映射（作为持久映射）到内核地址空间中，<mark>必须使用kmap</mark>函数</p>
+<p>如果没有启用高端支持，该函数的任务就比较简单。<br>
+在这种情况下，所有页都可以直接访问，因此只需要返回页的地址，无需显式创建一个映射。</p>
+<p>如果确实存在高端页，情况会比较复杂。类似于vmalloc，内核首先必须建立高端页和所映射到的地址之间的关联。<br>
+还必须在虚拟地址空间中分配一个区域以映射页帧，最后，内核必须记录该虚拟区域的哪些部分在使用中，哪些仍然是空闲的</p>
+<p>用kmap映射的页，如果不再需要，必须用kunmap解除映射</p>
+<p>许多体系结构<mark>不支持高端内存</mark>，因为不需要该特性，<mark>64位体系结构就是如此</mark>。<br>
+。。艹</p>
+<h2 id="36-slab分配器">3.6 slab分配器</h2>
+<p>内核也必须经常分配内存，但是无法借助于 标准库的函数(如 malloc)。</p>
+<p>上面的伙伴系统 支持按页分配内存，但是 这个单位太大了。</p>
+<p>为了最小化 新的内存管理机制 对 系统性能的负担，它的实现必须紧凑，以便不会对 CPU的高速缓存和 TLB 带来显著影响</p>
+<p>提供小内存块不是slab分配器的唯一任务。由于结构上的特点，它也用作一个缓存，主要针对经常分配并释放的对象。通过建立slab缓存，内核能够储备一些对象，供后续使用，即使在初始化状态，也是如此。</p>
+<p>举例来说，为管理与进程关联的文件系统数据，内核必须经常生成struct fs_struct的新实例（参见第8章）。<br>
+此类型实例占据的内存块同样需要经常回收（在进程结束时）。<br>
+换句话说，内核趋向于非常有规律地分配并释放大小为sizeof{fs_struct}的内存块。<br>
+slab分配器将释放的内存块保存在一个内部列表中，并不马上返回给伙伴系统。<br>
+在请求为<mark>该类对象</mark>分配一个新实例时，会<mark>使用最近释放的内存块</mark>。<br>
+这有两个优点。<br>
+首先，由于内核不必使用伙伴系统算法，处理时间会变短。<br>
+其次，由于该内存块仍然是“新”的，因此其仍然驻留在CPU高速缓存的概率较高</p>
+<p>slab分配器还有两个更进一步的好处。</p>
+<ul>
+<li>减少调用 伙伴系统 这个较重的功能。伙伴系统 还会污染cache。伙伴系统的高速缓存 和 TLB占用 过大，这是负面效应，会导致 不重要的数据驻留在CPU的高速缓存中</li>
+<li>伙伴系统 的地址 总是2的 幂次， 这对 CPU高速缓存有 负面影响，会导致 某些缓存行 过度使用。 多处理器系统 会加剧 这种不利情况，因为不同的内存地址 可能在不同的总线上传输，会导致 某些总线拥塞，其他总线几乎没有使用。</li>
+</ul>
+<p>slab分配器由何得名？各个缓存管理的对象，会合并为较大的组，覆盖一个或多个连续页帧。这种组称作slab，每个缓存由几个这种slab组成。</p>
+<h3 id="备选分配器">备选分配器</h3>
+<p>slab分配器对许多可能的工作负荷都工作良好，但它无法提供最优性能</p>
+<p>些计算机处于当前硬件尺度的边界上，在此类计算机上使用slab分配会出现一些问题：微小的嵌入式系统，配备有大量物理内存的大规模并行系统。<br>
+对嵌入式系统来说，slab分配器代码量和复杂性都太高。<br>
+在大型系统上，slab分配器所需的大量元数据可能成为一个问题：开发者称，仅slab的数据结构就需要很多吉字节内存。</p>
+<p>slab分配器的2个替代品</p>
+<ul>
+<li>slob分配器进行了特别优化，减少代码量。它围绕一个简单的内存块链表展开</li>
+<li>slub分配器通过将页帧打包为组，并通过struct page中未使用的字段来管理这些组，试图最小化所需的内存开销。在大型计算机上slub比slab提供了更好的性能</li>
+</ul>
+<p>每个分配器都必须实现一组特定的函数，用于内存分配和缓存。</p>
+<ul>
+<li>kmalloc、__kmalloc和kmalloc_node是一般的（特定于结点）内存分配函数。</li>
+<li>kmem_cache_alloc、kmem_cache_alloc_node提供（特定于结点）特定类型的内核缓存。</li>
+</ul>
+<p>kmalloc(size, flags)分配长度为size字节的一个内存区，并返回指向该内存区起始处的一个void指针。<br>
+如果没有足够内存（在内核中这种情形不大可能，但却始终要考虑到），则结果为NULL指针。<br>
+flags参数使用3.5.4节讨论的GFP_常数，来指定分配内存的具体内存域，例如GFP_DMA指定分配适合于DMA的内存区。</p>
+<p><code class="inline-code">kfree(*ptr)</code>释放<code class="inline-code">*ptr</code>指向的内存区</p>
+<p>与用户空间程序设计相比，内核还包括percpu_alloc和percpu_free函数，用于为各个系统CPU分配和释放所需内存区（不是明确地用于当前活动CPU）</p>
+<p><code class="inline-code">info = (struct cdrom_info *) kmalloc (sizeof (struct cdrom_info), GFP_KERNEL);</code></p>
+<p>建立和使用<mark>缓存</mark>的任务不是特别困难<br>
+先用kmem_cache_create建立一个适当的缓存，接下来即可使用kmem_cache_alloc和kmem_cache_free分配和释放其中包含的对象。<br>
+slab分配器负责完成与伙伴系统的交互，来分配所需的页。</p>
+<p>所有活动缓存的列表保存在<code class="inline-code">/proc/slabinfo</code>中<br>
+<code class="inline-code">cat /proc/slabinfo</code></p>
+<h3 id="slab分配的原理">slab分配的原理</h3>
+<p>slab<mark>分配器</mark>由一个紧密地交织的数据和内存结构的网络组成</p>
+<p>slab<mark>缓存</mark>由图3-44所示的两部分组成：保存管理性数据的缓存对象和保存被管理对象的各个slab。</p>
+<p><img src="../_resources/7568da9cdbb34a0682c53c47f87e80ab.png" alt="2d2721027e480ec2a5a36386345598f3.png"></p>
+<p>每个缓存只负责一种对象类型（例如struct unix_sock实例），或提供一般性的缓冲区。<br>
+系统中所有的缓存都保存在一个双链表中。这使得内核有机会依次遍历所有的缓存。例如在即将发生内存不足时，内核可能需要缩减分配给缓存的内存数量。</p>
+<p>除了管理性数据（如已用和空闲对象或标志寄存器的数目），缓存结构包括两个特别重要的成员</p>
+<ul>
+<li>指向一个数组的指针，其中保存了各个CPU最后释放的对象。</li>
+<li>每个内存结点都对应3个表头，用于组织slab的链表。第1个链表包含完全用尽的slab，第2个是部分空闲的slab，第3个是空闲的slab。</li>
+</ul>
+<p><img src="../_resources/4f79a2f8b8f2483ca68604d417399ce1.png" alt="69a30563147cd8a01df15ebeb9d98cad.png"></p>
+<p>缓存结构指向一个数组，其中包含了与系统CPU数目相同的数组项。<br>
+每个元素都是一个指针，指向一个进一步的结构称之为数组缓存（array cache），其中包含了对应于特定系统CPU的管理数据（就总体来看，不是用于缓存）。<br>
+管理性数据之后的内存区包含了一个<mark>指针数组</mark>，各个数组项<mark>指向slab中未使用的对象</mark><br>
+。。指针数组就是 图上 <code class="inline-code">指向slab中对象的指针构成的数组</code>，它和 它上面的 array_cache 是一起的。</p>
+<p>为最好地利用CPU高速缓存，这些per-CPU指针是很重要的。在分配和释放对象时，采用后进先出原理（LIFO，last in first out）。内核假定刚释放的对象仍然处于CPU高速缓存中。仅当per-CPU缓存为空时，才会用slab中的空闲对象重新填充它们。</p>
+<p>对象分配的体系就形成了一个三级的层次结构，分配成本和操作对CPU高速缓存和TLB的负面影响逐级升高。<br>
+。。应该就是 per-CPU，slab中空闲，伙伴系统  ？。。。下面</p>
+<ul>
+<li>仍然处于CPU高速缓存中的per-CPU对象。</li>
+<li>现存slab中未使用的对象。</li>
+<li>刚使用伙伴系统分配的新slab中未使用的对象。</li>
+</ul>
+<p>对象在slab中并非连续排列，而是按照一个相当复杂的方案分布<br>
+个对象的长度并不反映其确切的大小。相反，长度已经进行了舍入，以满足某些对齐方式的要求。</p>
+<ul>
+<li>slab创建时使用标志SLAB_HWCACHE_ALIGN，要求对象按<mark>硬件缓存行</mark>对齐</li>
+<li>如果不要求按硬件缓存行对齐，那么内核保证对象按BYTES_PER_WORD对齐，该值是表示void指针所需字节的数目</li>
+</ul>
+<p>填充字节可以加速对slab中对象的访问。如果使用对齐的地址，那么在几乎所有的体系结构上，内存访问都会更快</p>
+<p>缓存的各个slab成员会指定不同的偏移量，以便将数据定位到不同的缓存行</p>
+<p>乘法在这些计算机上要快得多，因此内核使用所谓的Newton-Raphson方法，这只需要乘法和移位，内核可以不计算C = A/B，而是采用C = reciprocal_divide(A, reciprocal_value(B))</p>
+<p><code class="inline-code">kmem_cache_init</code>，初始化slab 分配器。它在内核初始化阶段（start_kernel）、伙伴系统启用之后调用。<br>
+<code class="inline-code">kmem_cache_create</code>，创建新的slab 缓存</p>
+<p><code class="inline-code">calculate_slab_order</code>，实现迭代过程，找到理想的slab长度</p>
+<p><code class="inline-code">kmem_cache_alloc</code>，从特定的缓存获取对象</p>
+<p><code class="inline-code">cache_grow</code>，缓存增长</p>
+<p><code class="inline-code">kmem_cache_free</code>，释放对象</p>
+<p><code class="inline-code">kmem_cache_destroy</code>，销毁缓存，必须只包含 未使用的对象</p>
+<h3 id="通用缓存">通用缓存</h3>
+<p>如果不涉及对象缓存，而是传统意义上的分配/释放内存，则必须调用kmalloc和kfree函数。<br>
+kmalloc和kfree实现为slab分配器的前端，其语义尽可能地模仿malloc/free</p>
+<h2 id="37-处理器高速缓存和-tlb-控制">3.7 处理器高速缓存和 TLB 控制</h2>
+<p>高速缓存对系统总体性能十分关键，这也是内核尽可能提高其利用效率的原因。这主要是通过在内存中巧妙地对齐内核数据。审慎地混合使用普通函数、内联定义、宏，也有助于从处理器汲取更高的性能。附录C讨论的编译器优化也相当有作用。</p>
+<p>内核仍然提供了一些命令，可以直接作用于处理器的高速缓存和TLB。但这些命令并非用于提高系统的效率，而是用于维护缓存内容的一致性，确保不出现不正确和过时的缓存项。</p>
+<h1 id="ch04-进程虚拟内存">ch04 进程虚拟内存</h1>
+<p>用户层进程的虚拟地址空间是Linux的一个重要抽象：它向每个运行进程提供了同样的系统视图，这使得多个进程可以同时运行，而不会干扰到其他进程内存中的内容。</p>
+<p>它容许使用各种高级的程序设计技术，如内存映射</p>
+<p>这同样需要考察可用物理内存中的页帧与所有的进程虚拟地址空间中的页之间的关联：逆向映射（reverse mapping）技术有助于从虚拟内存页跟踪到对应的物理内存页，而缺页处理（page fault handling）则允许从块设备按需读取数据填充虚拟地址空间。</p>
+<h2 id="42-进程虚拟地址空间">4.2 进程虚拟地址空间</h2>
+<p>各个进程的虚拟地址空间起始于地址0，延伸到TASK_SIZE - 1，其上是内核地址空间</p>
+<p>无论当前哪个用户进程处于活动状态，虚拟地址空间<mark>内核</mark>部分的内容<mark>总是同样的</mark>。</p>
+<p>虚拟地址空间由许多不同长度的段组成，用于不同的目的，必须分别处理。</p>
+<h3 id="进程地址空间的布局">进程地址空间的布局</h3>
+<p>虚拟地址空间中包含了若干区域。其分布方式是特定于体系结构的，但所有方法都有下列共同成分。</p>
+<ul>
+<li>当前<mark>运行代码</mark>的二进制代码。该代码通常称之为text，所处的虚拟内存区域称之为text段。</li>
+<li>程序使用的<mark>动态库</mark>的代码。</li>
+<li>存储<mark>全局变量</mark>和动态产生的数据的<mark>堆</mark>。</li>
+<li>用于保存<mark>局部变量</mark>和实现函数/过程调用的<mark>栈</mark>。</li>
+<li><mark>环境变量和命令行参数</mark>的段。</li>
+<li>将<mark>文件</mark>内容映射到虚拟地址空间中的<mark>内存映射</mark></li>
+</ul>
+<p>系统中的各个进程都具有一个struct mm_struct的实例，可以通过task_struct访问<br>
+这个实例保存了进程的内存管理信息</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C" data-joplin-source-open="```C&#10;" data-joplin-source-close="&#10;```">// &lt;mm_types.h&gt; 
+struct mm_struct { 
+... 
+  unsigned long (*get_unmapped_area) (struct file *filp, 
+      unsigned long addr, unsigned long len, 
+      unsigned long pgoff, unsigned long flags); 
+... 
+  unsigned long mmap_base; /* mmap区域的基地址 */ // 虚拟地址空间中 用于内存映射的起始地址；调用get_unmapped_area在mmap区域中为新映射找到适当的位置
+  unsigned long task_size; /* 进程虚拟内存空间的长度 */ // 进程的地址空间长度。通常是 TASK_SIZE
+... 
+  unsigned long start_code, end_code, start_data, end_data; // 代码(text)段的起止，数据(data)段的起止
+  unsigned long start_brk, brk, start_stack; // 堆的起止，brk的值会变；栈的起(是指栈顶吧？)
+  unsigned long arg_start, arg_end, env_start, env_end; // 参数列表和环境变量的位置，这2个区域处于栈中最高的区域
+... 
+}</pre><pre class="hljs"><code><span class="hljs-comment">// &lt;mm_types.h&gt; </span>
+<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">mm_struct</span> {</span> 
+... 
+  <span class="hljs-type">unsigned</span> <span class="hljs-title function_">long</span> <span class="hljs-params">(*get_unmapped_area)</span> <span class="hljs-params">(<span class="hljs-keyword">struct</span> file *filp, 
+      <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> addr, <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> len, 
+      <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> pgoff, <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> flags)</span>; 
+... 
+  <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> mmap_base; <span class="hljs-comment">/* mmap区域的基地址 */</span> <span class="hljs-comment">// 虚拟地址空间中 用于内存映射的起始地址；调用get_unmapped_area在mmap区域中为新映射找到适当的位置</span>
+  <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> task_size; <span class="hljs-comment">/* 进程虚拟内存空间的长度 */</span> <span class="hljs-comment">// 进程的地址空间长度。通常是 TASK_SIZE</span>
+... 
+  <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> start_code, end_code, start_data, end_data; <span class="hljs-comment">// 代码(text)段的起止，数据(data)段的起止</span>
+  <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> start_brk, brk, start_stack; <span class="hljs-comment">// 堆的起止，brk的值会变；栈的起(是指栈顶吧？)</span>
+  <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> arg_start, arg_end, env_start, env_end; <span class="hljs-comment">// 参数列表和环境变量的位置，这2个区域处于栈中最高的区域</span>
+... 
+}</code></pre></div>
+<p>通常，栈自顶向下增长<br>
+。。就是 从 内核区域 开始 ？  内核是 高区</p>
+<p>进程标志PF_RANDOMIZE。如果设置了该标志，则内核不会为栈和内存映射的起点选择固定位置，而是在每次新进程启动时随机改变这些值的设置。<br>
+使得攻击因缓冲区溢出导致的安全漏洞更加困难</p>
+<p>text段如何映射到虚拟地址空间中由ELF标准确定</p>
+<p>每个<mark>体系结构</mark>都指定了一个<mark>特定的起始地址</mark>：IA-32系统起始于0x08048000，在text段的起始地址与最低的可用地址之间有大约128 MiB的间距，<mark>用于捕获NULL指针</mark>。<br>
+其他体系结构也有类似的缺口：UltraSparc计算机使用0x100000000作为text段的起始点，而AMD64使用0x0000000000400000。<br>
+<mark>堆紧接着text段开始，向上增长。</mark></p>
+<p>栈起始于STACK_TOP，如果设置了PF_RANDOMIZE，则起始点会减少一个小的随机量。<br>
+每个体系结构都必须定义STACK_TOP，大多数都设置为TASK_SIZE，即用户地址空间中<mark>最高的可用地址</mark>。</p>
+<p>进程的<mark>参数列表和环境变量</mark>都是<mark>栈的初始数据</mark>。</p>
+<p>用于<mark>内存映射</mark>的区域起始于mm_struct-&gt;mmap_base，通常设置为TASK_UNMAPPED_BASE，每个体系结构都需要定义。<br>
+几乎所有的情况下，其值都是<mark>TASK_SIZE/3</mark>。</p>
+<p><img src="../_resources/60d2e3ac151742fe8bdfd83282b22d68.png" alt="8da1f12bf60d70380061609b0b1da685.png"></p>
+<p>如果计算机提供了巨大的虚拟地址空间，那么使用上述的地址空间布局会工作得非常好。但在32位计算机上可能会出现问题:<br>
+堆只有1 GiB空间可供使用，继续增长则会进入到mmap区域</p>
+<p>内核版本2.6.7开发期间为IA-32计算机引入一个新的虚拟地址空间布局的原因（经典布局仍然可以使用）。</p>
+<p><img src="../_resources/5146010be46b455fb3ccf3b8451bcc4b.png" alt="0e6092ffa1ccb9924d1cc400e9a9e25b.png"></p>
+<p>。。百度了下，【经典布局】是mmap向上， 【灵活布局】mmap向下</p>
+<p>其想法在于使<mark>用固定值限制栈的最大长度</mark>。<br>
+由于栈是有界的，因此安置内存映射的区域可以在栈末端的下方立即开始。<br>
+与经典方法相反，该区域现在是自顶向下扩展。</p>
+<h3 id="建立布局">建立布局</h3>
+<p>使用load_elf_binary装载一个ELF二进制文件时，将创建进程的地址空间，而exec系统调用刚好使用了该函数。<br>
+加载ELF文件涉及大量纷繁复杂的技术细节</p>
+<p>。。Executable and Linkable Format</p>
+<p><img src="../_resources/4e36df4df6eb4005bf31fe037900976b.png" alt="178048198a74f68585fcf13837c322a5.png"></p>
+<p>选择布局的工作由arch_pick_mmap_layout完成。如果对应的体系结构没有提供一个具体的函数，则使用内核的默认例程</p>
+<p>如果用户通过/proc/sys/kernel/legacy_va_layout给出明确的指示，或者要执行为不同的UNIX变体编译、需要旧的布局的二进制文件，或者栈可以无限增长（最重要的一点），则系统会选择旧的布局。这使得很难确定栈的下界，亦即mmap区域的上界。</p>
+<p>灵活布局时，可以根据栈的最大长度，来计算栈最低的可能位置，用作mmap区域的起始点。但内核会确保栈至少跨越128 MiB的空间。</p>
+<p>AMD64系统上对虚拟地址空间<mark>总是使用经典布局</mark></p>
+<h2 id="43-内存映射的原理">4.3 内存映射的原理</h2>
+<p>由于所有用户进程总的虚拟地址空间比可用的物理内存大得多，因此只有最常用的部分才与物理页帧关联。<br>
+这不是问题，因为大多数程序只占用实际可用内存的一小部分。<br>
+我们考察一下通过文本编辑器操作文件的情况。<br>
+通常用户只关注文件结尾处，因此尽管整个文件都映射到内存中，实际上只使用了几页来存储文件末尾的数据。<br>
+至于文件开始处的数据，内核只需要在地址空间保存相关信息，如数据在磁盘上的位置，以及需要数据时如何读取。</p>
+<p>text段的情形类似，始终需要的只是其中一部分</p>
+<p>内核必须提供数据结构，以建立虚拟地址空间的区域和相关数据所在位置之间的关联<br>
+文件数据在硬盘上的存储通常并不是连续的，而是分布到若干小的区域</p>
+<p>内核利用address_space数据结构，提供一组方法从后备存储器读取数据。<br>
+例如，从文件系统读取。因此address_space形成了一个辅助层，将映射的数据表示为连续的线性区域，提供给内存管理子系统。</p>
+<p>按需分配和填充页称之为按需调页法（demand paging）。它基于处理器和内核之间的交互</p>
+<p><img src="../_resources/6dcb0666768848058f78ee691cbe2905.png" alt="15482504937381299cf11a8ede34f5be.png"></p>
+<ul>
+<li>进程试图访问用户地址空间中的一个内存地址，但使用<mark>页表</mark>无法确定物理地址（<mark>物理内存中没有关联页</mark>）。</li>
+<li>处理器接下来触发一个<mark>缺页异常</mark>，发送到内核。</li>
+<li><mark>内核</mark>会检查负责缺页区域的进程地址空间数据结构，找到<mark>适当的后备存储器</mark>，<mark>或</mark>者确认该访问<mark>实际上是不正确</mark>的。</li>
+<li><mark>分配物理内存页</mark>，并<mark>从后备存储器读取</mark>所需数据填充。</li>
+<li>借助于<mark>页表</mark>将<mark>物理内存页并入到用户进程的地址空间</mark>，应用程序恢复执行。</li>
+</ul>
+<p>。。在页表中，虚拟地址已经有了，但是 对应的 物理地址还没有，就会 缺页异常，由 CPU 负责 确认 加载 磁盘(后备存储器) 的数据 到 物理内存，然后 填入 页表。然后 app 继续运行。</p>
+<p>这些操作对用户进程是透明的。换句话说，进程不会注意到页是实际在物理内存中，还是需要通过按需调页加载。<br>
+。。这个透明 原文 是什么？ 。。 始终感觉应该是  &quot;无感的&quot; 。。不过中文 无感 是指 没有兴趣。<br>
+。。transparent， 透明的;清澈的;显而易见的;易懂的;易看穿的;易识破的 。。 后面的 中文含义 (在这个场景下) 更离谱。。</p>
+<h2 id="44-数据结构">4.4 数据结构</h2>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C" data-joplin-source-open="```C&#10;" data-joplin-source-close="&#10;```">&lt;mm_types.h&gt; 
+struct mm_struct { 
+  struct vm_area_struct * mmap; /* 虚拟内存区域列表 */ 
+  struct rb_root mm_rb; 
+  struct vm_area_struct * mmap_cache; /* 上一次find_vma的结果 */ 
+... 
+} </pre><pre class="hljs"><code>&lt;mm_types.h&gt; 
+<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">mm_struct</span> {</span> 
+  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">vm_area_struct</span> * <span class="hljs-title">mmap</span>;</span> <span class="hljs-comment">/* 虚拟内存区域列表 */</span> 
+  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">rb_root</span> <span class="hljs-title">mm_rb</span>;</span> 
+  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">vm_area_struct</span> * <span class="hljs-title">mmap_cache</span>;</span> <span class="hljs-comment">/* 上一次find_vma的结果 */</span> 
+... 
+} </code></pre></div>
+<h3 id="树和链表">树和链表</h3>
+<p>每个区域都通过一个vm_area_struct实例描述，进程的各区域按两种方法排序。</p>
+<ul>
+<li>在一个单链表上（开始于mm_struct-&gt;mmap）。</li>
+<li>在一个红黑树中，根结点位于mm_rb</li>
+</ul>
+<p>mmap_cache缓存了上一次处理的区域</p>
+<p><img src="../_resources/292293e75a8547c79e861b2fe1ffe657.png" alt="f16273f013118a485998ff4fcb90ccf7.png"></p>
+<p>增加新区域时，内核首先搜索红黑树，找到刚好在新区域之前的区域。因此，内核可以向树和线性链表添加新的区域，而无需扫描链表</p>
+<h3 id="虚拟内存区域的表示">虚拟内存区域的表示</h3>
+<p>每个区域表示为vm_area_struct的一个实例<br>
+<code class="inline-code">&lt;mm_types.h&gt;</code></p>
+<p>里面包含了</p>
+<ul>
+<li>
+<p>vm_mm 反向指针，指向 该区域所属的mm_struct 实例</p>
+</li>
+<li>
+<p>vm_start,vm_end, 该区域在 用户空间的 起止地址</p>
+</li>
+<li>
+<p>vm_next, vm_rb, vm_area_struct 实例的 链表 和 红黑树</p>
+</li>
+<li>
+<p>vm_page_prot, 访问权限</p>
+</li>
+<li>
+<p>vm_flags, 描述该区域的一组标志 (下面有详细说明)</p>
+</li>
+<li>
+<p>共享映射</p>
+</li>
+<li>
+<p>anon_vma_node, anon_vma，管理源自匿名映射(annoymous mapping)的共享页</p>
+</li>
+<li>
+<p>vm_ops，指针，指向 许多方法的 集合，这些方法用于在 区域上执行各种标准操作。</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C" data-joplin-source-open="```C&#10;" data-joplin-source-close="&#10;```">&lt;mm.h&gt;
+struct vm_operations_struct {
+  void (*open)(struct vm_area_struct * area); 
+  void (*close)(struct vm_area_struct * area); 
+  int (*fault)(struct vm_area_struct *vma, struct vm_fault *vmf); 
+  struct page * (*nopage)(struct vm_area_struct * area, unsigned long address, int *type); 
+... 
+}; </pre><pre class="hljs"><code>&lt;mm.h&gt;
+<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">vm_operations_struct</span> {</span>
+  <span class="hljs-type">void</span> (*open)(<span class="hljs-keyword">struct</span> vm_area_struct * area); 
+  <span class="hljs-type">void</span> (*close)(<span class="hljs-keyword">struct</span> vm_area_struct * area); 
+  <span class="hljs-type">int</span> (*fault)(<span class="hljs-keyword">struct</span> vm_area_struct *vma, <span class="hljs-keyword">struct</span> vm_fault *vmf); 
+  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">page</span> * (*<span class="hljs-title">nopage</span>)(<span class="hljs-keyword">struct</span> <span class="hljs-title">vm_area_struct</span> * <span class="hljs-title">area</span>, <span class="hljs-title">unsigned</span> <span class="hljs-title">long</span> <span class="hljs-title">address</span>, <span class="hljs-title">int</span> *<span class="hljs-title">type</span>);</span> 
+... 
+}; </code></pre></div>
+<ul>
+<li>创建和删除区域时，调用open，close。这2个接口通常不使用，设置为NULL指针</li>
+<li>fault 非常重要，如果地址空间中的某个虚拟内存页不在物理内存中，自动触发的<mark>缺页</mark>异常处理程序会调用该函数，将对应的数据读取到一个映射在用户地址空间的物理内存页中。</li>
+<li>nopage 是内核原来用于响应缺页异常的方法，不如fault那么灵活。出于兼容性的考虑，该成员仍然保留，但不应该用于新的代码。</li>
+</ul>
+</li>
+<li>
+<p>vm_pgoffset 执行了文件映射的偏移量，用于只映射了文件部分内容时(如果映射了整个文件，则偏移量为0)。单位是 页</p>
+</li>
+<li>
+<p>vm_file 指向 file实例，被映射的文件 (如果映射的不是文件，则NULL)</p>
+</li>
+<li>
+<p>取决于映射类型，vm_private_data可用于存储私有数据，不由通用内存管理例程操作</p>
+</li>
+</ul>
+<p>vm_flags存储了定义区域性质的标志。这些都是<code class="inline-code">&lt;mm.h&gt;</code>中声明的预处理器常</p>
+<ul>
+<li>VM_READ, VM_WRITE, VM_EXEC, VM_SHARED，页的内容是否可读，写，执行，或由几个进程共享</li>
+<li>VM_MAYREAD, VM_MAYWRITE, VM_MAYEXEC, VM_MAYSHARE 用于确定是否可以设置 对应的 VM_* 标志。 这是 mprotect 系统调用 所需要的</li>
+<li>VM_GROWDOWN,VM_GROWUP，表示 一个区域是否可以 向下或向上 扩展 ( 到更低 或更高的 虚拟地址)。 由于 堆是 自底向上，所以 区域 需要设置为 VM_GROWUP。</li>
+<li>如果区域很可能从头到尾顺序读取，则设置 VM_SEQ_READ。 VM_RAND_READ指明读取可能是随机的。 这2个标记 用于 提示 内存管理子系统 和 块设备层，以优化其性能( 例如，如果是顺序访问，则启用 页的预读)</li>
+<li>如果设置了 VM_DONTCOPY，则相关区域 在 <mark>fork</mark> 时不复制</li>
+<li>VM_DONTEXPAND 禁止区域通过 mremap 系统调用扩展</li>
+<li>如果区域 是基于 巨型页，则 VM_HUGETLB</li>
+<li>VM_ACCOUNT 指定区域是否被归入 overcommit 特性的计算中。</li>
+</ul>
+<h3 id="443-优先查找树">4.4.3 优先查找树</h3>
+<p>priority search tree 用于建立文件中的一个区域与该区域映射到的所有虚拟地址空<br>
+间之间的关联。</p>
+<p>每个打开文件（和每个块设备，因为这些也可以通过设备文件进行内存映射）都表示为struct file的一个实例。该结构包含了一个指向地址空间对象struct address_space的指针。<br>
+该对象是优先查找树（prio tree）的基础，而文件区间与其映射到的地址空间之间的关联即通过优先树建立。</p>
+<p><img src="../_resources/5988318c7ec546ff9b303e7db9bad5d5.png" alt="046aeded2e8c35fa832e822bde1b8813.png"></p>
+<p>地址空间是优先树的基本要素，而优先树包含了所有相关的vm_area_struct实例，描述了与inode关联的文件区间到一些虚拟地址空间的映射。<br>
+由于每个struct vm_area的实例都包含了一个指向所属进程的mm_struct的指针，关联就已经建立起来了！<br>
+要注意，vm_area_struct还可以通过以i_mmap_nonlinear为表头的双链表与一个地址空间关联。<br>
+这是非线性映射（nonlinear mapping）所需要的，我现在暂时忽略该内容。我们将在4.7.3节再讲解非线性映射。</p>
+<h2 id="对区域的操作">对区域的操作</h2>
+<p>创建和删除区域</p>
+<p>内核还负责在管理这些数据结构时进行优化</p>
+<p><img src="../_resources/9094ed9e15764058be6a4588ff9d1b78.png" alt="d71b62bd0f48f597692e422cdcd8664b.png"></p>
+<p>。。3个箭头 对应下面的 3个情况</p>
+<ul>
+<li>如果一个新区域紧接着现存区域前后直接添加（因此也包括在两个现存区域之间的情况），内核将涉及的数据结构合并为一个。当然，前提是涉及的所有区域的访问权限相同，而且是从同一后备存储器映射的连续数据。</li>
+<li>如果在区域的开始或结束处进行删除，则必须据此截断现存的数据结构</li>
+<li>如果删除两个区域之间的一个区域，那么一方面需要减小现存数据结构的长度，另一方面需要为形成的新区域创建一个新的数据结构</li>
+</ul>
+<h3 id="将虚拟地址关联到区域">将虚拟地址关联到区域</h3>
+<p>通过虚拟地址，find_vma可以查找用户地址空间中结束地址在给定地址之后的第一个区域，即满足addr &lt; vm_area_struct-&gt;vm_end条件的第一个区域。<br>
+该函数的参数不仅包括虚拟地址（addr），还包括一个指向mm_struct实例的指针，后者指定了扫描哪个进程的地址空间</p>
+<p>内核首先检查上次处理的区域（现在保存在mm-&gt;mmap_cache）中是否包含所需的地址，即是否该区域的结束地址在目标地址之后，而起始地址在目标地址之前。倘若如此，内核不会执行if语句，而是立即将指向该区域的指针返回。<br>
+否则必须逐步搜索红黑树。rb_node是用于表示树中各个结点的数据结构。rb_entry用于从结点取出“有用数据”（在这里是vm_area_struct实例）。<br>
+树的根结点位于mm-&gt;mm_rb.rb_node。如果相关的区域结束地址大于目标地址而起始地址小于目标地址，内核就找到了一个适当的结点，可以退出while循环，返回指向vm_area_struct实例的指针。否则，再继续搜索</p>
+<h3 id="区域合并">区域合并</h3>
+<p>vm_merge在可能的情况下，将一个新区域与周边区域合并。它需要很多参数</p>
+<h3 id="插入区域">插入区域</h3>
+<p>insert_vm_struct是内核用于插入新区域的标准函数。实际工作委托给两个辅助函数</p>
+<ul>
+<li>find_vma_prepare</li>
+<li>vma_link</li>
+</ul>
+<h3 id="创建区域">创建区域</h3>
+<p>在向数据结构插入新的内存区域之前，内核必须确认虚拟地址空间中有足够的空闲空间，可用于给定长度的区域。该工作分配给get_unmapped_area辅助函数完成</p>
+<h2 id="46-地址空间">4.6 地址空间</h2>
+<p>文件的内存映射可以认为是两个不同的地址空间之间的映射<br>
+一个地址空间是用户进程的虚拟地址空间，另一个是文件系统所在的地址空间。</p>
+<p>在内核创建一个映射时，必须建立两个地址空间之间的关联，以支持二者以读写请求的形式通信。<br>
+vm_operations_struct结构即用于完成该工作</p>
+<p>address_space_operations<br>
+提供的方法</p>
+<ul>
+<li>readpage，从潜在的块设备读取一页到物理内存，readpages一次读取多页</li>
+<li>writepage，一页内容从物理内存回写到 块设备</li>
+<li>set_page_dirty，表示 一页的内容已经改变，即与块设备上的原始内容不再匹配</li>
+</ul>
+<h2 id="47-内容映射">4.7 内容映射</h2>
+<p>C标准库提供了 mmap<br>
+内核，提供了 mmap,mmap2</p>
+<p>mmap,mmap2 的差别在于 偏移量的语义，mmap的单位是字节，mmap2的单位是 页</p>
+<h3 id="创建映射">创建映射</h3>
+<p>mmap,mmap2</p>
+<p>do_mmap_pgoff</p>
+<h3 id="删除映射">删除映射</h3>
+<p>munmap</p>
+<h3 id="非线性映射">非线性映射</h3>
+<p>按照上文的描述，普通的映射将文件中一个连续的部分映射到虚拟内存中一个<mark>同样连续</mark>的部分</p>
+<p>如果需要将文件的不同部分以不同顺序映射到虚拟内存的连续区域中，通常必须使用几个映射</p>
+<p>简单的方法是使用非线性映射</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C" data-joplin-source-open="```C&#10;" data-joplin-source-close="&#10;```">// mm/fremap.c 
+long sys_remap_file_pages(unsigned long start, unsigned long size,  unsigned long __prot, unsigned long pgoff, unsigned long flags) </pre><pre class="hljs"><code><span class="hljs-comment">// mm/fremap.c </span>
+<span class="hljs-type">long</span> <span class="hljs-title function_">sys_remap_file_pages</span><span class="hljs-params">(<span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> start, <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> size,  <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> __prot, <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> pgoff, <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> flags)</span> </code></pre></div>
+<p>该系统调用允许<mark>重排</mark>映射中的<mark>页</mark>，使得内存与文件中的顺序不再等价。实现该特性无需移动内存中的数据，而是通过操作进程的<mark>页表</mark>实现</p>
+<h2 id="48-反向映射">4.8 反向映射</h2>
+<p>内核利用此前讨论的数据结构，可以建立虚拟和物理地址之间的联系（通过页表），以及进程的一个内存区域与其虚拟内存页地址之间的关联。</p>
+<p>仍然缺失的一个联系是，物理内存页和该页所属进程（或更精确地说，所有使用该页的进程的对应页表项）之间的联系。<br>
+在换出页时，刚好需要该关联（参见第18章），以便更新所有涉及的进程。因为页已经换出，必须在页表中标明</p>
+<p>内核使用一些附加的数据结构和函数，采用一种逆向映射方法</p>
+<p>page结构（在3.2.2节讨论过）包含了一个用于实现逆向映射的成员。</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C" data-joplin-source-open="```C&#10;" data-joplin-source-close="&#10;```">// mm.h 
+struct page { 
+.... 
+  atomic_t _mapcount; /* 内存管理子系统中映射的页表项计数，用于表示页是否
+              * 已经映射，还用于限制逆向映射搜索。
+              */ 
+... 
+}; </pre><pre class="hljs"><code><span class="hljs-comment">// mm.h </span>
+<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">page</span> {</span> 
+.... 
+  <span class="hljs-type">atomic_t</span> _mapcount; <span class="hljs-comment">/* 内存管理子系统中映射的页表项计数，用于表示页是否
+              * 已经映射，还用于限制逆向映射搜索。
+              */</span> 
+... 
+}; </code></pre></div>
+<p>_mapcount表明共享该页的位置的数目。计数器的初始值为1。在页插入到逆向映射数<br>
+据结构时，计数器赋值为0。页每次增加一个使用者时，计数器加1。这使得内核能够快速检查在所有者之外该页有多少使用者。</p>
+<p>这没有多少帮助，因为逆向映射的目的在于：给定page实例，找到所有映射了该物理内存页的位置。因此，还有两个其他的数据结构需要发挥作用。</p>
+<ul>
+<li>优先查找树中嵌入了属于非匿名映射的每个区域。</li>
+<li>指向内存中同一页的匿名区域的链表。</li>
+</ul>
+<p>内核在实现逆向映射时采用的技巧是，不直接保存页和相关的使用者之间的关联，而只保存页和页所在区域之间的关联。<br>
+包含该页的所有其他区域（进而所有的使用者）都可以通过刚才提到的数据结构找到。<br>
+该方法又名基于对象的逆向映射（object-based reverse mapping），因为没有存储页和使用者之间的直接关联。相反，在两者之间插入了另一个对象（该页所在的区域）</p>
+<hr>
+<p>在创建逆向映射时，有必要区分两个备选项：匿名页和基于文件映射的页。</p>
+<h2 id="49-堆的管理">4.9 堆的管理</h2>
+<p>malloc和内核之间的经典接口是brk系统调用，负责扩展/收缩堆。<br>
+新近的malloc实现（诸如GNU标准库提供的）使用了一种组合方法，使用brk和匿名映射。</p>
+<p>brk系统调用只需要一个参数，用于指定堆在虚拟地址空间中新的结束地址（如果堆将要收缩，当然可以小于当前值）</p>
+<p>brk系统调用实现的入口是sys_brk函数<br>
+sys_brk第一个重要操作是将请求的地址按页长度对齐<br>
+在需要收缩堆时将调用do_munmap<br>
+扩大堆的实际工作委托给do_brk</p>
+<h2 id="410-缺页异常的处理">4.10 缺页异常的处理</h2>
+<p>在实际需要某个虚拟内存区域的数据之前，虚拟和物理内存之间的关联不会建立。<br>
+如果进程访问的<mark>虚拟地址空间</mark>部分尚<mark>未与页帧关联</mark>，处理器自动地引发一个缺页异常，内核必须处理此异常。这是内存管理中<mark>最重要、最复杂</mark>的方面之一，因为必须考虑到无数的细节。<br>
+例如，内核必须确定以下情况。</p>
+<ul>
+<li>缺页异常是由于访问用户地址空间中的有效地址而引起，还是应用程序试图访问内核的受保护区域？</li>
+<li>目标地址对应于某个现存的映射吗？</li>
+<li>获取该区域的数据，需要使用何种机制</li>
+</ul>
+<p><img src="../_resources/0e1078c29b434d18ba1b7c6642aacaa0.png" alt="284c2f927fda76638eb8f4e6c318a617.png"></p>
+<p>arch/x86/kernel/entry_32.S中的一个汇编例程用作缺页异常的入口，但其立即调用了arch/x86/mm/fault_32.c中的C例程do_page_fault。（大多数CPU对应的特定于体系结构的源代码中，都包含一个同名例程。）<br>
+图4-18给出了该例程的代码流程图</p>
+<p><img src="../_resources/72efe6eb23294aac9d1810b2263cdada.png" alt="1a24761fc75934478739696001b7273b.png"></p>
+<h2 id="413-在内核和用户空间之间复制数据">4.13 在内核和用户空间之间复制数据</h2>
+<p>copy_from_user<br>
+get_user<br>
+strncopy_from_user<br>
+put_user<br>
+copy_to_user</p>
+<p>clear_user<br>
+strlen_user<br>
+strnlen_user</p>
+<p>根据表的内容，大多数函数都有两个版本。<br>
+在没有下划线前缀的版本中，还会调用access_user，对用户空间地址进行检查。<br>
+所执行的检查依体系结构而不同。<br>
+例如，一种平台的检查可能是确认指针确实指向用户空间中的位置。<br>
+而另一种可能在内存中找不到页时，调用handle_mm_fault以确保数据已经读入内存，可供处理。<br>
+所有函数都应用了上述用于检测和校正缺页异常的修正机制。</p>
+<p>sys_chroot</p>
+<h1 id="ch05-锁与进程间通信-277">ch05 锁与进程间通信 277</h1>
+<p>几个进程在访问资源时彼此干扰的情况通常称之为<mark>竞态条件</mark>（race condition）。</p>
+<p>这个问题的本质是：进程的执行在不应该的地方被中断，从而导致进程工作得不正确。<br>
+显然，一种可能的解决方案是标记出相关的代码段，<mark>使之无法被调度器中断</mark>。<br>
+尽管这种方法原则上是可行的，但有几个内在问题。<br>
+在某种情况下，有问题的程序可能迷失在标记的代码段中无法退出，因而无法放弃CPU，进而导致计算机不可用。<br>
+因此我们必须立即<mark>放弃这种解决方案</mark>。<br>
+。。原子性</p>
+<p>问题的解决方案不一定要求临界区是不能中断的。只要<mark>没有其他的进程进入临界区</mark>，那么在临界区中执行的<mark>进程完全是可以中断</mark>的。<br>
+在给定时刻，只有一个进程可以进入临界区代码。</p>
+<hr>
+<p>信号量<br>
+信号量只是受保护的特别变量，能够表示为正负整数。其初始值为1。<br>
+为操作信号量定义了两个标准操作：up和down。这两个操作分别用于控制关键代码范围的进入和退出，且假定相互竞争的进程访问信号量机会均等。</p>
+<p>在执行down操作时，有一点特别重要。<br>
+即从应用程序的角度来看，该操作应视为一个<mark>原子操作</mark>。它<mark>不能被调度器调用中断</mark>，这意味着竞态条件是无法发生的。<br>
+从内核视角来看，查询变量的值和修改变量的值是两个不同的操作，但用户将二者视为一个原子操作。</p>
+<p>当进程在信号量上睡眠时，内核将其置于阻塞状态，且与其他在该信号量上等待的进程一同放到一个等待列表中。</p>
+<p>在进程退出关键代码段时，执行up操作。这不仅会将信号量的值加1（恢复为1），而且还会唤醒一个在该信号量上睡眠的进程。</p>
+<p>如果没有内核的支持，这个过程是不可能的，因为用户空间库无法保证down操作不被中断</p>
+<h2 id="52-内核锁机制">5.2 内核锁机制</h2>
+<p>内核可以不受限制地访问整个地址空间。</p>
+<p>如果几个处理器同时处于核心态，则理论上它们可以同时访问同一个数据结构</p>
+<p>内核使用了由锁组成的细粒度网络，来明确地保护各个数据结构。<br>
+如果处理器A在操作数据结构X，则处理器B可以执行任何其他的内核操作，但不能操作X。</p>
+<p>内核为此提供了各种锁选项，分别优化不同的内核数据使用模式</p>
+<ul>
+<li>原子操作</li>
+<li>自旋锁</li>
+<li>信号量</li>
+<li>读写锁</li>
+</ul>
+<p>锁已经成为内核开发一个非常重要的方面，无论是基础的核心内核代码还是设备驱动程序。</p>
+<hr>
+<h3 id="524-rcu机制">5.2.4 RCU机制</h3>
+<p>read-copy-update 同步机制</p>
+<p>RCU的性能很好，不过对内存有一定的开销,但大多数情况下可以忽略</p>
+<p>RCU对潜在使用者提出的一些约束</p>
+<ul>
+<li>对共享资源的访问在大部分时间应该是只读的，写访问应该相对很少。</li>
+<li>在RCU保护的代码范围内，内核不能进入睡眠状态。</li>
+<li>受保护资源必须通过指针访问。</li>
+</ul>
+<p>RCU的<mark>原理</mark>很简单：该机制记录了指向共享数据结构的指针的所有使用者。<br>
+在该结构将要改变时，则首先创建一个副本（或一个新的实例，填充适当的内容，这没什么差别），在副本中修改。<br>
+在所有进行读访问的使用者结束对旧副本的读取之后，指针可以替换为指向新的、修改后副本的指针。<br>
+请注意，这种机制允许读写并发进行！</p>
+<p>RCU能保护的，不仅仅是一般的指针。<br>
+内核也提供了标准函数，使得能通过RCU机制保护双链表，这是RCU机制在内核内部最重要的应用。<br>
+此外，由struct hlist_head和struct hlist_node组成的散列表也可以通过RCU保护。</p>
+<h3 id="525-内存和优化屏障">5.2.5 内存和优化屏障</h3>
+<p>一个有利于提高性能的技术是指令重排。</p>
+<p>尽管锁足以确保原子性，但对编译器和处理器优化过的代码，锁不能永远保证时序正确。与竞态条件相比，这个问题不仅影响SMP系统，也影响单处理器计算机。</p>
+<ul>
+<li>mb(),rmb(),wmb(), 将硬件内存屏障插入到代码流程中，rmb是读访问内存屏障，它保证屏障之后的 读 在执行前，屏障之前的 所有 读已完成。 wmb是写访问屏障， mb是 两者合一。</li>
+<li>barrier，知编译器，保存在CPU寄存器中、在屏障之前有效的所有内存地址，在屏障之后都将失效。本质上，这意味着编译器在屏障之前发出的读写请求完成之前，不会处理屏障之后的任何读写请求。</li>
+<li>smp_mb(),smp_rmb(),smp_wmb(), 只用于 smp系统。它们在单处理器系统上 产生的是 软件屏障</li>
+<li>read_barrier_depends()，会考虑读操作之间的依赖性。如果屏障之后的读请求，依赖于屏障之前执行的读请求的数据，那么编译器和硬件都不能重排这些请求。</li>
+</ul>
+<p>与开启优化时相比，停用优化后程序的速度会减慢</p>
+<p>优化屏障的一个特定应用是内核抢占机制</p>
+<h3 id="527-大内核锁">5.2.7 大内核锁</h3>
+<p>内核锁遗迹之一，它可以锁定整个内核，确保没有处理器在核心态并行运行。<br>
+该锁称为大内核锁（big kernel lock），通常用缩写表示，即BKL。<br>
+使用lock_kernel可锁定整个内核，对应的解锁使用unlock_kernel。</p>
+<p>它已经是过时的概念，因为从性能和可伸缩性的角度来看，BKL简直是个灾难。新的代码决不应该使用BKL</p>
+<h2 id="53-system-v-进程间通信">5.3 System V 进程间通信</h2>
+<p>信号量，消息队列，共享内存<br>
+它们都使用了全系统范围的资源，可以由几个进程同时共享</p>
+<p>IPC对象必须在系统内唯一标识</p>
+<p>每种IPC结构在创建时分配了一个号码。凡知道这个魔数的各个程序，都能够访问对应的结构</p>
+<p>如果独立的应用程序需要彼此通信，则通常需要将该魔数永久地编译到程序中。一种备选方案是动态地产生一个保证唯一的魔数（静态分配的号码无法保证唯一）</p>
+<p>每个IPC对象都有一个用户ID和一个组ID，依赖于产生IPC对象的程序在何种UID/GID之下运行。<br>
+读写权限在初始化时分配。</p>
+<h3 id="532-信号量">5.3.2 信号量</h3>
+<p>System V信号量在sem/sem.c实现，对应的头文件是<code class="inline-code">&lt;sem.h&gt;</code>。<br>
+<mark>这种信号量与上文讲述的内核信号量没有任何关系</mark></p>
+<p>System V的信号量接口决<mark>不直观</mark>，因为信号量的概念已经远超其实际定义了。<br>
+信号量不再当作是用于支持原子执行预定义操作的简单类型变量。<br>
+相反，一个System V信号量现在是指<mark>一整套信号量</mark>，可以<mark>允许几个操作同时进行</mark>（尽管<mark>用户看上去它们是原子的</mark>）。<br>
+当然可以请求只有一个信号量的信号量集合，并定义函数模拟原始信号量的简单操作。</p>
+<p>以下示例程序说明了信号量的使用方式：</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C" data-joplin-source-open="```C&#10;" data-joplin-source-close="&#10;```">#include&lt;stdio.h&gt; 
+#include&lt;sys/types.h&gt; 
+#include&lt;sys/ipc.h&gt; 
+#include&lt;sys/sem.h&gt; 
+
+#define SEMKEY 1234L /* 标识符 */ 
+#define PERMS 0666 /* 访问权限： rwrwrw */ 
+struct sembuf op_down[1] = { 0, -1 , 0 }; 
+struct sembuf op_up[1] = { 0, 1 , 0 }; 
+int semid = -1; /* 信号量 ID */ 
+int res; /* 信号量操作的结果 */ 
+void init_sem() { 
+  /* 测试信号量是否已经存在 */ 
+  semid = semget(SEMKEY, 0, IPC_CREAT | PERMS); 
+  if (semid &lt; 0) { 
+    printf(&quot;Create the semaphore\n&quot;); 
+    semid = semget(SEMKEY, 1, IPC_CREAT | PERMS); 
+    if (semid &lt; 0) { 
+      printf(&quot;Couldn't create semaphore!\n&quot;); 
+      exit(-1); 
+    }
+    /* 初始化为1 */ 
+    res = semctl(semid, 0, SETVAL, 1); 
+  } 
+} 
+void down() { 
+  /* 执行down操作 */ 
+  res = semop(semid, &amp;op_down[0], 1); 
+} 
+void up() { 
+  /* 执行up操作 */ 
+  res = semop(semid, &amp;op_up[0], 1); 
+} 
+int main(){ 
+  init_sem(); 
+  /* 正常的程序代码 */ 
+  printf(&quot;Before critical code\n&quot;); 
+  down(); 
+  /* 临界区代码 */ 
+  printf(&quot;In critical code\n&quot;); 
+  sleep(10); 
+  up(); 
+  /* 其余代码 */ 
+  return 0; 
+} </pre><pre class="hljs"><code><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;stdio.h&gt;</span> </span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;sys/types.h&gt;</span> </span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;sys/ipc.h&gt;</span> </span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;sys/sem.h&gt;</span> </span>
+
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> SEMKEY 1234L <span class="hljs-comment">/* 标识符 */</span> </span>
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> PERMS 0666 <span class="hljs-comment">/* 访问权限： rwrwrw */</span> </span>
+<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">sembuf</span> <span class="hljs-title">op_down</span>[1] =</span> { <span class="hljs-number">0</span>, <span class="hljs-number">-1</span> , <span class="hljs-number">0</span> }; 
+<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">sembuf</span> <span class="hljs-title">op_up</span>[1] =</span> { <span class="hljs-number">0</span>, <span class="hljs-number">1</span> , <span class="hljs-number">0</span> }; 
+<span class="hljs-type">int</span> semid = <span class="hljs-number">-1</span>; <span class="hljs-comment">/* 信号量 ID */</span> 
+<span class="hljs-type">int</span> res; <span class="hljs-comment">/* 信号量操作的结果 */</span> 
+<span class="hljs-type">void</span> <span class="hljs-title function_">init_sem</span><span class="hljs-params">()</span> { 
+  <span class="hljs-comment">/* 测试信号量是否已经存在 */</span> 
+  semid = semget(SEMKEY, <span class="hljs-number">0</span>, IPC_CREAT | PERMS); 
+  <span class="hljs-keyword">if</span> (semid &lt; <span class="hljs-number">0</span>) { 
+    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Create the semaphore\n&quot;</span>); 
+    semid = semget(SEMKEY, <span class="hljs-number">1</span>, IPC_CREAT | PERMS); 
+    <span class="hljs-keyword">if</span> (semid &lt; <span class="hljs-number">0</span>) { 
+      <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Couldn&#x27;t create semaphore!\n&quot;</span>); 
+      <span class="hljs-built_in">exit</span>(<span class="hljs-number">-1</span>); 
+    }
+    <span class="hljs-comment">/* 初始化为1 */</span> 
+    res = semctl(semid, <span class="hljs-number">0</span>, SETVAL, <span class="hljs-number">1</span>); 
+  } 
+} 
+<span class="hljs-type">void</span> <span class="hljs-title function_">down</span><span class="hljs-params">()</span> { 
+  <span class="hljs-comment">/* 执行down操作 */</span> 
+  res = semop(semid, &amp;op_down[<span class="hljs-number">0</span>], <span class="hljs-number">1</span>); 
+} 
+<span class="hljs-type">void</span> <span class="hljs-title function_">up</span><span class="hljs-params">()</span> { 
+  <span class="hljs-comment">/* 执行up操作 */</span> 
+  res = semop(semid, &amp;op_up[<span class="hljs-number">0</span>], <span class="hljs-number">1</span>); 
+} 
+<span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">()</span>{ 
+  init_sem(); 
+  <span class="hljs-comment">/* 正常的程序代码 */</span> 
+  <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Before critical code\n&quot;</span>); 
+  down(); 
+  <span class="hljs-comment">/* 临界区代码 */</span> 
+  <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;In critical code\n&quot;</span>); 
+  sleep(<span class="hljs-number">10</span>); 
+  up(); 
+  <span class="hljs-comment">/* 其余代码 */</span> 
+  <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>; 
+} </code></pre></div>
+<p>用一个持久定义的魔数（1234）创建了一个新的信号量，以便在系统内建立标识<br>
+需要测试对应的信号量是否已经存在。如果没有，则创建信号量</p>
+<p>semget分配一个信号量集合，需要以下参数：魔数（SEMKEY），集合中信号量的数目（1），所需的访问权限</p>
+<p>然后使用semctl系统调用，将信号量集合中唯一的信号量的值初始化为1</p>
+<p>semid变量在内核中标识了该信号量（任何其他程序，可以借助于魔数来获得该值）。</p>
+<p>一个指向数组的指针，数组元素类型为sembuf，每个元素表示对一个信号量的操作。数组中操作的数目由另一个整数参数定义，否则内核将无法得知操作的数目。</p>
+<hr>
+<p><img src="../_resources/05538966df1641dcbfe0362c6d8126d4.png" alt="0e3d2f512b6e8deb99f4b13d496a1033.png"></p>
+<p>。。。。。。</p>
+<h3 id="533-消息队列">5.3.3 消息队列</h3>
+<p><img src="../_resources/93d483782bf24ecf85d2dd7d31ab2d70.png" alt="98686109eb1b2669ec0a431129ec3b91.png"></p>
+<p>产生消息并将其写到队列的进程通常称之为<mark>发送者</mark>，而一个或多个其他进程（逻辑上称之为<mark>接收者</mark>）则从队列获取信息。<br>
+各个消息包含<mark>消息正文</mark>和一个（<mark>正）数</mark>，以便在消息队列内实现几种类型的消息。<br>
+接收者可以<mark>根据该数字检索消息</mark>，例如，可以指定<mark>只接受编号1的消息</mark>，或接受编号不大于5的消息。<br>
+在消息已经<mark>读取后，内核将其从队列删除</mark>。<br>
+即使几个进程在同一信道上监听，<mark>每个消息</mark>仍然只能<mark>由一个进程读取</mark></p>
+<p>同一编号的消息按先进先出次序处理。<br>
+放置在队列开始的消息将首先读取。<br>
+但如果有选择地读取消息，则先进先出次序就不再适用</p>
+<h3 id="534-共享内存">5.3.4 共享内存</h3>
+<p><img src="../_resources/6f3aa4867fd646d0833b34c9eb491f65.png" alt="e41fb294d843fdb535d21c18cb8e8ab2.png"></p>
+<h2 id="54-其他ipc机制">5.4 其他IPC机制</h2>
+<p>SysV IPC通常只对应用程序员有意义，但几乎所有使用过shell的用户，都会知道<mark>信号和管道</mark>。</p>
+<h3 id="541-信号">5.4.1 信号</h3>
+<p>信号是一种比较原始的通信机制。尽管提供的选项较少，但是它们非常有用。</p>
+<p>其底层概念非常简单，<mark>kill</mark>命令根据PID向进程<mark>发送信号</mark>。<br>
+信号通过<code class="inline-code">-s sig</code>指定，是一个正整数，最大长度取决于处理器类型。<br>
+该命令有两种最常用的变体：一种是kill<mark>不指定信号</mark>，实际上是<mark>要求进程结束</mark>（<mark>进程可以忽略该信号</mark>）；另一种是<mark>kill -9</mark>，等价于在死刑批准上签字（导致某些进程死亡）。</p>
+<p>信号引入了几种特性，必须永远切记。进程可以决定阻塞特定的信号（有时称之为信号屏蔽）如果发生这种情况，会一直忽略该信号，直至进程决定解除阻塞</p>
+<p>因而，进程是否能感知到发送的信号，是不能保证的。在信号被阻塞时，内核将其放置到待决列表上。如果同一个信号被阻塞多次，则在待决列表中只放置一次。</p>
+<p>SIGKILL信号无法阻塞，也不能通过特定于进程的处理程序处理。</p>
+<p>它与SIGTERM信号不同，后者可以通过用户定义的信号处理程序处理，实际上只是向进程发出的一个客气的请求，要求进程尽快停止工作而已。</p>
+<p>init进程属于特例。内核会忽略发送给该进程的SIGKILL信号</p>
+<hr>
+<p>sigaction系统调用用于设置新的处理程序</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C" data-joplin-source-open="```C&#10;" data-joplin-source-close="&#10;```">#include&lt;signal.h&gt; 
+#include&lt;stdio.h&gt; 
+/* 处理程序函数 */ 
+void handler(int sig) { 
+  printf(&quot;Receive signal: %u\n&quot;, sig); 
+}; 
+int main(void) { 
+  struct sigaction sa; 
+  int count; 
+  /* 初始化信号处理程序结构 */ 
+  sa.sa_handler = handler; 
+  sigemptyset(&amp;sa.sa_mask); 
+  sa.sa_flags = 0; 
+  /* 给SIGTERM信号分配一个新的处理程序函数 */ 
+  sigaction(SIGTERM, &amp;sa, NULL); 
+  sigprocmask(&amp;sa.sa_mask); /* 接收所有信号 */ 
+  /* 阻塞，一直等到信号到达 */ 
+  while (1) { 
+    sigsuspend(&amp;sa.sa_mask); 
+    printf(&quot;loop\n&quot;); 
+  } 
+  return 0; 
+};</pre><pre class="hljs"><code><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;signal.h&gt;</span> </span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;stdio.h&gt;</span> </span>
+<span class="hljs-comment">/* 处理程序函数 */</span> 
+<span class="hljs-type">void</span> <span class="hljs-title function_">handler</span><span class="hljs-params">(<span class="hljs-type">int</span> sig)</span> { 
+  <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Receive signal: %u\n&quot;</span>, sig); 
+}; 
+<span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span> { 
+  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">sigaction</span> <span class="hljs-title">sa</span>;</span> 
+  <span class="hljs-type">int</span> count; 
+  <span class="hljs-comment">/* 初始化信号处理程序结构 */</span> 
+  sa.sa_handler = handler; 
+  sigemptyset(&amp;sa.sa_mask); 
+  sa.sa_flags = <span class="hljs-number">0</span>; 
+  <span class="hljs-comment">/* 给SIGTERM信号分配一个新的处理程序函数 */</span> 
+  sigaction(SIGTERM, &amp;sa, <span class="hljs-literal">NULL</span>); 
+  sigprocmask(&amp;sa.sa_mask); <span class="hljs-comment">/* 接收所有信号 */</span> 
+  <span class="hljs-comment">/* 阻塞，一直等到信号到达 */</span> 
+  <span class="hljs-keyword">while</span> (<span class="hljs-number">1</span>) { 
+    sigsuspend(&amp;sa.sa_mask); 
+    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;loop\n&quot;</span>); 
+  } 
+  <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>; 
+};</code></pre></div>
+<p>如果没有为某个信号分配用户定义的处理程序函数，内核会自动设置预定义函数，提供合理的标准操作来处理相应的情况。</p>
+<p>标准信号的默认处理操作有4种：忽略，结束，停止，内存转储</p>
+<h3 id="542-管道和套接字">5.4.2 管道和套接字</h3>
+<p>管道：|</p>
+<p>套接字 第12章</p>
+<h1 id="ch06-设备驱动程序-312">ch06 设备驱动程序 312</h1>
+<p>字符设备，块设备</p>
+<p>寻址，注册，</p>
+<p>与文件系统关联</p>
+<p>向系统添加磁盘和分区</p>
+<h1 id="ch07-模块-377">ch07 模块 377</h1>
+<h1 id="ch08-虚拟文件系统-413">ch08 虚拟文件系统 413</h1>
+<p>为支持各种本机文件系统，且在同时允许访问其他操作系统的文件，Linux内核在用户进程（或C标准库）和文件系统实现之间引入了一个抽象层。该抽象层称之为虚拟文件系统（Virtual File System），简称VFS</p>
+<p><img src="../_resources/0fee839fadad4480acfe19caaea23f6b.png" alt="9cf8ec0307bc7fa6a85d346ce1c66cf3.png"></p>
+<h1 id="ch09-ext文件系统族-464">ch09 Ext文件系统族 464</h1>
+<h1 id="ch10-无持久存储的文件系统-512">ch10 无持久存储的文件系统 512</h1>
+<h1 id="ch11-扩展属性和访问控制表-565">ch11 扩展属性和访问控制表 565</h1>
+<h1 id="ch12-网络-586">ch12 网络 586</h1>
+<h1 id="ch13-系统调用-655">ch13 系统调用 655</h1>
+<h1 id="ch14-内核活动-678">ch14 内核活动 678</h1>
+<h1 id="ch15-时间管理-714">ch15 时间管理 714</h1>
+<h1 id="ch16-页缓存和块缓存-761">ch16 页缓存和块缓存 761</h1>
+<h1 id="ch17-数据同步-793">ch17 数据同步 793</h1>
+<h1 id="ch18-页面回收和页交换-821">ch18 页面回收和页交换 821</h1>
+<h1 id="ch19-审计-882">ch19 审计 882</h1>
+</div></div>
+					</body>
+				</html>
+			

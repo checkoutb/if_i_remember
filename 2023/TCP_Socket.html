@@ -1,0 +1,1258 @@
+
+				<!DOCTYPE html>
+				<html>
+					<head>
+						<meta charset="UTF-8">
+						<meta name="viewport" content="width=device-width, initial-scale=1" />
+						<link rel="stylesheet" href="pluginAssets/katex/katex.css"><link rel="stylesheet" href="pluginAssets/highlight.js/atom-one-light.css">
+						<title>TCP/Socket</title>
+					</head>
+					<body>
+						<div class="exported-note"><div class="exported-note-title">TCP/Socket</div>
+
+<style>
+		/* https://necolas.github.io/normalize.css/ */
+		html{line-height:1.15;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%}body{margin:0}
+		article,aside,footer,header,nav,section{display:block}h1{font-size:2em;margin:.67em 0}hr{box-sizing:content-box;height:0;overflow:visible}
+		pre{font-family:monospace,monospace;font-size:1em}a{background-color:transparent;-webkit-text-decoration-skip:objects}
+		b,strong{font-weight:bolder}small{font-size:80%}img{border-style:none}
+
+		body {
+			font-size: 15px;
+			color: #32373F;
+			word-wrap: break-word;
+			line-height: 1.6em;
+			background-color: #ffffff;
+			font-family: 'Avenir', 'Arial', sans-serif;
+			padding-bottom: 0px;
+			padding-top: 0px;
+		}
+		kbd {
+			border: 1px solid rgb(220, 220, 220);
+			box-shadow: inset 0 -1px 0 rgb(220, 220, 220);
+			padding: 2px 4px;
+			border-radius: 3px;
+			background-color: rgb(243, 243, 243);
+		}
+		::-webkit-scrollbar {
+			width: 7px;
+			height: 7px;
+		}
+		::-webkit-scrollbar-corner {
+			background: none;
+		}
+		::-webkit-scrollbar-track {
+			border: none;
+		}
+		::-webkit-scrollbar-thumb {
+			background: rgba(100, 100, 100, 0.3); 
+			border-radius: 5px;
+		}
+		::-webkit-scrollbar-track:hover {
+			background: rgba(0, 0, 0, 0.1); 
+		}
+		::-webkit-scrollbar-thumb:hover {
+			background: rgba(100, 100, 100, 0.7); 
+		}
+
+		
+
+		/* Remove top padding and margin from first child so that top of rendered text is aligned to top of text editor text */
+
+		#rendered-md > h1:first-child,
+		#rendered-md > h2:first-child,
+		#rendered-md > h3:first-child,
+		#rendered-md > h4:first-child,
+		#rendered-md > ul:first-child,
+		#rendered-md > ol:first-child,
+		#rendered-md > table:first-child,
+		#rendered-md > blockquote:first-child,
+		#rendered-md > img:first-child,
+		#rendered-md > p:first-child {
+			margin-top: 0;
+			padding-top: 0;
+		}
+		
+		p, h1, h2, h3, h4, h5, h6, ul, table {
+			margin-top: .6em;
+			margin-bottom: 1.35em;
+
+			/*
+				Adds support for RTL text in the note body. It automatically detects the direction using the content.
+				Issue: https://github.com/laurent22/joplin/issues/3991
+			*/
+			unicode-bidi: plaintext;
+		}
+
+		h1, h2, h3, h4, h5, h6, ul, table {
+			margin-bottom: 0.65em;
+		}
+
+		h1, h2, h3, h4, h5, h6 {
+			line-height: 1.5em;
+		}
+		h1 {
+			font-size: 1.5em;
+			font-weight: bold;
+			border-bottom: 1px solid #dddddd;
+			padding-bottom: .3em;
+		}
+		h2 {
+			font-size: 1.3em;
+			font-weight: bold;
+			padding-bottom: .1em; */
+		}
+		h3 {
+			font-size: 1.1em;
+			font-weight: bold;
+		}
+		h4, h5, h6 {
+			font-size: 1em;
+			font-weight: bold;
+		}
+
+		.exported-note-title {
+			font-size: 2em;
+			font-weight: bold;
+			margin-bottom: 0.8em;
+			line-height: 1.5em;
+			padding-bottom: .35em;
+			border-bottom: 1px solid #dddddd;
+		}
+
+		a {
+			color: #155BDA;
+		}
+		ul, ol {
+			padding-left: 0;
+			margin-left: 1.7em;
+		}
+		li {
+			margin-bottom: .4em;
+		}
+		li p {
+			margin-top: 0.2em;
+			margin-bottom: 0;
+		}
+
+		.resource-icon {
+			display: inline-block;
+			position: relative;
+			top: 0.3em;
+			text-decoration: none;
+			width: 1.2em;
+			height: 1.4em;
+			margin-right: 0.4em;
+			background-color:  #155BDA;
+		}
+    /* These icons are obtained from the wonderful ForkAwesome project by copying the src svgs 
+     * into the css classes below.
+     * svgs are obtained from https://github.com/ForkAwesome/Fork-Awesome/tree/master/src/icons/svg
+     * instead of the svg width, height property you must use a viewbox here, 0 0 1536 1792 is typically the actual size of the icon
+     * each line begins with the pre-amble -webkit-mask: url("data:image/svg+xml;utf8,
+     * and of course finishes with ");
+     * to precvent artifacts it is also necessary to include -webkit-mask-repeat: no-repeat;
+     * on the following line
+     * */
+		.fa-joplin {
+			/* Awesome Font file */
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M373.834 128C168.227 128 0 296.223 0 501.834v788.336C0 1495.778 168.227 1664 373.834 1664h788.336c205.608 0 373.83-168.222 373.83-373.83V501.834C1536 296.224 1367.778 128 1162.17 128zm397.222 205.431h417.424a7.132 7.132 0 0 1 7.132 7.133v132.552c0 4.461-3.619 8.073-8.077 8.073h-57.23c-24.168 0-43.768 19.338-44.284 43.374v2.377h-.017v136.191h-.053l-.466 509.375c-5.02 77.667-39.222 149.056-96.324 201.046-60.28 54.834-141.948 85.017-229.962 85.017-12.45 0-25.208-.61-37.907-1.785-92.157-8.682-181.494-48.601-251.662-112.438-71.99-65.517-117.147-150.03-127.164-238-11.226-98.763 23.42-192.783 95.045-257.937 81.99-74.637 198.185-101.768 316.613-75.704 5.574 1.227 9.55 6.282 9.55 11.997v199.52c-.199 2.625-1.481 6.599-8.183 2.896-.663-.365-1.194-.511-1.653-.531-21.987-10.587-45.159-17.57-68.559-19.916-.38-.04-.757-.124-1.138-.163-.537-.048-1.034-.033-1.556-.075-4.13-.354-8.183-.517-12.203-.58-.87-.011-1.771-.127-2.641-.127-.486 0-.951.05-1.437.057-1.464.011-2.886.115-4.33.163-2.76.102-5.497.211-8.182.448-.273.024-.547.07-.835.097-25.509 2.4-47.864 11.104-65.012 25.47-.954.802-1.974 1.53-2.9 2.36a1.34 1.34 0 0 1-.168.146c-23.96 21.8-34.881 53.872-30.726 90.316 4.62 40.737 26.94 81.156 62.841 113.823 35.908 32.67 80.335 52.977 125.113 57.186 35.118 3.36 66.547-3.919 89.899-20.461a97.255 97.255 0 0 0 9.365-7.501c2.925-2.661 5.569-5.5 8.086-8.416.3-.348.672-.673.975-1.024 8.253-9.864 14.222-21.067 17.996-33.148.639-2.034 1.051-4.148 1.564-6.227.381-1.563.81-3.106 1.112-4.693.555-2.784.923-5.632 1.253-8.49.086-.709.183-1.414.237-2.128.492-4.893.693-9.858.55-14.91h.013V521.623c-2.01-22.626-20.78-40.434-43.928-40.434h-57.23a8.071 8.071 0 0 1-8.077-8.073V340.564a7.132 7.132 0 0 1 7.136-7.133z'/></svg>");
+		}
+		.fa-file-image {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zm-128-448v320H256v-192l192-192 128 128 384-384zm-832-192c-106 0-192-86-192-192s86-192 192-192 192 86 192 192-86 192-192 192z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-pdf {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zm-514-593c25 20 53 38 84 56 42-5 81-7 117-7 67 0 152 8 177 49 7 10 13 28 2 52-1 1-2 3-3 4v1c-3 18-18 38-71 38-64 0-161-29-245-73-139 15-285 46-392 83-103 176-182 262-242 262-10 0-19-2-28-7l-24-12c-3-1-4-3-6-5-5-5-9-16-6-36 10-46 64-123 188-188 8-5 18-2 23 6 1 1 2 3 2 4 31-51 67-116 107-197 45-90 80-178 104-262-32-109-42-221-24-287 7-25 22-40 42-40h22c15 0 27 5 35 15 12 14 15 36 9 68-1 3-2 6-4 8 1 3 1 5 1 8v30c-1 63-2 123-14 192 35 105 87 190 146 238zm-576 411c30-14 73-57 137-158-75 58-122 124-137 158zm398-920c-10 28-10 76-2 132 3-16 5-31 7-44 2-17 5-31 7-43 1-3 2-5 4-8-1-1-1-3-2-5-1-18-7-29-13-36 0 2-1 3-1 4zm-124 661c88-35 186-63 284-81-10-8-20-15-29-23-49-43-93-103-127-176-19 61-47 126-83 197-15 28-30 56-45 83zm646-16c-5-5-31-24-140-24 49 18 94 28 124 28 9 0 14 0 18-1 0-1-1-2-2-3z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-word {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zM233 768v107h70l164 661h159l128-485c5-15 8-30 10-46 1-8 2-16 2-24h4l3 24c3 14 4 30 9 46l128 485h159l164-661h70V768h-300v107h90l-99 438c-4 16-6 33-7 46l-2 21h-4c0-6-2-14-3-21-3-13-5-30-9-46L825 768H711l-144 545c-4 16-5 33-8 46l-4 21h-4l-2-21c-1-13-3-30-7-46l-99-438h90V768H233z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-powerpoint {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zm-992-234v106h327v-106h-93v-167h137c43 0 82-2 118-15 90-31 146-124 146-233s-54-193-137-228c-38-15-84-19-130-19H416v107h92v555h-92zm353-280H650V882h120c35 0 62 6 83 18 36 21 56 62 56 115 0 56-20 99-62 120-21 10-47 15-78 15z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-excel {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zm-979-234v106h281v-106h-75l103-161c12-19 18-34 21-34h2c1 4 3 7 5 10 4 8 10 14 17 24l107 161h-76v106h291v-106h-68l-192-273 195-282h67V768H828v107h74l-103 159c-12 19-21 34-21 33h-2c-1-4-3-7-5-10-4-7-9-14-17-23L648 875h76V768H434v107h68l189 272-194 283h-68z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-audio {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zM620 850c12 5 20 17 20 30v544c0 13-8 25-20 30-4 1-8 2-12 2-8 0-16-3-23-9l-166-167H288c-18 0-32-14-32-32v-192c0-18 14-32 32-32h131l166-167c10-9 23-12 35-7zm417 689c19 0 37-8 50-24 83-102 129-231 129-363s-46-261-129-363c-22-28-63-32-90-10-28 23-32 63-9 91 65 80 100 178 100 282s-35 202-100 282c-23 28-19 68 9 90 12 10 26 15 40 15zm-211-148c17 0 34-7 47-20 56-60 87-137 87-219s-31-159-87-219c-24-26-65-27-91-3-25 24-27 65-2 91 33 36 52 82 52 131s-19 95-52 131c-25 26-23 67 2 91 13 11 29 17 44 17z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-video {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zM768 768c70 0 128 58 128 128v384c0 70-58 128-128 128H384c-70 0-128-58-128-128V896c0-70 58-128 128-128h384zm492 2c12 5 20 17 20 30v576c0 13-8 25-20 30-4 1-8 2-12 2-8 0-17-3-23-9l-265-266v-90l265-266c6-6 15-9 23-9 4 0 8 1 12 2z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-archive {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M640 384V256H512v128h128zm128 128V384H640v128h128zM640 640V512H512v128h128zm128 128V640H640v128h128zm700-388c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H768v128H640V128H128v1536h1280zM781 943c85 287 107 349 107 349 5 17 8 34 8 52 0 111-108 192-256 192s-256-81-256-192c0-18 3-35 8-52 0 0 21-62 120-396V768h128v128h79c29 0 54 19 62 47zm-141 465c71 0 128-29 128-64s-57-64-128-64-128 29-128 64 57 64 128 64z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-code {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zM480 768c11-14 31-17 45-6l51 38c14 11 17 31 6 45l-182 243 182 243c11 14 8 34-6 45l-51 38c-14 11-34 8-45-6l-226-301c-8-11-8-27 0-38zm802 301c8 11 8 27 0 38l-226 301c-11 14-31 17-45 6l-51-38c-14-11-17-31-6-45l182-243-182-243c-11-14-8-34 6-45l51-38c14-11 34-8 45 6zm-620 461c-18-3-29-20-26-37l138-831c3-18 20-29 37-26l63 10c18 3 29 20 26 37l-138 831c-3 18-20 29-37 26z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-alt, .fa-file-csv {
+      /* fork-awesome doesn't have csv so we use the text icon */
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zM384 800c0-18 14-32 32-32h704c18 0 32 14 32 32v64c0 18-14 32-32 32H416c-18 0-32-14-32-32v-64zm736 224c18 0 32 14 32 32v64c0 18-14 32-32 32H416c-18 0-32-14-32-32v-64c0-18 14-32 32-32h704zm0 256c18 0 32 14 32 32v64c0 18-14 32-32 32H416c-18 0-32-14-32-32v-64c0-18 14-32 32-32h704z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		blockquote {
+			border-left: 4px solid rgb(220, 220, 220);
+			padding-left: 1.2em;
+			margin-left: 0;
+			opacity: 0.7;
+		}
+
+		.jop-tinymce table,
+		table {
+			text-align: left;
+			border-collapse: collapse;
+			border: 1px solid rgb(220, 220, 220);
+			background-color: #ffffff;
+		}
+
+		.jop-tinymce table td, .jop-tinymce table th,
+		table td, th {
+			text-align: left;
+			padding: .5em 1em .5em 1em;
+			font-size: 15;
+			color: #32373F;
+			font-family: 'Avenir', 'Arial', sans-serif;
+		}
+
+		.jop-tinymce table td,
+		table td {
+			border: 1px solid rgb(220, 220, 220);
+		}
+
+		.jop-tinymce table th,
+		table th {
+			border: 1px solid rgb(220, 220, 220);
+			border-bottom: 2px solid rgb(220, 220, 220);
+			background-color: rgb(247, 247, 247);
+		}
+
+		.jop-tinymce table tr:nth-child(even),
+		table tr:nth-child(even) {
+			background-color: rgb(247, 247, 247);
+		}
+
+		.jop-tinymce table tr:hover,
+		table tr:hover {
+			background-color: #e5e5e5;
+		}
+
+		hr {
+			border: none;
+			border-bottom: 2px solid #dddddd;
+		}
+		img {
+			max-width: 100%;
+			height: auto;
+		}
+		
+		.inline-code,
+		.mce-content-body code {
+			border: 1px solid rgb(220, 220, 220);
+			background-color: rgb(243, 243, 243);
+			padding-right: .2em;
+			padding-left: .2em;
+			border-radius: .25em;
+			color: rgb(0,0,0);
+			font-size: .9em;
+		}
+
+		.highlighted-keyword {
+			background-color: #F3B717;
+			color: black;
+		}
+
+		.not-loaded-resource img {
+			width: 1.15em;
+			height: 1.15em;
+			background: white;
+			padding: 2px !important;
+			border-radius: 2px;
+			box-shadow: 0 1px 3px #000000aa;
+		}
+
+		a.not-loaded-resource img {
+			margin-right: .2em;
+		}
+
+		a.not-loaded-resource {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+		}
+
+		.md-checkbox input[type=checkbox]:checked {
+			opacity: 0.7;
+		}
+
+		.jop-tinymce ul.joplin-checklist .checked,
+		.md-checkbox .checkbox-label-checked {
+			opacity: 0.5;
+		}
+
+		.exported-note {
+			padding: 1em;
+		}
+
+		.joplin-editable .joplin-source {
+			display: none;
+		}
+
+		mark {
+			background: #F7D26E;
+			color: black;
+		}
+
+		/* =============================================== */
+		/* For TinyMCE */
+		/* =============================================== */
+
+		.mce-content-body {
+			/* Note: we give a bit more padding at the bottom, to allow scrolling past the end of the document */
+			padding: 5px 10px 10em 0;
+		}
+
+		/*
+		.mce-content-body code {
+			background-color: transparent;
+		}
+		*/
+
+		.mce-content-body [data-mce-selected=inline-boundary] {
+			background-color: transparent;
+		}
+
+		.mce-content-body .joplin-editable {
+			cursor: pointer !important;
+		}
+
+		.mce-content-body.mce-content-readonly {
+			opacity: 0.5;
+		}
+
+		/* We need that to make sure click events have the A has a target */
+		.katex a span {
+			pointer-events: none;
+		}
+
+		.media-player {
+			width: 100%;
+			margin-top: 10px;
+		}
+
+		.media-player.media-pdf {
+			min-height: 35rem;
+			width: 100%;
+			max-width: 1000px;
+			margin: 0;
+			border: 0;
+			display: block;
+		}
+
+		/* Clear the CODE style if the element is within a joplin-editable block */
+		.mce-content-body .joplin-editable code {
+			border: none;
+			background: none;
+			padding: 0;
+			color: inherit;
+			font-size: inherit;
+		}
+
+		/* To make code blocks horizontally scrollable */
+		/* https://github.com/laurent22/joplin/issues/5740 */
+		pre.hljs {
+			overflow-x: auto;
+		}
+
+		/* =============================================== */
+		/* For TinyMCE */
+		/* =============================================== */
+
+		@media print {
+			body {
+				height: auto !important;
+			}
+
+			pre {
+				white-space: pre-wrap;
+			}
+
+			.code, .inline-code {
+				border: 1px solid #CBCBCB;
+			}
+
+			#joplin-container-content {
+				/* The height of the content is set dynamically by JavaScript (in updateBodyHeight) to go
+				   around various issues related to scrolling. However when printing we don't want this
+				   fixed size as that would crop the content. So we set it to auto here. "important" is
+				   needed to override the style set by JavaScript at the element-level. */
+				height: auto !important;
+			}
+		}
+	
+
+				/*
+					FOR THE MARKDOWN EDITOR
+				*/
+
+				/* Remove the indentation from the checkboxes at the root of the document
+				   (otherwise they are too far right), but keep it for their children to allow
+				   nested lists. Make sure this value matches the UL margin. */
+
+				li.md-checkbox {
+					list-style-type: none;
+				}
+
+				li.md-checkbox input[type=checkbox] {
+					margin-left: -1.71em;
+					margin-right: 0.7em;
+				}
+				
+				ul.joplin-checklist {
+					list-style:none;
+				}
+
+				/*
+					FOR THE RICH TEXT EDITOR
+				*/
+
+				ul.joplin-checklist li::before {
+					content:"\f14a";
+					font-family:"Font Awesome 5 Free";
+					background-size: 16px 16px;
+					pointer-events: all;
+					cursor: pointer;
+					width: 1em;
+					height: 1em;
+					margin-left: -1.3em;
+					position: absolute;
+					color: #32373F;
+				}
+
+				.joplin-checklist li:not(.checked)::before {
+					content:"\f0c8";
+				}</style><div id="rendered-md"><p>TCP/Socket<br>
+2023年4月8日<br>
+9:45</p>
+<nav class="table-of-contents"><ul><li><a href="#what-is-socket-programming">What is socket programming?</a><ul><li><a href="#state-diagram-for-server-and-client-model">State diagram for server and client model</a></li><li><a href="#stages-for-server">Stages for Server</a><ul><li><a href="#socket-creation">Socket creation</a></li><li><a href="#setsockopt">Setsockopt</a></li><li><a href="#bind">Bind</a></li><li><a href="#listen">Listen</a></li><li><a href="#accept">Accept</a></li></ul></li><li><a href="#stages-for-client">Stages for Client</a><ul><li><a href="#socket-connection">Socket connection</a></li><li><a href="#connect">Connect</a></li></ul></li><li><a href="#implementation">Implementation</a><ul><li><a href="#serverc">Server.c</a></li><li><a href="#clientc">Client.c</a></li><li><a href="#compiling">Compiling</a></li><li><a href="#output">Output</a></li></ul></li></ul></li><li><a href="#socket-programming-in-cc-handling-multiple-clients-on-server-without-multi-threading">Socket Programming in C/C++: Handling multiple clients on server without multi threading</a><ul><li><a href="#select">select()</a><ul><li><a href="#select-使用的数据结构fd_set">select 使用的数据结构：fd_set</a></li><li><a href="#activating-select">activating select</a></li></ul></li><li><a href="#implementation-1">Implementation</a><ul><li><a href="#code-explanation">Code Explanation:</a></li></ul></li><li><a href="#alternatives">Alternatives</a></li></ul></li><li><a href="#socket-and-tcp">Socket and TCP</a></li><li><a href="#socket-凤凰架构">Socket 凤凰架构</a></li></ul></nav><p>。。今天想学下c++ socket，结果baidu了下，没有合意的(权威，入门)。<br>
+。。bing了一下，第一个就是 geeksforgeeks。</p>
+<hr>
+<p><a data-from-md title='https://www.geeksforgeeks.org/socket-programming-cc/' href='https://www.geeksforgeeks.org/socket-programming-cc/'>https://www.geeksforgeeks.org/socket-programming-cc/</a><br>
+Socket Programming in C/C++</p>
+<h1 id="what-is-socket-programming">What is socket programming?</h1>
+<p>socket编程是 在网络上连接2个node来通信的方法。<br>
+socket在IP的某个端口上监听，当其他socket到达(reach out)时，构建连接。<br>
+当客户端到达服务器时，服务器组建一个 listener socket。</p>
+<h2 id="state-diagram-for-server-and-client-model">State diagram for server and client model</h2>
+<p><img src="../_resources/6fb7ca6a5abd4d609de97b14c8851aff.png" alt="7a9a01b0973cbec4534d6398030bc4a8.png"></p>
+<h2 id="stages-for-server">Stages for Server</h2>
+<h3 id="socket-creation">Socket creation</h3>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C++" data-joplin-source-open="```C++&#10;" data-joplin-source-close="&#10;```">int sockfd = socket(domain, type, protocol)</pre><pre class="hljs"><code><span class="hljs-type">int</span> sockfd = <span class="hljs-built_in">socket</span>(domain, type, protocol)</code></pre></div>
+<ul>
+<li>sockfd： socker descriptor, an integer (like a file-handle)</li>
+<li>domain： integer, 指定通信的domain。我们使用 POSIX标准中定义的 AF_LOCAL 在同一主机的不同进程间通信。对于不同主机的进程的通信，如果是IPv4，则使用 AF_INET，如果IPv6，使用AF_INET6。</li>
+<li>type： 通信类型
+<ul>
+<li>SOCK_STREAM： TCP (可靠的，面向连接的)</li>
+<li>SOCK_DRAM： UDP (不可靠的，无连接的)</li>
+</ul>
+</li>
+<li>protocol：协议值，对于IP协议(internet protocol)，是0。这个值等同于 包中的IP header中的 protocol 域。</li>
+</ul>
+<h3 id="setsockopt">Setsockopt</h3>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C++" data-joplin-source-open="```C++&#10;" data-joplin-source-close="&#10;```">int setsockopt(int sockfd, int level, int optname,  const void *optval, socklen_t optlen);</pre><pre class="hljs"><code><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">setsockopt</span><span class="hljs-params">(<span class="hljs-type">int</span> sockfd, <span class="hljs-type">int</span> level, <span class="hljs-type">int</span> optname,  <span class="hljs-type">const</span> <span class="hljs-type">void</span> *optval, <span class="hljs-type">socklen_t</span> optlen)</span></span>;</code></pre></div>
+<p>这用于 操作 文件描述符(file descriptor) sockdf 的 option<br>
+这是 完全可选的，但 有助于 重用 地址和端口。防止诸如 address already in use 的错误。</p>
+<h3 id="bind">Bind</h3>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C++" data-joplin-source-open="```C++&#10;" data-joplin-source-close="&#10;```">int bind(int sockfd, const struct sockaddr *addr, socklen_t addrlen);</pre><pre class="hljs"><code><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">bind</span><span class="hljs-params">(<span class="hljs-type">int</span> sockfd, <span class="hljs-type">const</span> <span class="hljs-keyword">struct</span> sockaddr *addr, <span class="hljs-type">socklen_t</span> addrlen)</span></span>;</code></pre></div>
+<p>在 socket 创建后，bind函数 绑定 socket 到 addr指定的 地址和端口号。<br>
+在例子中，我们绑定到localhost，因为我们使用 INADDR_ANY 来指定 IP地址。<br>
+。。这个例子是指下面的。</p>
+<h3 id="listen">Listen</h3>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C++" data-joplin-source-open="```C++&#10;" data-joplin-source-close="&#10;```">int listen(int sockfd, int backlog);</pre><pre class="hljs"><code><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">listen</span><span class="hljs-params">(<span class="hljs-type">int</span> sockfd, <span class="hljs-type">int</span> backlog)</span></span>;</code></pre></div>
+<p>这个方法将 服务器套接字 设置为 被动模式 (passive mode)，等待客户端发起 连接。<br>
+backlog，定义了 sockfd 的 pending connection 的queue的最大长度。当queue满时，客户端发出 connection request，client会收到一个错误： ECONNREFUSED。</p>
+<h3 id="accept">Accept</h3>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C++" data-joplin-source-open="```C++&#10;" data-joplin-source-close="&#10;```">int new_socket= accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen);</pre><pre class="hljs"><code><span class="hljs-type">int</span> new_socket= <span class="hljs-built_in">accept</span>(<span class="hljs-type">int</span> sockfd, <span class="hljs-keyword">struct</span> sockaddr *addr, <span class="hljs-type">socklen_t</span> *addrlen);</code></pre></div>
+<p>这个方法从 listening socket (即 sockfd) 的 pending connection queue 中 提取一个 connection request，然后创建一个 新的 connected socket，然后返回指向 这个 socket的 新的 file descriptor。<br>
+此时，client 和 server 端 连接 establish，它们已经准备好 传输数据了。</p>
+<h2 id="stages-for-client">Stages for Client</h2>
+<h3 id="socket-connection">Socket connection</h3>
+<p>和 server 的socket creation 一样</p>
+<h3 id="connect">Connect</h3>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C++" data-joplin-source-open="```C++&#10;" data-joplin-source-close="&#10;```">int connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen);</pre><pre class="hljs"><code><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">connect</span><span class="hljs-params">(<span class="hljs-type">int</span> sockfd, <span class="hljs-type">const</span> <span class="hljs-keyword">struct</span> sockaddr *addr, <span class="hljs-type">socklen_t</span> addrlen)</span></span>;</code></pre></div>
+<p>connect() 系统调用，将 sockfd 指向的socket 连接到 addr指定的地址。<br>
+server的地址和端口，在 addr中指定。</p>
+<h2 id="implementation">Implementation</h2>
+<p>我们通过在 server 和client 间 交换 hello message 来说明 client/server model</p>
+<h3 id="serverc">Server.c</h3>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C++" data-joplin-source-open="```C++&#10;" data-joplin-source-close="&#10;```">// Server side C/C++ program to demonstrate Socket
+// programming
+#include &lt;netinet/in.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;string.h&gt;
+#include &lt;sys/socket.h&gt;
+#include &lt;unistd.h&gt;
+#define PORT 8080
+int main(int argc, char const* argv[])
+{
+    int server_fd, new_socket, valread;
+    struct sockaddr_in address;
+    int opt = 1;
+    int addrlen = sizeof(address);
+    char buffer[1024] = { 0 };
+    char* hello = &quot;Hello from server&quot;;
+
+    // Creating socket file descriptor
+    if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) &lt; 0) {
+        perror(&quot;socket failed&quot;);
+        exit(EXIT_FAILURE);
+    }
+
+    // Forcefully attaching socket to the port 8080
+    if (setsockopt(server_fd, SOL_SOCKET,
+                SO_REUSEADDR | SO_REUSEPORT, &amp;opt,
+                sizeof(opt))) {
+        perror(&quot;setsockopt&quot;);
+        exit(EXIT_FAILURE);
+    }
+    address.sin_family = AF_INET;
+    address.sin_addr.s_addr = INADDR_ANY;
+    address.sin_port = htons(PORT);
+
+    // Forcefully attaching socket to the port 8080
+    if (bind(server_fd, (struct sockaddr*)&amp;address,
+            sizeof(address))
+        &lt; 0) {
+        perror(&quot;bind failed&quot;);
+        exit(EXIT_FAILURE);
+    }
+    if (listen(server_fd, 3) &lt; 0) {
+        perror(&quot;listen&quot;);
+        exit(EXIT_FAILURE);
+    }
+    if ((new_socket
+        = accept(server_fd, (struct sockaddr*)&amp;address,
+                (socklen_t*)&amp;addrlen))
+        &lt; 0) {
+        perror(&quot;accept&quot;);
+        exit(EXIT_FAILURE);
+    }
+    valread = read(new_socket, buffer, 1024);
+    printf(&quot;%s\n&quot;, buffer);
+    send(new_socket, hello, strlen(hello), 0);
+    printf(&quot;Hello message sent\n&quot;);
+
+    // closing the connected socket
+    close(new_socket);
+    // closing the listening socket
+    shutdown(server_fd, SHUT_RDWR);
+    return 0;
+}</pre><pre class="hljs"><code><span class="hljs-comment">// Server side C/C++ program to demonstrate Socket</span>
+<span class="hljs-comment">// programming</span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;netinet/in.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdlib.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;string.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;sys/socket.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;unistd.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> PORT 8080</span>
+<span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span> <span class="hljs-type">const</span>* argv[])</span>
+</span>{
+    <span class="hljs-type">int</span> server_fd, new_socket, valread;
+    <span class="hljs-keyword">struct</span> <span class="hljs-title class_">sockaddr_in</span> address;
+    <span class="hljs-type">int</span> opt = <span class="hljs-number">1</span>;
+    <span class="hljs-type">int</span> addrlen = <span class="hljs-built_in">sizeof</span>(address);
+    <span class="hljs-type">char</span> buffer[<span class="hljs-number">1024</span>] = { <span class="hljs-number">0</span> };
+    <span class="hljs-type">char</span>* hello = <span class="hljs-string">&quot;Hello from server&quot;</span>;
+
+    <span class="hljs-comment">// Creating socket file descriptor</span>
+    <span class="hljs-keyword">if</span> ((server_fd = <span class="hljs-built_in">socket</span>(AF_INET, SOCK_STREAM, <span class="hljs-number">0</span>)) &lt; <span class="hljs-number">0</span>) {
+        <span class="hljs-built_in">perror</span>(<span class="hljs-string">&quot;socket failed&quot;</span>);
+        <span class="hljs-built_in">exit</span>(EXIT_FAILURE);
+    }
+
+    <span class="hljs-comment">// Forcefully attaching socket to the port 8080</span>
+    <span class="hljs-keyword">if</span> (<span class="hljs-built_in">setsockopt</span>(server_fd, SOL_SOCKET,
+                SO_REUSEADDR | SO_REUSEPORT, &amp;opt,
+                <span class="hljs-built_in">sizeof</span>(opt))) {
+        <span class="hljs-built_in">perror</span>(<span class="hljs-string">&quot;setsockopt&quot;</span>);
+        <span class="hljs-built_in">exit</span>(EXIT_FAILURE);
+    }
+    address.sin_family = AF_INET;
+    address.sin_addr.s_addr = INADDR_ANY;
+    address.sin_port = <span class="hljs-built_in">htons</span>(PORT);
+
+    <span class="hljs-comment">// Forcefully attaching socket to the port 8080</span>
+    <span class="hljs-keyword">if</span> (<span class="hljs-built_in">bind</span>(server_fd, (<span class="hljs-keyword">struct</span> sockaddr*)&amp;address,
+            <span class="hljs-built_in">sizeof</span>(address))
+        &lt; <span class="hljs-number">0</span>) {
+        <span class="hljs-built_in">perror</span>(<span class="hljs-string">&quot;bind failed&quot;</span>);
+        <span class="hljs-built_in">exit</span>(EXIT_FAILURE);
+    }
+    <span class="hljs-keyword">if</span> (<span class="hljs-built_in">listen</span>(server_fd, <span class="hljs-number">3</span>) &lt; <span class="hljs-number">0</span>) {
+        <span class="hljs-built_in">perror</span>(<span class="hljs-string">&quot;listen&quot;</span>);
+        <span class="hljs-built_in">exit</span>(EXIT_FAILURE);
+    }
+    <span class="hljs-keyword">if</span> ((new_socket
+        = <span class="hljs-built_in">accept</span>(server_fd, (<span class="hljs-keyword">struct</span> sockaddr*)&amp;address,
+                (<span class="hljs-type">socklen_t</span>*)&amp;addrlen))
+        &lt; <span class="hljs-number">0</span>) {
+        <span class="hljs-built_in">perror</span>(<span class="hljs-string">&quot;accept&quot;</span>);
+        <span class="hljs-built_in">exit</span>(EXIT_FAILURE);
+    }
+    valread = <span class="hljs-built_in">read</span>(new_socket, buffer, <span class="hljs-number">1024</span>);
+    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;%s\n&quot;</span>, buffer);
+    <span class="hljs-built_in">send</span>(new_socket, hello, <span class="hljs-built_in">strlen</span>(hello), <span class="hljs-number">0</span>);
+    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Hello message sent\n&quot;</span>);
+
+    <span class="hljs-comment">// closing the connected socket</span>
+    <span class="hljs-built_in">close</span>(new_socket);
+    <span class="hljs-comment">// closing the listening socket</span>
+    <span class="hljs-built_in">shutdown</span>(server_fd, SHUT_RDWR);
+    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+}</code></pre></div>
+<h3 id="clientc">Client.c</h3>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C++" data-joplin-source-open="```C++&#10;" data-joplin-source-close="&#10;```">// Client side C/C++ program to demonstrate Socket
+// programming
+#include &lt;arpa/inet.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+#include &lt;sys/socket.h&gt;
+#include &lt;unistd.h&gt;
+#define PORT 8080
+
+int main(int argc, char const* argv[])
+{
+    int status, valread, client_fd;
+    struct sockaddr_in serv_addr;
+    char* hello = &quot;Hello from client&quot;;
+    char buffer[1024] = { 0 };
+    if ((client_fd = socket(AF_INET, SOCK_STREAM, 0)) &lt; 0) {
+        printf(&quot;\n Socket creation error \n&quot;);
+        return -1;
+    }
+
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_port = htons(PORT);
+
+    // Convert IPv4 and IPv6 addresses from text to binary
+    // form
+    if (inet_pton(AF_INET, &quot;127.0.0.1&quot;, &amp;serv_addr.sin_addr)
+        &lt;= 0) {
+        printf(
+            &quot;\nInvalid address/ Address not supported \n&quot;);
+        return -1;
+    }
+
+    if ((status
+        = connect(client_fd, (struct sockaddr*)&amp;serv_addr,
+                sizeof(serv_addr)))
+        &lt; 0) {
+        printf(&quot;\nConnection Failed \n&quot;);
+        return -1;
+    }
+    send(client_fd, hello, strlen(hello), 0);
+    printf(&quot;Hello message sent\n&quot;);
+    valread = read(client_fd, buffer, 1024);
+    printf(&quot;%s\n&quot;, buffer);
+
+    // closing the connected socket
+    close(client_fd);
+    return 0;
+}</pre><pre class="hljs"><code><span class="hljs-comment">// Client side C/C++ program to demonstrate Socket</span>
+<span class="hljs-comment">// programming</span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;arpa/inet.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;string.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;sys/socket.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;unistd.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> PORT 8080</span>
+
+<span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span> <span class="hljs-type">const</span>* argv[])</span>
+</span>{
+    <span class="hljs-type">int</span> status, valread, client_fd;
+    <span class="hljs-keyword">struct</span> <span class="hljs-title class_">sockaddr_in</span> serv_addr;
+    <span class="hljs-type">char</span>* hello = <span class="hljs-string">&quot;Hello from client&quot;</span>;
+    <span class="hljs-type">char</span> buffer[<span class="hljs-number">1024</span>] = { <span class="hljs-number">0</span> };
+    <span class="hljs-keyword">if</span> ((client_fd = <span class="hljs-built_in">socket</span>(AF_INET, SOCK_STREAM, <span class="hljs-number">0</span>)) &lt; <span class="hljs-number">0</span>) {
+        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\n Socket creation error \n&quot;</span>);
+        <span class="hljs-keyword">return</span> <span class="hljs-number">-1</span>;
+    }
+
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_port = <span class="hljs-built_in">htons</span>(PORT);
+
+    <span class="hljs-comment">// Convert IPv4 and IPv6 addresses from text to binary</span>
+    <span class="hljs-comment">// form</span>
+    <span class="hljs-keyword">if</span> (<span class="hljs-built_in">inet_pton</span>(AF_INET, <span class="hljs-string">&quot;127.0.0.1&quot;</span>, &amp;serv_addr.sin_addr)
+        &lt;= <span class="hljs-number">0</span>) {
+        <span class="hljs-built_in">printf</span>(
+            <span class="hljs-string">&quot;\nInvalid address/ Address not supported \n&quot;</span>);
+        <span class="hljs-keyword">return</span> <span class="hljs-number">-1</span>;
+    }
+
+    <span class="hljs-keyword">if</span> ((status
+        = <span class="hljs-built_in">connect</span>(client_fd, (<span class="hljs-keyword">struct</span> sockaddr*)&amp;serv_addr,
+                <span class="hljs-built_in">sizeof</span>(serv_addr)))
+        &lt; <span class="hljs-number">0</span>) {
+        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\nConnection Failed \n&quot;</span>);
+        <span class="hljs-keyword">return</span> <span class="hljs-number">-1</span>;
+    }
+    <span class="hljs-built_in">send</span>(client_fd, hello, <span class="hljs-built_in">strlen</span>(hello), <span class="hljs-number">0</span>);
+    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Hello message sent\n&quot;</span>);
+    valread = <span class="hljs-built_in">read</span>(client_fd, buffer, <span class="hljs-number">1024</span>);
+    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;%s\n&quot;</span>, buffer);
+
+    <span class="hljs-comment">// closing the connected socket</span>
+    <span class="hljs-built_in">close</span>(client_fd);
+    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+}</code></pre></div>
+<h3 id="compiling">Compiling</h3>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">gcc client.c -o client
+gcc server.c -o server</pre><pre class="hljs"><code>gcc <span class="hljs-keyword">client</span>.c -o <span class="hljs-keyword">client</span>
+gcc <span class="hljs-keyword">server</span>.c -o <span class="hljs-keyword">server</span></code></pre></div>
+<h3 id="output">Output</h3>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">Client:Hello message sent
+Hello from server
+Server:Hello from client
+Hello message sent</pre><pre class="hljs"><code>Client:Hello message sent
+Hello <span class="hljs-keyword">from</span> <span class="hljs-keyword">server</span>
+Server:Hello <span class="hljs-keyword">from</span> <span class="hljs-keyword">client</span>
+Hello message sent</code></pre></div>
+<hr>
+<p><a data-from-md title='https://www.geeksforgeeks.org/socket-programming-in-cc-handling-multiple-clients-on-server-without-multi-threading/' href='https://www.geeksforgeeks.org/socket-programming-in-cc-handling-multiple-clients-on-server-without-multi-threading/'>https://www.geeksforgeeks.org/socket-programming-in-cc-handling-multiple-clients-on-server-without-multi-threading/</a></p>
+<h1 id="socket-programming-in-cc-handling-multiple-clients-on-server-without-multi-threading">Socket Programming in C/C++: Handling multiple clients on server without multi threading</h1>
+<p>在基础的 server-client 模型中，server 一次只处理一个client，如果你想开发一个可伸缩的server模型，这会是一个大的 assumption (假定，承担)。</p>
+<p>最简单的 处理多个client 的方法是 为每个新连接生成一个新线程。这种方式非常不推荐，因为：</p>
+<ul>
+<li>线程难以code，debug，有时产生无法预测的结果</li>
+<li>上下文切换的开销</li>
+<li>对于大量客户端，不是 scalable</li>
+<li>会发生死锁</li>
+</ul>
+<h2 id="select">select()</h2>
+<p>处理多client 的更好的方法是 使用 select() 这个linux 命令</p>
+<ul>
+<li>select 命令可以监控 多个 file descriptor，一直等待，直到 某个 file descriptor 变成 active。</li>
+<li>例如，如果某个监控的 socket上 有数据可读，那么 select 会提供那个信息。</li>
+<li>select 的行为 就像 interrupt handler，只要任意 file descriptor 发送任意数据，那么它就会被 激活。</li>
+</ul>
+<h3 id="select-使用的数据结构fd_set">select 使用的数据结构：fd_set</h3>
+<p>fd_set 包含了 file descriptor的list，用来监控是否 activity。<br>
+fs_set 关联了 4个函数：</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C++" data-joplin-source-open="```C++&#10;" data-joplin-source-close="&#10;```">fd_set readfds;
+
+// Clear an fd_set
+FD_ZERO(&amp;readfds);  
+
+// Add a descriptor to an fd_set
+FD_SET(master_sock, &amp;readfds);   
+
+// Remove a descriptor from an fd_set
+FD_CLR(master_sock, &amp;readfds); 
+
+//If something happened on the master socket , then its an incoming connection  
+FD_ISSET(master_sock, &amp;readfds); </pre><pre class="hljs"><code>fd_set readfds;
+
+<span class="hljs-comment">// Clear an fd_set</span>
+<span class="hljs-built_in">FD_ZERO</span>(&amp;readfds);  
+
+<span class="hljs-comment">// Add a descriptor to an fd_set</span>
+<span class="hljs-built_in">FD_SET</span>(master_sock, &amp;readfds);   
+
+<span class="hljs-comment">// Remove a descriptor from an fd_set</span>
+<span class="hljs-built_in">FD_CLR</span>(master_sock, &amp;readfds); 
+
+<span class="hljs-comment">//If something happened on the master socket , then its an incoming connection  </span>
+<span class="hljs-built_in">FD_ISSET</span>(master_sock, &amp;readfds); </code></pre></div>
+<h3 id="activating-select">activating select</h3>
+<p>请阅读 select 的 man page 来检查 select 命令的所有参数</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C++" data-joplin-source-open="```C++&#10;" data-joplin-source-close="&#10;```">activity = select( max_fd + 1 , &amp;readfds , NULL , NULL , NULL);</pre><pre class="hljs"><code>activity = <span class="hljs-built_in">select</span>( max_fd + <span class="hljs-number">1</span> , &amp;readfds , <span class="hljs-literal">NULL</span> , <span class="hljs-literal">NULL</span> , <span class="hljs-literal">NULL</span>);</code></pre></div>
+<h2 id="implementation-2">Implementation</h2>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C++" data-joplin-source-open="```C++&#10;" data-joplin-source-close="&#10;```">//Example code: A simple server side code, which echos back the received message.
+//Handle multiple socket connections with select and fd_set on Linux
+#include &lt;stdio.h&gt;
+#include &lt;string.h&gt; //strlen
+#include &lt;stdlib.h&gt;
+#include &lt;errno.h&gt;
+#include &lt;unistd.h&gt; //close
+#include &lt;arpa/inet.h&gt; //close
+#include &lt;sys/types.h&gt;
+#include &lt;sys/socket.h&gt;
+#include &lt;netinet/in.h&gt;
+#include &lt;sys/time.h&gt; //FD_SET, FD_ISSET, FD_ZERO macros
+    
+#define TRUE 1
+#define FALSE 0
+#define PORT 8888
+    
+int main(int argc , char *argv[])
+{
+    int opt = TRUE;
+    int master_socket , addrlen , new_socket , client_socket[30] ,
+        max_clients = 30 , activity, i , valread , sd;
+    int max_sd;
+    struct sockaddr_in address;
+        
+    char buffer[1025]; //data buffer of 1K
+        
+    //set of socket descriptors
+    fd_set readfds;
+        
+    //a message
+    char *message = &quot;ECHO Daemon v1.0 \r\n&quot;;
+    
+    //initialise all client_socket[] to 0 so not checked
+    for (i = 0; i &lt; max_clients; i++)
+    {
+        client_socket[i] = 0;
+    }
+        
+    //create a master socket
+    if( (master_socket = socket(AF_INET , SOCK_STREAM , 0)) == 0)
+    {
+        perror(&quot;socket failed&quot;);
+        exit(EXIT_FAILURE);
+    }
+    
+    //set master socket to allow multiple connections ,
+    //this is just a good habit, it will work without this
+    if( setsockopt(master_socket, SOL_SOCKET, SO_REUSEADDR, (char *)&amp;opt,
+        sizeof(opt)) &lt; 0 )
+    {
+        perror(&quot;setsockopt&quot;);
+        exit(EXIT_FAILURE);
+    }
+    
+    //type of socket created
+    address.sin_family = AF_INET;
+    address.sin_addr.s_addr = INADDR_ANY;
+    address.sin_port = htons( PORT );
+        
+    //bind the socket to localhost port 8888
+    if (bind(master_socket, (struct sockaddr *)&amp;address, sizeof(address))&lt;0)
+    {
+        perror(&quot;bind failed&quot;);
+        exit(EXIT_FAILURE);
+    }
+    printf(&quot;Listener on port %d \n&quot;, PORT);
+        
+    //try to specify maximum of 3 pending connections for the master socket
+    if (listen(master_socket, 3) &lt; 0)
+    {
+        perror(&quot;listen&quot;);
+        exit(EXIT_FAILURE);
+    }
+        
+    //accept the incoming connection
+    addrlen = sizeof(address);
+    puts(&quot;Waiting for connections ...&quot;);
+        
+    while(TRUE)
+    {
+        //clear the socket set
+        FD_ZERO(&amp;readfds);
+    
+        //add master socket to set
+        FD_SET(master_socket, &amp;readfds);
+        max_sd = master_socket;
+            
+        //add child sockets to set
+        for ( i = 0 ; i &lt; max_clients ; i++)
+        {
+            //socket descriptor
+            sd = client_socket[i];
+                
+            //if valid socket descriptor then add to read list
+            if(sd &gt; 0)
+                FD_SET( sd , &amp;readfds);
+                
+            //highest file descriptor number, need it for the select function
+            if(sd &gt; max_sd)
+                max_sd = sd;
+        }
+    
+        //wait for an activity on one of the sockets , timeout is NULL ,
+        //so wait indefinitely
+        activity = select( max_sd + 1 , &amp;readfds , NULL , NULL , NULL);
+    
+        if ((activity &lt; 0) &amp;&amp; (errno!=EINTR))
+        {
+            printf(&quot;select error&quot;);
+        }
+            
+        //If something happened on the master socket ,
+        //then its an incoming connection
+        if (FD_ISSET(master_socket, &amp;readfds))
+        {
+            if ((new_socket = accept(master_socket,
+                    (struct sockaddr *)&amp;address, (socklen_t*)&amp;addrlen))&lt;0)
+            {
+                perror(&quot;accept&quot;);
+                exit(EXIT_FAILURE);
+            }
+            
+            //inform user of socket number - used in send and receive commands
+            printf(&quot;New connection , socket fd is %d , ip is : %s , port : %d
+                \n&quot; , new_socket , inet_ntoa(address.sin_addr) , ntohs
+                (address.sin_port));
+        
+            //send new connection greeting message
+            if( send(new_socket, message, strlen(message), 0) != strlen(message) )
+            {
+                perror(&quot;send&quot;);
+            }
+                
+            puts(&quot;Welcome message sent successfully&quot;);
+                
+            //add new socket to array of sockets
+            for (i = 0; i &lt; max_clients; i++)
+            {
+                //if position is empty
+                if( client_socket[i] == 0 )
+                {
+                    client_socket[i] = new_socket;
+                    printf(&quot;Adding to list of sockets as %d\n&quot; , i);
+                        
+                    break;
+                }
+            }
+        }
+            
+        //else its some IO operation on some other socket
+        for (i = 0; i &lt; max_clients; i++)
+        {
+            sd = client_socket[i];
+                
+            if (FD_ISSET( sd , &amp;readfds))
+            {
+                //Check if it was for closing , and also read the
+                //incoming message
+                if ((valread = read( sd , buffer, 1024)) == 0)
+                {
+                    //Somebody disconnected , get his details and print
+                    getpeername(sd , (struct sockaddr*)&amp;address , \
+                        (socklen_t*)&amp;addrlen);
+                    printf(&quot;Host disconnected , ip %s , port %d \n&quot; ,
+                        inet_ntoa(address.sin_addr) , ntohs(address.sin_port));
+                        
+                    //Close the socket and mark as 0 in list for reuse
+                    close( sd );
+                    client_socket[i] = 0;
+                }
+                    
+                //Echo back the message that came in
+                else
+                {
+                    //set the string terminating NULL byte on the end
+                    //of the data read
+                    buffer[valread] = '\0';
+                    send(sd , buffer , strlen(buffer) , 0 );
+                }
+            }
+        }
+    }
+    return 0;
+}</pre><pre class="hljs"><code><span class="hljs-comment">//Example code: A simple server side code, which echos back the received message.</span>
+<span class="hljs-comment">//Handle multiple socket connections with select and fd_set on Linux</span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;string.h&gt;</span> <span class="hljs-comment">//strlen</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdlib.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;errno.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;unistd.h&gt;</span> <span class="hljs-comment">//close</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;arpa/inet.h&gt;</span> <span class="hljs-comment">//close</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;sys/types.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;sys/socket.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;netinet/in.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;sys/time.h&gt;</span> <span class="hljs-comment">//FD_SET, FD_ISSET, FD_ZERO macros</span></span>
+    
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> TRUE 1</span>
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> FALSE 0</span>
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> PORT 8888</span>
+    
+<span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc , <span class="hljs-type">char</span> *argv[])</span>
+</span>{
+    <span class="hljs-type">int</span> opt = TRUE;
+    <span class="hljs-type">int</span> master_socket , addrlen , new_socket , client_socket[<span class="hljs-number">30</span>] ,
+        max_clients = <span class="hljs-number">30</span> , activity, i , valread , sd;
+    <span class="hljs-type">int</span> max_sd;
+    <span class="hljs-keyword">struct</span> <span class="hljs-title class_">sockaddr_in</span> address;
+        
+    <span class="hljs-type">char</span> buffer[<span class="hljs-number">1025</span>]; <span class="hljs-comment">//data buffer of 1K</span>
+        
+    <span class="hljs-comment">//set of socket descriptors</span>
+    fd_set readfds;
+        
+    <span class="hljs-comment">//a message</span>
+    <span class="hljs-type">char</span> *message = <span class="hljs-string">&quot;ECHO Daemon v1.0 \r\n&quot;</span>;
+    
+    <span class="hljs-comment">//initialise all client_socket[] to 0 so not checked</span>
+    <span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; max_clients; i++)
+    {
+        client_socket[i] = <span class="hljs-number">0</span>;
+    }
+        
+    <span class="hljs-comment">//create a master socket</span>
+    <span class="hljs-keyword">if</span>( (master_socket = <span class="hljs-built_in">socket</span>(AF_INET , SOCK_STREAM , <span class="hljs-number">0</span>)) == <span class="hljs-number">0</span>)
+    {
+        <span class="hljs-built_in">perror</span>(<span class="hljs-string">&quot;socket failed&quot;</span>);
+        <span class="hljs-built_in">exit</span>(EXIT_FAILURE);
+    }
+    
+    <span class="hljs-comment">//set master socket to allow multiple connections ,</span>
+    <span class="hljs-comment">//this is just a good habit, it will work without this</span>
+    <span class="hljs-keyword">if</span>( <span class="hljs-built_in">setsockopt</span>(master_socket, SOL_SOCKET, SO_REUSEADDR, (<span class="hljs-type">char</span> *)&amp;opt,
+        <span class="hljs-built_in">sizeof</span>(opt)) &lt; <span class="hljs-number">0</span> )
+    {
+        <span class="hljs-built_in">perror</span>(<span class="hljs-string">&quot;setsockopt&quot;</span>);
+        <span class="hljs-built_in">exit</span>(EXIT_FAILURE);
+    }
+    
+    <span class="hljs-comment">//type of socket created</span>
+    address.sin_family = AF_INET;
+    address.sin_addr.s_addr = INADDR_ANY;
+    address.sin_port = <span class="hljs-built_in">htons</span>( PORT );
+        
+    <span class="hljs-comment">//bind the socket to localhost port 8888</span>
+    <span class="hljs-keyword">if</span> (<span class="hljs-built_in">bind</span>(master_socket, (<span class="hljs-keyword">struct</span> sockaddr *)&amp;address, <span class="hljs-built_in">sizeof</span>(address))&lt;<span class="hljs-number">0</span>)
+    {
+        <span class="hljs-built_in">perror</span>(<span class="hljs-string">&quot;bind failed&quot;</span>);
+        <span class="hljs-built_in">exit</span>(EXIT_FAILURE);
+    }
+    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Listener on port %d \n&quot;</span>, PORT);
+        
+    <span class="hljs-comment">//try to specify maximum of 3 pending connections for the master socket</span>
+    <span class="hljs-keyword">if</span> (<span class="hljs-built_in">listen</span>(master_socket, <span class="hljs-number">3</span>) &lt; <span class="hljs-number">0</span>)
+    {
+        <span class="hljs-built_in">perror</span>(<span class="hljs-string">&quot;listen&quot;</span>);
+        <span class="hljs-built_in">exit</span>(EXIT_FAILURE);
+    }
+        
+    <span class="hljs-comment">//accept the incoming connection</span>
+    addrlen = <span class="hljs-built_in">sizeof</span>(address);
+    <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;Waiting for connections ...&quot;</span>);
+        
+    <span class="hljs-keyword">while</span>(TRUE)
+    {
+        <span class="hljs-comment">//clear the socket set</span>
+        <span class="hljs-built_in">FD_ZERO</span>(&amp;readfds);
+    
+        <span class="hljs-comment">//add master socket to set</span>
+        <span class="hljs-built_in">FD_SET</span>(master_socket, &amp;readfds);
+        max_sd = master_socket;
+            
+        <span class="hljs-comment">//add child sockets to set</span>
+        <span class="hljs-keyword">for</span> ( i = <span class="hljs-number">0</span> ; i &lt; max_clients ; i++)
+        {
+            <span class="hljs-comment">//socket descriptor</span>
+            sd = client_socket[i];
+                
+            <span class="hljs-comment">//if valid socket descriptor then add to read list</span>
+            <span class="hljs-keyword">if</span>(sd &gt; <span class="hljs-number">0</span>)
+                <span class="hljs-built_in">FD_SET</span>( sd , &amp;readfds);
+                
+            <span class="hljs-comment">//highest file descriptor number, need it for the select function</span>
+            <span class="hljs-keyword">if</span>(sd &gt; max_sd)
+                max_sd = sd;
+        }
+    
+        <span class="hljs-comment">//wait for an activity on one of the sockets , timeout is NULL ,</span>
+        <span class="hljs-comment">//so wait indefinitely</span>
+        activity = <span class="hljs-built_in">select</span>( max_sd + <span class="hljs-number">1</span> , &amp;readfds , <span class="hljs-literal">NULL</span> , <span class="hljs-literal">NULL</span> , <span class="hljs-literal">NULL</span>);
+    
+        <span class="hljs-keyword">if</span> ((activity &lt; <span class="hljs-number">0</span>) &amp;&amp; (errno!=EINTR))
+        {
+            <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;select error&quot;</span>);
+        }
+            
+        <span class="hljs-comment">//If something happened on the master socket ,</span>
+        <span class="hljs-comment">//then its an incoming connection</span>
+        <span class="hljs-keyword">if</span> (<span class="hljs-built_in">FD_ISSET</span>(master_socket, &amp;readfds))
+        {
+            <span class="hljs-keyword">if</span> ((new_socket = <span class="hljs-built_in">accept</span>(master_socket,
+                    (<span class="hljs-keyword">struct</span> sockaddr *)&amp;address, (<span class="hljs-type">socklen_t</span>*)&amp;addrlen))&lt;<span class="hljs-number">0</span>)
+            {
+                <span class="hljs-built_in">perror</span>(<span class="hljs-string">&quot;accept&quot;</span>);
+                <span class="hljs-built_in">exit</span>(EXIT_FAILURE);
+            }
+            
+            <span class="hljs-comment">//inform user of socket number - used in send and receive commands</span>
+            <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;New connection , socket fd is %d , ip is : %s , port : %d
+                \n&quot;</span> , new_socket , <span class="hljs-built_in">inet_ntoa</span>(address.sin_addr) , <span class="hljs-built_in">ntohs</span>
+                (address.sin_port));
+        
+            <span class="hljs-comment">//send new connection greeting message</span>
+            <span class="hljs-keyword">if</span>( <span class="hljs-built_in">send</span>(new_socket, message, <span class="hljs-built_in">strlen</span>(message), <span class="hljs-number">0</span>) != <span class="hljs-built_in">strlen</span>(message) )
+            {
+                <span class="hljs-built_in">perror</span>(<span class="hljs-string">&quot;send&quot;</span>);
+            }
+                
+            <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;Welcome message sent successfully&quot;</span>);
+                
+            <span class="hljs-comment">//add new socket to array of sockets</span>
+            <span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; max_clients; i++)
+            {
+                <span class="hljs-comment">//if position is empty</span>
+                <span class="hljs-keyword">if</span>( client_socket[i] == <span class="hljs-number">0</span> )
+                {
+                    client_socket[i] = new_socket;
+                    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Adding to list of sockets as %d\n&quot;</span> , i);
+                        
+                    <span class="hljs-keyword">break</span>;
+                }
+            }
+        }
+            
+        <span class="hljs-comment">//else its some IO operation on some other socket</span>
+        <span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; max_clients; i++)
+        {
+            sd = client_socket[i];
+                
+            <span class="hljs-keyword">if</span> (<span class="hljs-built_in">FD_ISSET</span>( sd , &amp;readfds))
+            {
+                <span class="hljs-comment">//Check if it was for closing , and also read the</span>
+                <span class="hljs-comment">//incoming message</span>
+                <span class="hljs-keyword">if</span> ((valread = <span class="hljs-built_in">read</span>( sd , buffer, <span class="hljs-number">1024</span>)) == <span class="hljs-number">0</span>)
+                {
+                    <span class="hljs-comment">//Somebody disconnected , get his details and print</span>
+                    <span class="hljs-built_in">getpeername</span>(sd , (<span class="hljs-keyword">struct</span> sockaddr*)&amp;address , \
+                        (<span class="hljs-type">socklen_t</span>*)&amp;addrlen);
+                    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Host disconnected , ip %s , port %d \n&quot;</span> ,
+                        <span class="hljs-built_in">inet_ntoa</span>(address.sin_addr) , <span class="hljs-built_in">ntohs</span>(address.sin_port));
+                        
+                    <span class="hljs-comment">//Close the socket and mark as 0 in list for reuse</span>
+                    <span class="hljs-built_in">close</span>( sd );
+                    client_socket[i] = <span class="hljs-number">0</span>;
+                }
+                    
+                <span class="hljs-comment">//Echo back the message that came in</span>
+                <span class="hljs-keyword">else</span>
+                {
+                    <span class="hljs-comment">//set the string terminating NULL byte on the end</span>
+                    <span class="hljs-comment">//of the data read</span>
+                    buffer[valread] = <span class="hljs-string">&#x27;\0&#x27;</span>;
+                    <span class="hljs-built_in">send</span>(sd , buffer , <span class="hljs-built_in">strlen</span>(buffer) , <span class="hljs-number">0</span> );
+                }
+            }
+        }
+    }
+    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+}</code></pre></div>
+<p>编译并运行。<br>
+使用 telnet 命令模仿 client 的连接。</p>
+<h3 id="code-explanation">Code Explanation:</h3>
+<ul>
+<li>我们创建 fs_set 类型的变量 readfds，它会监控 main server listening socket 以及 所有的 client 的 active file descriptor。</li>
+<li>当新client 想要连接时，master_socket 会被激活 并为这个client 打开一个 新的 fd。我们会保存它的 fd 到 我们的 client_list，并且在 下次迭代时，我们会把 它 添加到 readfds 以监控 这个client 的 活动</li>
+<li>类似的，如果一个 老的client 发送了一些数据，readfds 会被激活，我们会检查 现有client 的 list 来 知道 哪个client 被发送了数据。</li>
+</ul>
+<h2 id="alternatives">Alternatives</h2>
+<p>还有其他的函数 能像 select 一样 执行任务： pselect，pool，ppoll。</p>
+<hr>
+<p><a data-from-md title='https://www.geeksforgeeks.org/error-control-in-tcp/' href='https://www.geeksforgeeks.org/error-control-in-tcp/'>https://www.geeksforgeeks.org/error-control-in-tcp/</a></p>
+<hr>
+<p><a data-from-md title='https://zhuanlan.zhihu.com/p/75672631' href='https://zhuanlan.zhihu.com/p/75672631'>https://zhuanlan.zhihu.com/p/75672631</a></p>
+<hr>
+<hr>
+<hr>
+<hr>
+<hr>
+<h1 id="socket-and-tcp">Socket and TCP</h1>
+<p><a data-from-md title='https://www.sohu.com/a/645498691_120070959' href='https://www.sohu.com/a/645498691_120070959'>https://www.sohu.com/a/645498691_120070959</a></p>
+<p>Socket是 应用层 与 TCP/IP协议簇 通信的 <mark>中间软件抽象层，它是一组接口</mark>。</p>
+<p><img src="../_resources/e5ba55852cc14840b9b12be5f7f8d1b7.png" alt="aa3d58cd7b728161f60833a7cf3ef930.png"></p>
+<p>主机 A 的应用程序必须通过 Socket 建立连接才能与主机B的应用程序通信，<br>
+而建立 Socket 连接需要底层 TCP/IP 协议来建立 TCP 连接。<br>
+而建立 TCP 连接需要底层 IP 协议来寻址网络中的主机。</p>
+<p>Socket 连接是计算机网络中的一种通信机制，它允许两个程序在不同计算机上通过网络进行通信。<br>
+在使用套接字进行通信时，一个程序作为客户端，另一个程序作为服务器端，它们通过创建和使用套接字进行数据传输。<br>
+我们可以将套接字理解为<mark>网络通信的接口</mark>，它提供了一种<mark>标准的通信方式</mark>，使得不同的程序能够在网络上进行数据交换。</p>
+<p>在客户端中，我们需要创建一个套接字并指定连接目标的 IP 地址和端口号，然后向服务器端发送连接请求。<br>
+在服务器端中，我们需要创建一个套接字并绑定到一个指定的端口号上，然后等待客户端的连接请求。</p>
+<p><img src="../_resources/46b6942fa3e44452bb0f79888616a2ea.png" alt="d7cffe4e6a08cd595de1b6110720ee4d.png"></p>
+<p>在 Socket 连接中，常见的协议有 TCP 和 UDP 两种。</p>
+<h1 id="socket-凤凰架构">Socket 凤凰架构</h1>
+<p><img src="../_resources/4328380a5c2741029bb31e8a5d08d569.png" alt="c398e19a03049f3f332362f78da79b55.png"></p>
+<p>几乎整个网络栈（应用层以下）都位于系统内核空间之中，之所以采用这种设计，主要是从数据安全隔离的角度出发来考虑的。<br>
+由<mark>内核去处理</mark>网络报文的收发，无疑会有<mark>更高的执行开销</mark>，譬如数据在内核态和用户态之间来回拷贝的额外成本，因此会<mark>损失一些性能</mark>，但是能够保证应用程序无法窃听到或者去伪造另一个应用程序的通信内容。<br>
+针对特别关注收发性能的应用场景，也有<mark>直接在用户空间中实现全套协议栈的旁路方案</mark>，譬如开源的Netmap 以及 Intel 的DPDK ，都能做到零拷贝收发网络数据包。</p>
+<p>图中传输模型的箭头展示的是数据流动的方向，它体现了信息从程序中发出以后，到被另一个程序接收到之前，将经历如下几个阶段：</p>
+<ul>
+<li>Socket<br>
+应用层的程序是通过 Socket 编程接口来和内核空间的网络协议栈通信的。Linux Socket 是从 BSD Socket 发展而来的，现在 Socket 已经不局限于某个操作系统的专属功能，成为各大主流操作系统共同支持的通用网络编程接口，是网络应用程序实际上的交互基础。应用程序通过读写收、发缓冲区（Receive/Send Buffer）来与 Socket 进行交互，在 UNIX 和 Linux 系统中，出于“一切皆是文件”的设计哲学，对 Socket 操作被实现为对文件系统（socketfs）的读写访问操作，通过文件描述符（File Descriptor）来进行。</li>
+<li>TCP/UDP<br>
+传输层协议族里最重要的协议无疑是传输控制协议 （Transmission Control Protocol，TCP）和用户数据报协议 （User Datagram Protocol，UDP）两种，它们也是在 Linux 内核中被直接支持的协议。此外还有流控制传输协议 （Stream Control Transmission Protocol，SCTP）、数据报拥塞控制协议 （Datagram Congestion Control Protocol，DCCP）等等。<br>
+不同的协议处理流程大致是一样的，只是封装的报文以及头、尾部信息会有所不同，这里以 TCP 协议为例，内核发现 Socket 的发送缓冲区中有新的数据被拷贝进来后，会把数据封装为 TCP Segment 报文，常见网络协议的报文基本上都是由报文头（Header）和报文体（Body，也叫荷载“Payload”）两部分组成。系统内核将缓冲区中用户要发送出去的数据作为报文体，然后把传输层中的必要控制信息，譬如代表哪个程序发、由哪个程序收的源、目标端口号，用于保证可靠通信（重发与控制顺序）的序列号、用于校验信息是否在传输中出现损失的校验和（Check Sum）等信息封装入报文头中。</li>
+<li>IP<br>
+IP：网络层协议最主要就是网际协议 （Internet Protocol，IP），其他还有因特网组管理协议 （Internet Group Management Protocol，IGMP）、大量的路由协议（EGP、NHRP、OSPF、IGRP、……）等等。<br>
+以 IP 协议为例，它会将来自上一层（本例中的 TCP 报文）的数据包作为报文体，再次加入自己的报文头，譬如指明数据应该发到哪里的路由地址、数据包的长度、协议的版本号，等等，封装成 IP 数据包后发往下一层。</li>
+<li>Device<br>
+网络设备（Device）是网络访问层中面向系统一侧的接口，这里所说的设备与物理硬件设备并不是同一个概念，Device 只是一种向操作系统端开放的<mark>接口</mark>，其背后既可能代表着真实的物理硬件，也可能是某段具有特定功能的程序代码，譬如即使不存在物理网卡，也依然可以存在回环设备（Loopback Device）。<br>
+许多网络抓包工具，如tcpdump 、Wirshark 便是在此处工作的，前面介绍微服务流量控制时曾提到过的网络流量整形，通常也是在这里完成的。<br>
+Device 主要的作用是抽象出统一的界面，让程序代码去选择或影响收发包出入口，譬如决定数据应该从哪块网卡设备发送出去；还有就是准备好网卡驱动工作所需的数据，譬如来自上一层的 IP 数据包、下一跳 （Next Hop）的 MAC 地址（这个地址是通过ARP Request 得到的）等等。</li>
+<li>Driver<br>
+网卡驱动程序（Driver）是网络访问层中面向硬件一侧的接口，网卡驱动程序会通过DMA 将主存中的待发送的数据包复制到驱动内部的缓冲区之中。数据被复制的同时，也会将上层提供的 IP 数据包、下一跳 MAC 地址这些信息，加上网卡的 MAC 地址、VLAN Tag 等信息一并封装成为<mark>以太帧</mark> （Ethernet Frame），并自动计算校验和。对于需要确认重发的信息，如果没有收到接收者的确认（ACK）响应，那<mark>重发</mark>的处理也是在这里自动完成的。</li>
+</ul>
+<p>从 Linux Kernel 2.4 版开始，内核开放了一套通用的、可供代码干预数据在协议栈中流转的过滤器框架。这套名为 Netfilter 的框架是 Linux 防火墙和网络的主要维护者 Rusty Russell 提出并主导设计的，它围绕网络层（IP 协议）的周围，埋下了五个钩子 （Hooks），每当有数据包流到<mark>网络层</mark>，经过这些钩子时，就会自动触发由内核模块注册在这里的回调函数，程序代码就能够通过回调来干预 Linux 的网络通信。笔者先将这五个钩子的名字与含义列出：</p>
+<ul>
+<li>PREROUTING：<br>
+来自设备的数据包进入协议栈后立即触发此钩子。PREROUTING 钩子在进入 IP 路由之前触发，这意味着只要接收到的数据包，无论是否真的发往本机，都会触发此钩子。<br>
+一般用于目标网络地址转换（Destination NAT，DNAT）。</li>
+<li>INPUT：<br>
+报文经过 IP 路由后，如果确定是发往本机的，将会触发此钩子，<br>
+一般用于加工发往本地进程的数据包。</li>
+<li>FORWARD：<br>
+报文经过 IP 路由后，如果确定不是发往本机的，将会触发此钩子，<br>
+一般用于处理转发到其他机器的数据包。</li>
+<li>OUTPUT：<br>
+从本机程序发出的数据包，在经过 IP 路由前，将会触发此钩子，<br>
+一般用于加工本地进程的输出数据包。</li>
+<li>POSTROUTING：<br>
+从本机网卡出去的数据包，无论是本机的程序所发出的，还是由本机转发给其他机器的，都会触发此钩子，<br>
+一般用于源网络地址转换（Source NAT，SNAT）。</li>
+</ul>
+<p><img src="../_resources/fd5cf256f4714cf0b12349a71abfcefa.png" alt="449cf89c7237b7683bfd31fb9446d84a.png"></p>
+<p>Netfilter 允许在同一个钩子处注册多个回调函数，因此向钩子注册回调函数时必须提供明确的优先级，以便触发时能按照优先级从高到低进行激活。<br>
+虽然现在看来 Netfilter 只是一些简单的事件回调机制而已，然而这样一套简单的设计，却成为了整座 Linux 网络大厦的核心基石，Linux 系统提供的许多网络能力，如数据包过滤、封包处理（设置标志位、修改 TTL 等）、地址伪装、网络地址转换、透明代理、访问控制、基于协议类型的连接跟踪，带宽限速，等等，都是在 Netfilter 基础之上实现的。</p>
+<p>以 Netfilter 为基础的应用有很多，其中使用最广泛的毫无疑问要数 Xtables 系列工具，譬如iptables 、ebtables、arptables、ip6tables 等等。</p>
+<p>以下列出了部分 iptables 预置的行为：</p>
+<ul>
+<li>DROP：直接将数据包丢弃。</li>
+<li>REJECT：给客户端返回 Connection Refused 或 Destination Unreachable 报文。</li>
+<li>QUEUE：将数据包放入用户空间的队列，供用户空间的程序处理。</li>
+<li>RETURN：跳出当前链，该链里后续的规则不再执行。</li>
+<li>ACCEPT：同意数据包通过，继续执行后续的规则。</li>
+<li>JUMP：跳转到其他用户自定义的链继续执行。</li>
+<li>REDIRECT：在本机做端口映射。</li>
+<li>MASQUERADE：地址伪装，自动用修改源或目标的 IP 地址来做 NAT</li>
+<li>LOG：在/var/log/messages 文件中记录日志信息。</li>
+</ul>
+<p>iptables 内置了五张不可扩展的规则表（其中 security 表并不常用，很多资料只计算了前四张表），如下所列：</p>
+<ul>
+<li>raw 表：用于去除数据包上的连接追踪机制（Connection Tracking）。</li>
+<li>mangle 表：用于修改数据包的报文头信息，如服务类型（Type Of Service，ToS）、生存周期（Time to Live，TTL）以及为数据包设置 Mark 标记，典型的应用是链路的服务质量管理（Quality Of Service，QoS）。</li>
+<li>nat 表：用于修改数据包的源或者目的地址等信息，典型的应用是网络地址转换（Network Address Translation）。</li>
+<li>filter 表：用于对数据包进行过滤，控制到达某条链上的数据包是继续放行、直接丢弃或拒绝（ACCEPT、DROP、REJECT），典型的应用是防火墙。</li>
+<li>security 表：用于在数据包上应用SELinux，这张表并不常用。</li>
+</ul>
+<p>以上五张规则表是具有优先级的：raw→mangle→nat→filter→security，也即是上面列举它们的顺序<br>
+在 iptables 中新增规则时，需要按照规则的意图指定要存入到哪张表中，如果没有指定，默认将会存入 filter 表。<br>
+此外，每张表能够使用到的链也有所不同</p>
+</div></div>
+					</body>
+				</html>
+			

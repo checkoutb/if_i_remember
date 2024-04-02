@@ -1,0 +1,2810 @@
+
+				<!DOCTYPE html>
+				<html>
+					<head>
+						<meta charset="UTF-8">
+						<meta name="viewport" content="width=device-width, initial-scale=1" />
+						<link rel="stylesheet" href="pluginAssets/katex/katex.css"><link rel="stylesheet" href="pluginAssets/highlight.js/atom-one-light.css">
+						<title>C++</title>
+					</head>
+					<body>
+						<div class="exported-note"><div class="exported-note-title">C++</div>
+
+<style>
+		/* https://necolas.github.io/normalize.css/ */
+		html{line-height:1.15;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%}body{margin:0}
+		article,aside,footer,header,nav,section{display:block}h1{font-size:2em;margin:.67em 0}hr{box-sizing:content-box;height:0;overflow:visible}
+		pre{font-family:monospace,monospace;font-size:1em}a{background-color:transparent;-webkit-text-decoration-skip:objects}
+		b,strong{font-weight:bolder}small{font-size:80%}img{border-style:none}
+
+		body {
+			font-size: 15px;
+			color: #32373F;
+			word-wrap: break-word;
+			line-height: 1.6em;
+			background-color: #ffffff;
+			font-family: 'Avenir', 'Arial', sans-serif;
+			padding-bottom: 0px;
+			padding-top: 0px;
+		}
+		kbd {
+			border: 1px solid rgb(220, 220, 220);
+			box-shadow: inset 0 -1px 0 rgb(220, 220, 220);
+			padding: 2px 4px;
+			border-radius: 3px;
+			background-color: rgb(243, 243, 243);
+		}
+		::-webkit-scrollbar {
+			width: 7px;
+			height: 7px;
+		}
+		::-webkit-scrollbar-corner {
+			background: none;
+		}
+		::-webkit-scrollbar-track {
+			border: none;
+		}
+		::-webkit-scrollbar-thumb {
+			background: rgba(100, 100, 100, 0.3); 
+			border-radius: 5px;
+		}
+		::-webkit-scrollbar-track:hover {
+			background: rgba(0, 0, 0, 0.1); 
+		}
+		::-webkit-scrollbar-thumb:hover {
+			background: rgba(100, 100, 100, 0.7); 
+		}
+
+		
+
+		/* Remove top padding and margin from first child so that top of rendered text is aligned to top of text editor text */
+
+		#rendered-md > h1:first-child,
+		#rendered-md > h2:first-child,
+		#rendered-md > h3:first-child,
+		#rendered-md > h4:first-child,
+		#rendered-md > ul:first-child,
+		#rendered-md > ol:first-child,
+		#rendered-md > table:first-child,
+		#rendered-md > blockquote:first-child,
+		#rendered-md > img:first-child,
+		#rendered-md > p:first-child {
+			margin-top: 0;
+			padding-top: 0;
+		}
+		
+		p, h1, h2, h3, h4, h5, h6, ul, table {
+			margin-top: .6em;
+			margin-bottom: 1.35em;
+
+			/*
+				Adds support for RTL text in the note body. It automatically detects the direction using the content.
+				Issue: https://github.com/laurent22/joplin/issues/3991
+			*/
+			unicode-bidi: plaintext;
+		}
+
+		h1, h2, h3, h4, h5, h6, ul, table {
+			margin-bottom: 0.65em;
+		}
+
+		h1, h2, h3, h4, h5, h6 {
+			line-height: 1.5em;
+		}
+		h1 {
+			font-size: 1.5em;
+			font-weight: bold;
+			border-bottom: 1px solid #dddddd;
+			padding-bottom: .3em;
+		}
+		h2 {
+			font-size: 1.3em;
+			font-weight: bold;
+			padding-bottom: .1em; */
+		}
+		h3 {
+			font-size: 1.1em;
+			font-weight: bold;
+		}
+		h4, h5, h6 {
+			font-size: 1em;
+			font-weight: bold;
+		}
+
+		.exported-note-title {
+			font-size: 2em;
+			font-weight: bold;
+			margin-bottom: 0.8em;
+			line-height: 1.5em;
+			padding-bottom: .35em;
+			border-bottom: 1px solid #dddddd;
+		}
+
+		a {
+			color: #155BDA;
+		}
+		ul, ol {
+			padding-left: 0;
+			margin-left: 1.7em;
+		}
+		li {
+			margin-bottom: .4em;
+		}
+		li p {
+			margin-top: 0.2em;
+			margin-bottom: 0;
+		}
+
+		.resource-icon {
+			display: inline-block;
+			position: relative;
+			top: 0.3em;
+			text-decoration: none;
+			width: 1.2em;
+			height: 1.4em;
+			margin-right: 0.4em;
+			background-color:  #155BDA;
+		}
+    /* These icons are obtained from the wonderful ForkAwesome project by copying the src svgs 
+     * into the css classes below.
+     * svgs are obtained from https://github.com/ForkAwesome/Fork-Awesome/tree/master/src/icons/svg
+     * instead of the svg width, height property you must use a viewbox here, 0 0 1536 1792 is typically the actual size of the icon
+     * each line begins with the pre-amble -webkit-mask: url("data:image/svg+xml;utf8,
+     * and of course finishes with ");
+     * to precvent artifacts it is also necessary to include -webkit-mask-repeat: no-repeat;
+     * on the following line
+     * */
+		.fa-joplin {
+			/* Awesome Font file */
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M373.834 128C168.227 128 0 296.223 0 501.834v788.336C0 1495.778 168.227 1664 373.834 1664h788.336c205.608 0 373.83-168.222 373.83-373.83V501.834C1536 296.224 1367.778 128 1162.17 128zm397.222 205.431h417.424a7.132 7.132 0 0 1 7.132 7.133v132.552c0 4.461-3.619 8.073-8.077 8.073h-57.23c-24.168 0-43.768 19.338-44.284 43.374v2.377h-.017v136.191h-.053l-.466 509.375c-5.02 77.667-39.222 149.056-96.324 201.046-60.28 54.834-141.948 85.017-229.962 85.017-12.45 0-25.208-.61-37.907-1.785-92.157-8.682-181.494-48.601-251.662-112.438-71.99-65.517-117.147-150.03-127.164-238-11.226-98.763 23.42-192.783 95.045-257.937 81.99-74.637 198.185-101.768 316.613-75.704 5.574 1.227 9.55 6.282 9.55 11.997v199.52c-.199 2.625-1.481 6.599-8.183 2.896-.663-.365-1.194-.511-1.653-.531-21.987-10.587-45.159-17.57-68.559-19.916-.38-.04-.757-.124-1.138-.163-.537-.048-1.034-.033-1.556-.075-4.13-.354-8.183-.517-12.203-.58-.87-.011-1.771-.127-2.641-.127-.486 0-.951.05-1.437.057-1.464.011-2.886.115-4.33.163-2.76.102-5.497.211-8.182.448-.273.024-.547.07-.835.097-25.509 2.4-47.864 11.104-65.012 25.47-.954.802-1.974 1.53-2.9 2.36a1.34 1.34 0 0 1-.168.146c-23.96 21.8-34.881 53.872-30.726 90.316 4.62 40.737 26.94 81.156 62.841 113.823 35.908 32.67 80.335 52.977 125.113 57.186 35.118 3.36 66.547-3.919 89.899-20.461a97.255 97.255 0 0 0 9.365-7.501c2.925-2.661 5.569-5.5 8.086-8.416.3-.348.672-.673.975-1.024 8.253-9.864 14.222-21.067 17.996-33.148.639-2.034 1.051-4.148 1.564-6.227.381-1.563.81-3.106 1.112-4.693.555-2.784.923-5.632 1.253-8.49.086-.709.183-1.414.237-2.128.492-4.893.693-9.858.55-14.91h.013V521.623c-2.01-22.626-20.78-40.434-43.928-40.434h-57.23a8.071 8.071 0 0 1-8.077-8.073V340.564a7.132 7.132 0 0 1 7.136-7.133z'/></svg>");
+		}
+		.fa-file-image {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zm-128-448v320H256v-192l192-192 128 128 384-384zm-832-192c-106 0-192-86-192-192s86-192 192-192 192 86 192 192-86 192-192 192z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-pdf {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zm-514-593c25 20 53 38 84 56 42-5 81-7 117-7 67 0 152 8 177 49 7 10 13 28 2 52-1 1-2 3-3 4v1c-3 18-18 38-71 38-64 0-161-29-245-73-139 15-285 46-392 83-103 176-182 262-242 262-10 0-19-2-28-7l-24-12c-3-1-4-3-6-5-5-5-9-16-6-36 10-46 64-123 188-188 8-5 18-2 23 6 1 1 2 3 2 4 31-51 67-116 107-197 45-90 80-178 104-262-32-109-42-221-24-287 7-25 22-40 42-40h22c15 0 27 5 35 15 12 14 15 36 9 68-1 3-2 6-4 8 1 3 1 5 1 8v30c-1 63-2 123-14 192 35 105 87 190 146 238zm-576 411c30-14 73-57 137-158-75 58-122 124-137 158zm398-920c-10 28-10 76-2 132 3-16 5-31 7-44 2-17 5-31 7-43 1-3 2-5 4-8-1-1-1-3-2-5-1-18-7-29-13-36 0 2-1 3-1 4zm-124 661c88-35 186-63 284-81-10-8-20-15-29-23-49-43-93-103-127-176-19 61-47 126-83 197-15 28-30 56-45 83zm646-16c-5-5-31-24-140-24 49 18 94 28 124 28 9 0 14 0 18-1 0-1-1-2-2-3z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-word {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zM233 768v107h70l164 661h159l128-485c5-15 8-30 10-46 1-8 2-16 2-24h4l3 24c3 14 4 30 9 46l128 485h159l164-661h70V768h-300v107h90l-99 438c-4 16-6 33-7 46l-2 21h-4c0-6-2-14-3-21-3-13-5-30-9-46L825 768H711l-144 545c-4 16-5 33-8 46l-4 21h-4l-2-21c-1-13-3-30-7-46l-99-438h90V768H233z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-powerpoint {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zm-992-234v106h327v-106h-93v-167h137c43 0 82-2 118-15 90-31 146-124 146-233s-54-193-137-228c-38-15-84-19-130-19H416v107h92v555h-92zm353-280H650V882h120c35 0 62 6 83 18 36 21 56 62 56 115 0 56-20 99-62 120-21 10-47 15-78 15z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-excel {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zm-979-234v106h281v-106h-75l103-161c12-19 18-34 21-34h2c1 4 3 7 5 10 4 8 10 14 17 24l107 161h-76v106h291v-106h-68l-192-273 195-282h67V768H828v107h74l-103 159c-12 19-21 34-21 33h-2c-1-4-3-7-5-10-4-7-9-14-17-23L648 875h76V768H434v107h68l189 272-194 283h-68z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-audio {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zM620 850c12 5 20 17 20 30v544c0 13-8 25-20 30-4 1-8 2-12 2-8 0-16-3-23-9l-166-167H288c-18 0-32-14-32-32v-192c0-18 14-32 32-32h131l166-167c10-9 23-12 35-7zm417 689c19 0 37-8 50-24 83-102 129-231 129-363s-46-261-129-363c-22-28-63-32-90-10-28 23-32 63-9 91 65 80 100 178 100 282s-35 202-100 282c-23 28-19 68 9 90 12 10 26 15 40 15zm-211-148c17 0 34-7 47-20 56-60 87-137 87-219s-31-159-87-219c-24-26-65-27-91-3-25 24-27 65-2 91 33 36 52 82 52 131s-19 95-52 131c-25 26-23 67 2 91 13 11 29 17 44 17z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-video {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zM768 768c70 0 128 58 128 128v384c0 70-58 128-128 128H384c-70 0-128-58-128-128V896c0-70 58-128 128-128h384zm492 2c12 5 20 17 20 30v576c0 13-8 25-20 30-4 1-8 2-12 2-8 0-17-3-23-9l-265-266v-90l265-266c6-6 15-9 23-9 4 0 8 1 12 2z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-archive {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M640 384V256H512v128h128zm128 128V384H640v128h128zM640 640V512H512v128h128zm128 128V640H640v128h128zm700-388c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H768v128H640V128H128v1536h1280zM781 943c85 287 107 349 107 349 5 17 8 34 8 52 0 111-108 192-256 192s-256-81-256-192c0-18 3-35 8-52 0 0 21-62 120-396V768h128v128h79c29 0 54 19 62 47zm-141 465c71 0 128-29 128-64s-57-64-128-64-128 29-128 64 57 64 128 64z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-code {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zM480 768c11-14 31-17 45-6l51 38c14 11 17 31 6 45l-182 243 182 243c11 14 8 34-6 45l-51 38c-14 11-34 8-45-6l-226-301c-8-11-8-27 0-38zm802 301c8 11 8 27 0 38l-226 301c-11 14-31 17-45 6l-51-38c-14-11-17-31-6-45l182-243-182-243c-11-14-8-34 6-45l51-38c14-11 34-8 45 6zm-620 461c-18-3-29-20-26-37l138-831c3-18 20-29 37-26l63 10c18 3 29 20 26 37l-138 831c-3 18-20 29-37 26z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file-alt, .fa-file-csv {
+      /* fork-awesome doesn't have csv so we use the text icon */
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280zM384 800c0-18 14-32 32-32h704c18 0 32 14 32 32v64c0 18-14 32-32 32H416c-18 0-32-14-32-32v-64zm736 224c18 0 32 14 32 32v64c0 18-14 32-32 32H416c-18 0-32-14-32-32v-64c0-18 14-32 32-32h704zm0 256c18 0 32 14 32 32v64c0 18-14 32-32 32H416c-18 0-32-14-32-32v-64c0-18 14-32 32-32h704z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		.fa-file {
+			-webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1536 1792' xmlns='http://www.w3.org/2000/svg'><path d='M1468 380c37 37 68 111 68 164v1152c0 53-43 96-96 96H96c-53 0-96-43-96-96V96C0 43 43 0 96 0h896c53 0 127 31 164 68zm-444-244v376h376c-6-17-15-34-22-41l-313-313c-7-7-24-16-41-22zm384 1528V640H992c-53 0-96-43-96-96V128H128v1536h1280z'/></svg>");
+      -webkit-mask-repeat: no-repeat;
+		}
+		blockquote {
+			border-left: 4px solid rgb(220, 220, 220);
+			padding-left: 1.2em;
+			margin-left: 0;
+			opacity: 0.7;
+		}
+
+		.jop-tinymce table,
+		table {
+			text-align: left;
+			border-collapse: collapse;
+			border: 1px solid rgb(220, 220, 220);
+			background-color: #ffffff;
+		}
+
+		.jop-tinymce table td, .jop-tinymce table th,
+		table td, th {
+			text-align: left;
+			padding: .5em 1em .5em 1em;
+			font-size: 15;
+			color: #32373F;
+			font-family: 'Avenir', 'Arial', sans-serif;
+		}
+
+		.jop-tinymce table td,
+		table td {
+			border: 1px solid rgb(220, 220, 220);
+		}
+
+		.jop-tinymce table th,
+		table th {
+			border: 1px solid rgb(220, 220, 220);
+			border-bottom: 2px solid rgb(220, 220, 220);
+			background-color: rgb(247, 247, 247);
+		}
+
+		.jop-tinymce table tr:nth-child(even),
+		table tr:nth-child(even) {
+			background-color: rgb(247, 247, 247);
+		}
+
+		.jop-tinymce table tr:hover,
+		table tr:hover {
+			background-color: #e5e5e5;
+		}
+
+		hr {
+			border: none;
+			border-bottom: 2px solid #dddddd;
+		}
+		img {
+			max-width: 100%;
+			height: auto;
+		}
+		
+		.inline-code,
+		.mce-content-body code {
+			border: 1px solid rgb(220, 220, 220);
+			background-color: rgb(243, 243, 243);
+			padding-right: .2em;
+			padding-left: .2em;
+			border-radius: .25em;
+			color: rgb(0,0,0);
+			font-size: .9em;
+		}
+
+		.highlighted-keyword {
+			background-color: #F3B717;
+			color: black;
+		}
+
+		.not-loaded-resource img {
+			width: 1.15em;
+			height: 1.15em;
+			background: white;
+			padding: 2px !important;
+			border-radius: 2px;
+			box-shadow: 0 1px 3px #000000aa;
+		}
+
+		a.not-loaded-resource img {
+			margin-right: .2em;
+		}
+
+		a.not-loaded-resource {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+		}
+
+		.md-checkbox input[type=checkbox]:checked {
+			opacity: 0.7;
+		}
+
+		.jop-tinymce ul.joplin-checklist .checked,
+		.md-checkbox .checkbox-label-checked {
+			opacity: 0.5;
+		}
+
+		.exported-note {
+			padding: 1em;
+		}
+
+		.joplin-editable .joplin-source {
+			display: none;
+		}
+
+		mark {
+			background: #F7D26E;
+			color: black;
+		}
+
+		/* =============================================== */
+		/* For TinyMCE */
+		/* =============================================== */
+
+		.mce-content-body {
+			/* Note: we give a bit more padding at the bottom, to allow scrolling past the end of the document */
+			padding: 5px 10px 10em 0;
+		}
+
+		/*
+		.mce-content-body code {
+			background-color: transparent;
+		}
+		*/
+
+		.mce-content-body [data-mce-selected=inline-boundary] {
+			background-color: transparent;
+		}
+
+		.mce-content-body .joplin-editable {
+			cursor: pointer !important;
+		}
+
+		.mce-content-body.mce-content-readonly {
+			opacity: 0.5;
+		}
+
+		/* We need that to make sure click events have the A has a target */
+		.katex a span {
+			pointer-events: none;
+		}
+
+		.media-player {
+			width: 100%;
+			margin-top: 10px;
+		}
+
+		.media-player.media-pdf {
+			min-height: 35rem;
+			width: 100%;
+			max-width: 1000px;
+			margin: 0;
+			border: 0;
+			display: block;
+		}
+
+		/* Clear the CODE style if the element is within a joplin-editable block */
+		.mce-content-body .joplin-editable code {
+			border: none;
+			background: none;
+			padding: 0;
+			color: inherit;
+			font-size: inherit;
+		}
+
+		/* To make code blocks horizontally scrollable */
+		/* https://github.com/laurent22/joplin/issues/5740 */
+		pre.hljs {
+			overflow-x: auto;
+		}
+
+		/* =============================================== */
+		/* For TinyMCE */
+		/* =============================================== */
+
+		@media print {
+			body {
+				height: auto !important;
+			}
+
+			pre {
+				white-space: pre-wrap;
+			}
+
+			.code, .inline-code {
+				border: 1px solid #CBCBCB;
+			}
+
+			#joplin-container-content {
+				/* The height of the content is set dynamically by JavaScript (in updateBodyHeight) to go
+				   around various issues related to scrolling. However when printing we don't want this
+				   fixed size as that would crop the content. So we set it to auto here. "important" is
+				   needed to override the style set by JavaScript at the element-level. */
+				height: auto !important;
+			}
+		}
+	
+
+				/*
+					FOR THE MARKDOWN EDITOR
+				*/
+
+				/* Remove the indentation from the checkboxes at the root of the document
+				   (otherwise they are too far right), but keep it for their children to allow
+				   nested lists. Make sure this value matches the UL margin. */
+
+				li.md-checkbox {
+					list-style-type: none;
+				}
+
+				li.md-checkbox input[type=checkbox] {
+					margin-left: -1.71em;
+					margin-right: 0.7em;
+				}
+				
+				ul.joplin-checklist {
+					list-style:none;
+				}
+
+				/*
+					FOR THE RICH TEXT EDITOR
+				*/
+
+				ul.joplin-checklist li::before {
+					content:"\f14a";
+					font-family:"Font Awesome 5 Free";
+					background-size: 16px 16px;
+					pointer-events: all;
+					cursor: pointer;
+					width: 1em;
+					height: 1em;
+					margin-left: -1.3em;
+					position: absolute;
+					color: #32373F;
+				}
+
+				.joplin-checklist li:not(.checked)::before {
+					content:"\f0c8";
+				}</style><div id="rendered-md"><p>C++<br>
+2023年4月8日<br>
+18:21</p>
+<nav class="table-of-contents"><ul><li><a href="#c-memory-order循序渐进一-多核编程和memory-model">C++ memory order循序渐进（一）—— 多核编程和memory model</a><ul><li><a href="#memory-model">Memory model</a><ul><li><a href="#compiler-barrier-和-runtime-memory-barrier">Compiler Barrier  和  Runtime Memory Barrier</a></li></ul></li><li><a href="#c的六种memory_order">C++的六种memory_order</a><ul><li><a href="#memory_order_relaxed">memory_order_relaxed</a></li><li><a href="#memory_order_consume">memory_order_consume</a></li><li><a href="#memory_order_acquire">memory_order_acquire</a></li><li><a href="#memory_order_release">memory_order_release</a></li><li><a href="#memory_order_acq_rel">memory_order_acq_rel</a></li><li><a href="#memory_order_seq_cst">memory_order_seq_cst</a></li></ul></li><li><a href="#形式化定义用到的术语和关系">形式化定义用到的术语和关系</a><ul><li><a href="#sequenced-before">Sequenced-before</a></li><li><a href="#carries-dependency">Carries dependency</a></li><li><a href="#modification-order">Modification order</a></li><li><a href="#release-sequence">Release sequence</a></li><li><a href="#synchronizes-with">Synchronizes-with</a></li><li><a href="#dependency-ordered-before">Dependency-ordered before</a></li><li><a href="#inter-thread-happens-before">Inter-thread happens-before</a></li><li><a href="#happens-before">Happens-before</a></li><li><a href="#visible-side-effects">Visible side-effects</a></li></ul></li></ul></li><li><a href="#原子变量上组合应用memory-order实现不同的内存序">原子变量上组合应用memory order实现不同的内存序</a><ul><li><a href="#relaxed-ordering">Relaxed ordering</a></li><li><a href="#release-acquire-ordering">Release-Acquire ordering</a></li><li><a href="#release-consume-ordering">Release-Consume ordering</a></li><li><a href="#sequentially-consistent-ordering">Sequentially-consistent ordering</a></li><li><a href="#atomic_thread_fence分类和效果">atomic_thread_fence分类和效果</a></li><li><a href="#release-fence">Release fence</a></li><li><a href="#acquire-fence">acquire fence</a></li><li><a href="#full-fence">full fence</a></li><li><a href="#fence和同样memory-order的原子操作同步效果的区别">fence和同样memory order的原子操作同步效果的区别</a></li><li><a href="#利用atomic_thread_fence进行release-acquire同步">利用atomic_thread_fence进行release acquire同步</a></li><li><a href="#release-fence-atomic-acquire-同步">release fence - atomic acquire 同步</a></li><li><a href="#atomic-release-acquire-fence-同步">atomic release- acquire fence 同步</a></li><li><a href="#release-fence-acquire-fence-同步">release fence - acquire fence 同步</a></li><li><a href="#利用atomic_thread_fence进行sequentially-consistent-同步">利用atomic_thread_fence进行Sequentially-consistent 同步</a></li><li><a href="#fence同步实例">fence同步实例</a></li><li><a href="#x86-64-c-memory_order和指令对照">x86-64 C++ memory_order和指令对照</a></li><li><a href="#armv8aarch64部分-c-memory_order和指令对照">ARMv8（AArch64部分） C++ memory_order和指令对照</a></li></ul></li><li><a href="#无锁编程介绍">无锁编程介绍</a><ul><li><a href="#无锁编程是什么">无锁编程是什么</a></li><li><a href="#无锁编程技术">无锁编程技术</a></li><li><a href="#原子的-read-modify-write-操作">原子的 Read-Modify-Write 操作</a></li><li><a href="#compare-and-swap-循环">Compare-And-Swap 循环</a></li><li><a href="#顺序一致性">顺序一致性</a></li><li><a href="#memory-ordering">Memory Ordering</a></li><li><a href="#different-processors-have-different-memory-models">Different Processors Have Different Memory Models</a></li></ul></li><li><a href="#xbox-360-和-microsof-windows-的无锁编程注意事项">《Xbox 360 和 Microsof Windows 的无锁编程注意事项》</a><ul><li><a href="#使用锁编程">使用锁编程</a></li><li><a href="#无锁编程">无锁编程</a></li><li><a href="#非原子操作">非原子操作</a></li><li><a href="#保证原子性">保证原子性</a></li><li><a href="#重组">重组</a></li><li><a href="#了解写入的-cpu-重新排列">了解写入的 CPU 重新排列</a><ul><li><a href="#xbox-360">Xbox 360</a></li><li><a href="#x86-和-x64">x86 和 x64</a></li></ul></li><li><a href="#了解读取的-cpu-重新排列">了解读取的 CPU 重新排列</a><ul><li><a href="#xbox-360-1">Xbox 360</a></li><li><a href="#x86-和-x64-1">x86 和 x64</a></li></ul></li><li><a href="#其他重新排序">其他重新排序</a></li><li><a href="#重新排序摘要">重新排序摘要</a></li><li><a href="#read-acquire和write-release障碍">Read-Acquire和Write-Release障碍</a></li><li><a href="#阻止编译器重新排序">阻止编译器重新排序</a></li><li><a href="#防止-cpu-重新排序">防止 CPU 重新排序</a></li><li><a href="#互锁函数和-cpu-重新排序">互锁函数和 CPU 重新排序</a></li><li><a href="#可变变量和重新排序">可变变量和重新排序</a></li><li><a href="#lock-free数据管道的示例">Lock-Free数据管道的示例</a></li><li><a href="#xbox-360性能">Xbox 360性能</a></li><li><a href="#windows-性能">Windows 性能</a></li><li><a href="#性能思考">性能思考</a></li><li><a href="#平台差异摘要">平台差异摘要</a></li><li><a href="#建议">建议</a></li></ul></li><li><a href="#浅谈c-11-无锁并发风险指针">浅谈：C++ 11 无锁并发——风险指针</a><ul><li><a href="#风险指针的形象比喻">风险指针的形象比喻</a></li><li><a href="#风险指针的具体实现和工作原理">风险指针的具体实现和工作原理</a></li></ul></li><li><a href="#lock-free-algo">Lock Free Algo</a></li><li><a href="#无锁编程技术一">无锁编程技术（一）</a><ul><li><a href="#锁为什么低效">锁为什么低效</a></li><li><a href="#lock-free">lock free</a></li><li><a href="#lock-free-缺点">lock free 缺点</a></li></ul></li><li><a href="#无锁编程-1">无锁编程</a><ul><li><a href="#活锁死锁">活锁，死锁</a></li><li><a href="#饥饿">饥饿</a></li><li><a href="#优先级反转">优先级反转</a><ul><li><a href="#解决方案">解决方案</a></li></ul></li><li><a href="#护航现象lock-convoys">护航现象（Lock Convoys）</a></li><li><a href="#自旋锁">自旋锁</a></li><li><a href="#pthread与tbb中各种锁的对比测试">pthread与tbb中各种锁的对比测试</a><ul><li><a href="#pthread_mutex_t-pthread_spinlock_t-pthread_rwlock_t">pthread_mutex_t, pthread_spinlock_t, pthread_rwlock_t。</a></li><li><a href="#tbb中提供的锁有">TBB中提供的锁有：</a></li></ul></li><li><a href="#无锁">无锁</a><ul><li><a href="#为什么要无锁界定问题">为什么要无锁?（界定问题）</a><ul><li><a href="#首先是性能考虑">首先是性能考虑</a></li><li><a href="#其次是避免锁的使用引起的错误和问题">其次是避免锁的使用引起的错误和问题：</a></li></ul></li><li><a href="#如何无锁界定问题">如何无锁?（界定问题）</a></li><li><a href="#cas等原子操作">CAS等原子操作</a><ul><li><a href="#gcc的cas">GCC的CAS</a></li><li><a href="#windows的cas">Windows的CAS</a></li><li><a href="#c11中的cas">C++11中的CAS</a></li></ul></li><li><a href="#无锁队列的链表实现">无锁队列的链表实现</a></li><li><a href="#aba问题">ABA问题</a><ul><li><a href="#解决aba的问题">解决ABA的问题</a></li></ul></li><li><a href="#用数组实现无锁队列">用数组实现无锁队列</a></li><li><a href="#小结">小结</a></li></ul></li></ul></li><li><a href="#值得学习的c语言开源项目">值得学习的C语言开源项目</a></li></ul></nav><p>==================<br>
+6个内存序，3种类型</p>
+<hr>
+<p><a data-from-md title='https://blog.csdn.net/wxj1992/article/details/103649056' href='https://blog.csdn.net/wxj1992/article/details/103649056'>https://blog.csdn.net/wxj1992/article/details/103649056</a></p>
+<h1 id="c-memory-order循序渐进一-多核编程和memory-model">C++ memory order循序渐进（一）—— 多核编程和memory model</h1>
+<p>C++ 11标准正式引入的memory order</p>
+<p>一个典型的多核CPU架构：</p>
+<p><img src="../_resources/c7dd06feddced239c9308f9b1d75ee67.png" alt="在这里插入图片描述"></p>
+<p>。。不过我baidu  了下，主要是  上图中  它就  2级cache。。<br>
+下面这个应该更准。。而且上面的  RAM 512m  。。</p>
+<p><img src="../_resources/71c553ffdc8a08c99ac1441d6d727b80.png" alt="在这里插入图片描述"></p>
+<p>。。</p>
+<p>现代cpu使用的是一套包括MESI协议、store buffer、invalid queue等技术在内的数据同步方式，以及流水线乱序的执行模式，数据在各个核之间的一致性和可见性并不是那么理想，再加上编译器也会做优化，最终的结果就是各个核的指令执行顺序和各个变量值的可见性变得不确定，从某种意义上都可以统称为重排</p>
+<p>。。MESI：  modify, exclusive, share, invalid。修改，独占，共享，无效，代表了  高速缓存行  的4种状态。</p>
+<p>cpu和编译器也是有底线的，无论产生什么样的重排，都会保证对于单线程内部的执行结果不会有任何区别，但是进入多核时代后，原本人畜无害的重排可能会出现大问题，因为单个核的内部的执行和优化并不会考虑和其他的核互动</p>
+<p>例如：<br>
+// thread 1<br>
+p.init();<br>
+ready = true;</p>
+<p>// thread 2<br>
+if (ready) { p.bar(); }</p>
+<p>thread 1  中，p  和  ready  没有关联，所以可以被重排序。</p>
+<p>锁，很方便，可以在不了解太多底层的情况下  写出正确的并发代码。但是   并发高时，容易成为  瓶颈。</p>
+<p>多核编程中的临界区保护<br>
+并发编程中最核心的技术：临界区保护<br>
+对于临界区保护通常可以分为三个级别：互斥、lock-free和wait-free。</p>
+<p>互斥锁<br>
+悲观锁算法<br>
+阻塞等待<br>
+阻塞传播</p>
+<p>lockfree<br>
+Lock free programing<br>
+非阻塞算法<br>
+乐观锁算法<br>
+有着不同的表述方式</p>
+<p>如果涉及到共享内存的多线程代码在多线程执行下不可能互相影响导致被hang住，不管OS如何调度线程，至少有一个线程在做有用的事，那么就是lock-free。前面讲到了使用了锁的代码肯定不是lock free，因为一个线程加锁后如果被系统切出去了其他所有线程都处于等待中。</p>
+<p>lock-free需要处理更多更复杂的race condition和ABA等问题，编写出合理的lock-free代码也需要更深厚的功底，需要对底层有更多地了解，完成相同目的的代码会比用锁更复杂，执行时间可能更长，代码也更难理解。很多场景合理地使用锁就能很好的胜任，lock-free和锁之间在应用场景上更多的是一种互补的关系。lock-free算法的价值在于其保证了一个或所有线程始终在做有用的事，而不是绝对的高性能。但lock-free相较于锁在并发度高（竞争激烈导致上下文切换开销变得突出）的某些场景下会有很大的性能优势，比如实现一个多线程的lock-free queue，总的来说，在多核环境下，lock-free是很有意义的。</p>
+<p>wait-free<br>
+解决了临界区内的阻塞传播问题<br>
+但是本质上，依然是多个线程排队顺序经过临界区<br>
+wait-free级别和lock-free的主要区别也就体现在这个吞吐的问题上<br>
+虽然理论角度存在不少有Wait Free级别的算法，但大多并不具备工业使用价值</p>
+<p>比较有实际意义的Wait-Free Population Oblivious级别来说，额外限制了每个参与线程必须要在预先可给出的明确执行周期内完成，且这个周期不能和与参与线程数相关。这一点明确拒绝了一些类似线程间协作的方案（这些方案往往引起较大的缓存竞争），以及一些需要很长很长的有限步来完成的设计。时至今日各种数据结构上工业可用的wait-free算法依旧是一项持续探索中的领域。</p>
+<p>lock-free和wait-free编程既然要抛弃传统意义上的锁，那么往更底层走自然成为必然，其中最重要的两个相关技术就是原子操作和控制memory order。</p>
+<p>原子操作主要包括赋值原子操作、Read-Modify-Write（比如c++11里的fetch_add）、Compare-And-Swap(比如c++11里的compare_exchange_strong)。原子操作保证了各线程在进行共享内存的存取的时候能读到完整的值。</p>
+<p>对于cpu来说，执行代码对内存的操作就形成了memory order，而这个order受编译器和cpu运行时重排的影响，当然这两种重排是有方法可以限制的。，显示的锁在底层实现上往往通过手段保证了一些顺序和可见性，因为无锁算法没有显式的锁，将会直接观察到这些和代码顺序不一致的重排，给无锁算法的实现带来了挑战。</p>
+<p>c++的memory oder更多则是一种约定和方法，给程序员提供了一种跨平台的通用方法来限制上述两种重排，这也极大地方便了我们实现无锁算法，在此之前，c++程序员如果想要限制重排，通常需要手动根据不同的平台选择使用特定的内存屏障指令。</p>
+<p>关于程序运行时的memory order，重点提一下sequential consistency，假设没有重排，那么就是sequential consistency的内存序，也就是顺序一致，所有的线程都能看到一样的内存修改顺序，同时这个顺序和程序的源码是一致的，也就是各线程的内存操作是按顺序交织的，这种memory order下，程序的行为很好预期，但目前没有任何主流cpu默认提供sequential consistency保证，也就是都可能会进行不同程度的指令重排，最终会出现什么样的memory oder，则是由对应的memory model决定的。</p>
+<h2 id="memory-model">Memory model</h2>
+<p>某个处理器或者工具链对于代码的重排会严格遵循对应的memory model，什么情况可以重排、什么情况不能重排。这里强调一点，这里讨论的重排只是针对单个线程内部在单个核内的指令的执行顺序问题。本质上，可以理解为我们指定memory_order，就是通过限制重排来来保证共享数据的可见性和正确同步。</p>
+<p>reorder类型和Memory model的强弱<br>
+对内存的操作可以概括为读和写，也就是load和store，因此reorder也就可以整体上分为以下四种类型：<br>
+（1）Loadload reorder：两个读操作之间重排<br>
+（2）Loadstore reorder：原来在写操作之前的读操作重排到之后<br>
+（3）Storeload reorder：原来在读操作之前的写操作重排到之后<br>
+（4）Storestore reorder：两个写操作之间重排</p>
+<p>DEC Alpha，四种reorder都有可能发生，只要不改变单线程内部的执行正确性。<br>
+。查了下  DEC Alpha，上世纪的，  RISC CPU。  技术很强，但是商业。。。</p>
+<p>ARM架构的cpu则是在此基础上额外保证了数据依赖顺序。</p>
+<p>X86/X64这种就属于强memory model的范畴了，此类平台只可能发生Storeload reorder。</p>
+<h3 id="compiler-barrier-和-runtime-memory-barrier">Compiler Barrier  和  Runtime Memory Barrier</h3>
+<p>无论是哪种memory model，hardware memory model还是 software memory model，上面说到的这些可能的重排都是指的在没有其他限制的情况，为了能够保证程序的正确性，CPU和编译器（语言）的设计者都给我们留了手段来改变这些重排，这类手段可以抽象成一个统一的概念barrier，屏障。无论上面提到的那些memory model是定义在哪个层面的，要想限制重排，具体到最后的程序的编写、编译、运行步骤，总是需要程序员用代码来限制编译阶段和运行阶段的重排，因此可以分为Compiler Barrier和runtime memory barrier。</p>
+<p>Compiler Barrier，顾名思义，编译器层面的屏障，可以防止编译器在将源码转换成机器码的过程中重排，一个例子如下<br>
+int a, b;<br>
+void foo()<br>
+{<br>
+a = b + 1;<br>
+b = 0;<br>
+}<br>
+使用GCC 4.6.1  不开启优化  获得的汇编：<br>
+gcc -S -masm=intel foo.c<br>
+cat foo.s</p>
+<p>mov eax, DWORD PTR _b (redo this at home…)<br>
+add eax, 1<br>
+mov DWORD PTY _a, eax<br>
+mov DWORD PTY _b, 0</p>
+<p>开启优化后：<br>
+gcc -O2 -S -masm=intel foo.c<br>
+cat foo.s</p>
+<p>mov eax, DWORD PTY b<br>
+mov DWORD PTR b, 0<br>
+add eax, 1<br>
+mov DWORD PTR a, eax</p>
+<p>出现了重排。<br>
+。。不过，这个重排有什么意义？</p>
+<p>不想重排，就可以使用  Compiler Barrier，  GCC中，  asm volatile(&quot;&quot; ::: &quot;memory&quot;)  就是一个  compiler barrier</p>
+<p>int a, b;<br>
+void foo()<br>
+{<br>
+a = b + 1;<br>
+asm volatile(&quot;&quot; ::: &quot;memory&quot;);<br>
+b = 0;<br>
+}<br>
+开启优化  和  不开启优化，一样。</p>
+<p>asm volatile(&quot;&quot; ::: “memory”)是显式的Compiler Barrier，它只能保证编译阶段不重排，在多核系统里，光做到这一点还不够，因为它没法对cpu核心运行时的重排做出限制</p>
+<p>runtime memory barrier是限制运行时重排的手段，通常是通过特定的CPU 指令来实现，上面提到了重排基本可以分为四种类型，因此对应的barrier也有四种</p>
+<p>（1）Loadload barrier：保证barrier前的读操作比barrier后的读操作先完成。<br>
+（2）Loadstore barrier：保证barrier前的读操作比barrier后的写操作先完成。<br>
+（3）Storeload barrier：保证barrier前的写操作比barrier后的读操作先完成。<br>
+（4）Storestore barrier：保证barrier前的写操作比barrier后的写操作先完成。</p>
+<p>以GCC为例，GCC对于PowerPC，定义了一个宏：<br>
+#define RELEASE_FENCE() asm volatile(“lwsync” ::: “memory”)</p>
+<p>lwsync是PowerPC平台的一个cpu指令，可以限制运行时重排，它同时具有LoadLoad barrier, LoadStore barrier StoreStore barrier的效果。具有runtime memory barrier的效果，而且需要重点注意的是，一旦在代码里插入了RELEASE_FENCE()，除了会插入一条lwsync指令限制运行时重排之外，它也会阻止编译器编译阶段重排，也就是说，RELEASE_FENCE()不光是runtime memory barrier ，也是隐式的Compiler Barrier。</p>
+<hr>
+<p><a data-from-md title='https://blog.csdn.net/wxj1992/article/details/103656486' href='https://blog.csdn.net/wxj1992/article/details/103656486'>https://blog.csdn.net/wxj1992/article/details/103656486</a></p>
+<p>C++ memory order基本定义和形式化描述所需术语关系详解</p>
+<h2 id="c的六种memory_order">C++的六种memory_order</h2>
+<h3 id="memory_order_relaxed">memory_order_relaxed</h3>
+<p>宽松的内存序，使用这个内存序的原子操作就真的仅仅是保证自身的原子性，不会对任何其他变量的读写产生影响。如果确实不需要其他的内存同步，那么这是最好的选择，比如原子计数器。</p>
+<h3 id="memory_order_consume">memory_order_consume</h3>
+<p>memory_order_consume适用于load operation（原子读操作），对于采用此内存序的load operation，我们可以称为consume operation</p>
+<p>对周围内存序的影响是：当前线程中该consume operation后的依赖该consume operation读取的值的load 或strore不能被重排到该consume operation前，其他线程中所有对M的release operation（下面memory_order_release讲到的）及其之前的对数据依赖变量的写入都对当前线程从该consume operation开始往后的操作可见</p>
+<p>相比较于下面讲的memory_order_acquire，memory_order_consume只是阻止了之后有依赖关系的重排。</p>
+<p>绝大部分平台上，这个内存序只会影响到编译器优化，依赖于dependency chain。但实际上很多编译器都没有正确地实现consume，导致等同于acquire。</p>
+<h3 id="memory_order_acquire">memory_order_acquire</h3>
+<p>memory_order_acquire适用于load operation，对于采用此内存序的load operation，我们可以称为acquire operation</p>
+<p>对周围内存序的影响是：当前线程中该acquire operation后的load 或strore不能被重排到该acquire operation前，结合下面的memory_order_release我们能推导出从而会有其他线程中所有对M的release operation及其之前的写入都对当前线程从该acquire operation开始往后的操作可见。</p>
+<p>。这个不需要  依赖load  的值。  所以是  所有的  后续  load store  都不能  重排到这个前面。</p>
+<h3 id="memory_order_release">memory_order_release</h3>
+<p>memory_order_release适用于store operation（原子写操作），对于采用此内存序的store operation，我们可以称为release operation</p>
+<p>对周围内存序的影响是：该release operation前的内存读写都不能重排到该release operation之后。结合memory_order_acquire的作用从而有：</p>
+<p>当前线程截止到该release operation的所有内存写入都对另外线程对M的acquire operation以及之后的内存操作可见，这就是release acquire 语义。</p>
+<p>当前线程截止到该operation的所有M所依赖的内存写入都对另外线程对M的consume operation以及之后的内存操作可见，这就是release consume语义。</p>
+<h3 id="memory_order_acq_rel">memory_order_acq_rel</h3>
+<p>memory_order_acq_rel适用于read-modify-write operation，对于采用此内存序的read-modify-write operation，我们可以称为acq_rel operation，既属于acquire operation 也是release operation.</p>
+<p>设有一个原子变量M上的acq_rel operation：自然的，因为同时具有两种属性，所以该acq_rel operation之前的内存读写都不能重排到该acq_rel operation之后，该acq_rel operation之后的内存读写都不能重排到该acq_rel operation之前. 其他线程中所有对M的release operation及其之前的写入都对当前线程从该acq_rel operation开始的操作可见，并且截止到该acq_rel operation的所有内存写入都对另外线程对M的acquire operation以及之后的内存操作可见。</p>
+<h3 id="memory_order_seq_cst">memory_order_seq_cst</h3>
+<p>memory_order_seq_cst 可以用于 load operation，release operation, read-modify-write operation三种操作，<br>
+用于 load operation的时候有acquire operation的特性，<br>
+用于 store operation的时候有release operation的特性,<br>
+用于 read-modify-write operation的时候有acq_rel operation的特性，<br>
+除此之外，有个很重要的附加特性，一个单独全序，也就是所有的线程会观察到一致的内存修改顺序，也就是第一篇博客提到的顺序一致性的强保证。</p>
+<p>这里所谓的指定内存序，指的是对执行语句所在的 <strong>线程内部</strong> 的限制，也就是只影响一个cpu核心，但是这些对<strong>单线程</strong>内部的限制<strong>组合</strong>起来就能实现<strong>多线程</strong>之间数据同步的效果，我们利用的就是各种内存序之间的组合效果来保证程序在实际运行时候的正确memory order</p>
+<h2 id="形式化定义用到的术语和关系">形式化定义用到的术语和关系</h2>
+<h3 id="sequenced-before">Sequenced-before</h3>
+<p>定义的是同一个线程内的一种根据表达式求值顺序来的一种关系，完整的规则定义很复杂，可以参考 <a data-from-md title='http://en.cppreference.com/w/cpp/language/eval_order' href='http://en.cppreference.com/w/cpp/language/eval_order'>http://en.cppreference.com/w/cpp/language/eval_order</a> ，其中最直观常用的一条规则简单来说如下：<strong>每一个完整表达式的值计算和副作用都Sequenced-before于下一个完整表达式的值计算和副作用</strong>。从而也就有以分号结束的语语句Sequenced-before于下一个以分号结束的语句</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">    r2 = x.load(std::memory_order_relaxed); // C 
+    y.store(42, std::memory_order_relaxed); // D</pre><pre class="hljs"><code>    r<span class="hljs-number">2</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">x</span>.<span class="hljs-keyword">load</span>(std::memory_order_relaxed)<span class="hljs-comment">; // C </span>
+    y.<span class="hljs-keyword">store</span>(<span class="hljs-number">42</span><span class="hljs-punctuation">,</span> std::memory_order_relaxed)<span class="hljs-comment">; // D</span></code></pre></div>
+<p>有 C Sequenced-before D。</p>
+<h3 id="carries-dependency">Carries dependency</h3>
+<p>字面意思是携带依赖，描述的是有sequenced-before关系的求值操作之间的一种<strong>依赖关系</strong>，对于求值A和求值B，A Carries dependency into B的意思是B对A有依赖，在A sequenced-before B的前提下，如果：</p>
+<ul>
+<li>A是B的一个操作数</li>
+<li>A写入了某个标量对象（float、int、指针枚举等）M，B从M里读</li>
+<li>求值X依赖A，B依赖X</li>
+</ul>
+<p>那么我们说B依赖A。</p>
+<h3 id="modification-order">Modification order</h3>
+<p>字面意思是修改顺序，这个是针对原子变量的一个概念，对于c++里的原子变量，有个很重要的保证，那就是：对于任意特定的原子变量的所有修改操作都会以一个特定于该原子变量的全序发生，换句话说，不管是什么序的原子变量操作，针对原子变量本身是会有一个全序的，因此也保证了<strong>原子变量的操作</strong>在各线程之间有如下<strong>四个一致性</strong>（为了描述简洁下面说的读写都是针对某一个特定的原子变量）：</p>
+<ul>
+<li>写-写一致性：如果写A happens-before 写 B ，那么在Modification order中A 比B早出现</li>
+<li>读-读一致性：如果读A happens-before 读B, 并且如果 A 读到的是来自写X， 那么B读到的要么也是写X的值，要么是Modification order中比X后出现的一个写Y 的值.</li>
+<li>读-写一致性：如果读A happens-before 写B, 那么A读到的值来自于modification order 中的一个早于B出现的写X</li>
+<li>写-读一致性：如果一个写X happens-before 读B , 那么B读取的值可能来自写X或者modification order 中在X之后出现的写Y。</li>
+</ul>
+<h3 id="release-sequence">Release sequence</h3>
+<p>Release sequence，指的是某个原子变量M上由一个release operation开始的一个序列，正式定义如下：</p>
+<p>原子变量M上的release sequence headed by A指的是M的Modification order上的一个最大连续子序列，该序列由A开始，当前线程内对M的写操作（这个在c++20被去掉了，这里先忽略），以及其他线程对M的read-modify-write操作（test-and-set, fetch-and-add, compare-and-swap等）组成。</p>
+<p>对应的，有一个比较重要的release sequence rule，能够保证特定情况下多个acquire线程和个release操作形成Synchronizes-with关系，比如线程A release store，B fetch_sub，后面展开讲release acquire语义的时候会详细讲下，暂时了解Release sequence这个概念就行。</p>
+<h3 id="synchronizes-with">Synchronizes-with</h3>
+<p>同步关系，用来描述对内存的修改操作（包括原子和非原子操作）对其他线程可见，有一点需要注意，这是一个运行时的关系，也就是说不是代码层面的，代码只是让程序在运行的时候有可能建立这种关系，并且一旦建立了就有可见性的保证。简单来说，如果A和B建立了Synchronizes-with关系，那么A之前的内存修改对B之后都可见</p>
+<p>release 和 acquire就能够建立Synchronizes-with关系。</p>
+<p>。。但是怎么建立？这里看图，还是靠时序，需要 store 先发生，然后 load。如果 load 先发生，store 不可能同步。 。</p>
+<h3 id="dependency-ordered-before">Dependency-ordered before</h3>
+<p>这个关系是针对consume来的，对于分属不同线程的赋值A和赋值B，如果他们之间有以下关系之一：</p>
+<ul>
+<li>A对某个原子变量M做release操作，B对M做consume操作，并且B读到了release sequence headed by A中的任意一个值。这条就是上面说的release sequence rule的关键。</li>
+<li>A is dependency-ordered before X，并且 X carries dependency into B。前面说过了，carries dependency into是线程内的一种关系，这里就是X和B属于同一线程，并且B对X有依赖。</li>
+</ul>
+<p>我们就说 A dependency-ordered before B。</p>
+<h3 id="inter-thread-happens-before">Inter-thread happens-before</h3>
+<p>定义了线程间赋值操作之间的关系，假如有线程1中的赋值操作A，线程2中的赋值操作B，如果满足以下<strong>任意一条</strong>，那么有A inter-thread happens before B：</p>
+<ul>
+<li>A synchronizes-with B</li>
+<li>A dependency-ordered before B</li>
+<li>A synchronizes-with 某个 evaluation X, 并且 X sequenced-before B</li>
+<li>A sequenced-before 某个 evaluation X, and X inter-thread happens-before B</li>
+<li>A inter-thread happens-before 某个evaluation X,并且X inter-thread happens-before B</li>
+</ul>
+<p>虽然看上去有点繁琐，其实每一条都是很自然的，核心就是其中的<strong>传导关系</strong>，多线程编程中，两个操作如果能推导出Inter-thread happens-before的关系，那么内存修改的可见性是有保证的，换句话说就是不用担心重排带来的影响。</p>
+<h3 id="happens-before">Happens-before</h3>
+<p>特别重要的一个概念，定义的是两个evaluation（可以通俗地理解为包括读写在内地一些值操作）之间的一种关系，不管是线程内部还是线程之间，evaluation A和evaluation B如果满足下面两者条件之一，我们就说A Happens-before B：</p>
+<ul>
+<li>A sequenced-before B</li>
+<li>A inter-thread happens before B</li>
+</ul>
+<p>如果A Happens-before B，那么A对内存的修改将会在B操作之前对B可见，也就是下面讲到的Visible side-effects，<strong>我们利用memory_order就是为了确保某些evaluation操作之间有Happens-before关系</strong></p>
+<h3 id="visible-side-effects">Visible side-effects</h3>
+<p>先解释下涉及到的一个概念Scalar，指的是以下类型：</p>
+<ul>
+<li>arithmetic (integral, float)</li>
+<li>pointers: T * for any type T</li>
+<li>enum</li>
+<li>pointer-to-member</li>
+<li>nullptr_t</li>
+</ul>
+<p>可见副作用，通俗地讲就是写能被读看见，正式定义如下：<br>
+有对同一Scalar类型的M的写A和读B，如果满足同时满足下述两个条件那么A的副作用对B可见：</p>
+<ul>
+<li>A happens-before B。</li>
+<li>不存在一个对M有副作用的写X， A happens-before X 并且X happens-before B。</li>
+</ul>
+<p>换句话说，就是A和B有happens-before 关系，并且二者之间没有其他的写，否则可能会读到其他写的内容，从而A的副作用不保证对B可见。</p>
+<hr>
+<p><a data-from-md title='https://blog.csdn.net/wxj1992/article/details/103843971' href='https://blog.csdn.net/wxj1992/article/details/103843971'>https://blog.csdn.net/wxj1992/article/details/103843971</a></p>
+<h1 id="原子变量上组合应用memory-order实现不同的内存序">原子变量上组合应用memory order实现不同的内存序</h1>
+<p>有六种memory order，要达到数据同步的效果，需要进行组合使用，我们可以在两个地方指定memory order，一是<strong>atomic</strong>变量（原子变量）的操作，二是<strong>fence</strong>，利用fence可以不依赖原子变量进行同步，<br>
+本篇文章只介绍atomic上的memory order应用，关于不同memory order的fence使用后面引入fence的概念后再介绍。<br>
+总的来说，利用六种memory order的原子操作组合，主要可以得到以下几种内存序。</p>
+<h2 id="relaxed-ordering">Relaxed ordering</h2>
+<p>除了保证操作的原子性和对应原子变量的modification order，不会有任何额外的数据同步限制，也就是在保证 <mark>单线程</mark> 执行效果一致的情况下，编译器在编译时和cpu在运行时可以进行各种重排<br>
+对于以下代码，在c++ 11的标准下，是允许出现r1=42并且r2=42的，注意这里说的是标准允许，但是实际在不同的编译器和平台上可能并不能复现。</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">// Thread 1:
+r1 = y.load(std::memory_order_relaxed); // A
+x.store(r1, std::memory_order_relaxed); // B
+// Thread 2:
+r2 = x.load(std::memory_order_relaxed); // C 
+y.store(42, std::memory_order_relaxed); // D</pre><pre class="hljs"><code><span class="hljs-regexp">//</span> Thread <span class="hljs-number">1</span>:
+r1 = y.load(std::memory_order_relaxed); <span class="hljs-regexp">//</span> A
+x.store(r1, std::memory_order_relaxed); <span class="hljs-regexp">//</span> B
+<span class="hljs-regexp">//</span> Thread <span class="hljs-number">2</span>:
+r2 = x.load(std::memory_order_relaxed); <span class="hljs-regexp">//</span> C 
+y.store(<span class="hljs-number">42</span>, std::memory_order_relaxed); <span class="hljs-regexp">//</span> D</code></pre></div>
+<p>。。就是D 被重排到最前面？ 。 这种怎么能算 单线程 执行效果一致？ 是指 重排后 效果一致？ 但是CPU重排呢？二进制文件只是 编译器重排后的。<br>
+。。不，这个是 Thread 1， Thread 2。。<br>
+。。所以 D 被重排到 C 前面。 然后 D-A-B-C</p>
+<p>Relaxed序 通常 适用于一些 纯计数器类的场景。</p>
+<h2 id="release-acquire-ordering">Release-Acquire ordering</h2>
+<p>Release-Acquire 序，也就是我们通常说的 Release-Acquire 语义，也是 最常用的一种序。<br>
+能保证 必要的数据同步，开销也不会太大。<br>
+各个线程间的数据同步，最常见的 述求 就是 在 某个线程观察到了 另一个线程 表明某种情况的flag后，与之相关的一些数据 也要确保对 该线程ready。</p>
+<p>memory_order_release和memory_order_acquire 结合起来，容易得出下列结论： 如果线程1 中有一个 对原子变量的 memory_order_release 的写入A，线程2 对同一个原子变量 的 order_acquire 的读取B， 那么 所有 happend-before A 的内存写入 对 线程2 B 之后的操作可见，也就是A之前的内存写操作将会成为线程2从B开始的visible side-effects。</p>
+<p>对于release sequence有着额外的同步保证，那就是 synchronizes-with 可以扩展到 整个 release sequence 和 acquire load，acquire load到release sequence headed by A中的任意一个写操作写入的值，仍然可以确保对A之前的内存操作的可见性。</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">#include &lt;thread&gt;
+#include &lt;atomic&gt;
+#include &lt;cassert&gt;
+#include &lt;string&gt;
+ 
+std::atomic&lt;std::string*&gt; ptr;
+int data;
+ 
+void producer()
+{
+    std::string* p  = new std::string(&quot;Hello&quot;);
+    data = 42;
+    ptr.store(p, std::memory_order_release);
+}
+ 
+void consumer()
+{
+    std::string* p2;
+    while (!(p2 = ptr.load(std::memory_order_acquire)))
+        ;
+    assert(*p2 == &quot;Hello&quot;); // never fires
+    assert(data == 42); // never fires
+}
+ 
+int main()
+{
+    std::thread t1(producer);
+    std::thread t2(consumer);
+    t1.join(); t2.join();
+}
+</pre><pre class="hljs"><code><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;thread&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;atomic&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;cassert&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;string&gt;</span></span>
+ 
+std::atomic&lt;std::string*&gt; ptr;
+<span class="hljs-type">int</span> data;
+ 
+<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">producer</span><span class="hljs-params">()</span>
+</span>{
+    std::string* p  = <span class="hljs-keyword">new</span> std::<span class="hljs-built_in">string</span>(<span class="hljs-string">&quot;Hello&quot;</span>);
+    data = <span class="hljs-number">42</span>;
+    ptr.<span class="hljs-built_in">store</span>(p, std::memory_order_release);
+}
+ 
+<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">consumer</span><span class="hljs-params">()</span>
+</span>{
+    std::string* p2;
+    <span class="hljs-keyword">while</span> (!(p2 = ptr.<span class="hljs-built_in">load</span>(std::memory_order_acquire)))
+        ;
+    <span class="hljs-built_in">assert</span>(*p2 == <span class="hljs-string">&quot;Hello&quot;</span>); <span class="hljs-comment">// never fires</span>
+    <span class="hljs-built_in">assert</span>(data == <span class="hljs-number">42</span>); <span class="hljs-comment">// never fires</span>
+}
+ 
+<span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span>
+</span>{
+    <span class="hljs-function">std::thread <span class="hljs-title">t1</span><span class="hljs-params">(producer)</span></span>;
+    <span class="hljs-function">std::thread <span class="hljs-title">t2</span><span class="hljs-params">(consumer)</span></span>;
+    t1.<span class="hljs-built_in">join</span>(); t2.<span class="hljs-built_in">join</span>();
+}
+</code></pre></div>
+<p>consumer线程通过循环等待ptr初始化，一旦读到了非null的ptr，因为memory_order_release和memory_order_acquire的同步效果，producer里p和data的内存写入都对consumer中后续两个assert可见了。</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">#include &lt;thread&gt;
+#include &lt;atomic&gt;
+#include &lt;cassert&gt;
+#include &lt;vector&gt;
+ 
+std::vector&lt;int&gt; data;
+std::atomic&lt;int&gt; flag = {0};
+ 
+void thread_1()
+{
+    data.push_back(42);
+    flag.store(1, std::memory_order_release); //A
+}
+ 
+void thread_2()
+{
+    int expected=1;
+    while (!flag.compare_exchange_strong(expected, 2, std::memory_order_acq_rel)) { //B
+        expected = 1;
+    }
+}
+ 
+void thread_3()
+{
+    while (flag.load(std::memory_order_acquire) &lt; 2) //C
+        ;
+    assert(data.at(0) == 42); // will never fire
+}
+ 
+int main()
+{
+    std::thread a(thread_1);
+    std::thread b(thread_2);
+    std::thread c(thread_3);
+    a.join(); b.join(); c.join();
+}</pre><pre class="hljs"><code><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;thread&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;atomic&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;cassert&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;vector&gt;</span></span>
+ 
+std::vector&lt;<span class="hljs-type">int</span>&gt; data;
+std::atomic&lt;<span class="hljs-type">int</span>&gt; flag = {<span class="hljs-number">0</span>};
+ 
+<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">thread_1</span><span class="hljs-params">()</span>
+</span>{
+    data.<span class="hljs-built_in">push_back</span>(<span class="hljs-number">42</span>);
+    flag.<span class="hljs-built_in">store</span>(<span class="hljs-number">1</span>, std::memory_order_release); <span class="hljs-comment">//A</span>
+}
+ 
+<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">thread_2</span><span class="hljs-params">()</span>
+</span>{
+    <span class="hljs-type">int</span> expected=<span class="hljs-number">1</span>;
+    <span class="hljs-keyword">while</span> (!flag.<span class="hljs-built_in">compare_exchange_strong</span>(expected, <span class="hljs-number">2</span>, std::memory_order_acq_rel)) { <span class="hljs-comment">//B</span>
+        expected = <span class="hljs-number">1</span>;
+    }
+}
+ 
+<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">thread_3</span><span class="hljs-params">()</span>
+</span>{
+    <span class="hljs-keyword">while</span> (flag.<span class="hljs-built_in">load</span>(std::memory_order_acquire) &lt; <span class="hljs-number">2</span>) <span class="hljs-comment">//C</span>
+        ;
+    <span class="hljs-built_in">assert</span>(data.<span class="hljs-built_in">at</span>(<span class="hljs-number">0</span>) == <span class="hljs-number">42</span>); <span class="hljs-comment">// will never fire</span>
+}
+ 
+<span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span>
+</span>{
+    <span class="hljs-function">std::thread <span class="hljs-title">a</span><span class="hljs-params">(thread_1)</span></span>;
+    <span class="hljs-function">std::thread <span class="hljs-title">b</span><span class="hljs-params">(thread_2)</span></span>;
+    <span class="hljs-function">std::thread <span class="hljs-title">c</span><span class="hljs-params">(thread_3)</span></span>;
+    a.<span class="hljs-built_in">join</span>(); b.<span class="hljs-built_in">join</span>(); c.<span class="hljs-built_in">join</span>();
+}</code></pre></div>
+<p>这个例子展示了Synchronizes-with的传递性，flag初始值是0，在thread_1的A将flag置为1之前，thread_2和thread_3都会一直处于循环中，thread_2中B属于read-modify-write operation，使用的是memory_order_acq_rel order，因此既是release operation，也是acquire operation。一旦A将flag置为1，对于thread_3没有变化，但是thread2里B acquire读到1之后能够成功，这里也就建立了 A Synchronizes-with B，A inter-thread happens-before B ；同时B也将flag release写为2，循环结束。随后C读到2后，也有 B inter-thread happens-before C，根据传递性有A inter-thread happens-before C，因此跳出循环后去访问普通变量data能保证data[0]一定为42。</p>
+<h2 id="release-consume-ordering">Release-Consume ordering</h2>
+<p>release-consume 和 release-acquire 很类似，区别在于，只是保证dependency-ordered-before release写的写操作的数据同步<br>
+比较完整的定义如下：<br>
+如果线程1中有一个对原子变量的memory_order_release memory order的写入A，线程2中有一个对同一原子变量memory_order_consmue memory order的读取B，那么所有dependency-ordered-before A的内存写入都对线程2 B 之后<strong>依赖B</strong>的操作可见。</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">#include &lt;thread&gt;
+#include &lt;atomic&gt;
+#include &lt;cassert&gt;
+#include &lt;string&gt;
+ 
+std::atomic&lt;std::string*&gt; ptr;
+int data;
+ 
+void producer()
+{
+    std::string* p  = new std::string(&quot;Hello&quot;);  //A
+    data = 42;//B
+    ptr.store(p, std::memory_order_release); //C
+}
+ 
+void consumer()
+{
+    std::string* p2;
+    while (!(p2 = ptr.load(std::memory_order_consume))) //D
+        ;
+    assert(*p2 == &quot;Hello&quot;); // E    never fires: *p2 carries dependency from ptr
+    assert(data == 42); // F   may or may not fire: data does not carry dependency from ptr
+}
+ 
+int main()
+{
+    std::thread t1(producer);
+    std::thread t2(consumer);
+    t1.join(); t2.join();
+}</pre><pre class="hljs"><code><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;thread&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;atomic&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;cassert&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;string&gt;</span></span>
+ 
+std::atomic&lt;std::string*&gt; ptr;
+<span class="hljs-type">int</span> data;
+ 
+<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">producer</span><span class="hljs-params">()</span>
+</span>{
+    std::string* p  = <span class="hljs-keyword">new</span> std::<span class="hljs-built_in">string</span>(<span class="hljs-string">&quot;Hello&quot;</span>);  <span class="hljs-comment">//A</span>
+    data = <span class="hljs-number">42</span>;<span class="hljs-comment">//B</span>
+    ptr.<span class="hljs-built_in">store</span>(p, std::memory_order_release); <span class="hljs-comment">//C</span>
+}
+ 
+<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">consumer</span><span class="hljs-params">()</span>
+</span>{
+    std::string* p2;
+    <span class="hljs-keyword">while</span> (!(p2 = ptr.<span class="hljs-built_in">load</span>(std::memory_order_consume))) <span class="hljs-comment">//D</span>
+        ;
+    <span class="hljs-built_in">assert</span>(*p2 == <span class="hljs-string">&quot;Hello&quot;</span>); <span class="hljs-comment">// E    never fires: *p2 carries dependency from ptr</span>
+    <span class="hljs-built_in">assert</span>(data == <span class="hljs-number">42</span>); <span class="hljs-comment">// F   may or may not fire: data does not carry dependency from ptr</span>
+}
+ 
+<span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span>
+</span>{
+    <span class="hljs-function">std::thread <span class="hljs-title">t1</span><span class="hljs-params">(producer)</span></span>;
+    <span class="hljs-function">std::thread <span class="hljs-title">t2</span><span class="hljs-params">(consumer)</span></span>;
+    t1.<span class="hljs-built_in">join</span>(); t2.<span class="hljs-built_in">join</span>();
+}</code></pre></div>
+<p>但是因为Release-Consume需要跟踪依赖链，目前在很多编译器实现上是直接等同于Release-Acquire的，并且从c++17标准开始， release-consume order还在修订，并不推荐使用。</p>
+<h2 id="sequentially-consistent-ordering">Sequentially-consistent ordering</h2>
+<p>使用memory_order_seq_cst可以获得顺序一致，是atomic变量默认的内存序，也是<mark>最强的保证</mark>，在如果形成了该内存序，除了有release acquire的效果，还会在所有的以这个为内存序的原子操作序列上外加一个单独全序，也就是保证所有的线程观察一组内存操作的顺序完全一样，这组内存操作是可以发生在不同的原子变量上的。这也是代价很大的一种内存序，尤其是在arm等weak order平台上，因为要实现Sequentially-consistent需要施加很强的内存屏障从而<mark>影响性能</mark>，因此如果对性能有较高要求，不是特别必要不要使用这个内存序。</p>
+<p>关于原子变量上的顺序一致形式化定义如下：<br>
+对于从原子变量M中读取的 memory_order_seq_cst load B , 会观察到以下情况之一:</p>
+<ol>
+<li>单独全序中B之前最近的一个对M的memory_order_seq_cst store A。</li>
+<li>如果有（1）中的这么一个 A，那么B可能观察到一个不是happen-before A 的非memory_order_seq_cst的修改C</li>
+<li>如果没有（1）中的这么一个 A，那么B 可能观察到某个M的非memory_order_seq_cst的无关联修改的结果。</li>
+</ol>
+<p>一个必须要Sequentially-consistent的例子如下：</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">#include &lt;thread&gt;
+#include &lt;atomic&gt;
+#include &lt;cassert&gt;
+ 
+std::atomic&lt;bool&gt; x = {false};
+std::atomic&lt;bool&gt; y = {false};
+std::atomic&lt;int&gt; z = {0};
+ 
+void write_x()
+{
+    x.store(true, std::memory_order_seq_cst);
+}
+ 
+void write_y()
+{
+    y.store(true, std::memory_order_seq_cst);
+}
+ 
+void read_x_then_y()
+{
+    while (!x.load(std::memory_order_seq_cst))
+        ;
+    if (y.load(std::memory_order_seq_cst)) {
+        ++z;
+    }
+}
+ 
+void read_y_then_x()
+{
+    while (!y.load(std::memory_order_seq_cst))
+        ;
+    if (x.load(std::memory_order_seq_cst)) {
+        ++z;
+    }
+}
+ 
+int main()
+{
+    std::thread a(write_x);
+    std::thread b(write_y);
+    std::thread c(read_x_then_y);
+    std::thread d(read_y_then_x);
+    a.join(); b.join(); c.join(); d.join();
+    assert(z.load() != 0);  // will never happen
+}</pre><pre class="hljs"><code><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;thread&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;atomic&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;cassert&gt;</span></span>
+ 
+std::atomic&lt;<span class="hljs-type">bool</span>&gt; x = {<span class="hljs-literal">false</span>};
+std::atomic&lt;<span class="hljs-type">bool</span>&gt; y = {<span class="hljs-literal">false</span>};
+std::atomic&lt;<span class="hljs-type">int</span>&gt; z = {<span class="hljs-number">0</span>};
+ 
+<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">write_x</span><span class="hljs-params">()</span>
+</span>{
+    x.<span class="hljs-built_in">store</span>(<span class="hljs-literal">true</span>, std::memory_order_seq_cst);
+}
+ 
+<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">write_y</span><span class="hljs-params">()</span>
+</span>{
+    y.<span class="hljs-built_in">store</span>(<span class="hljs-literal">true</span>, std::memory_order_seq_cst);
+}
+ 
+<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">read_x_then_y</span><span class="hljs-params">()</span>
+</span>{
+    <span class="hljs-keyword">while</span> (!x.<span class="hljs-built_in">load</span>(std::memory_order_seq_cst))
+        ;
+    <span class="hljs-keyword">if</span> (y.<span class="hljs-built_in">load</span>(std::memory_order_seq_cst)) {
+        ++z;
+    }
+}
+ 
+<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">read_y_then_x</span><span class="hljs-params">()</span>
+</span>{
+    <span class="hljs-keyword">while</span> (!y.<span class="hljs-built_in">load</span>(std::memory_order_seq_cst))
+        ;
+    <span class="hljs-keyword">if</span> (x.<span class="hljs-built_in">load</span>(std::memory_order_seq_cst)) {
+        ++z;
+    }
+}
+ 
+<span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span>
+</span>{
+    <span class="hljs-function">std::thread <span class="hljs-title">a</span><span class="hljs-params">(write_x)</span></span>;
+    <span class="hljs-function">std::thread <span class="hljs-title">b</span><span class="hljs-params">(write_y)</span></span>;
+    <span class="hljs-function">std::thread <span class="hljs-title">c</span><span class="hljs-params">(read_x_then_y)</span></span>;
+    <span class="hljs-function">std::thread <span class="hljs-title">d</span><span class="hljs-params">(read_y_then_x)</span></span>;
+    a.<span class="hljs-built_in">join</span>(); b.<span class="hljs-built_in">join</span>(); c.<span class="hljs-built_in">join</span>(); d.<span class="hljs-built_in">join</span>();
+    <span class="hljs-built_in">assert</span>(z.<span class="hljs-built_in">load</span>() != <span class="hljs-number">0</span>);  <span class="hljs-comment">// will never happen</span>
+}</code></pre></div>
+<p>该例是要确保z在运行完后不为0，如果要使得z为0，那么必须同时满足以下两个条件：</p>
+<ol>
+<li>read_x_then_y()依次观察到x=true，y=false。</li>
+<li>read_y_then_x()依次观察到y=true，x=false。</li>
+</ol>
+<p>这在Sequentially-consistent下是不可能的，因为是全局顺序一致，各个线程观察到的顺序一致，如果有（1），那么说明x先比y被置为true，那么read_y_then_x()在观察到y=true之后必然会观察到x=true，从而（2）不可能。反之如果有（2）那么（1）肯定不可能，因此z必不为0。</p>
+<hr>
+<p><a data-from-md title='https://blog.csdn.net/wxj1992/article/details/103917093' href='https://blog.csdn.net/wxj1992/article/details/103917093'>https://blog.csdn.net/wxj1992/article/details/103917093</a><br>
+在std::atomic_thread_fence 上应用std::memory_order实现不同的内存序</p>
+<p>fence可以和原子操作组合进行同步，也可以fence之间进行同步，fence不光可以不依赖原子操作进行同步，而且相比较于同样memory order的原子操作，具有更强的内存同步效果</p>
+<p>最常用的两种就是release acquire和Sequentially-consistent ordering</p>
+<p>c++的memory_order属于逻辑上的内存变量的可见性和顺序的限制，并不等同于底层的memory barrier，但在实际的底层实现上就是选择合适的具有特定memory barrier效果的cpu指令，换句话说，指定memory_order可以得到特定的memory barrier效果。</p>
+<h2 id="atomic_thread_fence分类和效果">atomic_thread_fence分类和效果</h2>
+<p>和atomic变量类似，atomic_thread_fence也可以指定六种memory order，指定不同memory order的fence可以分为以下几类：</p>
+<ol>
+<li>std::atomic_thread_fence(memory_order_relaxed)，没有任何效果。</li>
+<li>std::atomic_thread_fence(memory_order_acquire) 和 std::atomic_thread_fence(memory_order_consume) 属于acquire fence。</li>
+<li>std::atomic_thread_fence(memory_order_release)属于release fence。</li>
+<li>std::atomic_thread_fence(memory_order_acq_rel)既是acquire fence 也是release fence，为了方便这里称为full fence。</li>
+<li>std::atomic_thread_fence(memory_order_seq_cst)额外保证有单独全序的full fence。</li>
+</ol>
+<p>也就是说，如果不考虑单独全序，那么有release fence、acquire fence 和full fence三种。下面就根据以前介绍过的四种重排来介绍下这三种fence的效果。</p>
+<h2 id="release-fence">Release fence</h2>
+<p>Release fence可以防止fence前的内存操作重排到fence后的任意store之后，即阻止loadstore重排和storestore重排。<br>
+<code class="inline-code">std::atomic_thread_fence(std::memory_order_release)</code><br>
+。这条语句 <strong>前的 load/store 不会 重排到 这条语句后的 store 之后</strong>。<br>
+。。应该是不能排到这条语句后面吧。 不然 前面的load 排到这条语句后，但是 任意的store 之前，岂不是也可以？ 没有这么智能吧。<br>
+。。可以的。看下面第二页</p>
+<h2 id="acquire-fence">acquire fence</h2>
+<p>acquire fence可以<strong>防止fence后的内存操作重排到fence前的任意load之前</strong>，即阻止loadload重排和loadstore重排<br>
+<code class="inline-code">std::atomic_thread_fence(std::memory_order_acquire)</code></p>
+<p>。。不，看图，和之前的 loadstore, storeload 的定义。 这里应该是 阻止 loadload 和 storeload。<br>
+。之前，storeload 的定义是， store之前的load 被重排到 store 之后。<br>
+。。要看下 cppreference了。<br>
+。。cppreference 没有 loadload reorder。<br>
+。。搜索的时候 搜到一篇 《Non-Speculative Load-Load Reordering in TSO》<br>
+。。TSO ： TCP Segment Offload，利用 网卡的少量处理能力，降低CPU发送数据包负载 的计数，需要 网卡硬件 和 驱动的支持。<br>
+。。cpp就没有 loadload reorder，只有 happen before 等。</p>
+<h2 id="full-fence">full fence</h2>
+<p>full fence是release fence和acquire fence的组合，所以也就是防止loadload、loadstore、storestore重排<br>
+。反正只允许 前面的store重排到后面的load之后。</p>
+<p>std::atomic_thread_fence(memory_order_acq_rel)和std::atomic_thread_fence(memory_order_seq_cst)都是full fence。</p>
+<p>在c++的标准定义里，full fence并没有规定一定要阻止storeload重排，即便是std::atomic_thread_fence(memory_order_seq_cst)也一样，只是需要额外保证单独全序，但是在实际的实现上为了实现这个全序编译器大都是采用了硬件层面的能够阻止storeload重排的full barrier指令</p>
+<h2 id="fence和同样memory-order的原子操作同步效果的区别">fence和同样memory order的原子操作同步效果的区别</h2>
+<p>基于atomic_thread_fence（外加一个任意序的原子变量操作）的同步和基于原子操作的同步很类似<br>
+比如最常用的，都可以形成release acquire语义<br>
+但是从上面的描述可以看出，fence的效果要比基于原子变量的效果更强，在weak memory order平台的开销也更大。</p>
+<p>以release为例，对于基于原子变量的release opration，仅仅是阻止前面的内存操作重排到该release opration之后，而release fence则是阻止重排到fence之后的任意store operation之后<br>
+。。。看起来 load 真可以 重排到 这条fence语句 和 store 之间。<br>
+。。看下面的 代码，感觉没有问题。 确实 可以重排到 fence 和 store之间。<br>
+。。因为 对比的是 store，store 是 屏障+store 的混合。 保护 store。<br>
+。。那么 fence 也是 保护store，等于就是 在 后续的 store上 加上 这个 memory order。  是给 后续的 <strong>每个 store 都加上</strong>。</p>
+<p>一个简单的例子</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">std::string* p  = new std::string(&quot;Hello&quot;);
+ptr.store(p, std::memory_order_release);</pre><pre class="hljs"><code>std::string* p  = new std::<span class="hljs-built_in">string</span>(<span class="hljs-string">&quot;Hello&quot;</span>);
+ptr<span class="hljs-selector-class">.store</span>(<span class="hljs-selector-tag">p</span>, std::memory_order_release);</code></pre></div>
+<p>以下代码具有相同的效果</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">std::string* p  = new std::string(&quot;Hello&quot;);
+std::atomic_thread_fence(memory_order_release);
+ptr.store(p, std::memory_order_relaxed);</pre><pre class="hljs"><code>std::string* p  = new std::<span class="hljs-built_in">string</span>(<span class="hljs-string">&quot;Hello&quot;</span>);
+std::<span class="hljs-built_in">atomic_thread_fence</span>(memory_order_release);
+ptr<span class="hljs-selector-class">.store</span>(<span class="hljs-selector-tag">p</span>, std::memory_order_relaxed);</code></pre></div>
+<p>但是，比如<br>
+依赖 ptr1 的线程 永远 可以读到正确值，但是 依赖 ptr2 的 不一定</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">std::string* p  = new std::string(&quot;Hello&quot;);
+ptr1.store(p, std::memory_order_release);
+ptr2.store(p, std::memory_order_relaxed);</pre><pre class="hljs"><code>std::string* p  = new std::<span class="hljs-built_in">string</span>(<span class="hljs-string">&quot;Hello&quot;</span>);
+ptr1<span class="hljs-selector-class">.store</span>(<span class="hljs-selector-tag">p</span>, std::memory_order_release);
+ptr2<span class="hljs-selector-class">.store</span>(<span class="hljs-selector-tag">p</span>, std::memory_order_relaxed);</code></pre></div>
+<p>依赖ptr1 和 ptr2 的都可以 永远读到正确值</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">std::string* p  = new std::string(&quot;Hello&quot;);
+std::atomic_thread_fence(memory_order_release);
+ptr1.store(p, std::memory_order_relaxed);
+ptr2.store(p, std::memory_order_relaxed);</pre><pre class="hljs"><code>std::string* p  = new std::<span class="hljs-built_in">string</span>(<span class="hljs-string">&quot;Hello&quot;</span>);
+std::<span class="hljs-built_in">atomic_thread_fence</span>(memory_order_release);
+ptr1<span class="hljs-selector-class">.store</span>(<span class="hljs-selector-tag">p</span>, std::memory_order_relaxed);
+ptr2<span class="hljs-selector-class">.store</span>(<span class="hljs-selector-tag">p</span>, std::memory_order_relaxed);</code></pre></div>
+<h2 id="利用atomic_thread_fence进行release-acquire同步">利用atomic_thread_fence进行release acquire同步</h2>
+<p>fence的同步效果 和 原子操作上的同步效果比较相似，可以互相结合。</p>
+<ol>
+<li>fence-atomic同步</li>
+<li>fence-fence同步</li>
+<li>atomic-fence同步</li>
+</ol>
+<h2 id="release-fence-atomic-acquire-同步">release fence - atomic acquire 同步</h2>
+<p>线程A有一个 release fence FA，线程B有一个acquire operation Y ，如果满足以下三个条件，那么会形成release acquire语义进而形成synchronizes-with 关系，从而线程A的FA之前的所有写入都会happen-before Y之后的读，也就是对Y可见：</p>
+<ol>
+<li>有一个任意memory order的 atomic store X 。</li>
+<li>Y读到了X写入的值 (或者如果x是release operation ，读到了release sequence headed by X 写入的值)。</li>
+<li>FA sequenced-before X 。</li>
+</ol>
+<h2 id="atomic-release-acquire-fence-同步">atomic release- acquire fence 同步</h2>
+<p>线程A有一个release operation X，线程B中有一个acquire fence FB，如果满足以下三个条件，那么会形成release acquire语义进而形成synchronizes-with 关系，从而 thread A 中所有sequenced-before X的内存写入都会happen-before 线程B中FB后的读：</p>
+<ol>
+<li>B中有一个任意memory order的 atomic read Y。</li>
+<li>Y 读到了 X或者release sequence headed by X写入的值 。</li>
+<li>Y sequenced-before FB 。</li>
+</ol>
+<h2 id="release-fence-acquire-fence-同步">release fence - acquire fence 同步</h2>
+<p>有线程A中的 release fence FA，和线程B中的 acquire fence FB, 如果满足以下条件，那么会形成release acquire语义进而形成synchronizes-with 关系，从而线程A中所有 sequenced-before FA的写入都会 happen-before 线程B中FB之后的所有读取：</p>
+<ol>
+<li>有一个原子变量 M。</li>
+<li>线程A中有一个任意memory order 的对M的原子写入X。</li>
+<li>FA sequenced-before X。</li>
+<li>线程B中有一个任意memory order 的对M的原子读Y读到了 X 写入的值 (或者如果x是release operation ，读到了release sequence headed by X 写入的值)。</li>
+<li>Y sequenced-before FB。</li>
+</ol>
+<h2 id="利用atomic_thread_fence进行sequentially-consistent-同步">利用atomic_thread_fence进行Sequentially-consistent 同步</h2>
+<p>。。跳</p>
+<h2 id="fence同步实例">fence同步实例</h2>
+<p>fence-fence同步</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C++" data-joplin-source-open="```C++&#10;" data-joplin-source-close="&#10;```">//Global
+std::string computation(int);
+void print( std::string );
+ 
+std::atomic&lt;int&gt; arr[3] = { -1, -1, -1 };
+std::string data[1000] //non-atomic data
+ 
+// Thread A, compute 3 values
+void ThreadA( int v0, int v1, int v2 )
+{
+    //assert( 0 &lt;= v0, v1, v2 &lt; 1000 );
+    data[v0] = computation(v0);
+    data[v1] = computation(v1);
+    data[v2] = computation(v2);
+    std::atomic_thread_fence(std::memory_order_release);
+    std::atomic_store_explicit(&amp;arr[0], v0, std::memory_order_relaxed);
+    std::atomic_store_explicit(&amp;arr[1], v1, std::memory_order_relaxed);
+    std::atomic_store_explicit(&amp;arr[2], v2, std::memory_order_relaxed);
+}
+ 
+// Thread B, prints between 0 and 3 values already computed.
+void ThreadB()
+{
+    int v0 = std::atomic_load_explicit(&amp;arr[0], std::memory_order_relaxed);
+    int v1 = std::atomic_load_explicit(&amp;arr[1], std::memory_order_relaxed);
+    int v2 = std::atomic_load_explicit(&amp;arr[2], std::memory_order_relaxed);
+    std::atomic_thread_fence(std::memory_order_acquire);
+    // v0, v1, v2 might turn out to be -1, some or all of them.
+    // otherwise it is safe to read the non-atomic data because of the fences:
+    if( v0 != -1 ) { print( data[v0] ); }
+    if( v1 != -1 ) { print( data[v1] ); }
+    if( v2 != -1 ) { print( data[v2] ); }
+}</pre><pre class="hljs"><code><span class="hljs-comment">//Global</span>
+<span class="hljs-function">std::string <span class="hljs-title">computation</span><span class="hljs-params">(<span class="hljs-type">int</span>)</span></span>;
+<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">print</span><span class="hljs-params">( std::string )</span></span>;
+ 
+std::atomic&lt;<span class="hljs-type">int</span>&gt; arr[<span class="hljs-number">3</span>] = { <span class="hljs-number">-1</span>, <span class="hljs-number">-1</span>, <span class="hljs-number">-1</span> };
+std::string data[<span class="hljs-number">1000</span>] <span class="hljs-comment">//non-atomic data</span>
+ 
+<span class="hljs-comment">// Thread A, compute 3 values</span>
+<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">ThreadA</span><span class="hljs-params">( <span class="hljs-type">int</span> v0, <span class="hljs-type">int</span> v1, <span class="hljs-type">int</span> v2 )</span>
+</span>{
+    <span class="hljs-comment">//assert( 0 &lt;= v0, v1, v2 &lt; 1000 );</span>
+    data[v0] = <span class="hljs-built_in">computation</span>(v0);
+    data[v1] = <span class="hljs-built_in">computation</span>(v1);
+    data[v2] = <span class="hljs-built_in">computation</span>(v2);
+    std::<span class="hljs-built_in">atomic_thread_fence</span>(std::memory_order_release);
+    std::<span class="hljs-built_in">atomic_store_explicit</span>(&amp;arr[<span class="hljs-number">0</span>], v0, std::memory_order_relaxed);
+    std::<span class="hljs-built_in">atomic_store_explicit</span>(&amp;arr[<span class="hljs-number">1</span>], v1, std::memory_order_relaxed);
+    std::<span class="hljs-built_in">atomic_store_explicit</span>(&amp;arr[<span class="hljs-number">2</span>], v2, std::memory_order_relaxed);
+}
+ 
+<span class="hljs-comment">// Thread B, prints between 0 and 3 values already computed.</span>
+<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">ThreadB</span><span class="hljs-params">()</span>
+</span>{
+    <span class="hljs-type">int</span> v0 = std::<span class="hljs-built_in">atomic_load_explicit</span>(&amp;arr[<span class="hljs-number">0</span>], std::memory_order_relaxed);
+    <span class="hljs-type">int</span> v1 = std::<span class="hljs-built_in">atomic_load_explicit</span>(&amp;arr[<span class="hljs-number">1</span>], std::memory_order_relaxed);
+    <span class="hljs-type">int</span> v2 = std::<span class="hljs-built_in">atomic_load_explicit</span>(&amp;arr[<span class="hljs-number">2</span>], std::memory_order_relaxed);
+    std::<span class="hljs-built_in">atomic_thread_fence</span>(std::memory_order_acquire);
+    <span class="hljs-comment">// v0, v1, v2 might turn out to be -1, some or all of them.</span>
+    <span class="hljs-comment">// otherwise it is safe to read the non-atomic data because of the fences:</span>
+    <span class="hljs-keyword">if</span>( v0 != <span class="hljs-number">-1</span> ) { <span class="hljs-built_in">print</span>( data[v0] ); }
+    <span class="hljs-keyword">if</span>( v1 != <span class="hljs-number">-1</span> ) { <span class="hljs-built_in">print</span>( data[v1] ); }
+    <span class="hljs-keyword">if</span>( v2 != <span class="hljs-number">-1</span> ) { <span class="hljs-built_in">print</span>( data[v2] ); }
+}</code></pre></div>
+<p>atomic fence同步</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C++" data-joplin-source-open="```C++&#10;" data-joplin-source-close="&#10;```">const int num_mailboxes = 32;
+std::atomic&lt;int&gt; mailbox_receiver[num_mailboxes];
+std::string mailbox_data[num_mailboxes];
+ 
+// The writer threads update non-atomic shared data 
+// and then update mailbox_receiver[i] as follows
+mailbox_data[i] = ...;
+std::atomic_store_explicit(&amp;mailbox_receiver[i], receiver_id, std::memory_order_release);
+ 
+// Reader thread needs to check all mailbox[i], but only needs to sync with one
+for (int i = 0; i &lt; num_mailboxes; ++i) {
+    if (std::atomic_load_explicit(&amp;mailbox_receiver[i], std::memory_order_relaxed) == my_id) {
+        std::atomic_thread_fence(std::memory_order_acquire); // synchronize with just one writer
+        do_work( mailbox_data[i] ); // guaranteed to observe everything done in the writer thread before
+                    // the atomic_store_explicit()
+    }
+ }</pre><pre class="hljs"><code><span class="hljs-type">const</span> <span class="hljs-type">int</span> num_mailboxes = <span class="hljs-number">32</span>;
+std::atomic&lt;<span class="hljs-type">int</span>&gt; mailbox_receiver[num_mailboxes];
+std::string mailbox_data[num_mailboxes];
+ 
+<span class="hljs-comment">// The writer threads update non-atomic shared data </span>
+<span class="hljs-comment">// and then update mailbox_receiver[i] as follows</span>
+mailbox_data[i] = ...;
+std::<span class="hljs-built_in">atomic_store_explicit</span>(&amp;mailbox_receiver[i], receiver_id, std::memory_order_release);
+ 
+<span class="hljs-comment">// Reader thread needs to check all mailbox[i], but only needs to sync with one</span>
+<span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; num_mailboxes; ++i) {
+    <span class="hljs-keyword">if</span> (std::<span class="hljs-built_in">atomic_load_explicit</span>(&amp;mailbox_receiver[i], std::memory_order_relaxed) == my_id) {
+        std::<span class="hljs-built_in">atomic_thread_fence</span>(std::memory_order_acquire); <span class="hljs-comment">// synchronize with just one writer</span>
+        <span class="hljs-built_in">do_work</span>( mailbox_data[i] ); <span class="hljs-comment">// guaranteed to observe everything done in the writer thread before</span>
+                    <span class="hljs-comment">// the atomic_store_explicit()</span>
+    }
+ }</code></pre></div>
+<hr>
+<p><a data-from-md title='https://blog.csdn.net/wxj1992/article/details/104266983' href='https://blog.csdn.net/wxj1992/article/details/104266983'>https://blog.csdn.net/wxj1992/article/details/104266983</a><br>
+C++ memory order在编译器和cpu层面的具体实现</p>
+<p>以x86-64和ARMv8两个典型平台为例，这也分别是最常见的两个strong memory model和weak memory model。</p>
+<h2 id="x86-64-c-memory_order和指令对照">x86-64 C++ memory_order和指令对照</h2>
+<table>
+<thead>
+<tr>
+<th>C++11 操作</th>
+<th>对应x86-64指令</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Load Relaxed</td>
+<td>MOV (from memory)</td>
+</tr>
+<tr>
+<td>Load Consume</td>
+<td>MOV (from memory)</td>
+</tr>
+<tr>
+<td>Load Acquire</td>
+<td>MOV (from memory)</td>
+</tr>
+<tr>
+<td>Load Seq_Cst</td>
+<td>MOV (from memory)</td>
+</tr>
+<tr>
+<td>Store Relaxed</td>
+<td>MOV (into memory)</td>
+</tr>
+<tr>
+<td>Store Release</td>
+<td>MOV (into memory)</td>
+</tr>
+<tr>
+<td>Store Seq Cst</td>
+<td>(LOCK) XCHG // alternative: MOV (into memory),MFENCE</td>
+</tr>
+<tr>
+<td>Consume Fence</td>
+<td>ignore</td>
+</tr>
+<tr>
+<td>Acquire Fence</td>
+<td>ignore</td>
+</tr>
+<tr>
+<td>Release Fence</td>
+<td>ignore</td>
+</tr>
+<tr>
+<td>Acq_Rel Fence</td>
+<td>ignore</td>
+</tr>
+<tr>
+<td>Seq_Cst Fence</td>
+<td>MFENCE</td>
+</tr>
+</tbody>
+</table>
+<p>根据上表可以看到，因为x86-64本身就不会进行storestore loadstore loadload重排，除了Seq_Cst相关的操作，均不需要添加额外的cpu指令，实际上，对于x86-64平台，实现Sequential Consistency可以有四种方式</p>
+<ol>
+<li>纯LOAD 和STORE + MFENCE</li>
+<li>纯LOAD 和LOCK XCHG</li>
+<li>MFENCE + LOAD 和纯STORE</li>
+<li>LOCK XADD ( 0 ) 和纯STORE</li>
+</ol>
+<h2 id="armv8aarch64部分-c-memory_order和指令对照">ARMv8（AArch64部分） C++ memory_order和指令对照</h2>
+<table>
+<thead>
+<tr>
+<th>C++ 操作</th>
+<th>对应AArch64 指令</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Load Relaxed</td>
+<td>LDR</td>
+</tr>
+<tr>
+<td>Load Consume</td>
+<td>LDR + preserve dependencies until next kill_dependency OR LDAR</td>
+</tr>
+<tr>
+<td>Load Acquire</td>
+<td>LDAR</td>
+</tr>
+<tr>
+<td>Load Seq Cst</td>
+<td>LDAR</td>
+</tr>
+<tr>
+<td>Store Relaxed</td>
+<td>STR</td>
+</tr>
+<tr>
+<td>Store Release</td>
+<td>STLR</td>
+</tr>
+<tr>
+<td>Store Seq Cst</td>
+<td>STLR</td>
+</tr>
+<tr>
+<td>Cmpxchng Relaxed</td>
+<td>_loop: ldxr roldval, [rptr]; cmp roldval, rold; b.ne _exit; stxr rres, rnewval, [rptr]; cbnz rres, _loop; _exit</td>
+</tr>
+<tr>
+<td>Cmpxchng Acquire</td>
+<td>_loop: ldaxr roldval, [rptr]; cmp roldval, rold; beq _exit; stxr rres, rnewval, [rptr]; cbnz rres, _loop; _exit</td>
+</tr>
+<tr>
+<td>Cmpxchng Release</td>
+<td>_loop: ldxr roldval, [rptr]; cmp roldval, rold; b.ne _exit; stlxr rres, rnewval, [rptr]; cbnz rres, _loop; _exit</td>
+</tr>
+<tr>
+<td>Cmpxchng AcqRel</td>
+<td>_loop: ldaxr roldval, [rptr]; cmp roldval, rold; b.ne _exit; stlxr rres, rnewval, [rptr]; cbnz rres, _loop; _exit</td>
+</tr>
+<tr>
+<td>Cmpxchng SeqCst</td>
+<td>_loop: ldaxr roldval, [rptr]; cmp roldval, rold; b.ne _exit; stlxr rres, rnewval, [rptr]; cbnz rres, _loop; _exit</td>
+</tr>
+<tr>
+<td>Acquire Fence</td>
+<td>DMB ISH LD</td>
+</tr>
+<tr>
+<td>Release Fence</td>
+<td>DMB ISH</td>
+</tr>
+<tr>
+<td>AcqRel Fence</td>
+<td>DMB ISH</td>
+</tr>
+<tr>
+<td>SeqCst Fence</td>
+<td>DMB ISH</td>
+</tr>
+</tbody>
+</table>
+<p>==================</p>
+<p><a data-from-md title='https://javaforall.cn/132631.html' href='https://javaforall.cn/132631.html'>https://javaforall.cn/132631.html</a></p>
+<h1 id="无锁编程介绍">无锁编程介绍</h1>
+<p>原文<br>
+<a data-from-md title='https://preshing.com/20120612/an-introduction-to-lock-free-programming/' href='https://preshing.com/20120612/an-introduction-to-lock-free-programming/'>https://preshing.com/20120612/an-introduction-to-lock-free-programming/</a></p>
+<h2 id="无锁编程是什么">无锁编程是什么</h2>
+<p>如果你的代码的一部分符合如下的条件，就可以认为是 lock free。</p>
+<p><img src="../_resources/790e36669b1348b991b9c45b5cfb7fc8.png" alt="7c49dff20d6c587458c00c5066b5ff01.png"></p>
+<p>无锁的锁并不是直接指互斥量，而是指 锁定 整个应用的所有可能的方式，不论是死锁，活锁，线程调度等。</p>
+<p>下面这个例子没有使用mutex，但是仍然 不是无锁的。 X初始值为0。考虑如何调度2个线程，才能使得2个都不退出循环。</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">while (X == 0)
+{
+    X = 1 - X;
+}</pre><pre class="hljs"><code>while (X <span class="hljs-operator">=</span><span class="hljs-operator">=</span> <span class="hljs-number">0</span>)
+{
+    X <span class="hljs-operator">=</span> <span class="hljs-number">1</span> - X<span class="hljs-comment">;</span>
+}</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Thread 1</th>
+<th>Thread 2</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>判断X==0</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>判断X==0</td>
+</tr>
+<tr>
+<td>X=1-X,X变成1</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>X=1-X,X变成0</td>
+</tr>
+</tbody>
+</table>
+<p>没人期待整个大型的应用是完全无锁的。通常，我们可以从整个代码库中识别出一系列无锁操作。例如，在一个无锁队列中有少许的无锁操作，像push、pop，或许还有isEmpty等等</p>
+<p>《多处理器编程的艺术》提出了一个简单的无锁的定义：<strong>在一个无限的执行过程中，会不停地有调用结束</strong>。换句话说，<strong>程序能不断地调用这些无锁操作的同时，许多调用的也是不断地在完成</strong>。从算法上来说，在这些操作的执行过程中，系统锁定是不可能的。</p>
+<p>无锁编程的一个重要的特性就是，<strong>如果挂起一个单独的线程，不会阻碍其它线程执行</strong>。作为一组线程，他们使用特定的无锁操作来完成这个特性。这揭示了无锁编程在中断处理程序和实时系统方面的价值。因为在这些情况下，特定的操作必须在特定的时间内完成，不论程序的状态如何。<br>
+。。但是 其他线程都在CAS等待 本线程设置flag，如果本线程被挂起，其他线程就无法继续执行了。也不能说无法继续执行，而是死循环。<br>
+。。所以后面说 必须在 特定的时间内完成。<br>
+。。话说，thread timeout 我还不知道怎么实现的呢。</p>
+<p>最后的精确描述：设计用于阻塞的操作不会影响算法运行，这种代码才是无锁的。例如在无锁队列的操作中，当队列为空时，队列的弹出操作会有意地阻塞。但其它的代码路径仍然被认为是无锁的。</p>
+<h2 id="无锁编程技术">无锁编程技术</h2>
+<p>当你试图满足无锁编程的无阻塞条件时，会出现一系列技术：<mark>原子操作、内存屏障、避免ABA问题</mark>，等等。</p>
+<p>这些技术之间的关联：</p>
+<p><img src="../_resources/d4f5d5d867ca4f04958f570bc270bd41.png" alt="b987e15d92f1c0acb495f1a90555b243.png"></p>
+<h2 id="原子的-read-modify-write-操作">原子的 Read-Modify-Write 操作</h2>
+<p>原子操作是指，通过一种看起来不可分割的方式来操作内存：<strong>线程无法看到原子操作的中间过程</strong>。<br>
+在现代的处理器上，有很多操作本身就是的原子的。例如，对简单类型的对齐的读和写通常就是原子的。</p>
+<p><strong>Read-Modify-Write</strong>（RMW）操作更进一步，它允许你按照原子的方式，操作更复杂的事务。当一个无锁的算法必须支持多个写入者时，原子操作会尤其有用，因为多个线程试图在同一个地址上进行RMW时，它们会按“一次一个”的方式排队执行这些操作。我已经在我的博客中涉及了RMW操作了，如实现 轻量级互斥量、递归互斥量 和 轻量级日志系统。</p>
+<p>RMW 操作的例子包括：Win32上 的 _InterlockedIncrement，iOS 上的 OSAtomicAdd32 以及 C++11 中的 <code class="inline-code">std::atomic&lt;int&gt;::fetch_add</code>。需要注意的是，C++11 的原子标准<strong>不保证</strong>其在每个平台上的实现都是无锁的，因此最好要清楚你的平台和工具链的能力。你可以调用 <strong><code class="inline-code">std::atomic&lt;&gt;::is_lock_free</code></strong> 来确认一下。</p>
+<p>不同的 CPU 系列支持 RMW 的方式也是不同的。例如，PowerPC 和 ARM 提供 load-link/store-conditional 指令，这实际上是允许你实现你自定义的底层 RMW 操作。常用的 RMW 操作就已经足够了。</p>
+<h2 id="compare-and-swap-循环">Compare-And-Swap 循环</h2>
+<p>最常讨论的 RMW 操作是 compare-and-swap (CAS)。在Win32上，CAS 是通过如 _InterlockedCompareExchange 等一系列指令来提供的。通常，程序员会在一个事务中使用 CAS 循环。这个模式通常包括：复制一个共享的变量至本地变量，做一些特定的工作（改动），再试图使用 CAS 发布这些改动。</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C++" data-joplin-source-open="```C++&#10;" data-joplin-source-close="&#10;```">void LockFreeQueue::push(Node* newHead)
+{
+    for (;;)
+    {
+        // Copy a shared variable (m_Head) to a local.
+        Node* oldHead = m_Head;
+
+        // Do some speculative work, not yet visible to other threads.
+        newHead-&gt;next = oldHead;
+
+        // Next, attempt to publish our changes to the shared variable.
+        // If the shared variable hasn't changed, the CAS succeeds and we return.
+        // Otherwise, repeat.
+        if (_InterlockedCompareExchange(&amp;m_Head, newHead, oldHead) == oldHead)
+            return;
+    }
+}</pre><pre class="hljs"><code><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">LockFreeQueue::push</span><span class="hljs-params">(Node* newHead)</span>
+</span>{
+    <span class="hljs-keyword">for</span> (;;)
+    {
+        <span class="hljs-comment">// Copy a shared variable (m_Head) to a local.</span>
+        Node* oldHead = m_Head;
+
+        <span class="hljs-comment">// Do some speculative work, not yet visible to other threads.</span>
+        newHead-&gt;next = oldHead;
+
+        <span class="hljs-comment">// Next, attempt to publish our changes to the shared variable.</span>
+        <span class="hljs-comment">// If the shared variable hasn&#x27;t changed, the CAS succeeds and we return.</span>
+        <span class="hljs-comment">// Otherwise, repeat.</span>
+        <span class="hljs-keyword">if</span> (_InterlockedCompareExchange(&amp;m_Head, newHead, oldHead) == oldHead)
+            <span class="hljs-keyword">return</span>;
+    }
+}</code></pre></div>
+<p>这样的循环仍然有资格作为无锁的，因为如果一个线程检测失败，意味着有其它线程成功。尽管某些架构提供一个 较弱的CAS变种 。无论何时实现一个CAS循环，都必须十分小心地避免 ABA 问题。</p>
+<h2 id="顺序一致性">顺序一致性</h2>
+<p>顺序一致性（Sequential consistency）意味着，所有线程就内存操作的顺序达成一致。这个顺序是和操作在<strong>程序源代码中的顺序是一致</strong>的。在顺序一致性的要求下，像我 另一篇文章 演示的那样的有意的<strong>内存重排序不再可能</strong>了。</p>
+<p>一种实现顺序一致性的简单（但显然不切实际）的方法是禁用编译器优化，并强制所有线程在单个处理器上运行。 即使线程在任意时间被抢占和调度，处理器也永远不会看到自己的内存影响。</p>
+<p>某些编程语言甚至可以为在多处理器环境中运行的优化代码提供顺序一致性。 在C ++ 11中，可以将所有共享变量声明为具有默认内存排序约束的C ++ 11原子类型。 在Java中，您可以将所有共享变量标记为volatile。下面是 我之前一个案例 用C++11风格重写的例子。<br>
+。。java volatile无法提供原子性啊，前面说 C++ atomic，后面说 java volatile。这2个应该并不等价。 。 不，但是 java volatile可以提供 顺序一致性。应该吧，我也不清楚。</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C++" data-joplin-source-open="```C++&#10;" data-joplin-source-close="&#10;```">std::atomic X(0), Y(0);
+int r1, r2;
+ 
+void thread1()
+{ 
+   
+    X.store(1);
+    r1 = Y.load();
+}
+ 
+void thread2()
+{ 
+   
+    Y.store(1);
+    r2 = X.load();
+}</pre><pre class="hljs"><code><span class="hljs-function">std::atomic <span class="hljs-title">X</span><span class="hljs-params">(<span class="hljs-number">0</span>)</span>, <span class="hljs-title">Y</span><span class="hljs-params">(<span class="hljs-number">0</span>)</span></span>;
+<span class="hljs-type">int</span> r1, r2;
+ 
+<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">thread1</span><span class="hljs-params">()</span>
+</span>{ 
+   
+    X.<span class="hljs-built_in">store</span>(<span class="hljs-number">1</span>);
+    r1 = Y.<span class="hljs-built_in">load</span>();
+}
+ 
+<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">thread2</span><span class="hljs-params">()</span>
+</span>{ 
+   
+    Y.<span class="hljs-built_in">store</span>(<span class="hljs-number">1</span>);
+    r2 = X.<span class="hljs-built_in">load</span>();
+}</code></pre></div>
+<p>因为 C ++ 11 原子类型保证顺序一致性，所以结果 r1 = r2 = 0 是不可能的。 为此，编译器会在后台输出其他指令——通常是 内存围栏 和/或 RMW 操作。 与程序员直接处理内存排序的指令相比，那些额外的指令可能会使实现效率降低。</p>
+<h2 id="memory-ordering">Memory Ordering</h2>
+<p>如果你的环境不能保证顺序一致性，你都必须考虑如何来<strong>防止 内存重新排序</strong>。</p>
+<p>在当今的架构中，增强内存保序性的工具通常分为三类，它们既防止 <strong>编译器重新排序</strong> 又防止 <strong>处理器重新排序</strong>：</p>
+<ol>
+<li>一个轻型的同步或屏障指令，以后的文章会详述；</li>
+<li>一个完全的内存屏障指令，如之前所述；</li>
+<li>提供获取或释放语义的内存操作。<br>
+。。<br>
+a lightweight sync or fence instruction<br>
+a full memory fence instruction<br>
+memory operation which provide acquire or release semantics<br>
+。。<br>
+acquire防止后续的操作 重排序到它前面<br>
+release防止前面的操作 重排序到它后面<br>
+特别适合于 生产者，消费者。</li>
+</ol>
+<h2 id="different-processors-have-different-memory-models">Different Processors Have Different Memory Models</h2>
+<p>。。跳<br>
+As a result, it’s been common in the past to write lock-free code which works on x86/64, but fails on other processors.</p>
+<p>==================<br>
+<a data-from-md title='https://learn.microsoft.com/zh-cn/windows/win32/dxtecharts/lockless-programming' href='https://learn.microsoft.com/zh-cn/windows/win32/dxtecharts/lockless-programming'>https://learn.microsoft.com/zh-cn/windows/win32/dxtecharts/lockless-programming</a><br>
+这篇文章是上面的preshing的无锁编程介绍中提到了。</p>
+<h1 id="xbox-360-和-microsof-windows-的无锁编程注意事项">《Xbox 360 和 Microsof Windows 的无锁编程注意事项》</h1>
+<p>无锁编程是一种安全地共享多个线程之间更改数据的方法，无需获取和释放锁的成本<br>
+无锁编程是复杂而微妙<br>
+无锁编程是多线程编程的有效技术，但不应轻用。 在使用它之前，必须了解复杂性，并且应该仔细衡量，以确保它实际上是给你预期的收益。</p>
+<h2 id="使用锁编程">使用锁编程</h2>
+<p>编写多线程代码时，通常需要在线程之间共享数据。 如果多个线程同时读取和写入共享数据结构，则可能会出现内存损坏。 解决此问题的最简单方法是使用锁。 例如，如果一次只能由一个线程执行 ManipulateSharedData，则可以使用CRITICAL_SECTION来保证这一点，如以下代码所示：</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">// Initialize
+CRITICAL_SECTION cs;
+InitializeCriticalSection(&amp;cs);
+
+// Use
+void ManipulateSharedData()
+{
+    EnterCriticalSection(&amp;cs);
+    // Manipulate stuff...
+    LeaveCriticalSection(&amp;cs);
+}
+
+// Destroy
+DeleteCriticalSection(&amp;cs);</pre><pre class="hljs"><code><span class="hljs-comment">// Initialize</span>
+CRITICAL_SECTION cs;
+<span class="hljs-built_in">InitializeCriticalSection</span>(&amp;cs);
+
+<span class="hljs-comment">// Use</span>
+void <span class="hljs-built_in">ManipulateSharedData</span>()
+{
+    <span class="hljs-built_in">EnterCriticalSection</span>(&amp;cs);
+    <span class="hljs-comment">// Manipulate stuff...</span>
+    <span class="hljs-built_in">LeaveCriticalSection</span>(&amp;cs);
+}
+
+<span class="hljs-comment">// Destroy</span>
+<span class="hljs-built_in">DeleteCriticalSection</span>(&amp;cs);</code></pre></div>
+<p>使用锁编程具有几个潜在的缺点</p>
+<ul>
+<li>如果两个线程尝试获取相同的两个锁，但以不同的顺序获取它们，你可能会获得死锁</li>
+<li>如果程序持有锁定时间过长（由于设计不佳或线程已由优先级较高的线程交换），则其他线程可能会长时间被阻止</li>
+<li>如果延迟的过程调用或中断服务例程尝试获取锁，可能会获得死锁。</li>
+</ul>
+<p>尽管存在这些问题，但同步基元（如关键部分）<strong>通常</strong>是协调多个线程的<strong>最佳方法</strong>。 如果同步基元太慢，最佳解决方案通常是<strong>使用它们的频率降低</strong>。 但是，对于那些能够承受额外复杂性的人来说，另一个选项是无锁编程。</p>
+<h2 id="无锁编程">无锁编程</h2>
+<p>无锁编程（顾名思义）是一系列技术，用于在不使用锁的情况下安全地操作共享数据。 有<strong>一些无锁算法</strong>可用于<strong>传递消息、共享列表和数据队列和其他任务</strong>。</p>
+<p>执行无锁编程时，必须处理两个难题：<mark>非原子操作和重新排序</mark>。</p>
+<h2 id="非原子操作">非原子操作</h2>
+<p>原子操作对于无锁编程非常重要，因为如果没有它们，其他线程可能会看到半写的值，否则状态不一致。</p>
+<p>在所有新式处理器上，可以假定自然对齐的本机类型的读取和写入是原子的。 只要内存总线的宽度至少与读取或写入的类型一样宽，CPU 会在单个总线事务中读取和写入这些类型，从而使其他线程无法以半完成状态查看它们。<br>
+在 x86 和 x64 上，不能保证读取和写入大于 8 个字节是原子的。 这意味着流式 SIMD 扩展的 16 字节读取和写入 (SSE) 寄存器和字符串操作可能不是原子操作。</p>
+<p>不自然对齐的类型读取和写入（例如，写入跨四字节边界的 DWORD）不能保证是原子的。 CPU 可能必须以多个总线事务的形式执行这些读取和写入操作，从而允许另一个线程在读取或写入中间修改或查看数据。</p>
+<p>复合操作（如递增共享变量时发生的读-修改-写序列）不是原子操作。<br>
+在 x86 和 x64 上，有一个指令 (inc) 可用于递增内存中的变量。 如果使用此指令，递增变量在单处理器系统上是原子的，但在多处理器系统上它仍然不是原子的。</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">// This write is not atomic because it is not natively aligned.
+DWORD* pData = (DWORD*)(pChar + 1);
+*pData = 0;
+
+// This is not atomic because it is three separate operations.
+++g_globalCounter;
+
+// This write is atomic.
+g_alignedGlobal = 0;
+
+// This read is atomic.
+DWORD local = g_alignedGlobal;</pre><pre class="hljs"><code>// This write <span class="hljs-keyword">is</span> <span class="hljs-built_in">not</span> <span class="hljs-keyword">atomic</span> because it <span class="hljs-keyword">is</span> <span class="hljs-built_in">not</span> natively aligned.
+DWORD* pData <span class="hljs-built_in">=</span> (DWORD*)(pChar + <span class="hljs-number">1</span>);
+*pData <span class="hljs-built_in">=</span> <span class="hljs-number">0</span>;
+
+// This <span class="hljs-keyword">is</span> <span class="hljs-built_in">not</span> <span class="hljs-keyword">atomic</span> because it <span class="hljs-keyword">is</span> three separate operations.
+++g_globalCounter;
+
+// This write <span class="hljs-keyword">is</span> <span class="hljs-keyword">atomic</span>.
+g_alignedGlobal <span class="hljs-built_in">=</span> <span class="hljs-number">0</span>;
+
+// This read <span class="hljs-keyword">is</span> <span class="hljs-keyword">atomic</span>.
+DWORD <span class="hljs-meta">local</span> <span class="hljs-built_in">=</span> g_alignedGlobal;</code></pre></div>
+<h2 id="保证原子性">保证原子性</h2>
+<p>可以通过以下组合来<mark>确保</mark>使用原子操作：</p>
+<ul>
+<li>自然原子操作</li>
+<li>用于包装复合操作的锁</li>
+<li>实现常用复合操作原子版本的操作系统函数</li>
+</ul>
+<h2 id="重组">重组</h2>
+<p>更微妙的问题是重新排序。 读取和写入并不总是按照你在代码中编写它们的顺序发生，这可能会导致非常令人困惑的问题。<br>
+在许多多线程算法中，线程会写入一些数据，然后写入一个标志，告知其他线程数据已准备就绪。 这称为写入发布。 如果重新排序写入，则其他线程可能会在看到写入数据之前设置标志。<br>
+同样，在许多情况下，线程从标志读取，然后读取一些共享数据（如果标志表示线程已获取对共享数据的访问权限）。 这称为读取获取。 如果重新排序读取，则可以在标志前从共享存储读取数据，并且看到的值可能不是最新的。</p>
+<h2 id="了解写入的-cpu-重新排列">了解写入的 CPU 重新排列</h2>
+<h3 id="xbox-360">Xbox 360</h3>
+<p>虽然Xbox 360 CPU 没有重新排序指令，但它会重新排列写入操作，这些操作在指令本身之后完成。 PowerPC内存模型专门允许重新排列写入。<br>
+Xbox 360上的写入操作<strong>不会直接转到 L2 缓存</strong>。 相反，<strong>为了改进 L2 缓存写入带宽</strong>，它们通过存储队列，然后存储收集缓冲区。 存储收集缓冲区允许在一个操作中将 64 字节块写入 L2 缓存。 有八个<strong>存储收集缓冲区</strong>，允许高效写入到多个不同内存区域。<br>
+存储收集缓冲区通常以先出先出 (FIFO) 顺序写入 L2 缓存。 但是，如果写入的目标缓存行不在 L2 缓存中，则在从内存提取缓存行时，该写入可能会延迟。<br>
+即使以严格的 FIFO 顺序将存储收集缓冲区写入 L2 缓存，这不能保证将单个写入按顺序写入 L2 缓存。 例如，假设 CPU 写入位置0x1000，然后写入位置0x2000，然后写入位置0x1004。 第一个写入分配存储收集缓冲区，并将其置于队列的前面。 第二个写入分配另一个存储收集缓冲区，并将其放在队列中。 第三次写入会将数据添加到第一个存储收集缓冲区，该缓冲区保留在队列的前面。 因此，第三个写入最终将转到第二个写入前的 L2 缓存。<br>
+存储收集缓冲区引起的重新排序是根本不可预知的，特别是因为核心上的两个线程共享存储收集缓冲区，使存储收集缓冲区的分配和清空高度可变。<br>
+。。编译器重排序，CPU重排序，存储收集缓冲区重排序。。<br>
+。。不过只有Xbox 有这个 存储收集缓存区吧？</p>
+<h3 id="x86-和-x64">x86 和 x64</h3>
+<p>即使 x86 和 x64 CPU 执行重新排序指令，但它们通常不会对其他写入操作重新排序。 写入组合内存存在一些异常。 此外， (MOVS 和 STOS) 和 16 字节 SSE 写入的字符串操作可以在内部重新排序，但否则，写入不会相互重新排序。</p>
+<h2 id="了解读取的-cpu-重新排列">了解读取的 CPU 重新排列</h2>
+<h3 id="xbox-360-2">Xbox 360</h3>
+<p><strong>缓存未命中</strong>可能会导致某些读取延迟，这实际上会导致读取按顺序来自共享内存，并且这些缓存未命中时间从根本上不可预知。 预提取和分支预测还可能导致数据按顺序来自共享内存。 这些只是有关如何重新排序读取的几个示例。 可能存在其他可能性。 PowerPC内存模型专门允许重新排列读取。</p>
+<h3 id="x86-和-x64-2">x86 和 x64</h3>
+<p>即使 x86 和 x64 CPU 执行重新排序指令，但它们通常不会相对于其他读取重新排序读取操作。 字符串操作 (MOVS 和 STOS) 和 16 字节 SSE 读取可以内部重新排序，但否则，读取不会相互重新排序。</p>
+<h2 id="其他重新排序">其他重新排序</h2>
+<p>即使 x86 和 x64 CPU 不会相对于其他写入重新排序写入，或者对相对于其他读取重新排序读取，但它们也可以对相对于写入的读取重新排序。</p>
+<p>。。这句就是，X86,X64 没有 loadload reorder, storestore reorder,但是有 loadstore,storeload reorder 。。 不太清楚 相对于写入的读取 是 loadstore 还是 storeload。  应该是 代码先 store 然后load， 这种会被重排序。   那 load-store 呢？。<br>
+。。下面说了，是 store 然后 load。但是 是 其他位置load，是指 其他线程？还是 读取了 cache？ 重排序 不是和多线程无关么，只是 单线程中的 效果啊。 对，后续的&quot;数据来自共享内存&quot;，读取的内存位置 不对。但是，单线程，怎么可能读取的位置不对呢？<br>
+。。后续的 Dekker，应该是， 。。不知道<br>
+。。Dekker互斥算法是由荷兰数学家Dekker提出的一种解决并发进程互斥与同步的软件实现方法。</p>
+<p>具体而言，如果程序写入到一个位置，然后从其他位置读取，则读取数据可能来自共享内存，然后写入数据就在那里。</p>
+<p>这种重新排序可能会中断某些算法，例如 <mark>Dekker</mark> 的相互排除算法。 在 Dekker 算法中，每个线程设置一个标志以指示它想要进入关键区域，然后检查另一个线程的标志，以查看另一个线程是否位于关键区域或尝试输入它。 初始代码遵循。</p>
+<p>。。进入天书环节。</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C++" data-joplin-source-open="```C++&#10;" data-joplin-source-close="&#10;```">volatile bool f0 = false;
+volatile bool f1 = false;
+
+void P0Acquire()
+{
+    // Indicate intention to enter critical region
+    f0 = true;
+    // Check for other thread in or entering critical region
+    while (f1)
+    {
+        // Handle contention.
+    }
+    // critical region
+    ...
+}
+
+
+void P1Acquire()
+{
+    // Indicate intention to enter critical region
+    f1 = true;
+    // Check for other thread in or entering critical region
+    while (f0)
+    {
+        // Handle contention.
+    }
+    // critical region
+    ...
+}</pre><pre class="hljs"><code><span class="hljs-keyword">volatile</span> <span class="hljs-type">bool</span> f0 = <span class="hljs-literal">false</span>;
+<span class="hljs-keyword">volatile</span> <span class="hljs-type">bool</span> f1 = <span class="hljs-literal">false</span>;
+
+<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">P0Acquire</span><span class="hljs-params">()</span>
+</span>{
+    <span class="hljs-comment">// Indicate intention to enter critical region</span>
+    f0 = <span class="hljs-literal">true</span>;
+    <span class="hljs-comment">// Check for other thread in or entering critical region</span>
+    <span class="hljs-keyword">while</span> (f1)
+    {
+        <span class="hljs-comment">// Handle contention.</span>
+    }
+    <span class="hljs-comment">// critical region</span>
+    ...
+}
+
+
+<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">P1Acquire</span><span class="hljs-params">()</span>
+</span>{
+    <span class="hljs-comment">// Indicate intention to enter critical region</span>
+    f1 = <span class="hljs-literal">true</span>;
+    <span class="hljs-comment">// Check for other thread in or entering critical region</span>
+    <span class="hljs-keyword">while</span> (f0)
+    {
+        <span class="hljs-comment">// Handle contention.</span>
+    }
+    <span class="hljs-comment">// critical region</span>
+    ...
+}</code></pre></div>
+<p>问题是，P0Acquire 中 f1 的读取可以在写入 f0 之前从共享存储读取到共享存储。 同时，在写入 f1 之前，P1Acquire 中的 f0 读取可以从共享存储读取，然后写入 f1 即可将其写入共享存储。 净效果是，两个线程将标志设置为 TRUE，两个线程将另一个线程的标志视为 FALSE，因此它们都进入关键区域。 因此，虽然在基于 x86 和 x64 的系统上重新排序的问题与Xbox 360相比不太常见，但它们肯定仍可能发生。 Dekker 的算法在上述任何平台上都不会使用硬件内存屏障。</p>
+<p>x86 和 x64 CPU 不会在上一次读取之前重新排序写入。 如果 x86 和 x64 CPU 面向不同的位置，则仅重新排序之前写入。</p>
+<p>PowerPC CPU 可以在写入之前重新排序读取，并且可以在读取之前对写入重新排序，只要它们与不同的地址相同。</p>
+<h2 id="重新排序摘要">重新排序摘要</h2>
+<p>与 x86 和 x64 CPU 相比，Xbox 360 CPU 重新排序比 x86 和 x64 CPU 更积极，如下表所示。 有关更多详细信息，请参阅处理器文档。</p>
+<table>
+<thead>
+<tr>
+<th>重新排序活动</th>
+<th>x86 和 x64</th>
+<th>Xbox 360</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>读取操作在读取之前移动</td>
+<td>否</td>
+<td>是</td>
+</tr>
+<tr>
+<td>写入操作在写入之前移动</td>
+<td>否</td>
+<td>是</td>
+</tr>
+<tr>
+<td>写入操作在读取之前移动</td>
+<td>否</td>
+<td>是</td>
+</tr>
+<tr>
+<td>读取操作在写入之前移动</td>
+<td>是</td>
+<td>是</td>
+</tr>
+</tbody>
+</table>
+<h2 id="read-acquire和write-release障碍">Read-Acquire和Write-Release障碍</h2>
+<p>用于防止重新排序读取和写入的主要构造称为读取获取和写入释放屏障。<br>
+读取获取是一个标志或其他变量的读取，用于获取资源的所有权，加上阻止重新排序的障碍。<br>
+同样，写发布是标记或其他变量的写入，用于放弃资源的所有权，加上阻止重新排序的障碍。</p>
+<p>赫布·萨特的正式定义包括：</p>
+<ul>
+<li>读取获取在按程序顺序遵循该线程的所有读取和写入之前执行。</li>
+<li>写入释放在按程序顺序排列之前的所有读取和写入操作之后执行。</li>
+</ul>
+<p>。。赫布·萨特 是C++专家<br>
+。读取 在 后续所有 读/写 之前执行<br>
+。写入 在 前面所有 读/写 之后执行</p>
+<p>最简单的方式是将读取获取和写入释放屏障视为单个操作。 但是，它们有时必须从两个部分构造：读取或写入以及不允许读取或写入的屏障在读取或写入之间移动。 在这种情况下，屏障的位置至关重要。<br>
+对于读取获取屏障，<strong>先读取标志，再读取屏障，然后读取和写入共享数据</strong>。<br>
+对于写入释放屏障，<strong>共享数据的读取和写入先是屏障，然后是标志的写入。</strong></p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C++" data-joplin-source-open="```C++&#10;" data-joplin-source-close="&#10;```">// Read that acquires the data.
+if( g_flag )
+{
+    // Guarantee that the read of the flag executes before
+    // all reads and writes that follow in program order.
+    BarrierOfSomeSort();
+
+    // Now we can read and write the shared data.
+    int localVariable = sharedData.y;
+    sharedData.x = 0;
+
+    // Guarantee that the write to the flag executes after all
+    // reads and writes that precede it in program order.
+    BarrierOfSomeSort();
+    
+    // Write that releases the data.
+    g_flag = false;
+}</pre><pre class="hljs"><code><span class="hljs-comment">// Read that acquires the data.</span>
+<span class="hljs-keyword">if</span>( g_flag )
+{
+    <span class="hljs-comment">// Guarantee that the read of the flag executes before</span>
+    <span class="hljs-comment">// all reads and writes that follow in program order.</span>
+    <span class="hljs-built_in">BarrierOfSomeSort</span>();
+
+    <span class="hljs-comment">// Now we can read and write the shared data.</span>
+    <span class="hljs-type">int</span> localVariable = sharedData.y;
+    sharedData.x = <span class="hljs-number">0</span>;
+
+    <span class="hljs-comment">// Guarantee that the write to the flag executes after all</span>
+    <span class="hljs-comment">// reads and writes that precede it in program order.</span>
+    <span class="hljs-built_in">BarrierOfSomeSort</span>();
+    
+    <span class="hljs-comment">// Write that releases the data.</span>
+    g_flag = <span class="hljs-literal">false</span>;
+}</code></pre></div>
+<p>读取获取和写入释放之间的唯一区别是内存屏障的位置。<br>
+读取获取在<strong>锁定操作后具有屏障</strong>，<br>
+写入<strong>释放之前具有屏障</strong>。<br>
+在这两种情况下，屏障位于对锁定内存的引用和对锁的引用之间。</p>
+<p>若要了解获取数据时和发布数据时为何都需要屏障，最好 (和最准确的) 将这些屏障<mark>视为保证与共享内存的同步</mark>，而不是与其他处理器同步。 如果一个处理器使用写版本将数据结构发布到共享内存，另一个处理器使用读取获取从共享内存访问该数据结构，则代码将正常工作。 如果任一处理器未使用适当的屏障，则数据共享可能会失败。</p>
+<p>使用正确的屏障防止平台的编译器和 CPU 重新排序至关重要。</p>
+<p>使用操作系统提供的同步基元的优点之一是，所有这些基元都包含适当的内存屏障。</p>
+<h2 id="阻止编译器重新排序">阻止编译器重新排序</h2>
+<p>使用 Visual C++，可以使用编译器内部 <code class="inline-code">_ReadWriteBarrier</code>来阻止编译器重新排序。 在代码中插入 <code class="inline-code">_ReadWriteBarrier</code> 的位置，编译器不会移动读取和写入。</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C++" data-joplin-source-open="```C++&#10;" data-joplin-source-close="&#10;```">#if _MSC_VER &lt; 1400
+    // With VC++ 2003 you need to declare _ReadWriteBarrier
+    extern &quot;C&quot; void _ReadWriteBarrier();
+#else
+    // With VC++ 2005 you can get the declaration from intrin.h
+#include &lt;intrin.h&gt;
+#endif
+// Tell the compiler that this is an intrinsic, not a function.
+#pragma intrinsic(_ReadWriteBarrier)
+
+// Create a new sprite by filling in a previously empty entry.
+g_sprites[nextSprite].x = x;
+g_sprites[nextSprite].y = y;
+// Write-release, barrier followed by write.
+// Guarantee that the compiler leaves the write to the flag
+// after all reads and writes that precede it in program order.
+_ReadWriteBarrier();
+g_sprites[nextSprite].alive = true;</pre><pre class="hljs"><code><span class="hljs-meta">#<span class="hljs-keyword">if</span> _MSC_VER &lt; 1400</span>
+    <span class="hljs-comment">// With VC++ 2003 you need to declare _ReadWriteBarrier</span>
+    <span class="hljs-keyword">extern</span> <span class="hljs-string">&quot;C&quot;</span> <span class="hljs-type">void</span> _ReadWriteBarrier();
+<span class="hljs-meta">#<span class="hljs-keyword">else</span></span>
+    <span class="hljs-comment">// With VC++ 2005 you can get the declaration from intrin.h</span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;intrin.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">endif</span></span>
+<span class="hljs-comment">// Tell the compiler that this is an intrinsic, not a function.</span>
+<span class="hljs-meta">#<span class="hljs-keyword">pragma</span> intrinsic(_ReadWriteBarrier)</span>
+
+<span class="hljs-comment">// Create a new sprite by filling in a previously empty entry.</span>
+g_sprites[nextSprite].x = x;
+g_sprites[nextSprite].y = y;
+<span class="hljs-comment">// Write-release, barrier followed by write.</span>
+<span class="hljs-comment">// Guarantee that the compiler leaves the write to the flag</span>
+<span class="hljs-comment">// after all reads and writes that precede it in program order.</span>
+_ReadWriteBarrier();
+g_sprites[nextSprite].alive = <span class="hljs-literal">true</span>;</code></pre></div>
+<p>在以下代码中，另一个线程从子画面数组读取：</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C++" data-joplin-source-open="```C++&#10;" data-joplin-source-close="&#10;```">// Draw all sprites.
+for( int i = 0; i &lt; numSprites; ++i )
+{
+
+    // Read-acquire, read followed by barrier.
+    if( g_sprites[nextSprite].alive )
+    {
+    
+        // Guarantee that the compiler leaves the read of the flag
+        // before all reads and writes that follow in program order.
+        _ReadWriteBarrier();
+        DrawSprite( g_sprites[nextSprite].x,
+                g_sprites[nextSprite].y );
+    }
+}</pre><pre class="hljs"><code><span class="hljs-comment">// Draw all sprites.</span>
+<span class="hljs-keyword">for</span>( <span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; numSprites; ++i )
+{
+
+    <span class="hljs-comment">// Read-acquire, read followed by barrier.</span>
+    <span class="hljs-keyword">if</span>( g_sprites[nextSprite].alive )
+    {
+    
+        <span class="hljs-comment">// Guarantee that the compiler leaves the read of the flag</span>
+        <span class="hljs-comment">// before all reads and writes that follow in program order.</span>
+        _ReadWriteBarrier();
+        <span class="hljs-built_in">DrawSprite</span>( g_sprites[nextSprite].x,
+                g_sprites[nextSprite].y );
+    }
+}</code></pre></div>
+<p>请务必了解 ，<code class="inline-code">_ReadWriteBarrier</code> 不会插入任何其他指令，并且它不会阻止 CPU 重新排列读取和写入-它只阻止编译器重新排列读取和写入。<br>
+因此，当你在 x86 和 x64 (上实现写释放屏障时， <code class="inline-code">_ReadWriteBarrier</code> 就足够了，因为 x86 和 x64 <strong>不重新排序写入，并且正常写入足以释放锁</strong>) ，但在大多数情况下，还需要防止 CPU 重新排序读取和写入。</p>
+<p>还可以在写入不可缓存的写入组合内存时使用 <code class="inline-code">_ReadWriteBarrier</code> ，以防止重新排序写入。 在这种情况下 ，<code class="inline-code">_ReadWriteBarrier</code> 通过保证写入以处理器的首选线性顺序进行，从而帮助<strong>提高性能</strong>。</p>
+<p>还可以使用 <code class="inline-code">_ReadBarrier 和 _WriteBarrier</code> 内部函数更精确地控制编译器重新排序。 编译器不会在 <code class="inline-code">_ReadBarrier</code>之间移动读取，也不会在 <code class="inline-code">_WriteBarrier</code>之间移动写入。</p>
+<h2 id="防止-cpu-重新排序">防止 CPU 重新排序</h2>
+<p>CPU 重新排序比编译器重新排序更微妙。 你永远看不到它直接发生，你只会看到难以理解的 bug。<br>
+为了防止对读取和写入进行 CPU 重新排序，需要在某些处理器上使用<mark>内存屏障指令</mark>。 内存屏障指令（Xbox 360和Windows）的所有用途名称为 MemoryBarrier。 此宏是针对每个平台正确实现的。</p>
+<p>在Xbox 360，<strong>MemoryBarrier 定义为 lwsync (轻型同步)</strong> ，也可以通过 ppcintrinsics.h 中定义的<code class="inline-code">__lwsync</code>内部函数获得。 <code class="inline-code">__lwsync</code> 还充当编译器内存屏障，防止编译器重新排列读取和写入。</p>
+<p>lwsync 指令是Xbox 360上的内存屏障，用于将<strong>一个处理器核心与 L2 缓存同步</strong>。<br>
+它保证 lwsync 之前的所有写入都会在后续写入之前将其写入 L2 缓存。<br>
+它还保证以下 lwsync 的任何读取不会从 L2 获取早于以前读取的数据。<br>
+它不会阻止的一种类型的重新排序是在写入到其他地址之前进行读取。<br>
+因此， lwsync 强制实施与 x86 和 x64 处理器上默认内存排序匹配的内存排序。<br>
+若要获取完整内存排序，需要更昂贵的同步指令 (也称为重量级同步) ，但在大多数情况下，这不是必需的。</p>
+<p>下表显示了Xbox 360上的内存重新排序选项。</p>
+<table>
+<thead>
+<tr>
+<th>Xbox 360重新排序</th>
+<th>无同步</th>
+<th>lwsync</th>
+<th>sync</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>读取操作在读取之前移动</td>
+<td>是</td>
+<td>否</td>
+<td>否</td>
+</tr>
+<tr>
+<td>写入操作在写入之前移动</td>
+<td>是</td>
+<td>否</td>
+<td>否</td>
+</tr>
+<tr>
+<td>写入操作在读取之前移动</td>
+<td>是</td>
+<td>否</td>
+<td>否</td>
+</tr>
+<tr>
+<td>读取操作在写入之前移动</td>
+<td>是</td>
+<td>是</td>
+<td>否</td>
+</tr>
+</tbody>
+</table>
+<p>PowerPC还有同步指令 isync 和 eieio (用于控制缓存抑制内存) 的重新排序。 出于正常同步目的，不需要这些同步说明。</p>
+<p>在<strong>Windows</strong>中，<mark>MemoryBarrier</mark> 在 <code class="inline-code">Winnt.h</code> 中定义，并提供不同的内存屏障指令，具体取决于是要编译 x86 还是 x64。<br>
+内存屏障指令充当完整屏障，防止对屏障上的读取和写入进行重新排序。<br>
+因此，Windows上的 MemoryBarrier 提供比Xbox 360<strong>更强的重新排序保证</strong>。</p>
+<p>在Xbox 360和其他许多 CPU 上，可以阻止 CPU 进行读取重新排序的<strong>另一种方法</strong>。<br>
+<mark>如果读取指针，然后使用该指针加载其他数据，则 CPU 保证指针的读取时间不早于指针的读取。</mark><br>
+如果<strong>锁标志是指针</strong>，并且<strong>共享数据的所有读取都脱离了指针</strong>，则可以省略 MemoryBarrier ，以节省适度的性能。</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C++" data-joplin-source-open="```C++&#10;" data-joplin-source-close="&#10;```">Data* localPointer = g_sharedPointer;
+if( localPointer )
+{
+    // No import barrier is needed--all reads off of localPointer
+    // are guaranteed to not be reordered past the read of
+    // localPointer.
+    int localVariable = localPointer-&gt;y;
+    // A memory barrier is needed to stop the read of g_global
+    // from being speculatively moved ahead of the read of
+    // g_sharedPointer.
+    int localVariable2 = g_global;
+}</pre><pre class="hljs"><code>Data* localPointer = g_sharedPointer;
+<span class="hljs-keyword">if</span>( localPointer )
+{
+    <span class="hljs-comment">// No import barrier is needed--all reads off of localPointer</span>
+    <span class="hljs-comment">// are guaranteed to not be reordered past the read of</span>
+    <span class="hljs-comment">// localPointer.</span>
+    <span class="hljs-type">int</span> localVariable = localPointer-&gt;y;
+    <span class="hljs-comment">// A memory barrier is needed to stop the read of g_global</span>
+    <span class="hljs-comment">// from being speculatively moved ahead of the read of</span>
+    <span class="hljs-comment">// g_sharedPointer.</span>
+    <span class="hljs-type">int</span> localVariable2 = g_global;
+}</code></pre></div>
+<p>MemoryBarrier 指令仅阻止对可缓存内存的读取和写入重新排序。 如果将<mark>内存分配为PAGE_NOCACHE或PAGE_WRITECOMBINE</mark>，则对于设备驱动程序作者和Xbox 360上的游戏开发人员来说，MemoryBarrier 对访问此内存没有任何影响。 大多数开发人员不需要同步不可缓存的内存。 这超出了本文的范围。<br>
+。。普通的C++没有 PAGE_NOCACHE或PAGE_WRITECOMBINE 吧。</p>
+<h2 id="互锁函数和-cpu-重新排序">互锁函数和 CPU 重新排序</h2>
+<p>有时，获取或释放资源的读取或写入是使用 InterlockedXxx 函数之一完成的。 在Windows，这简化了操作;因为在Windows，InterlockedXxx 函数都是<strong>全内存屏障</strong>。 它们实际上在 CPU 内存屏障之前和之后都有一个 CPU 内存屏障，这意味着它们是完全读取获取或写入释放屏障本身。</p>
+<p>在Xbox 360上，InterlockedXxx 函数不包含 CPU 内存屏障。 它们可防止编译器重新排序读取和写入，但不会对 CPU 重新排序。 因此，在大多数情况下，在Xbox 360上使用 InterlockedXxx 函数时，应先使用__lwsync遵循它们，使其成为读取获取或写入释放屏障。 为方便起见，并且更易于阅读，有许多 InterlockedXxx 函数的 Acquire 和 Release 版本。 它们附带内置内存屏障。 例如， InterlockedIncrementAcquire 执行互锁增量，后跟 <code class="inline-code">__lwsync</code> 内存屏障，以提供完整的读取获取功能。</p>
+<p>此示例演示了一个线程如何使用 InterlockedXxxSList 函数的 Acquire 和 Release 版本将任务或其他数据传递给另一个线程。 InterlockedXxxSList 函数是一系列函数，用于维护不带锁的共享单声链接列表。 请注意，这些函数的获取和发布变体在Windows不可用，但这些函数的常规版本是Windows的完整内存屏障。</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C++" data-joplin-source-open="```C++&#10;" data-joplin-source-close="&#10;```">// Declarations for the Task class go here.
+
+// Add a new task to the list using lockless programming.
+void AddTask( DWORD ID, DWORD data )
+{
+    Task* newItem = new Task( ID, data );
+    InterlockedPushEntrySListRelease( g_taskList, newItem );
+}
+
+// Remove a task from the list, using lockless programming.
+// This will return NULL if there are no items in the list.
+Task* GetTask()
+{
+    Task* result = (Task*)
+        InterlockedPopEntrySListAcquire( g_taskList );
+    return result;
+}</pre><pre class="hljs"><code><span class="hljs-comment">// Declarations for the Task class go here.</span>
+
+<span class="hljs-comment">// Add a new task to the list using lockless programming.</span>
+<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">AddTask</span><span class="hljs-params">( DWORD ID, DWORD data )</span>
+</span>{
+    Task* newItem = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Task</span>( ID, data );
+    <span class="hljs-built_in">InterlockedPushEntrySListRelease</span>( g_taskList, newItem );
+}
+
+<span class="hljs-comment">// Remove a task from the list, using lockless programming.</span>
+<span class="hljs-comment">// This will return NULL if there are no items in the list.</span>
+<span class="hljs-function">Task* <span class="hljs-title">GetTask</span><span class="hljs-params">()</span>
+</span>{
+    Task* result = (Task*)
+        <span class="hljs-built_in">InterlockedPopEntrySListAcquire</span>( g_taskList );
+    <span class="hljs-keyword">return</span> result;
+}</code></pre></div>
+<h2 id="可变变量和重新排序">可变变量和重新排序</h2>
+<p><mark>C++ 标准版表示，无法缓存易失变量的读取，易失性写入无法延迟，并且无法相互移动易失读取和写入。 这足以与硬件设备通信，这是 C++ 标准中的易失性关键字的用途。</mark></p>
+<p>但是，<mark>标准保证不足以对多线程使用易失性</mark>。 C++ 标准不会阻止编译器重新排序相对于易失性读取和写入的非易失性读取和写入，并且它不说明阻止 CPU 重新排序。</p>
+<p>。。volatile 是 立即读取，写入的，  但是 重排序 会把 非volatile 重排到 volatile 前面 或 后面。</p>
+<p>Visual C++ 2005 超越标准 C++ ，以定义多线程友好语义，以便进行可变变量访问。 从 Visual C++ 2005 开始，从易失变量读取定义为具有读取获取语义，对易失变量的写入定义为具有写发布语义。 这意味着编译器不会重新排列任何读取和写入，并且Windows它将确保 CPU 不会这样做。<br>
+。。挂不得移植性很垃。 各个厂商都是各自的。</p>
+<h2 id="lock-free数据管道的示例">Lock-Free数据管道的示例</h2>
+<p>管道是一个构造，允许一个或多个线程写入数据，然后由其他线程读取。 <mark>管道的无锁版本可以是将工作从线程传递到线程的优雅高效方法</mark>。 DirectX SDK 提供 LockFreePipe，这是 DXUTLockFreePipe.h 中提供的单读取器单编写器无锁管道。 AtgLockFreePipe.h 中的 Xbox 360 SDK 中提供了相同的 LockFreePipe。</p>
+<p>当两个线程具有生成者/使用者关系时，可以使用 LockFreePipe。<br>
+如果管道填满，写入会失败<br>
+如果管道清空，读取失败<br>
+如果两个线程<mark>平衡良好</mark>，并且管道足够大，则管道允许它们顺利传递数据，且不会延迟或块。</p>
+<h2 id="xbox-360性能">Xbox 360性能</h2>
+<p>Xbox 360上的同步指令和函数的性能因运行其他代码而异。<br>
+如果另一个线程当前拥有锁，获取锁需要更长的时间。<br>
+如果其他线程写入同一缓存行，则 InterlockedIncrement 和关键节操作需要更长的时间。<br>
+存储队列的内容也会影响性能。<br>
+因此，所有这些数字只是从非常<mark>简单的测试生成的近似值</mark>：</p>
+<ul>
+<li>lwsync 被测量为采用 33-48 个周期。</li>
+<li>InterlockedIncrement 测量为采用 225-260 个周期。</li>
+<li>获取或释放关键部分被测量为大约 345 个周期。</li>
+<li>获取或释放互斥体被测量为大约 2350 个周期。</li>
+</ul>
+<h2 id="windows-性能">Windows 性能</h2>
+<p>Windows上的同步指令和函数的性能因处理器类型和配置以及运行其他代码而异。<br>
+多核和多套接字系统通常需要更长的时间来执行同步指令，如果另一个线程当前拥有锁，获取锁需要更长的时间。<br>
+但是，即使是从非常简单的测试生成的一些度量值也很有用：</p>
+<ul>
+<li>MemoryBarrier 被测量为采用 20-90 个周期。</li>
+<li>InterlockedIncrement 测量为采用 36-90 周期。</li>
+<li>获取或释放关键部分被测量为采用 40-100 个周期。</li>
+<li>获取或释放互斥体测量为大约 750-2500 个周期。</li>
+</ul>
+<p>这些测试是在一系列不同处理器上的 Windows XP 上完成的。</p>
+<p>。。<br>
+1 应该是 内存屏障<br>
+2 应该是 原子加<br>
+3 。。。关键部分，原文： critical section， 临界区<br>
+4 mutex</p>
+<p>CRITICAL_SECTION不是针对于资源的，而是针对于不同线程间的代码段的！我们能够用它来进行所谓资源的“锁定”，其实是因为我们在任何访问共享资源的地方都加入了EnterCriticalSection和 LeaveCriticalSection语句，使得同一时间只能够有一个线程的代码段访问到该共享资源而已<br>
+。。</p>
+<h2 id="性能思考">性能思考</h2>
+<p>获取或释放<mark>关键部分</mark>包括<strong>内存屏障</strong>、 <strong>InterlockedXxx</strong> 操作和<strong>一些额外的检查来处理递归</strong>，并在<strong>必要时回退到互斥体</strong>。 你应该谨慎地实现自己的关键部分，因为旋转在循环中等待锁释放，而不回退到互斥体，可能会浪费相当大的性能。 对于大量竞争但未保留很长时间的关键部分，应考虑使用 InitializeCriticalSectionAndSpinCount ，以便操作系统会在等待关键部分可用时旋转一段时间，而不是在尝试获取关键部分时立即延迟到互斥体。 若要确定可从旋转计数中获益的关键部分，必须测量典型等待特定锁的长度。</p>
+<p>如果<strong>共享堆用于内存分配（默认行为）</strong>，则每个内存分配和可用都涉及获取锁。 随着线程数和分配数的增加，性能级别会降低，最终开始减少。 <mark>使用线程堆或减少分配数</mark>可以避免这种锁定瓶颈。<br>
+如果一个线程正在生成数据，另一个线程正在使用数据，则它们最终可能会频繁共享数据。 如果一个线程正在加载资源，另一个线程正在呈现场景，则可能会出现这种情况。 如果呈现线程引用每个绘图调用上的<strong>共享数据</strong>，则锁定开销会很高。 如果每个线程都有<strong>专用数据结构，则性能要好得多</strong>，然后每个帧或更短的时间同步一次。</p>
+<p>不保证无锁算法比使用锁的算法更快。 在尝试避免锁之前，应检查锁是否确实导致问题，并且应该衡量无锁代码是否确实提高了性能。</p>
+<h2 id="平台差异摘要">平台差异摘要</h2>
+<ul>
+<li>InterlockedXxx 函数可防止在Windows上重新排序 CPU 读/写，但不能在Xbox 360上重新排序。</li>
+<li>使用 Visual Studio C++ 2005 读取和写入易失变量可防止对Windows进行 CPU 读/写重新排序，但在Xbox 360，它只会阻止编译器读/写重新排序。</li>
+<li>写入在Xbox 360上重新排序，但不在 x86 或 x64 上重新排序。</li>
+<li>读取在Xbox 360上重新排序，但在 x86 或 x64 上，它们仅相对于写入重新排序，并且仅当读取和写入面向不同位置时。</li>
+</ul>
+<h2 id="建议"><mark>建议</mark></h2>
+<ul>
+<li>尽可能使用锁，因为它们更易于正确使用。</li>
+<li>避免锁定过于频繁，因此锁定成本不会变得显著。</li>
+<li>避免长时间持有锁，以避免长时间停止。</li>
+<li>适当时使用无锁编程，但请确保增益证明复杂性是正当的。</li>
+<li>在禁止其他锁的情况下使用无锁编程或旋转锁，例如，在延迟过程调用和正常代码之间共享数据时。</li>
+<li>仅使用已证明正确的<mark>标准无锁编程算法</mark></li>
+<li>执行无锁编程时，请务必根据需要使用可变标志变量和内存屏障指令。</li>
+<li>在 Xbox 360 上使用 InterlockedXxx 时，请使用“获取”和“发布”变体。</li>
+</ul>
+<p>==================<br>
+<a data-from-md title='https://mirrors.edge.kernel.org/pub/linux/kernel/people/paulmck/perfbook/perfbook.2011.01.02a.pdf' href='https://mirrors.edge.kernel.org/pub/linux/kernel/people/paulmck/perfbook/perfbook.2011.01.02a.pdf'>https://mirrors.edge.kernel.org/pub/linux/kernel/people/paulmck/perfbook/perfbook.2011.01.02a.pdf</a></p>
+<p>。。纯英文，500页。<br>
+。这个也是在 《an-introduction-to-lock-free-programming》 中提到的。不过只提到了 这个pdf的 附录C，用来了解 硬件如何处理内存重排序 的细节。</p>
+<p>==================<br>
+<a data-from-md title='https://zhuanlan.zhihu.com/p/608637620' href='https://zhuanlan.zhihu.com/p/608637620'>https://zhuanlan.zhihu.com/p/608637620</a></p>
+<h1 id="浅谈c-11-无锁并发风险指针">浅谈：C++ 11 无锁并发——风险指针</h1>
+<h2 id="风险指针的形象比喻">风险指针的形象比喻</h2>
+<p>风险指针用来辅助无锁栈的内存回收，它可以做到线程安全地释放一个已经pop的节点。</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C++" data-joplin-source-open="```C++&#10;" data-joplin-source-close="&#10;```">/*以下代码摘自《C++并发编程实战》*/
+template&lt;typename T&gt;
+class lock_free_stack
+{
+private:
+struct node
+{
+  T data;
+  node* next;
+  node(T const&amp;data_):data(data_){}
+};
+std::atomic&lt;node*&gt;head;
+public:
+  void push(T const&amp; data)
+ {
+   node* const new_node = new node(data)
+   new_node-&gt;next=head.load();
+   while(!head.compare_exchange_weak(new_node-&gt;next,new_node));
+ }
+/*我们的关注点放在下面的pop方法*/
+  void pop(T&amp; result)
+ {
+   node* old_head=head.load();  //operate 1
+   while(!head.compare_exchange_weak(old_head,old_head-&gt;next)); //operate 2
+   result=old_head-&gt;data;
+ }
+};</pre><pre class="hljs"><code><span class="hljs-comment">/*以下代码摘自《C++并发编程实战》*/</span>
+<span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">lock_free_stack</span>
+{
+<span class="hljs-keyword">private</span>:
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">node</span>
+{
+  T data;
+  node* next;
+  <span class="hljs-built_in">node</span>(T <span class="hljs-type">const</span>&amp;data_):<span class="hljs-built_in">data</span>(data_){}
+};
+std::atomic&lt;node*&gt;head;
+<span class="hljs-keyword">public</span>:
+  <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">push</span><span class="hljs-params">(T <span class="hljs-type">const</span>&amp; data)</span>
+ </span>{
+   node* <span class="hljs-type">const</span> new_node = <span class="hljs-keyword">new</span> <span class="hljs-built_in">node</span>(data)
+   new_node-&gt;next=head.<span class="hljs-built_in">load</span>();
+   <span class="hljs-keyword">while</span>(!head.<span class="hljs-built_in">compare_exchange_weak</span>(new_node-&gt;next,new_node));
+ }
+<span class="hljs-comment">/*我们的关注点放在下面的pop方法*/</span>
+  <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">pop</span><span class="hljs-params">(T&amp; result)</span>
+ </span>{
+   node* old_head=head.<span class="hljs-built_in">load</span>();  <span class="hljs-comment">//operate 1</span>
+   <span class="hljs-keyword">while</span>(!head.<span class="hljs-built_in">compare_exchange_weak</span>(old_head,old_head-&gt;next)); <span class="hljs-comment">//operate 2</span>
+   result=old_head-&gt;data;
+ }
+};</code></pre></div>
+<p>上面的push方法中，使用 new来申请堆内存，但没有在pop 方法中使用delete 来释放，存在内存泄露。<br>
+如果在 pop中delete，单线程没有问题。<br>
+多线程时，假设 多根线程 持有栈顶指针，当其中的一根线程执行delete后，其他线程在 operate 2 这行代码时，old_head已经被delete，会出现未定义行为。</p>
+<p>风险指针<br>
+多根线程持有栈顶，其中一根线程想要进行delete时，会询问 其他线程，风险指针 会反对 delete。<br>
+使用一个风险指针数组 用于记录，如果这个风险指针数组中有多个 当前栈顶指针的记录，就可以确定，回收操作 是存在风险的，那我们就延后进行delete操作。</p>
+<h2 id="风险指针的具体实现和工作原理">风险指针的具体实现和工作原理</h2>
+<p>。。跳<br>
+。。就是 新建一个数组，每次 delete 的时候就<br>
+。。不，挺复杂的，2个数组，一个保存&lt;thread id, node pointer&gt;，一个保存 等待删除的node。<br>
+。每次pop的时候，遍历数组，看下 是否有 线程持有 结点，没有就直接delete，有的话，就进入 等待删除的数组中，并且在pop 的最后 都会调用 方法来 删除 等待删除的数组中的 结点，删除的时候，也要遍历 数组，查看是否有线程 持有该结点。</p>
+<p>。。很复杂的。</p>
+<hr>
+<p>=============</p>
+<h1 id="lock-free-algo">Lock Free Algo</h1>
+<hr>
+<p><a data-from-md title='https://blog.csdn.net/lijinbinlaa/article/details/122150837' href='https://blog.csdn.net/lijinbinlaa/article/details/122150837'>https://blog.csdn.net/lijinbinlaa/article/details/122150837</a></p>
+<h1 id="无锁编程技术一">无锁编程技术（一）</h1>
+<p>。。没有后续了。</p>
+<h2 id="锁为什么低效">锁为什么低效</h2>
+<p>首先，上锁和释放锁，都需要<strong>模式切换</strong>，本身就是开销。上锁：由用户空间切换到内核空间，上锁后再切回到用户空间，这就是两次切换；释放锁也同样需要两次模式切换，一共是四次模式切换。</p>
+<p>另一个开销，在于<strong>进程上下文的切换</strong>。<mark>线程切换有两种场景</mark>：<strong>CPU时间片用尽</strong>、<strong>因阻塞被提前切换</strong>。竞争资源失败导致阻塞，会使得调度单元放弃未使用完的CPU时间片而切换到其他调度单元。也就是说，因为锁的缘故，导致上下文的切换更多了。无锁并发和CAS并不是说避免了上下文切换，而是减少了上下文切换。即，无锁并发则只有时间片用完后才进行线程切换。</p>
+<p>上下文切换需要保存、回复现场，这些都是CPU开销。</p>
+<h2 id="lock-free">lock free</h2>
+<p>无锁编程具体使用和考虑到的 技术包括：</p>
+<ul>
+<li>原子操作</li>
+<li>内存栅栏</li>
+<li>内存顺序</li>
+<li>指令序列一致性</li>
+<li>顺ABA现象</li>
+<li>read modify write</li>
+</ul>
+<p>最常用的原子操作是 compare and swap， 几乎所有 CPU 指令集 都支持 CAS 的原子操作。</p>
+<h2 id="lock-free-缺点">lock free 缺点</h2>
+<p>并不能在所有场景下都带来极大提升。<br>
+循环CAS 会占用大量CPU。所以 基于 CAS 的 各种自旋锁 不适合做 操作和等待时间太长的 并发操作。 而 通过 对 <strong>锁</strong> 程序 进行合理的设计和优化，很多场景下 更容易 使得 程序 实现高度并发。<br>
+无锁编程 开发和维护的 成本很高。<br>
+类似ABA 问题 也很难 直观的探测和解决<br>
+实现细节 与 硬件平台 相关性很强。目前 理论和实践上 只有 少数 数据结构 可以支持 无锁编程，比如 队列，栈，链表，词典等。 要在 业务场景下 大规模 无锁编程 较困难， 更多 是在 部分特殊场景解决 锁竞争 等问题。</p>
+<hr>
+<p><a data-from-md title='https://zhuanlan.zhihu.com/p/444193849' href='https://zhuanlan.zhihu.com/p/444193849'>https://zhuanlan.zhihu.com/p/444193849</a></p>
+<h1 id="无锁编程-2">无锁编程</h1>
+<h2 id="活锁死锁">活锁，死锁</h2>
+<p>活锁、死锁本质上是一样的，原因是在获取临界区资源时，并发多个进程/线程声明资源占用(加锁)的顺序不一致，<br>
+死锁是加不上就死等，<br>
+活锁是加不上就放开已获得的资源重试</p>
+<h2 id="饥饿">饥饿</h2>
+<p>饥饿是指如果线程T1占用了资源R，线程T2又请求封锁R，于是T2等待。T3也请求资源R，当T1释放了R上的封锁后，<strong>系统首先批准了T3的请求</strong>，T2仍然等待。然后T4又请求封锁R，当T3释放了R上的封锁之后，系统又批准了T4的请求......，<strong>T2可能永远等待</strong>。</p>
+<h2 id="优先级反转">优先级反转</h2>
+<p>优先级反转是指一个低优先级的任务持有一个被高优先级任务所需要的共享资源。高优先任务由于因资源缺乏而处于受阻状态，一直等到低优先级任务释放资源为止。而低优先级获得的CPU时间少，如果此时有优先级处于两者之间的任务，并且不需要那个共享资源，则该中优先级的任务反而超过这两个任务而获得CPU时间。如果高优先级等待资源时不是阻塞等待，而是忙循环，则可能永远无法获得资源，因为此时低优先级进程无法与高优先级进程争夺CPU时间，从而无法执行，进而无法释放资源，造成的后果就是高优先级任务无法获得资源而继续推进。</p>
+<h3 id="解决方案">解决方案</h3>
+<ul>
+<li>设置优先级上限，给临界区一个高优先级，进入临界区的进程都将获得这个高优先级，如果其他试图进入临界区的进程的优先级都低于这个高优先级，那么优先级反转就不会发生。</li>
+<li>优先级继承，当一个高优先级进程等待一个低优先级进程持有的资源时，低优先级进程将暂时获得高优先级进程的优先级别，在释放共享资源后，低优先级进程回到原来的优先级别。嵌入式系统VxWorks就是采用这种策略。</li>
+<li>第三种方法就是使用中断禁止，通过禁止中断来保护临界区，采用此种策略的系统只有两种优先级：可抢占优先级和中断禁止优先级。前者为一般进程运行时的优先级，后者为运行于临界区的优先级。</li>
+</ul>
+<h2 id="护航现象lock-convoys">护航现象（Lock Convoys）</h2>
+<p>Lock Convoys是在多线程并发环境下由于锁的使用而引起的性能退化问题。 当多个相同优先级的线程频繁地争抢同一个锁时可能会引起lock convoys问题，一般而言，lock convoys并不会像deadlock或livelock那样造成应用逻辑停止不前，相反地，遭受lock convoys的系统或应用程序仍然往前运行，但是，由于线程们频繁地争抢锁而导致过多的线程环境切换，<mark>从而使得系统的运行效率大为降低</mark>，而且，若存在同等优先级下不参与锁争抢的线程，则它们可以获得相对较多的处理器资源，从而造成系统调度的不公平性。</p>
+<h2 id="自旋锁">自旋锁</h2>
+<p>自旋锁是一种非阻塞锁，也就是说，如果某线程需要获取自旋锁，但该锁已经被其他线程占用时，该<mark>线程不会被挂起</mark>，而是在不断的消耗CPU的时间，不停的试图获取自旋锁。<br>
+互斥量是阻塞锁，当某线程无法获取互斥量时，该<mark>线程会被直接挂起</mark>，该线程不再消耗CPU时间，当其他线程释放互斥量后，操作系统会激活那个被挂起的线程，让其投入运行。</p>
+<p>两种锁适用于不同场景：<br>
+如果是多核处理器，如果预计线程<strong>等待锁的时间很短</strong>，短到比线程两次上下文切换时间要少的情况下，使用<mark>自旋锁是划算</mark>的。<br>
+如果是多核处理器，如果预计线程等待锁的时间较长，至少比两次线程上下文切换的时间要长，建议<mark>使用互斥量</mark>。<br>
+如果是单核处理器，一般建议<strong>不要使用自旋锁</strong>。因为，在同一时间只有一个线程是处在运行状态，那如果运行线程发现无法获取锁，只能等待解锁，但因为<strong>自身不挂起</strong>，所以那个获取到锁的线程没有办法进入运行状态，<mark>只能等到运行线程把操作系统分给它的时间片用完</mark>，才能<strong>有机会</strong>被调度。这种情况下使用自旋锁的代价很高。<br>
+如果加锁的代码经常被调用，但竞争情况很少发生时，应该优先考虑使用自旋锁，自旋锁的开销比较小，互斥量的开销较大。</p>
+<h2 id="pthread与tbb中各种锁的对比测试">pthread与tbb中各种锁的对比测试</h2>
+<p>pthread 是 linux 下多线程API，头文件 pthread.h。。。C的<br>
+std::thread 是C++标准库中的线程库，可以跨平台<br>
+tbb 是 TBB(Intel® Threading Building Blocks ) 。。</p>
+<p>pthread中提供的锁有：</p>
+<h3 id="pthread_mutex_t-pthread_spinlock_t-pthread_rwlock_t">pthread_mutex_t, pthread_spinlock_t, pthread_rwlock_t。</h3>
+<ul>
+<li>
+<p>pthread_mutex_t :<br>
+是互斥锁，同一瞬间只能有一个线程能够获取锁，其他线程在等待获取锁的时候会进入休眠状态。因此pthread_mutex_t消耗的CPU资源很小，但是性能不高，因为会引起线程切换。</p>
+</li>
+<li>
+<p>pthread_spinlock_t :<br>
+是自旋锁，同一瞬间也只能有一个线程能够获取锁，不同的是，其他线程在等待获取锁的过程中并不进入睡眠状态，而是在CPU上进入“自旋”等待。自旋锁的性能很高，但是只适合对很小的代码段加锁（或短期持有的锁），自旋锁对CPU的占用相对较高。</p>
+</li>
+<li>
+<p>pthread_rwlock_t :<br>
+是读写锁，同时可以有多个线程获得读锁，同时只允许有一个线程获得写锁。其他线程在等待锁的时候同样会进入睡眠。读写锁在互斥锁的基础上，允许多个线程“读”，在某些场景下能提高性能。</p>
+</li>
+</ul>
+<p>诸如pthread中的pthread_cond_t, pthread_barrier_t, semaphone等，更像是一种同步原语，不属于单纯的锁。</p>
+<h3 id="tbb中提供的锁有">TBB中提供的锁有：</h3>
+<ul>
+<li>mutex 互斥锁，等同于pthread中的互斥锁（实际上就是对pthread_mutex_t进行封装）</li>
+<li>recurisive_mutex 可重入的互斥锁，在pthread_mutex_t的基础上加了一个可重入的属性</li>
+<li>spin_metux 自旋锁，与pthread_spinlock_t类似，但是性能比pthread_spinlock_t低28%</li>
+<li>queuing_metux 公平的互斥锁，严格按照等待锁的先后顺序获得锁</li>
+<li>spin_rw_mutex 读写自旋锁，功能与pthread_rwlock_t一致，但是性能比pthread_rwlock_t高很多</li>
+<li>queuing_rw_mutex 公平的读写读写锁，也是严格按照等待锁的先后顺序获得锁</li>
+</ul>
+<p>以下是一个拥有3667527个节点的HASH表进行读操作所花费的时间，可以说明各种锁的性能：<br>
+多线程的环境为：4CPU的电脑上使用四个线程进行同样的度操作，然后取四个线程读取的平均时间·</p>
+<ul>
+<li>单线程不加锁：0.818845s·</li>
+<li>多线程使用pthread_mutex_t：120.978713s (很离谱吧…………我也吓了一跳)·</li>
+<li>多线程使用pthread_rwlock_t：10.592172s （多个线程加读锁）·</li>
+<li>多线程使用pthread_spinlock_t：4.766012s·</li>
+<li>多个线程使用tbb::spin_mutex：6.638609s （从这里可以看出pthread的自旋锁比TBB的自旋锁性能高出28%）·</li>
+<li>多个线程使用tbb::spin_rw_mutex：3.471757s （并行读的环境下，这是所有锁中性能最高的）</li>
+</ul>
+<h2 id="无锁">无锁</h2>
+<p>无锁，英文一般翻译为lock-free，是利用处理器的一些特殊的原子指令来避免传统并行设计中对锁的使用。 如果一个共享数据结构的操作不需要互斥，那么它是无锁的。如果一个进程或线程在操作中间被中断，其他进程或线程的操作不受影响。[Herlihy 1991] 笔者对于无锁的实践都是在一个进程下关于多线程并发的，所以后面我们只讨论多线程。</p>
+<h3 id="为什么要无锁界定问题">为什么要无锁?（界定问题）</h3>
+<h4 id="首先是性能考虑">首先是性能考虑</h4>
+<p>通信项目一般对性能有极致的追求，这是我们使用无锁的重要原因。当然，无锁算法如果实现的不好，性能可能还不如使用锁，所以我们选择比较擅长的数据结构和算法进行lock-free实现，比如Queue，对于比较复杂的数据结构和算法我们通过lock来控制，比如Map（虽然我们实现了无锁Hash，但是大小是限定的，而Map是大小不限定的）。 对于性能数据，后续文章会给出无锁和有锁的对比。（通过实验进行对比）</p>
+<h4 id="其次是避免锁的使用引起的错误和问题">其次是避免锁的使用引起的错误和问题：</h4>
+<p>死锁（dead lock）、 活锁（live lock）、 锁护送（lock convoy）、 优先级反转（priority inversion）</p>
+<ul>
+<li>死锁(dead lock)：两个以上线程互相等待</li>
+<li>锁护送(lock convoy)：多个同优先级的线程反复竞争同一个锁，抢占锁失败后强制上下文切换，引起性能下降</li>
+<li>优先级反转(priority inversion)：低优先级线程拥有锁时被中优先级的线程抢占，而高优先级的线程因为申请不到锁被阻塞</li>
+</ul>
+<h3 id="如何无锁界定问题">如何无锁?（界定问题）</h3>
+<p>在现代的 CPU 处理器上，很多操作已经被设计为原子的，比如对齐读（Aligned Read）和对齐写（Aligned Write）等。Read-Modify-Write（RMW）操作的设计让执行更复杂的事务操作变成了原子操作，当有多个写入者想对相同的内存进行修改时，保证一次只执行一个操作。</p>
+<p>RMW 操作在不同的 CPU 家族中是通过不同的方式来支持的：</p>
+<ul>
+<li>x86/64 和 Itanium 架构通过 Compare-And-Swap (CAS) 方式来实现</li>
+<li>PowerPC、MIPS 和 ARM 架构通过 Load-Link/Store-Conditional (LL/SC) 方式来实现</li>
+</ul>
+<p>笔者都是在x64下进行实践的，用的是CAS操作，CAS操作是lock-free技术的基础，我们可以用下面的代码来描述：</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C++" data-joplin-source-open="```C++&#10;" data-joplin-source-close="&#10;```">template &lt;class T&gt; bool CAS(T* addr, T expected, T value)
+{   
+    if (*addr == expected)   
+    {      
+        *addr = value;      
+        return true;   
+        
+    }   
+    return false;
+}</pre><pre class="hljs"><code><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">T</span>&gt; <span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">CAS</span><span class="hljs-params">(T* addr, T expected, T value)</span>
+</span>{   
+    <span class="hljs-keyword">if</span> (*addr == expected)   
+    {      
+        *addr = value;      
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;   
+        
+    }   
+    <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+}</code></pre></div>
+<p>在GCC中，CAS操作如下所示：</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C++" data-joplin-source-open="```C++&#10;" data-joplin-source-close="&#10;```">bool __sync_bool_compare_and_swap (type *ptr, type oldval type newval, ...)
+type __sync_val_compare_and_swap (type *ptr, type oldval type newval, ...)</pre><pre class="hljs"><code><span class="hljs-type">bool</span> __sync_bool_compare_and_swap (type *ptr, type oldval type newval, ...)
+type __sync_val_compare_and_swap (type *ptr, type oldval type newval, ...)</code></pre></div>
+<p><mark>这两个函数提供原子的比较和交换，如果ptr == oldval，就将newval写入ptr，第一个函数在相等并写入的情况下返回true，第二个函数的内置行为和第一个函数相同，只是它返回操作之前的值。</mark><br>
+。。这文章也是 markdown啊。</p>
+<p>后面的可扩展参数(...)用来指出哪些变量需要memory barrier，因为目前gcc实现的是full barrier，所以可以略掉这个参数。</p>
+<p>除过CAS操作，GCC还提供了其他一些原子操作，可以在无锁算法中灵活使用：</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C++" data-joplin-source-open="```C++&#10;" data-joplin-source-close="&#10;```">type __sync_fetch_and_add (type *ptr, type value, ...)
+type __sync_fetch_and_sub (type *ptr, type value, ...)
+type __sync_fetch_and_or (type *ptr, type value, ...) 
+type __sync_fetch_and_and (type *ptr, type value, ...) 
+type __sync_fetch_and_xor (type *ptr, type value, ...) 
+type __sync_fetch_and_nand (type *ptr, type value, ...) 
+
+type __sync_add_and_fetch (type *ptr, type value, ...) 
+type __sync_sub_and_fetch (type *ptr, type value, ...) 
+type __sync_or_and_fetch (type *ptr, type value, ...) 
+type __sync_and_and_fetch (type *ptr, type value, ...) 
+type __sync_xor_and_fetch (type *ptr, type value, ...) 
+type __sync_nand_and_fetch (type *ptr, type value, ...)</pre><pre class="hljs"><code>type __sync_fetch_and_add (type *ptr, type value, ...)
+type __sync_fetch_and_sub (type *ptr, type value, ...)
+type __sync_fetch_and_or (type *ptr, type value, ...) 
+type __sync_fetch_and_and (type *ptr, type value, ...) 
+type __sync_fetch_and_xor (type *ptr, type value, ...) 
+type __sync_fetch_and_nand (type *ptr, type value, ...) 
+
+type __sync_add_and_fetch (type *ptr, type value, ...) 
+type __sync_sub_and_fetch (type *ptr, type value, ...) 
+type __sync_or_and_fetch (type *ptr, type value, ...) 
+type __sync_and_and_fetch (type *ptr, type value, ...) 
+type __sync_xor_and_fetch (type *ptr, type value, ...) 
+type __sync_nand_and_fetch (type *ptr, type value, ...)</code></pre></div>
+<p><code class="inline-code">_sync*</code>系列的built-in函数，用于提供加减和逻辑运算的原子操作。这两组函数的区别在于第一组返回更新前的值，第二组返回更新后的值。</p>
+<p>笔者开发无锁算法感触最深的是复杂度的分解，比如多线程对于一个双向链表的插入或删除操作，如何能<mark>一步一步分解成一个一个串联的原子操作，并能保证事务内存的一致性</mark>。</p>
+<h3 id="cas等原子操作">CAS等原子操作</h3>
+<p>在开始说无锁队列之前，我们需要知道一个很重要的技术就是CAS操作——Compare &amp; Set，或是 Compare &amp; Swap，现在几乎所有的CPU指令都支持CAS的原子操作，X86下对应的是 CMPXCHG 汇编指令。有了这个原子操作，我们就可以用其来实现各种无锁（lock free）的数据结构。</p>
+<p>这个操作用C语言来描述就是下面这个样子：（代码来自Wikipedia的Compare And Swap词条）意思就是说，看一看内存<code class="inline-code">*reg</code>里的值是不是oldval，如果是的话，则对其赋值newval。</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="C++" data-joplin-source-open="```C++&#10;" data-joplin-source-close="&#10;```">int compare_and_swap (int* reg, int oldval, int newval)
+{
+  int old_reg_val = *reg;
+  if (old_reg_val == oldval)
+     *reg = newval;
+  return old_reg_val;
+}</pre><pre class="hljs"><code><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">compare_and_swap</span> <span class="hljs-params">(<span class="hljs-type">int</span>* reg, <span class="hljs-type">int</span> oldval, <span class="hljs-type">int</span> newval)</span>
+</span>{
+  <span class="hljs-type">int</span> old_reg_val = *reg;
+  <span class="hljs-keyword">if</span> (old_reg_val == oldval)
+     *reg = newval;
+  <span class="hljs-keyword">return</span> old_reg_val;
+}</code></pre></div>
+<p>这个操作可以变种为返回bool值的形式（返回 bool值的好处在于，可以调用者知道有没有更新成功）：</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">bool compare_and_swap (int *accum, int *dest, int newval)
+{
+  if ( *accum == *dest ) {
+      *dest = newval;
+      return true;
+  }
+  return false;
+}</pre><pre class="hljs"><code><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">compare_and_swap</span> <span class="hljs-params">(<span class="hljs-type">int</span> *accum, <span class="hljs-type">int</span> *dest, <span class="hljs-type">int</span> newval)</span>
+</span>{
+  <span class="hljs-keyword">if</span> ( *accum == *dest ) {
+      *dest = newval;
+      <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+  }
+  <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+}</code></pre></div>
+<p>与CAS相似的还有下面的原子操作：（这些东西大家自己看Wikipedia吧）</p>
+<p>Fetch And Add，一般用来对变量做 +1 的原子操作 Test-and-set，写值到某个内存位置并传回其旧值。汇编指令BST Test and Test-and-set，用来低低Test-and-Set的资源争夺情况<br>
+注：在实际的C/C++程序中，CAS的各种实现版本如下：</p>
+<h4 id="gcc的cas">GCC的CAS</h4>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">bool __sync_bool_compare_and_swap (type *ptr, type oldval type newval, ...)
+type __sync_val_compare_and_swap (type *ptr, type oldval type newval, ...)</pre><pre class="hljs"><code>bool __sync_bool_compare_and_swap (<span class="hljs-keyword">type</span> <span class="hljs-type">*ptr, </span><span class="hljs-keyword">type</span> <span class="hljs-type">oldval </span><span class="hljs-keyword">type</span> <span class="hljs-type">newval, </span>...)
+<span class="hljs-keyword">type</span> <span class="hljs-type">__sync_val_compare_and_swap </span>(<span class="hljs-keyword">type</span> <span class="hljs-type">*ptr, </span><span class="hljs-keyword">type</span> <span class="hljs-type">oldval </span><span class="hljs-keyword">type</span> <span class="hljs-type">newval, </span>...)</code></pre></div>
+<h4 id="windows的cas">Windows的CAS</h4>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">InterlockedCompareExchange ( __inout LONG volatile *Target,
+                                __in LONG Exchange,
+                                __in LONG Comperand);</pre><pre class="hljs"><code>InterlockedCompareExchange ( __inout <span class="hljs-keyword">LONG</span> <span class="hljs-keyword">volatile</span> *Target,
+                                __in <span class="hljs-keyword">LONG</span> Exchange,
+                                __in <span class="hljs-keyword">LONG</span> Comperand);</code></pre></div>
+<h4 id="c11中的cas">C++11中的CAS</h4>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">template&lt; class T &gt;
+bool atomic_compare_exchange_weak( std::atomic* obj,
+                                   T* expected, T desired );
+template&lt; class T &gt;
+bool atomic_compare_exchange_weak( volatile std::atomic* obj,
+                                   T* expected, T desired );</pre><pre class="hljs"><code><span class="hljs-function"><span class="hljs-keyword">template</span>&lt; <span class="hljs-keyword">class</span> T &gt;
+<span class="hljs-type">bool</span> <span class="hljs-title">atomic_compare_exchange_weak</span><span class="hljs-params">( std::atomic* obj,
+                                   T* expected, T desired )</span></span>;
+<span class="hljs-function"><span class="hljs-keyword">template</span>&lt; <span class="hljs-keyword">class</span> T &gt;
+<span class="hljs-type">bool</span> <span class="hljs-title">atomic_compare_exchange_weak</span><span class="hljs-params">( <span class="hljs-keyword">volatile</span> std::atomic* obj,
+                                   T* expected, T desired )</span></span>;</code></pre></div>
+<h3 id="无锁队列的链表实现">无锁队列的链表实现</h3>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">EnQueue(x) //进队列
+{
+    //准备新加入的结点数据
+    q = new record();
+    q-&gt;value = x;
+    q-&gt;next = NULL;
+ 
+    do {
+        p = tail; //取链表尾指针的快照
+    } while( CAS(p-&gt;next, NULL, q) != TRUE); //如果没有把结点链在尾指针上，再试
+ 
+    CAS(tail, p, q); //置尾结点
+}</pre><pre class="hljs"><code><span class="hljs-constructor">EnQueue(<span class="hljs-params">x</span>)</span> <span class="hljs-comment">//进队列</span>
+{
+    <span class="hljs-comment">//准备新加入的结点数据</span>
+    q = <span class="hljs-keyword">new</span> record<span class="hljs-literal">()</span>;
+    q-&gt;value = x;
+    q-&gt;next = NULL;
+ 
+    <span class="hljs-keyword">do</span> {
+        p = tail; <span class="hljs-comment">//取链表尾指针的快照</span>
+    } <span class="hljs-keyword">while</span>( <span class="hljs-constructor">CAS(<span class="hljs-params">p</span>-&gt;<span class="hljs-params">next</span>, NULL, <span class="hljs-params">q</span>)</span> != TRUE); <span class="hljs-comment">//如果没有把结点链在尾指针上，再试</span>
+ 
+    <span class="hljs-constructor">CAS(<span class="hljs-params">tail</span>, <span class="hljs-params">p</span>, <span class="hljs-params">q</span>)</span>; <span class="hljs-comment">//置尾结点</span>
+}</code></pre></div>
+<p>这里有一个潜在的问题——如果T1线程在用CAS更新tail指针的之前，线程停掉或是挂掉了，那么其它线程就进入死循环了。下面是改良版的EnQueue()</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">EnQueue(x) //进队列改良版
+{
+    q = new record();
+    q-&gt;value = x;
+    q-&gt;next = NULL;
+ 
+    p = tail;
+    oldp = p
+    do {
+        while (p-&gt;next != NULL)
+            p = p-&gt;next;
+    } while( CAS(p.next, NULL, q) != TRUE); //如果没有把结点链在尾上，再试
+ 
+    CAS(tail, oldp, q); //置尾结点，不准了。
+}</pre><pre class="hljs"><code><span class="hljs-constructor">EnQueue(<span class="hljs-params">x</span>)</span> <span class="hljs-comment">//进队列改良版</span>
+{
+    q = <span class="hljs-keyword">new</span> record<span class="hljs-literal">()</span>;
+    q-&gt;value = x;
+    q-&gt;next = NULL;
+ 
+    p = tail;
+    oldp = p
+    <span class="hljs-keyword">do</span> {
+        <span class="hljs-keyword">while</span> (p-&gt;next != NULL)
+            p = p-&gt;next;
+    } <span class="hljs-keyword">while</span>( <span class="hljs-constructor">CAS(<span class="hljs-params">p</span>.<span class="hljs-params">next</span>, NULL, <span class="hljs-params">q</span>)</span> != TRUE); <span class="hljs-comment">//如果没有把结点链在尾上，再试</span>
+ 
+    <span class="hljs-constructor">CAS(<span class="hljs-params">tail</span>, <span class="hljs-params">oldp</span>, <span class="hljs-params">q</span>)</span>; <span class="hljs-comment">//置尾结点，不准了。</span>
+}</code></pre></div>
+<p>我们让每个线程，自己fetch 指针 p 到链表尾。但是这样的fetch会很影响性能。而通实际情况看下来，99.9%的情况不会有线程停转的情况，所以，更好的做法是，你可以接合上述的这两个版本，如果retry的次数超了一个值的话（比如说3次），那么，就自己fetch指针。</p>
+<p>好了，我们解决了EnQueue，我们再来看看DeQueue的代码：（很简单，我就不解释了）</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">DeQueue() //出队列
+{
+    do{
+        p = head;
+        if (p-&gt;next == NULL){
+            return ERR_EMPTY_QUEUE;
+        }
+    while( CAS(head, p, p-&gt;next) != TRUE );
+    return p-&gt;next-&gt;value;
+}</pre><pre class="hljs"><code>DeQueue() <span class="hljs-comment">//出队列</span>
+{
+    <span class="hljs-keyword">do</span>{
+        p = head;
+        <span class="hljs-keyword">if</span> (p-&gt;<span class="hljs-keyword">next</span> == <span class="hljs-keyword">NULL</span>){
+            <span class="hljs-keyword">return</span> ERR_EMPTY_QUEUE;
+        }
+    <span class="hljs-keyword">while</span>( CAS(head, p, p-&gt;<span class="hljs-keyword">next</span>) != <span class="hljs-keyword">TRUE</span> );
+    <span class="hljs-keyword">return</span> p-&gt;<span class="hljs-keyword">next</span>-&gt;value;
+}</code></pre></div>
+<p>DeQueue的代码操作的是 head-&gt;next，而不是head本身。这样考虑是因为一个边界条件，我们需要一个dummy的头指针来解决链表中如果只有一个元素，head和tail都指向同一个结点的问题，这样EnQueue和DeQueue要互相排斥了。</p>
+<h3 id="aba问题">ABA问题</h3>
+<p>ABA问题最容易发生在lock free 的算法中的，CAS首当其冲，因为CAS判断的是<mark>指针的地址</mark>。如果这个地址被重用了呢，问题就很大了。（地址被重用是很经常发生的，一个内存分配后释放了，再分配，很有可能还是原来的地址）<br>
+。。地址不变，但是里面的值变了。</p>
+<h4 id="解决aba的问题">解决ABA的问题</h4>
+<p>维基百科上给了一个解——使用double-CAS（双保险的CAS），例如，在32位系统上，我们要检查64位的内容</p>
+<ol>
+<li>一次用CAS检查双倍长度的值，前半部是指针，后半部分是一个计数器。</li>
+<li>只有这两个都一样，才算通过检查，赋新的值。并把计数器累加1。</li>
+</ol>
+<p>这样一来，ABA发生时，虽然值一样，但是计数器就不一样（但是在32位的系统上，这个计数器会溢出回来又从1开始的，这还是会有ABA的问题）<br>
+。。溢出。。21亿呢。</p>
+<p>我们这个队列的问题就是不想让那个内存重用，这样明确的业务问题比较好解决，论文《Implementing Lock-Free Queues》给出一这么一个方法——使用结点内存引用计数refcnt！</p>
+<div class="joplin-editable"><pre class="joplin-source" data-joplin-language="" data-joplin-source-open="```&#10;" data-joplin-source-close="&#10;```">SafeRead(q)
+{
+    loop:
+        p = q-&gt;next;
+        if (p == NULL){
+            return p;
+        }
+ 
+        Fetch&amp;Add(p-&gt;refcnt, 1);
+ 
+        if (p == q-&gt;next){
+            return p;
+        }else{
+            Release(p);
+        }
+    goto loop;
+}</pre><pre class="hljs"><code>SafeRead(q)
+{
+    <span class="hljs-keyword">loop</span>:
+        <span class="hljs-function"><span class="hljs-title">p</span> = q-&gt;</span>next;
+        <span class="hljs-keyword">if</span> (p == NULL){
+            return p;
+        }
+ 
+        F<span class="hljs-function"><span class="hljs-title">etch</span>&amp;Add(p-&gt;</span>refcnt, <span class="hljs-number">1</span>);
+ 
+        <span class="hljs-function"><span class="hljs-title">if</span> (p == q-&gt;</span>next){
+            return p;
+        }<span class="hljs-keyword">else</span>{
+            Release(p);
+        }
+    goto <span class="hljs-keyword">loop</span>;
+}</code></pre></div>
+<p>其中的 Fetch&amp;Add和Release分是是加引用计数和减引用计数，都是原子操作，这样就可以阻止内存被回收了。</p>
+<h3 id="用数组实现无锁队列">用数组实现无锁队列</h3>
+<p><a data-from-md title='https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.53.8674&amp;rep=rep1&amp;type=pdf' href='https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.53.8674&amp;rep=rep1&amp;type=pdf'>https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.53.8674&amp;rep=rep1&amp;type=pdf</a></p>
+<h3 id="小结">小结</h3>
+<p>以上基本上就是所有的无锁队列的技术细节，这些技术都可以用在其它的无锁数据结构上。</p>
+<ol>
+<li>无锁队列主要是通过CAS、FAA这些原子操作，和Retry-Loop实现。</li>
+<li>对于Retry-Loop，我个人感觉其实和锁什么什么两样。只是这种“锁”的粒度变小了，主要是“锁”HEAD和TAIL这两个关键资源。而不是整个数据结构。</li>
+</ol>
+<p>。。FAA： fetch and add</p>
+<hr>
+<hr>
+<hr>
+<hr>
+<p>==================</p>
+<p><a data-from-md title='https://mp.weixin.qq.com/s?__biz=MzkxNzQzNDM2Ng==&amp;mid=2247493342&amp;idx=1&amp;sn=881ad7ac1caad30a2a30f95fd91815e6&amp;source=41#wechat_redirect' href='https://mp.weixin.qq.com/s?__biz=MzkxNzQzNDM2Ng==&amp;mid=2247493342&amp;idx=1&amp;sn=881ad7ac1caad30a2a30f95fd91815e6&amp;source=41#wechat_redirect'>https://mp.weixin.qq.com/s?__biz=MzkxNzQzNDM2Ng==&amp;mid=2247493342&amp;idx=1&amp;sn=881ad7ac1caad30a2a30f95fd91815e6&amp;source=41#wechat_redirect</a></p>
+<h1 id="值得学习的c语言开源项目">值得学习的C语言开源项目</h1>
+<p>Webbench  网站压测工具<br>
+Tinyhttpd  轻量http server<br>
+cJSON    JSON编解码器<br>
+CMockery  C单元测试<br>
+Libev    事件驱动库，基于epoll，kqueue<br>
+Memcached   高性能分布式内存对象缓存系统<br>
+Lua<br>
+SQLite   嵌入式关系数据库<br>
+UNIX v6<br>
+NETBSD   UNIX-like OS</p>
+<p>C++标准库<br>
+C++ Standard Library：是一系列类和函数的集合，使用核心语言编写，也是C++ISO自身标准的一部分。<br>
+Standard Template Library：标准模板库<br>
+C POSIX library ：POSIX系统的C标准库规范<br>
+ISO C++ Standards Committee ：C++标准委员会</p>
+<p>C++通用框架和库<br>
+    Apache C++ Standard Library：是一系列算法，容器，迭代器和其他基本组件的集合<br>
+    ASL ：Adobe源代码库提供了同行的评审和可移植的C++源代码库。<br>
+    Boost ：大量通用C++库的集合。<br>
+    BDE ：来自于彭博资讯实验室的开发环境。<br>
+    Cinder：提供专业品质创造性编码的开源开发社区。<br>
+    Cxxomfort：轻量级的，只包含头文件的库，将C++ 11的一些新特性移植到C++03中。<br>
+    Dlib：使用契约式编程和现代C++科技设计的通用的跨平台的C++库。<br>
+    EASTL ：EA-STL公共部分<br>
+    ffead-cpp ：企业应用程序开发框架<br>
+    Folly：由Facebook开发和使用的开源C++库<br>
+    JUCE ：包罗万象的C++类库，用于开发跨平台软件<br>
+    libPhenom：用于构建高性能和高度可扩展性系统的事件框架。<br>
+    LibSourcey ：用于实时的视频流和高性能网络应用程序的C++11 evented IO<br>
+    LibU ：C语言写的多平台工具库<br>
+    Loki ：C++库的设计，包括常见的设计模式和习语的实现。<br>
+    MiLi ：只含头文件的小型C++库<br>
+    openFrameworks ：开发C++工具包，用于创意性编码。<br>
+    Qt ：跨平台的应用程序和用户界面框架<br>
+    Reason ：跨平台的框架，使开发者能够更容易地使用Java，.Net和Python，同时也满足了他们对C++性能和优势的需求。<br>
+    ROOT ：具备所有功能的一系列面向对象的框架，能够非常高效地处理和分析大量的数据，为欧洲原子能研究机构所用。<br>
+    STLport：是STL具有代表性的版本<br>
+    STXXL：用于额外的大型数据集的标准模板库。<br>
+    Ultimate++ ：C++跨平台快速应用程序开发框架<br>
+    Windows Template Library：用于开发Windows应用程序和UI组件的C++库<br>
+    Yomm11 ：C++11的开放multi-methods.</p>
+<p>人工智能<br>
+    btsk ：游戏行为树启动器工具<br>
+    Evolving Objects：基于模板的，ANSI C++演化计算库，能够帮助你非常快速地编写出自己的随机优化算法。<br>
+    Neu：C++11框架，编程语言集，用于创建人工智能应用程序的多用途软件系统。</p>
+<p>异步事件循环<br>
+     Boost.Asio：用于网络和底层I/O编程的跨平台的C++库。<br>
+    libev ：功能齐全，高性能的时间循环，轻微地仿效libevent，但是不再像libevent一样有局限性，也修复了它的一些bug。<br>
+    libevent ：事件通知库<br>
+    libuv ：跨平台异步I/O。</p>
+<p>音频，声音，音乐，数字化音乐库<br>
+    FMOD ：易于使用的跨平台的音频引擎和音频内容的游戏创作工具。<br>
+    Maximilian ：C++音频和音乐数字信号处理库<br>
+    OpenAL ：开源音频库—跨平台的音频API<br>
+    Opus：一个完全开放的，免版税的，高度通用的音频编解码器<br>
+    Speex：免费编解码器，为Opus所废弃<br>
+    Tonic：C++易用和高效的音频合成<br>
+    Vorbis：Ogg Vorbis是一种完全开放的，非专有的，免版税的通用压缩音频格式。</p>
+<p>生物信息，基因组学和生物技术<br>
+    libsequence：用于表示和分析群体遗传学数据的C++库。<br>
+    SeqAn：专注于生物数据序列分析的算法和数据结构。<br>
+    Vcflib ：用于解析和处理VCF文件的C++库<br>
+    Wham：直接把联想测试应用到BAM文件的基因结构变异。</p>
+<p>压缩和归档库<br>
+    bzip2：一个完全免费，免费专利和高质量的数据压缩<br>
+    doboz：能够快速解压缩的压缩库<br>
+    PhysicsFS：对各种归档提供抽象访问的库，主要用于视频游戏，设计灵感部分来自于Quake3的文件子系统。</p>
+<p>KArchive：用于创建，读写和操作文件档案（例如zip和 tar）的库，它通过QIODevice的一系列子类，使用gzip格式，提供了透明的压缩和解压缩的数据。</p>
+<p>LZ4 ：非常快速的压缩算法<br>
+    LZHAM ：无损压缩数据库，压缩比率跟LZMA接近，但是解压缩速度却要快得多。<br>
+    LZMA ：7z格式默认和通用的压缩方法。<br>
+    LZMAT ：及其快速的实时无损数据压缩库<br>
+    miniz：单一的C源文件，紧缩/膨胀压缩库，使用zlib兼容API，ZIP归档读写，PNG写方式。<br>
+    Minizip：Zlib最新bug修复，支持PKWARE磁盘跨越，AES加密和IO缓冲。<br>
+    Snappy ：快速压缩和解压缩<br>
+    ZLib ：非常紧凑的数据流压缩库<br>
+    ZZIPlib：提供ZIP归档的读权限。</p>
+<p>并发执行和多线程<br>
+    Boost.Compute ：用于OpenCL的C++GPU计算库<br>
+    Bolt ：针对GPU进行优化的C++模板库<br>
+    C++React ：用于C++11的反应性编程库<br>
+    Intel TBB ：Intel线程构件块<br>
+    Libclsph：基于OpenCL的GPU加速SPH流体仿真库<br>
+    OpenCL ：并行编程的异构系统的开放标准<br>
+    OpenMP：OpenMP API<br>
+    Thrust ：类似于C++标准模板库的并行算法库<br>
+    HPX ：用于任何规模的并行和分布式应用程序的通用C++运行时系统<br>
+    VexCL ：用于OpenCL/CUDA 的C++向量表达式模板库。</p>
+<p>容器<br>
+    C++ B-tree ：基于B树数据结构，实现命令内存容器的模板库<br>
+    Hashmaps：C++中开放寻址哈希表算法的实现</p>
+<p>密码学<br>
+    Bcrypt ：一个跨平台的文件加密工具，加密文件可以移植到所有可支持的操作系统和处理器中。<br>
+    BeeCrypt：<br>
+    Botan：C++加密库<br>
+    Crypto++：一个有关加密方案的免费的C++库<br>
+    GnuPG：OpenPGP标准的完整实现<br>
+    GnuTLS ：实现了SSL，TLS和DTLS协议的安全通信库<br>
+    Libgcrypt<br>
+    libmcrypt<br>
+    LibreSSL：免费的SSL/TLS协议，属于2014 OpenSSL的一个分支<br>
+    LibTomCrypt：一个非常全面的，模块化的，可移植的加密工具<br>
+    libsodium：基于NaCI的加密库，固执己见，容易使用<br>
+    Nettle 底层的加密库<br>
+    OpenSSL ：一个强大的，商用的，功能齐全的，开放源代码的加密库。<br>
+    Tiny AES128 in C ：用C实现的一个小巧，可移植的实现了AES128ESB的加密算法</p>
+<p>数据库，SQL服务器，ODBC驱动程序和工具<br>
+    hiberlite ：用于Sqlite3的C++对象关系映射<br>
+    Hiredis：用于Redis数据库的很简单的C客户端库<br>
+    LevelDB：快速键值存储库<br>
+    LMDB：符合数据库四大基本元素的嵌入键值存储<br>
+    MySQL++：封装了MySql的C API的C++ 包装器<br>
+    RocksDB：来自Facebook的嵌入键值的快速存储<br>
+    SQLite：一个完全嵌入式的，功能齐全的关系数据库，只有几百KB，可以正确包含到你的项目中。</p>
+<p>调试库， 内存和资源泄露检测，单元测试<br>
+    Boost.Test：Boost测试库<br>
+    Catch：一个很时尚的，C++原生的框架，只包含头文件，用于单元测试，测试驱动开发和行为驱动开发。<br>
+    CppUnit：由JUnit移植过来的C++测试框架<br>
+    CTest：CMake测试驱动程序<br>
+    googletest：谷歌C++测试框架<br>
+    ig-debugheap：用于跟踪内存错误的多平台调试堆<br>
+    libtap：用C语言编写测试<br>
+    MemTrack —用于C++跟踪内存分配<br>
+    microprofile- 跨平台的网络试图分析器<br>
+    minUnit ：使用C写的迷你单元测试框架，只使用了两个宏<br>
+    Remotery：用于web视图的单一C文件分析器<br>
+    UnitTest++：轻量级的C++单元测试框架</p>
+<p>游戏引擎<br>
+    Cocos2d-x ：一个跨平台框架，用于构建2D游戏，互动图书，演示和其他图形应用程序。<br>
+    Grit ：社区项目，用于构建一个免费的游戏引擎，实现开放的世界3D游戏。<br>
+    Irrlicht ：C++语言编写的开源高性能的实时#D引擎<br>
+    Polycode：C++实现的用于创建游戏的开源框架（与Lua绑定）。</p>
+<p>图形用户界面<br>
+    CEGUI ：很灵活的跨平台GUI库<br>
+    FLTK ：快速，轻量级的跨平台的C++GUI工具包。<br>
+    GTK+：用于创建图形用户界面的跨平台工具包<br>
+    gtkmm ：用于受欢迎的GUI库GTK+的官方C++接口。<br>
+    imgui：拥有最小依赖关系的立即模式图形用户界面<br>
+    libRocket ：libRocket 是一个C++ HTML/CSS 游戏接口中间件<br>
+    MyGUI ：快速，灵活，简单的GUI<br>
+    Ncurses：终端用户界面<br>
+    QCustomPlot ：没有更多依赖关系的Qt绘图控件<br>
+    Qwt ：用户与技术应用的Qt 控件<br>
+    QwtPlot3D ：功能丰富的基于Qt/OpenGL的C++编程库，本质上提供了一群3D控件<br>
+    OtterUI ：OtterUI 是用于嵌入式系统和互动娱乐软件的用户界面开发解决方案<br>
+    PDCurses 包含源代码和预编译库的公共图形函数库<br>
+    wxWidgets C++库，允许开发人员使用一个代码库可以为widows， Mac OS X，Linux和其他平台创建应用程序</p>
+<p>图形<br>
+    bgfx：跨平台的渲染库<br>
+    Cairo：支持多种输出设备的2D图形库<br>
+    Horde3D 一个小型的3D渲染和动画引擎<br>
+    magnum C++11和OpenGL 2D/3D 图形引擎<br>
+    Ogre 3D 用C++编写的一个面向场景，实时，灵活的3D渲染引擎（并非游戏引擎）<br>
+    OpenSceneGraph 具有高性能的开源3D图形工具包<br>
+    Panda3D 用于3D渲染和游戏开发的框架，用Python和C++编写。<br>
+    Skia 用于绘制文字，图形和图像的完整的2D图形库<br>
+    urho3d 跨平台的渲染和游戏引擎。</p>
+<p>图像处理<br>
+    Boost.GIL：通用图像库<br>
+    CImg ：用于图像处理的小型开源C++工具包</p>
+<p>CxImage ：用于加载，保存，显示和转换的图像处理和转换库，可以处理的图片格式包括 BMP, JPEG, GIF, PNG, TIFF, MNG, ICO, PCX, TGA, WMF, WBMP, JBG, J2K。</p>
+<p>FreeImage ：开源库，支持现在多媒体应用所需的通用图片格式和其他格式。<br>
+    GDCM：Grassroots DICOM 库<br>
+    ITK：跨平台的开源图像分析系统<br>
+    Magick++：ImageMagick程序的C++接口<br>
+    MagickWnd：ImageMagick程序的C++接口<br>
+    OpenCV ：开源计算机视觉类库<br>
+    tesseract-ocr：OCR引擎<br>
+    VIGRA ：用于图像分析通用C++计算机视觉库<br>
+    VTK ：用于3D计算机图形学，图像处理和可视化的开源免费软件系统。</p>
+<p>国际化<br>
+    gettext ：GNU  gettext<br>
+    IBM ICU：提供Unicode 和全球化支持的C、C++ 和Java库<br>
+    libiconv ：用于不同字符编码之间的编码转换库</p>
+<p>Json<br>
+    frozen ：C/C++的Json解析生成器<br>
+    Jansson ：进行编解码和处理Json数据的C语言库<br>
+    jbson ：C++14中构建和迭代BSON data,和Json 文档的库<br>
+    JeayeSON：非常健全的C++ JSON库，只包含头文件<br>
+    JSON++ ：C++ JSON 解析器<br>
+    json-parser：用可移植的ANSI C编写的JSON解析器，占用内存非常少<br>
+    json11 ：一个迷你的C++11 JSON库<br>
+    jute ：非常简单的C++ JSON解析器<br>
+    ibjson：C语言中的JSON解析和打印库，很容易和任何模型集成。<br>
+    libjson：轻量级的JSON库<br>
+    PicoJSON：C++中JSON解析序列化，只包含头文件<br>
+    qt-json ：用于JSON数据和 QVariant层次间的相互解析的简单类<br>
+    QJson：将JSON数据映射到QVariant对象的基于Qt的库<br>
+    RapidJSON：用于C++的快速JSON 解析生成器，包含SAX和DOM两种风格的API<br>
+    YAJL ：C语言中快速流JSON解析库</p>
+<p>日志<br>
+    Boost.Log ：设计非常模块化，并且具有扩展性<br>
+    easyloggingpp：C++日志库，只包含单一的头文件。<br>
+    Log4cpp ：一系列C++类库，灵活添加日志到文件，系统日志，IDSA和其他地方。<br>
+    templog：轻量级C++库，可以添加日志到你的C++应用程序中</p>
+<p>机器学习<br>
+    Caffe ：快速的神经网络框架<br>
+    CCV ：以C语言为核心的现代计算机视觉库<br>
+    mlpack ：可扩展的C++机器学习库<br>
+    OpenCV：开源计算机视觉库<br>
+    Recommender：使用协同过滤进行产品推荐/建议的C语言库。<br>
+    SHOGUN：Shogun 机器学习工具<br>
+    sofia-ml ：用于机器学习的快速增量算法套件</p>
+<p>数学<br>
+    Armadillo ：高质量的C++线性代数库，速度和易用性做到了很好的平衡。语法和MatlAB很相似<br>
+    blaze：高性能的C++数学库，用于密集和稀疏算法。<br>
+    ceres-solver ：来自谷歌的C++库，用于建模和解决大型复杂非线性最小平方问题。<br>
+    CGal：高效，可靠的集合算法集合<br>
+    cml ：用于游戏和图形的免费C++数学库<br>
+    Eigen ：高级C++模板头文件库，包括线性代数，矩阵，向量操作，数值解决和其他相关的算法。<br>
+    GMTL：数学图形模板库是一组广泛实现基本图形的工具。<br>
+    GMP：用于个高精度计算的C/C++库，处理有符号整数，有理数和浮点数。</p>
+<p>多媒体<br>
+    GStreamer ：构建媒体处理组件图形的库<br>
+    LIVE555 Streaming Media ：使用开放标准协议(RTP/RTCP, RTSP, SIP) 的多媒体流库<br>
+    libVLC ：libVLC (VLC SDK)媒体框架<br>
+    QtAv：基于Qt和FFmpeg的多媒体播放框架，能够帮助你轻而易举地编写出一个播放器<br>
+    SDL ：简单直控媒体层<br>
+    SFML ：快速，简单的多媒体库</p>
+<p>网络<br>
+    ACE：C++面向对象网络变成工具包<br>
+    Boost.Asio：用于网络和底层I/O编程的跨平台的C++库<br>
+    Casablanca：C++ REST SDK<br>
+    cpp-netlib：高级网络编程的开源库集合<br>
+    Dyad.c：C语言的异步网络<br>
+    libcurl :多协议文件传输库<br>
+    Mongoose：非常轻量级的网络服务器<br>
+    Muduo ：用于Linux多线程服务器的C++非阻塞网络库<br>
+    net_skeleton ：C/C++的TCP 客户端/服务器库<br>
+    nope.c ：基于C语言的超轻型软件平台，用于可扩展的服务器端和网络应用。对于C编程人员，可以考虑node.js<br>
+    Onion :C语言HTTP服务器库，其设计为轻量级，易使用。<br>
+    POCO：用于构建网络和基于互联网应用程序的C++类库，可以运行在桌面，服务器，移动和嵌入式系统。<br>
+    RakNet：为游戏开发人员提供的跨平台的开源C++网络引擎。<br>
+    Tuf o ：用于Qt之上的C++构建的异步Web框架。<br>
+    WebSocket++ ：基于C++/Boost Aiso的websocket 客户端/服务器库<br>
+    ZeroMQ ：高速，模块化的异步通信库</p>
+<p>动力学仿真引擎<br>
+    Box2D：2D的游戏物理引擎。<br>
+    Bullet ：3D的游戏物理引擎。<br>
+    Chipmunk ：快速，轻量级的2D游戏物理库<br>
+    LiquidFun：2D的游戏物理引擎<br>
+    ODE ：开放动力学引擎-开源，高性能库，模拟刚体动力学。<br>
+    ofxBox2d：Box2D开源框架包装器。<br>
+    Simbody ：高性能C++多体动力学/物理库，模拟关节生物力学和机械系统，像车辆，机器人和人体骨骼。</p>
+<p>机器人学<br>
+    MOOS-IvP ：一组开源C++模块，提供机器人平台的自主权，尤其是自主的海洋车辆。<br>
+    MRPT：移动机器人编程工具包<br>
+    PCL ：点云库是一个独立的，大规模的开放项目，用于2D/3D图像和点云处理。<br>
+    Robotics Library (RL)：一个独立的C++库，包括机器人动力学，运动规划和控制。<br>
+    RobWork：一组C++库的集合，用于机器人系统的仿真和控制。<br>
+    ROS ：机器人操作系统，提供了一些库和工具帮助软件开发人员创建机器人应用程序。</p>
+<p>科学计算<br>
+    FFTW :用一维或者多维计算DFT的C语言库。<br>
+    GSL：GNU科学库。</p>
+<p>脚本<br>
+    ChaiScript ：用于C++的易于使用的嵌入式脚本语言。<br>
+    Lua ：用于配置文件和基本应用程序脚本的小型快速脚本引擎。<br>
+    luacxx：用于创建Lua绑定的C++ 11 API<br>
+    SWIG ：一个可以让你的C++代码链接到JavaScript，Perl，PHP，Python，Tcl和Ruby的包装器/接口生成器<br>
+    V7：嵌入式的JavaScript 引擎。<br>
+    V8 ：谷歌的快速JavaScript引擎，可以被嵌入到任何C++应用程序中。</p>
+<p>序列化<br>
+    Cap’n Proto ：快速数据交换格式和RPC系统。<br>
+    cereal ：C++11 序列化库<br>
+    FlatBuffers ：内存高效的序列化库<br>
+    MessagePack ：C/C++的高效二进制序列化库，例如 JSON<br>
+    protobuf ：协议缓冲，谷歌的数据交换格式。<br>
+    protobuf-c ：C语言的协议缓冲实现<br>
+    SimpleBinaryEncoding：用于低延迟应用程序的对二进制格式的应用程序信息的编码和解码。<br>
+    Thrift ：高效的跨语言IPC/RPC，用于C++，Java，Python，PHP，C#和其它多种语言中，最初由Twitter开发。</p>
+<p>视频<br>
+    libvpx ：VP8/VP9编码解码SDK<br>
+    FFmpeg ：一个完整的，跨平台的解决方案，用于记录，转换视频和音频流。<br>
+    libde265 ：开放的h.265视频编解码器的实现。<br>
+    OpenH264：开源H.364 编解码器。<br>
+    Theora ：免费开源的视频压缩格式。</p>
+<p>虚拟机<br>
+    CarpVM：C中有趣的VM，让我们一起来看看这个。<br>
+    MicroPython ：旨在实现单片机上Python3.x的实现<br>
+    TinyVM：用纯粹的ANSI C编写的小型，快速，轻量级的虚拟机。</p>
+<p>Web应用框架<br>
+    Civetweb ：提供易于使用，强大的，C/C++嵌入式Web服务器，带有可选的CGI，SSL和Lua支持。<br>
+    CppCMS ：免费高性能的Web开发框架（不是 CMS）.<br>
+    Crow ：一个C++微型web框架（灵感来自于Python Flask）<br>
+    Kore :使用C语言开发的用于web应用程序的超快速和灵活的web服务器/框架。<br>
+    libOnion：轻量级的库，帮助你使用C编程语言创建web服务器。<br>
+    QDjango：使用C++编写的，基于Qt库的web框架，试图效仿Django API，因此得此名。<br>
+    Wt ：开发Web应用的C++库。</p>
+<p>XML<br>
+XML就是个垃圾，xml的解析很烦人，对于计算机它也是个灾难。这种糟糕的东西完全没有存在的理由了。-Linus Torvalds</p>
+<p>Expat ：用C语言编写的xml解析库<br>
+    Libxml2 ：Gnome的xml C解析器和工具包<br>
+    libxml++ ：C++的xml解析器<br>
+    PugiXML ：用于C++的，支持XPath的轻量级，简单快速的XML解析器。<br>
+    RapidXml ：试图创建最快速的XML解析器，同时保持易用性，可移植性和合理的W3C兼容性。<br>
+    TinyXML ：简单小型的C++XML解析器，可以很容易地集成到其它项目中。<br>
+    TinyXML2：简单快速的C++CML解析器，可以很容易集成到其它项目中。<br>
+    TinyXML++：TinyXML的一个全新的接口，使用了C++的许多许多优势，模板，异常和更好的异常处理。<br>
+    Xerces-C++ ：用可移植的C++的子集编写的XML验证解析器。</p>
+<p>多项混杂<br>
+一些有用的库或者工具，但是不适合上面的分类，或者还没有分类。<br>
+    C++ Format ：C++的小型，安全和快速格式化库<br>
+    casacore ：从aips++ 派生的一系列C++核心库<br>
+    cxx-prettyprint：用于C++容器的打印库<br>
+    DynaPDF ：易于使用的PDF生成库<br>
+    gcc-poison ：帮助开发人员禁止应用程序中的不安全的C/C++函数的简单的头文件。<br>
+    googlemock：编写和使用C++模拟类的库<br>
+    HTTP Parser ：C的http请求/响应解析器<br>
+    libcpuid ：用于x86 CPU检测盒特征提取的小型C库<br>
+    libevil ：许可证管理器<br>
+    libusb：允许移动访问USB设备的通用USB库<br>
+    PCRE：正则表达式C库，灵感来自于Perl中正则表达式的功能。<br>
+    Remote Call Framework ：C++的进程间通信框架。<br>
+    Scintilla ：开源的代码编辑控件<br>
+    Serial Communication Library ：C++语言编写的跨平台，串口库。<br>
+    SDS：C的简单动态字符串库<br>
+    SLDR ：超轻的DNS解析器<br>
+    SLRE：超轻的正则表达式库<br>
+    Stage ：移动机器人模拟器<br>
+    VarTypes：C++/Qt4功能丰富，面向对象的管理变量的框架。<br>
+    ZBar：‘条形码扫描器’库，可以扫描照片，图片和视频流中的条形码，并返回结果。<br>
+    CppVerbalExpressions ：易于使用的C++正则表达式<br>
+    QtVerbalExpressions：基于C++ VerbalExpressions 库的Qt库<br>
+    PHP-CPP：使用C++来构建PHP扩展的库<br>
+    Better String ：C的另一个字符串库，功能更丰富，但是没有缓冲溢出问题，还包含了一个C++包装器。</p>
+<p>C/C++编译器列表<br>
+    Clang :由苹果公司开发的<br>
+    GCC：GNU编译器集合<br>
+    Intel C++ Compiler ：由英特尔公司开发<br>
+    LLVM ：模块化和可重用编译器和工具链技术的集合<br>
+    Microsoft Visual C++ ：MSVC，由微软公司开发<br>
+    Open WatCom ：Watcom，C，C++和Fortran交叉编译器和工具<br>
+    TCC ：轻量级的C语言编译器</p>
+<p>在线C/C++编译器列表<br>
+    codepad ：在线编译器/解释器，一个简单的协作工具<br>
+    CodeTwist：一个简单的在线编译器/解释器，你可以粘贴的C,C++或者Java代码，在线执行并查看结果<br>
+    coliru ：在线编译器/shell， 支持各种C++编译器<br>
+    Compiler Explorer：交互式编译器，可以进行汇编输出<br>
+    CompileOnline：Linux上在线编译和执行C++程序<br>
+    Ideone ：一个在线编译器和调试工具，允许你在线编译源代码并执行，支持60多种编程语言。</p>
+<p>C/C++调试器列表<br>
+    Comparison of debuggers ：来自维基百科的调试器列表<br>
+    GDB ：GNU调试器<br>
+    Valgrind：内存调试，内存泄露检测，性能分析工具。</p>
+<p>构建系统<br>
+    Bear ：用于为clang工具生成编译数据库的工具<br>
+    Biicode：基于文件的简单依赖管理器。<br>
+    CMake ：跨平台的免费开源软件用于管理软件使用独立编译的方法进行构建的过程。<br>
+    CPM：基于CMake和Git的C++包管理器<br>
+    FASTBuild：高性能，开源的构建系统，支持高度可扩展性的编译，缓冲和网络分布。<br>
+    Ninja ：专注于速度的小型构建系统<br>
+    Scons ：使用Python scipt 配置的软件构建工具<br>
+    tundra ：高性能的代码构建系统，甚至对于非常大型的软件项目，也能提供最好的增量构建次数。<br>
+    tup：基于文件的构建系统，用于后台监控变化的文件。</p>
+<p>提高质量，减少瑕疵的代码分析工具列表<br>
+    Cppcheck ：静态C/C++代码分析工具<br>
+    include-what-you-use ：使用clang进行代码分析的工具，可以#include在C和C++文件中。<br>
+    OCLint ：用于C，C++和Objective-C的静态源代码分析工具，用于提高质量，减少瑕疵。<br>
+    Clang Static Analyzer：查找C，C++和Objective-C程序bug的源代码分析工具<br>
+    List of tools for static code analysis ：来自维基百科的静态代码分析工具列表</p>
+<p>==================</p>
+<p>==================</p>
+<p>brpc</p>
+<p>==================</p>
+<p>==================</p>
+<p>已使用 Microsoft OneNote 2016 创建。</p>
+</div></div>
+					</body>
+				</html>
+			
